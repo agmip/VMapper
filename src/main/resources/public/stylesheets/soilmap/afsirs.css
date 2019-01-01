@@ -1,0 +1,63 @@
+/* Any demo specific styling needed for this tutorial only */
+html, body {
+    margin: 2px;
+    font-size: 13px;
+    font-family: verdana, helvetica, san-serif;
+}
+/*
+body {
+	padding-top: 50px;
+}
+*/
+
+.main-container {
+  padding: 80px 10px;
+}
+
+span.webtitle{
+	position:absolute;
+    left:450px;
+	/*right:0;*/
+	width: 410px;
+	height: 90px;
+}
+span.webtitle h2{
+	font-size: 1.5em;
+	padding: 15px  5px 5px 15px;
+}
+
+#nav {
+    float: center; 
+}
+
+#contentPane4 {
+    background-size: 100px 100px;
+    text-align: center;
+}
+
+
+#messages {
+        color: red;
+        display: none;
+        background-color: #99B8C5;
+}
+
+
+
+h6{font-size:1em; padding-top:20px; padding-left: 840px; color:#FFFF;font-weight: 800;}
+
+#appLayout {
+    height: 100%;
+}
+#leftCol {
+    width: 14em;
+}
+
+.claro .demoLayout .edgePanel {
+    background-color: #d0e9fc;
+}
+
+#viewsChart {
+	width: 550px;
+	height: 550px;
+}
