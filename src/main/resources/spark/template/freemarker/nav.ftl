@@ -37,7 +37,7 @@
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-question-sign"></span> Help <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
-                    <li><a href="#" onClick="window.open('https://bitbucket.org/mengz/afsirs-online/issues')"><span class="glyphicon glyphicon-pencil"></span> Report Issues</a></li>
+                    <li><a href="#" onClick="window.open('https://bitbucket.org/mengz/gbuilder2d/issues')"><span class="glyphicon glyphicon-pencil"></span> Report Issues</a></li>
                 </ul>
             </li>
         </ul>
