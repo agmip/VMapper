@@ -6,31 +6,32 @@
         <script src="https://code.highcharts.com/highcharts.js"></script>
 	<script src="https://code.highcharts.com/modules/vector.js"></script>
 	<script src="https://code.highcharts.com/modules/exporting.js"></script>
-	<script src="/js/dataReader/BufferedFileReader.js"></script>
-        <script src="/js/dataReader/outputDataReader.js"></script>
         <script>
-            
+            var reader;
             var data;
             var soilProfile;
             var titles;
             var zoom = 50;
             
-            function readFile() {
-                readFileToBufferedArray(updateProgress, handleRawData);
+            function abortRead() {
+                if (reader !== undefined) {
+                    reader.abort();
+                }
             }
             
-            function handleRawData(rawData) {
-                var ret = readDailyOutput(rawData);
-                data = ret["data"];
-                titles = ret["titles"];
-                soilProfile = getSoilStructure(data);
-                document.getElementById('plot_options').hidden = false;
-
-                console.log("total_days: " + (data.length - 1));
-                console.log("soil_profile: " + JSON.stringify(soilProfile));
-//                document.getElementById('output_file_content_rawdata').innerHTML = JSON.stringify(titles);
-                document.getElementById('das_scroll_input').max = data.length - 1;
-                document.getElementById('das_scroll').max = data.length - 1;
+            function errorHandler(evt) {
+                switch(evt.target.error.code) {
+                    case evt.target.error.NOT_FOUND_ERR:
+                        alert('File Not Found!');
+                        break;
+                    case evt.target.error.NOT_READABLE_ERR:
+                        alert('File is not readable');
+                        break;
+                    case evt.target.error.ABORT_ERR:
+                        break; // noop
+                    default:
+                         alert('An error occurred reading this file.');
+                };
             }
             
             function updateProgress(progressVal) {
@@ -46,6 +47,165 @@
                     document.getElementById('progress_bar').hidden = false;
                     document.getElementById('progress_bar').className = 'loading';
                 }
+            }
+            
+            function readFile() {
+                var files = document.getElementById('output_file').files;
+                if (files.length !== 1) {
+//                    alert('Please select one file!');
+                    return;
+                }
+                // Reset progress indicator on new file selection.
+                updateProgress(0);
+                document.getElementById('plot_options').hidden = true;
+                document.getElementById('output_file_plot').hidden = true;
+                reader = new FileReader();
+                reader.onerror = errorHandler;
+                var file = files[0];
+                var unitName = file.name.slice(0, -5);
+                var cache = 40960;
+                var start = 0;
+                var stop = Math.min(cache, file.size);
+                var lineNum = 0;
+                var result = [];
+                result[0] = "";
+                
+                reader.onloadend = function (evt) {
+                    if (evt.target.readyState === FileReader.DONE) { // DONE == 2
+                        // Update the progress bar
+                        updateProgress(stop / file.size);
+                        
+                        // Handle the cached content
+                        var tmp = evt.target.result;
+                        var tmpArr = tmp.split(/\r\n|\n\r|\r|\n/);
+                        result[lineNum] += tmpArr[0];
+                        for (var i = 1; i < tmpArr.length; i++) {
+                            lineNum++;
+                            result[lineNum] = tmpArr[i];
+                        }
+                        
+                        // Continue for the next pieces
+                        if (stop < file.size) {
+                            start = stop;
+                            stop = Math.min(stop + cache, file.size); 
+                            var blob = file.slice(start, Math.min(stop, file.size));
+                            reader.readAsBinaryString(blob);
+                        } else {
+                            readOutputData(result);
+                        }
+                    }
+                };
+                
+                var blob = file.slice(start, stop);
+                reader.readAsBinaryString(blob);
+                
+            }
+            
+            function readDailyOutput(rawData) {
+                data = [];
+                var date = [];
+                var daily = {};
+                var titleFlg = false;
+                titles = [];
+                var yearIdx = 0;
+                var doyIdx = 1;
+                var dasIdx = 2;
+                var rowIdx = 3;
+                var colIdx = 4;
+                var year = 0;
+                var doy = 0;
+                var das = 0;
+                var row = 0;
+                var col = 0;
+                for (var i = 0; i < rawData.length; i++) {
+                    var line = rawData[i].trim();
+                    if (line.startsWith("@")) {
+                        titleFlg = true;
+                        titles = line.substring(1).split(/\s+/);
+                        yearIdx = titles.indexOf("YEAR");
+                        doyIdx = titles.indexOf("DOY");
+                        dasIdx = titles.indexOf("DAS");
+                        rowIdx = titles.indexOf("ROW");
+                        colIdx = titles.indexOf("COL");
+//                        console.log(titles);
+                    } else if (line.startsWith("!") || line.length === 0) {
+                        continue;
+                    } else if (titleFlg) {
+                        var vals = line.split(/\s+/);
+                        var limit = Math.min(titles.length, vals.length);
+                        if (limit < vals.length) { console.log("line " + i + " have less data than title");}
+                        row = Number(vals[rowIdx]);
+                        col = Number(vals[colIdx]);
+                        if (das !== vals[dasIdx]) {
+                            year = vals[yearIdx];
+                            doy = vals[doyIdx];
+                            das = vals[dasIdx];
+                            date.push({YEAR:year, DOY:doy, DAS: das});
+                            daily = {DAS: das};
+                            data.push(daily);
+                            for (var j = 0; j < limit; j++) {
+                                if (j !== yearIdx && j !== doyIdx && j !== dasIdx && j !== rowIdx && j !== colIdx) {
+                                    daily[titles[j]] = [[]];
+                                }
+                            }
+                        }
+                        for (var j = 0; j < limit; j++) {
+                            if (j !== yearIdx && j !== doyIdx && j !== dasIdx && j !== rowIdx && j !== colIdx) {
+                                while (daily[titles[j]].length < row) {
+                                    daily[titles[j]].push([]);
+                                }
+                                daily[titles[j]][row - 1][col - 1] = vals[j];
+                            }
+                        }
+                        
+                    }
+                }
+                titles.splice(titles.indexOf("YEAR"), 1);
+                titles.splice(titles.indexOf("DOY"), 1);
+                titles.splice(titles.indexOf("DAS"), 1);
+                titles.splice(titles.indexOf("ROW"), 1);
+                titles.splice(titles.indexOf("COL"), 1);
+            }
+            
+            function getSoilStructure() {
+                soilProfile = {};
+                if (data.length > 0) {
+                    var lastDay = data[data.length - 1];
+                    var keys = Object.keys(lastDay);
+                    if (keys.indexOf("DAS") > -1) {
+                        keys.splice(keys.indexOf("DAS"), 1);
+                    }
+                    if (keys.length > 0) {
+                        var randomData = lastDay[keys[0]];
+                        var totRows = randomData.length;
+                        var totCols = 0;
+                        var bedRows = 0;
+                        var bedCols = 0;
+                        if (totRows > 0) {
+                            totCols = randomData[totRows - 1].length;
+                            bedCols = randomData[0].length;
+                            while (bedRows < totRows && randomData[bedRows].length === bedCols) {
+                                bedRows++;
+                            }
+                        }
+                        soilProfile["totRows"] = totRows;
+                        soilProfile["totCols"] = totCols;
+                        soilProfile["bedRows"] = bedRows;
+                        soilProfile["bedCols"] = bedCols;
+                    }
+                }
+            }
+
+            function readOutputData(rawData) {
+                readDailyOutput(rawData);
+                getSoilStructure();
+                document.getElementById('plot_options').hidden = false;
+
+                console.log("total_days: " + (data.length - 1));
+                console.log("soil_profile: " + JSON.stringify(soilProfile));
+//                document.getElementById('output_file_content_rawdata').innerHTML = JSON.stringify(titles);
+                document.getElementById('das_scroll_input').max = data.length - 1;
+                document.getElementById('das_scroll').max = data.length - 1;
             }
             
             function drawPlot() {
@@ -199,8 +359,7 @@
                 <div id="soilTypeSB_MAP" class="form-group">
                     <label class="control-label col-sm-2" for="soil_file">Select Output File :</label>
                     <div class="col-sm-5">
-                        <input type="file" id="output_file" name="output_file" class="form-control" value="" accept=".out" onchange="readFile();" placeholder="Browse Output File (.out)" data-toggle="tooltip" title="Browse Output File (.out)">
-                        <!--<input type="file" id="output_file" name="output_file" class="form-control" value="" onchange="readFile();" placeholder="Browse Simulation Result Directory" data-toggle="tooltip" title="Browse Simulation Result Directory" webkitdirectory directory multiple>-->
+                        <input type="file" id="output_file" name="output_file" class="form-control" value="" accept=".out" onchange="readFile()" placeholder="Browse Output File (.out)" data-toggle="tooltip" title="Browse Output File (.out)">
                     </div>
                     <div class="col-sm-5">
                         <div id="progress_bar" class="text-left" hidden="true">
@@ -221,7 +380,7 @@
                         </select>
                     </div>
                     <div class="col-sm-5">
-                        <button type="button" class="btn btn-primary text-right" onclick="drawPlot();">Draw Plot</button>
+                        <button type="button" class="btn btn-primary text-right" onclick="drawPlot()">Draw Plot</button>
                     </div>
                 </div>
                 <br/>
@@ -234,21 +393,21 @@
                         <button type="button" class="btn btn-primary text-right" onclick="scrollOne(-1);"><</button>
                     </div>
                     <div class="col-sm-4 text-right">
-                        <input type="range" id="das_scroll" name="das_scroll" class="form-control" value="0" step="1" max="180" min="0" placeholder="" data-toggle="tooltip" title="" onchange="changeDate(this);">
+                        <input type="range" id="das_scroll" name="das_scroll" class="form-control" value="0" step="1" max="180" min="0" placeholder="" data-toggle="tooltip" title="" onchange="changeDate(this)">
                     </div>
                     <div class="col-sm-1">
                         <button type="button" class="btn btn-primary text-right" onclick="scrollOne(1);">></button>
                     </div>
                     <div class="col-sm-1">
-                        <input type="number" id="das_scroll_input" name="das_scroll_input" class="form-control" value="0" step="1" max="180" min="0" placeholder="" data-toggle="tooltip" title="" onchange="changeDate(this);">
+                        <input type="number" id="das_scroll_input" name="das_scroll_input" class="form-control" value="0" step="1" max="180" min="0" placeholder="" data-toggle="tooltip" title="" onchange="changeDate(this)">
                     </div>
                     <div class="col-sm-1">
-                        <button id="auto_scroll_btn" type="button" class="btn btn-primary text-right" onclick="AutoScroll();">Auto Scroll</button>
+                        <button id="auto_scroll_btn" type="button" class="btn btn-primary text-right" onclick="AutoScroll()">Auto Scroll</button>
                     </div>
                     <div class="col-sm-2 text-right">
-                        <button type="button" class="btn btn-primary text-right" onclick="zoomOut();">+</button>
+                        <button type="button" class="btn btn-primary text-right" onclick="zoomOut()">+</button>
                         <lable id="zoom_val">50%</lable>
-                        <button type="button" class="btn btn-primary text-right" onclick="zoomIn();">-</button>
+                        <button type="button" class="btn btn-primary text-right" onclick="zoomIn()">-</button>
                     </div>
                 </div>
             </div>
