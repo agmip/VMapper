@@ -7,6 +7,9 @@ function drawDailyHeatMapPlot(plotVar, plotVarName, data, soilProfile, container
     let daily = data["daily"];
     let max = data["max"][plotVar];
     let min = data["min"][plotVar];
+    let avg = data["average"][plotVar];
+    let med = data["median"][plotVar];
+    let colorZoom = Math.abs((avg+med)/(max+min));
     let plotData = [];
     let plotTitle;
     let plotValTitle;
@@ -23,10 +26,12 @@ function drawDailyHeatMapPlot(plotVar, plotVarName, data, soilProfile, container
         }
     }
     
-    drawHeatMapPlot(plotTitle, plotValTitle, plotData, max, min, soilProfile, containerId, zoom);
+    console.log("max:" + max + " min:" + min + " average:" + avg + " median:" + med + " color zoom:" + colorZoom)
+    
+    drawHeatMapPlot(plotTitle, plotValTitle, plotData, max, min, soilProfile, containerId, colorZoom, zoom);
 }
 
-function drawHeatMapPlot(plotTitle, plotValTitle, plotData, max, min, soilProfile, containerId, zoom) {
+function drawHeatMapPlot(plotTitle, plotValTitle, plotData, max, min, soilProfile, containerId, colorZoom, zoom) {
 
     
 
@@ -77,8 +82,8 @@ function drawHeatMapPlot(plotTitle, plotValTitle, plotData, max, min, soilProfil
         },
 
         colorAxis: {
-            min: min,
-            max: max/10,
+            min: min * colorZoom,
+            max: max * colorZoom,
             minColor: '#DBE5F1',
             maxColor: '#00B0F0'
 //            maxColor: Highcharts.getOptions().colors[0]

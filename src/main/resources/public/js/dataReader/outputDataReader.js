@@ -2,8 +2,11 @@ function readDailyOutput(rawData, data, titles) {
     data = [];
     let date = [];
     let daily = {};
+    let values = {};
     let max = {};
     let min = {};
+    let avg = {}
+    let med = {};
     let titleFlg = false;
     titles = [];
     let yearIdx = 0;
@@ -47,6 +50,7 @@ function readDailyOutput(rawData, data, titles) {
                 for (let j = 0; j < limit; j++) {
                     if (j !== yearIdx && j !== doyIdx && j !== dasIdx && j !== rowIdx && j !== colIdx) {
                         daily[titles[j]] = [[]];
+                        values[titles[j]] = [];
                     }
                 }
             }
@@ -55,12 +59,14 @@ function readDailyOutput(rawData, data, titles) {
                     while (daily[titles[j]].length < row) {
                         daily[titles[j]].push([]);
                     }
-                    daily[titles[j]][row - 1][col - 1] = vals[j];
-                    if (max[titles[j]] === undefined || max[titles[j]] < vals[j]) {
-                        max[titles[j]] = vals[j];
+                    let val = Number(vals[j]);
+                    daily[titles[j]][row - 1][col - 1] = val;
+                    values[titles[j]].push(val);
+                    if (max[titles[j]] === undefined || max[titles[j]] < val) {
+                        max[titles[j]] = val;
                     }
-                    if (min[titles[j]] === undefined || min[titles[j]] > vals[j]) {
-                        min[titles[j]] = vals[j];
+                    if (min[titles[j]] === undefined || min[titles[j]] > val) {
+                        min[titles[j]] = val;
                     }
                 }
             }
@@ -73,7 +79,39 @@ function readDailyOutput(rawData, data, titles) {
     titles.splice(titles.indexOf("ROW"), 1);
     titles.splice(titles.indexOf("COL"), 1);
     
-    return {"titles":titles, "daily":data, "max":max, "min":min};
+    for (let key in values) {
+        avg[key] = average(values[key]);
+        med[key] = median(values[key]);
+    }
+    
+    return {"titles":titles, "daily":data, "max":max, "min":min, "average":avg, "median":med};
+}
+
+function average(values) {
+    let sum = 0;
+    for (let i in values) {
+        sum += values[i];
+    }
+    if (values.length >0 ) {
+        return sum/values.length;
+    } else {
+        return 0;
+    }
+}
+
+function median(values){
+    values.sort(function(a,b){
+    return a-b;
+  });
+
+  if(values.length ===0) return 0
+
+  var half = Math.floor(values.length / 2);
+
+  if (values.length % 2)
+    return values[half];
+  else
+    return (values[half - 1] + values[half]) / 2.0;
 }
 
 function readTitles(line) {
