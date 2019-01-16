@@ -1,9 +1,9 @@
-/* global let */
-
 function readDailyOutput(rawData, data, titles) {
     data = [];
     let date = [];
     let daily = {};
+    let max = {};
+    let min = {};
     let titleFlg = false;
     titles = [];
     let yearIdx = 0;
@@ -20,13 +20,13 @@ function readDailyOutput(rawData, data, titles) {
         let line = rawData[i].trim();
         if (line.startsWith("@")) {
             titleFlg = true;
-            titles = line.substring(1).split(/\s+/);
+            titles = readTitles(line);
             yearIdx = titles.indexOf("YEAR");
             doyIdx = titles.indexOf("DOY");
             dasIdx = titles.indexOf("DAS");
             rowIdx = titles.indexOf("ROW");
             colIdx = titles.indexOf("COL");
-//                        console.log(titles);
+//            console.log(titles);
         } else if (line.startsWith("!") || line.length === 0) {
             continue;
         } else if (titleFlg) {
@@ -56,6 +56,12 @@ function readDailyOutput(rawData, data, titles) {
                         daily[titles[j]].push([]);
                     }
                     daily[titles[j]][row - 1][col - 1] = vals[j];
+                    if (max[titles[j]] === undefined || max[titles[j]] < vals[j]) {
+                        max[titles[j]] = vals[j];
+                    }
+                    if (min[titles[j]] === undefined || min[titles[j]] > vals[j]) {
+                        min[titles[j]] = vals[j];
+                    }
                 }
             }
 
@@ -67,7 +73,27 @@ function readDailyOutput(rawData, data, titles) {
     titles.splice(titles.indexOf("ROW"), 1);
     titles.splice(titles.indexOf("COL"), 1);
     
-    return {"titles":titles, "data":data};
+    return {"titles":titles, "daily":data, "max":max, "min":min};
+}
+
+function readTitles(line) {
+    let titles = line.substring(1).split(/\s+/);
+    let repeated = ["NFluxR", "NFluxL", "NFluxD", "NFluxU"];
+    let appdex = ["A", "D"];
+    for (let i = 0; i < repeated.length; i++) {
+        let idx = titles.indexOf(repeated[i]);
+        let j = 0;
+        while (idx > -1) {
+            if (j < appdex.length) {
+                titles[idx] = titles[idx] + "_" + appdex[j];
+            } else {
+                titles[idx] = titles[idx] + "_" + j;
+            }
+            idx = titles.indexOf(repeated[i]);
+            j++;
+        }
+    }
+    return titles;
 }
 
 function getSoilStructure(data) {

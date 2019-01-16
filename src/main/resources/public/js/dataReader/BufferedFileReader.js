@@ -1,3 +1,5 @@
+/* global FileReader */
+
 let reader;
 
 function abortRead() {
@@ -22,19 +24,12 @@ function errorHandler(evt) {
     ;
 }
 
-function readFileToBufferedArray(progressCallBack, resultHandleCallBack) {
-    let files = document.getElementById('output_file').files;
-    if (files.length !== 1) {
-//        alert('Please select one file!');
-        return;
-    }
+function readFileToBufferedArray(file, progressCallBack, resultHandleCallBack) {
+    
     // Reset progress indicator on new file selection.
     progressCallBack(0);
-    document.getElementById('plot_options').hidden = true;
-    document.getElementById('output_file_plot').hidden = true;
     reader = new FileReader();
     reader.onerror = errorHandler;
-    let file = files[0];
     let unitName = file.name.slice(0, -5);
     let cache = 40960;
     let start = 0;

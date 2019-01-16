@@ -62,6 +62,10 @@ public class Main {
             return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.Demo.GBUILDER2D));
                 });
         
+        get(Path.Web.Demo.XBUILDER2D, (Request request, Response response) -> {
+            return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.Demo.XBUILDER2D));
+                });
+        
 //        get("*",                     PageController.serveNotFoundPage, new FreeMarkerEngine());
 
         //Set up after-filters (called after each get/post)

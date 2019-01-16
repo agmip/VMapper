@@ -3,34 +3,64 @@
 <html>
     <head>
         <#include "../header.ftl">
-        <script src="https://code.highcharts.com/highcharts.js"></script>
-	<script src="https://code.highcharts.com/modules/vector.js"></script>
-	<script src="https://code.highcharts.com/modules/exporting.js"></script>
-	<script src="/js/dataReader/BufferedFileReader.js"></script>
-        <script src="/js/dataReader/outputDataReader.js"></script>
+        <#include "../chosen.ftl">
+        <script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>
+        <script type="text/javascript" src="https://code.highcharts.com/modules/heatmap.js"></script>
+        <script type="text/javascript" src="https://code.highcharts.com/modules/vector.js"></script>
+        <script type="text/javascript" src="https://code.highcharts.com/modules/exporting.js"></script>
+        
+        <script type="text/javascript" src="/plugins/filestyle/bootstrap-filestyle.min.js"></script>        
+        
+        <script type="text/javascript" src="/js/dataReader/BufferedFileReader.js"></script>
+        <script type="text/javascript" src="/js/dataReader/outputDataReader.js"></script>
+        <script type="text/javascript" src="/js/plot/VectorFlux.js"></script>
+        <script type="text/javascript" src="/js/plot/HeatMap.js"></script>
+        
         <script>
             
             var data;
+            var daily;
             var soilProfile;
             var titles;
             var zoom = 50;
+            var autoDas = -1;
+//            const plotVarExludsion = ["YEAR", "DOY", "DAS", "ROW", "COL", "NFluxR_A", "NFluxL_A", "NFluxD_A", "NFluxU_A", "NFluxR_D", "NFluxL_D", "NFluxD_D", "NFluxU_D"];
+            const plotVarDic = {TotalN:"Total Nitro", AFERT:"Fertilization", NO3UpTak:"NO3 Uptake", NH4UpTak:"NH4 Uptake", RLV:"Root Length Density", SWV:"Soil Water Content", ES_RATE:"Evaporation Rate", EP_RATE:"Transpiration Rate", IrrVol:"Irrigation", InfVol:"Infiltration"};
             
             function readFile() {
-                readFileToBufferedArray(updateProgress, handleRawData);
+                
+                let files = document.getElementById('output_file').files;
+                if (files.length < 1) {
+            //        alert('Please select a directory!');
+                    return;
+                }
+                document.getElementById('reload_btn').disabled = true;
+                document.getElementById('plot_options').hidden = true;
+                document.getElementById('output_file_plot').hidden = true;
+                resetDate();
+                for (let i=0; i<files.length; i++) {
+                    if (files[i].name === "CellDetailN.OUT") {
+                        readFileToBufferedArray(files[i], updateProgress, handleRawData);
+                        return;
+                    }
+                }
+                alert('Does not find CellDetailN.OUT in the selected folder!');
             }
             
             function handleRawData(rawData) {
-                var ret = readDailyOutput(rawData);
-                data = ret["data"];
-                titles = ret["titles"];
-                soilProfile = getSoilStructure(data);
+                data = readDailyOutput(rawData);
+                daily = data["daily"];
+                titles = data["titles"];
+                soilProfile = getSoilStructure(daily);
+                document.getElementById('reload_btn').disabled = false;
                 document.getElementById('plot_options').hidden = false;
 
-                console.log("total_days: " + (data.length - 1));
-                console.log("soil_profile: " + JSON.stringify(soilProfile));
+//                console.log("total_days: " + (data.length - 1));
+//                console.log("soil_profile: " + JSON.stringify(soilProfile));
 //                document.getElementById('output_file_content_rawdata').innerHTML = JSON.stringify(titles);
-                document.getElementById('das_scroll_input').max = data.length - 1;
-                document.getElementById('das_scroll').max = data.length - 1;
+                document.getElementById('das_scroll_input').max = daily.length - 1;
+                document.getElementById('das_scroll').max = daily.length - 1;
+                updatePlotType();
             }
             
             function updateProgress(progressVal) {
@@ -48,94 +78,72 @@
                 }
             }
             
+            function updatePlotType() {
+                var plotTypeSelect = document.getElementById('plot_type');
+                var length = plotTypeSelect.options.length;
+                for (i = length - 1; i >= 0; i--) {
+                    plotTypeSelect.remove(i);
+                }
+                var optgroupHeatMap = document.createElement('optgroup');
+                optgroupHeatMap.label = "Heatmap Plot";
+                for (let i = 0; i < titles.length; i++) {
+                    if (plotVarDic[titles[i]] !== undefined) {
+                        var option = document.createElement('option');
+                        option.innerHTML = plotVarDic[titles[i]];
+                        option.value = titles[i];
+                        optgroupHeatMap.append(option);
+                    }
+                }
+                plotTypeSelect.append(optgroupHeatMap);
+                
+                var optgroupVecFlux = document.createElement('optgroup');
+                optgroupVecFlux.label = "Vector Flux Plot";
+                if (titles.indexOf("WFluxH") > -1 && titles.indexOf("WFluxV") > -1) {
+                    var option = document.createElement('option');
+                    option.innerHTML = "Water Flux";
+                    option.value = "water_flux";
+                    optgroupVecFlux.append(option);
+                }
+                if (titles.indexOf("NFluxR_D") > -1 && titles.indexOf("NFluxL_D") > -1 && titles.indexOf("NFluxD_D") > -1 && titles.indexOf("NFluxU_D") > -1) {
+                    var option = document.createElement('option');
+                    option.innerHTML = "Nitro Flux";
+                    option.value = "nitro_flux";
+                    optgroupVecFlux.append(option);
+                }
+                plotTypeSelect.append(optgroupVecFlux);
+                $("#plot_type").chosen("destroy");
+                chosen_init("plot_type", ".chosen-select");
+            }
+            
             function drawPlot() {
-                var plotVar = document.getElementById("plot_type").value;
+                let options = document.getElementById("plot_type").selectedOptions;
                 var day = document.getElementById('das_scroll_input').value;
-                if (day > data.length) {
+                if (day > daily.length) {
                     document.getElementById("output_file_plot").hidden = true;
                     return;
                 }
-                document.getElementById("output_file_plot").hidden = false;
-                var plotData = [];
-                var plotTitle;
-                var plotValTitle;
-                if (plotVar === "water_flux") {
-                    plotTitle = "Water Flux Vector Plot";
-                    plotValTitle = "Water Vector Flux (cm3/cm3)";
-                    var WFluxH = data[day]["WFluxH"];
-                    var WFluxV = data[day]["WFluxV"];
-                    for (var i = 0; i < soilProfile["totRows"]; i++) {
-                        var limit = soilProfile["totCols"];
-                        if (i <= soilProfile["bedRows"]) {
-                            limit = soilProfile["bedCols"];
-                        }
-                        for (var j = 0; j < limit; j++) {
-                            var WFluxVct = Math.sqrt(Math.pow(WFluxH[i][j],2) + Math.pow(WFluxV[i][j],2));
-                            var WFluxDeg = getAngleDeg(WFluxV[i][j], WFluxH[i][j]);
-                            plotData.push([j + 1, i + 1,WFluxVct, WFluxDeg]);
-                        }
-                    }
-                    
-//                    console.log(plotData);
-
-                    Highcharts.chart('output_plot', {
-                        title: {
-                            text: plotTitle
-                        },
-                        chart: {
-                            height: 500
-                        },
-                        xAxis: {
-                            min: 1,
-                            softMax: soilProfile["totCols"],
-                            gridLineWidth: 1,
-                            tickInterval: 1,
-                            title: {
-                                text: 'Soil Column',
-                                align: 'low'
-                            }
-//                            allowDecimals : false
-                        },
-                        yAxis: {
-                            min: 1,
-                            softMax: soilProfile["totRows"],
-                            tickInterval: 1,
-                            reversed: true,
-                            title: {
-                                text: 'Soil layers',
-                                align: 'low'
-                            }
-//                            allowDecimals : false
-                        },
-                        plotOptions: {
-                            series: {
-                                animation: false
-                            }
-                        },
-                        series: [{
-                            type: 'vector',
-                            name: plotValTitle,
-                            color: Highcharts.getOptions().colors[1],
-                            data: plotData,
-                            vectorLength: zoom
-                        }]
-                    });
+                if (options.length > 0) {
+                    document.getElementById("output_file_plot").hidden = false;
+                } else {
+                    document.getElementById("output_file_plot").hidden = true;
                 }
+                
+                for (i in options) {
+                    let plotVar = options[i].value;
+                    if (plotVar === "water_flux") {
+                        drawWaterVectorFluxPlot(data, soilProfile, 'output_plot', day, zoom);
+                    } else if (plotVar === "nitro_flux") {
+                        drawNitroFluxVectorPlot(data, soilProfile, 'output_plot', day, zoom);
+                    } else if (plotVarDic[plotVar] !== undefined) {
+                        drawDailyHeatMapPlot(plotVar, plotVarDic[titles[i]], data, soilProfile, 'output_plot', day, zoom);
+                    }
+                }
+                
             }
             
-            function getAngleDeg(a, b) {
-                var angleRad = Math.atan(Math.abs(a/b));
-                var angleDeg = angleRad * 180 / Math.PI;
-                if (a >= 0 && b >= 0) {
-                    angleDeg = 270 + angleDeg;
-                } else if (a >= 0 && b < 0) {
-                    angleDeg = 90 - angleDeg;
-                } else if (a < 0 && b >= 0) {
-                    angleDeg = 270 - angleDeg;
-                } else {
-                    angleDeg = 90 + angleDeg;
-                }
-                return angleDeg;
+            function resetDate() {
+                document.getElementById('das_scroll_input').value = 0;
+                document.getElementById('das_scroll').value = 0;
             }
             
             function changeDate(target) {
@@ -159,12 +167,11 @@
                 drawPlot();
             }
             
-            var autoDas = -1;
             function AutoScroll() {
                 
                 document.getElementById('auto_scroll_btn').disabled = true;
                 das = Number(document.getElementById('das_scroll_input').value) + 1;
-                if (das < data.length && (autoDas === das - 1 || autoDas < 0) ) {
+                if (das < daily.length && (autoDas === das - 1 || autoDas < 0) ) {
                     autoDas = das;
                     document.getElementById('das_scroll_input').value = das;
                     document.getElementById('das_scroll').value = das;
@@ -183,9 +190,11 @@
                 var min = Number(document.getElementById('das_scroll_input').min);
                 var org = Number(document.getElementById('das_scroll_input').value);
                 var newDas = org + chg;
-                document.getElementById('das_scroll_input').value = newDas;
-                document.getElementById('das_scroll').value = newDas;
-                drawPlot();
+                if (newDas < max && newDas > min) {
+                    document.getElementById('das_scroll_input').value = newDas;
+                    document.getElementById('das_scroll').value = newDas;
+                    drawPlot();
+                }
             }
         </script>
     </head>
@@ -197,13 +206,16 @@
         <div class="container">
             <div class="row">
                 <div id="soilTypeSB_MAP" class="form-group">
-                    <label class="control-label col-sm-2" for="soil_file">Select Output File :</label>
-                    <div class="col-sm-5">
-                        <input type="file" id="output_file" name="output_file" class="form-control" value="" accept=".out" onchange="readFile();" placeholder="Browse Output File (.out)" data-toggle="tooltip" title="Browse Output File (.out)">
-                        <!--<input type="file" id="output_file" name="output_file" class="form-control" value="" onchange="readFile();" placeholder="Browse Simulation Result Directory" data-toggle="tooltip" title="Browse Simulation Result Directory" webkitdirectory directory multiple>-->
+                    <label class="control-label col-sm-2" for="soil_file">Simulated Result :</label>
+                    <div class="col-sm-6">
+                        <!--<input type="file" id="output_file" name="output_file" class="form-control filestyle" data-text="Browse" data-placeholder="Browse Simulation Result Directory" data-btnClass="btn-primary" onchange="readFile();" placeholder="Browse Simulation Result Directory" data-toggle="tooltip" title="Browse Simulation Result Directory" webkitdirectory  multiple>-->
+                        <input type="file" id="output_file" name="output_file" class="form-control filestyle" data-text="Browse" data-placeholder="Browse Simulation Result File" data-btnClass="btn-primary" onchange="readFile();" placeholder="Browse Simulation Result File" data-toggle="tooltip" title="Browse Simulation Result File">
                     </div>
-                    <div class="col-sm-5">
-                        <div id="progress_bar" class="text-left" hidden="true">
+                    <div class="col-sm-4">
+                        <button id="reload_btn" type="button" class="btn btn-primary text-right" onclick="readFile();" disabled>Reload</button>
+                    </div>
+                    <div class="col-sm-12">
+                        <div id="progress_bar" class="text-left " hidden="true">
                             <div class="percent">0%</div>
                         </div>
                     </div>
@@ -215,19 +227,20 @@
                 <br/>
                 <div id="plot_options" class="form-group" hidden="true">
                     <label class="control-label col-sm-2">Plot Type :</label>
-                    <div class="col-sm-5 text-left">
-                        <select id="plot_type" class="form-control" title="Select Plot Type">
-                            <option value="water_flux">Water Flux Vector Plot</option>
+                    <div class="col-sm-6 text-left">
+                        <select id="plot_type" data-placeholder="Select Plot Type" title="Select Plot Type" onchange="drawPlot();" class="form-control chosen-select" multiple>
+                        <!--<select id="plot_type" class="form-control" title="Select Plot Type" multiple>-->
+                            <!--<option value="">Select Plot Type (Up to 4)</option>-->
                         </select>
                     </div>
-                    <div class="col-sm-5">
+                    <div class="col-sm-4">
                         <button type="button" class="btn btn-primary text-right" onclick="drawPlot();">Draw Plot</button>
                     </div>
                 </div>
                 <br/>
                 <div id="output_file_plot" class="form-group" hidden="true">
                     <label class="control-label col-sm-1">Plot :</label>
-                    <div id="output_plot" class="col-sm-11 text-left" style="overflow-y:auto;max-height:600px;"></div>
+                    <div id="output_plot" class="col-sm-12 text-left" style="overflow-y:auto;max-height:600px;"></div>
                     <label class="control-label col-sm-1"></label>
                     <label class="control-label col-sm-1">DAS</label>
                     <div class="col-sm-1 text-right">
@@ -258,6 +271,7 @@
         
         <script>
             var progress = document.querySelector('.percent');
+            chosen_init_all();
         </script>
     </body>
 </html>

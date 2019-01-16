@@ -51,6 +51,7 @@ public class Path {
             private static final String PACKAGE = Demo.class.getSimpleName().toLowerCase();
             public static final String IRRLIST = PACKAGE + "/irrlist";
             public static final String AUTOMAIL = PACKAGE + "/automail";
+            public static final String XBUILDER2D = PACKAGE + "/xbuilder2d";
         }
         
 //        public static class Worker {
@@ -98,6 +99,7 @@ public class Path {
             private static final String PACKAGE = Demo.class.getSimpleName().toLowerCase();
             public static final String IRRLIST = PACKAGE + "/irrlist.ftl";
             public static final String GBUILDER2D = PACKAGE + "/gbuilder2d.ftl";
+            public static final String XBUILDER2D = PACKAGE + "/xbuilder2d.ftl";
         }
     }
     
