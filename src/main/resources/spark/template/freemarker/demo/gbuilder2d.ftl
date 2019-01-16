@@ -36,7 +36,8 @@
                 }
                 document.getElementById('reload_btn').disabled = true;
                 document.getElementById('plot_options').hidden = true;
-                document.getElementById('output_file_plot').hidden = true;
+                document.getElementById('plot_ctrl').hidden = true;
+                document.getElementById("plot_content").hidden = true;
                 resetDate();
                 for (let i=0; i<files.length; i++) {
                     if (files[i].name === "CellDetailN.OUT") {
@@ -119,24 +120,44 @@
                 let options = document.getElementById("plot_type").selectedOptions;
                 var day = document.getElementById('das_scroll_input').value;
                 if (day > daily.length) {
-                    document.getElementById("output_file_plot").hidden = true;
+                    document.getElementById("plot_ctrl").hidden = true;
+                    document.getElementById("plot_content").hidden = true;
                     return;
                 }
                 if (options.length > 0) {
-                    document.getElementById("output_file_plot").hidden = false;
+                    document.getElementById("plot_ctrl").hidden = false;
+                    document.getElementById("plot_content").hidden = false;
                 } else {
-                    document.getElementById("output_file_plot").hidden = true;
+                    document.getElementById("plot_ctrl").hidden = true;
+                    document.getElementById("plot_content").hidden = true;
                 }
                 
-                for (i in options) {
+                for (let i = 1; i <= 4; i++) {
+                    let plotDiv = document.getElementById("output_plot" + i);
+                    if (plotDiv !== undefined && plotDiv !== null) {
+                        plotDiv.innerHTML = "";
+                    }
+                    
+                }
+                
+                if (options.length === 1) {
+                    document.getElementById("output_plot1").className = 'col-sm-12';
+                } else {
+                    document.getElementById("output_plot1").className = 'col-sm-6';
+                }
+                
+                let cnt = 1;
+                for (let i in options) {
+                    if (cnt > 4) break;
                     let plotVar = options[i].value;
                     if (plotVar === "water_flux") {
-                        drawWaterVectorFluxPlot(data, soilProfile, 'output_plot', day, zoom);
+                        drawWaterVectorFluxPlot(data, soilProfile, 'output_plot' + cnt, day, zoom);
                     } else if (plotVar === "nitro_flux") {
-                        drawNitroFluxVectorPlot(data, soilProfile, 'output_plot', day, zoom);
+                        drawNitroFluxVectorPlot(data, soilProfile, 'output_plot' + cnt, day, zoom);
                     } else if (plotVarDic[plotVar] !== undefined) {
-                        drawDailyHeatMapPlot(plotVar, plotVarDic[titles[i]], data, soilProfile, 'output_plot', day, zoom);
+                        drawDailyHeatMapPlot(plotVar, plotVarDic[plotVar], data, soilProfile, 'output_plot' + cnt, day, zoom);
                     }
+                    cnt++;
                 }
                 
             }
@@ -238,10 +259,8 @@
                     </div>
                 </div>
                 <br/>
-                <div id="output_file_plot" class="form-group" hidden="true">
+                <div id="plot_ctrl" class="form-group" hidden="true">
                     <label class="control-label col-sm-1">Plot :</label>
-                    <div id="output_plot" class="col-sm-12 text-left" style="overflow-y:auto;max-height:600px;"></div>
-                    <label class="control-label col-sm-1"></label>
                     <label class="control-label col-sm-1">DAS</label>
                     <div class="col-sm-1 text-right">
                         <button type="button" class="btn btn-primary text-right" onclick="scrollOne(-1);"><</button>
@@ -264,6 +283,14 @@
                         <button type="button" class="btn btn-primary text-right" onclick="zoomIn();">-</button>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div id="plot_content" class="container-fluid">
+            <div id="plot_div" class="col-sm-12 text-left row" style="overflow-y:auto;max-height:600px;">
+                <div id="output_plot1" class="col-sm-6"></div>
+                <div id="output_plot2" class="col-sm-6"></div>
+                <div id="output_plot3" class="col-sm-6"></div>
+                <div id="output_plot4" class="col-sm-6"></div>
             </div>
         </div>
 
