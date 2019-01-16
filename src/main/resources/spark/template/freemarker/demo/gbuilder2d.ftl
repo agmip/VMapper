@@ -286,7 +286,7 @@
             </div>
         </div>
         <div id="plot_content" class="container-fluid">
-            <div id="plot_div" class="col-sm-12 text-left row" style="overflow-y:auto;max-height:600px;">
+            <div id="plot_div" class="col-sm-12 text-left row" style="max-height:600px;">
                 <div id="output_plot1" class="col-sm-6"></div>
                 <div id="output_plot2" class="col-sm-6"></div>
                 <div id="output_plot3" class="col-sm-6"></div>
