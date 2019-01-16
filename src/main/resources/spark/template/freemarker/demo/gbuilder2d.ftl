@@ -14,7 +14,7 @@
         <script type="text/javascript" src="/js/dataReader/BufferedFileReader.js"></script>
         <script type="text/javascript" src="/js/dataReader/outputDataReader.js"></script>
         <script type="text/javascript" src="/js/plot/VectorFlux.js"></script>
-        <script type="text/javascript" src="/js/plot/HeatMap.js"></script>
+        <script type="text/javascript" src="/js/plot/Heatmap.js"></script>
         
         <script>
             
