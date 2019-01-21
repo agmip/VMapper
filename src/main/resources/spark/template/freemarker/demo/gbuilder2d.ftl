@@ -14,7 +14,7 @@
             var zoom = 50;
             var autoDas = -1;
 //            const plotVarExludsion = ["YEAR", "DOY", "DAS", "ROW", "COL", "NFluxR_A", "NFluxL_A", "NFluxD_A", "NFluxU_A", "NFluxR_D", "NFluxL_D", "NFluxD_D", "NFluxU_D"];
-            const plotVarDic = {TotalN:"Total Nitro", AFERT:"Fertilization", NO3UpTak:"NO3 Uptake", NH4UpTak:"NH4 Uptake", RLV:"Root Length Density", SWV:"Soil Water Content", ES_RATE:"Evaporation Rate", EP_RATE:"Transpiration Rate", IrrVol:"Irrigation", InfVol:"Infiltration"};
+            const plotVarDic = {TotalN:"Soil N content", SWV:"Soil Water Content", AFERT:"Fertilization", IrrVol:"Irrigation", RLV:"Root Length Density", NO3UpTak:"NO3 Uptake", NH4UpTak:"NH4 Uptake", InfVol:"Infiltration", ES_RATE:"Evaporation Rate", EP_RATE:"Transpiration Rate"};
             
             function readFile() {
                 
@@ -76,11 +76,11 @@
                 }
                 var optgroupHeatMap = document.createElement('optgroup');
                 optgroupHeatMap.label = "Heatmap Plot";
-                for (let i = 0; i < titles.length; i++) {
-                    if (plotVarDic[titles[i]] !== undefined) {
+                for (let key in plotVarDic) {
+                    if (titles.indexOf(key) > -1) {
                         var option = document.createElement('option');
-                        option.innerHTML = plotVarDic[titles[i]];
-                        option.value = titles[i];
+                        option.innerHTML = plotVarDic[key];
+                        option.value = key;
                         optgroupHeatMap.append(option);
                     }
                 }
@@ -88,16 +88,16 @@
                 
                 var optgroupVecFlux = document.createElement('optgroup');
                 optgroupVecFlux.label = "Vector Flux Plot";
-                if (titles.indexOf("WFluxH") > -1 && titles.indexOf("WFluxV") > -1) {
-                    var option = document.createElement('option');
-                    option.innerHTML = "Water Flux";
-                    option.value = "water_flux";
-                    optgroupVecFlux.append(option);
-                }
                 if (titles.indexOf("NFluxR_D") > -1 && titles.indexOf("NFluxL_D") > -1 && titles.indexOf("NFluxD_D") > -1 && titles.indexOf("NFluxU_D") > -1) {
                     var option = document.createElement('option');
-                    option.innerHTML = "Nitro Flux";
-                    option.value = "nitro_flux";
+                    option.innerHTML = "Soil N Flux";
+                    option.value = "n_flux";
+                    optgroupVecFlux.append(option);
+                }
+                if (titles.indexOf("WFluxH") > -1 && titles.indexOf("WFluxV") > -1) {
+                    var option = document.createElement('option');
+                    option.innerHTML = "Soil Water Flux";
+                    option.value = "water_flux";
                     optgroupVecFlux.append(option);
                 }
                 plotTypeSelect.append(optgroupVecFlux);
@@ -141,7 +141,7 @@
                     let plotVar = options[i].value;
                     if (plotVar === "water_flux") {
                         drawWaterVectorFluxPlot(data, soilProfile, 'output_plot' + cnt, day, zoom);
-                    } else if (plotVar === "nitro_flux") {
+                    } else if (plotVar === "n_flux") {
                         drawNitroFluxVectorPlot(data, soilProfile, 'output_plot' + cnt, day, zoom);
                     } else if (plotVarDic[plotVar] !== undefined) {
                         drawDailyHeatMapPlot(plotVar, plotVarDic[plotVar], data, soilProfile, 'output_plot' + cnt, day, zoom);
