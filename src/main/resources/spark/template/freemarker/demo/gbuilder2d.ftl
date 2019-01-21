@@ -4,17 +4,6 @@
     <head>
         <#include "../header.ftl">
         <#include "../chosen.ftl">
-        <script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>
-        <script type="text/javascript" src="https://code.highcharts.com/modules/heatmap.js"></script>
-        <script type="text/javascript" src="https://code.highcharts.com/modules/vector.js"></script>
-        <script type="text/javascript" src="https://code.highcharts.com/modules/exporting.js"></script>
-        
-        <script type="text/javascript" src="/plugins/filestyle/bootstrap-filestyle.min.js"></script>        
-        
-        <script type="text/javascript" src="/js/dataReader/BufferedFileReader.js"></script>
-        <script type="text/javascript" src="/js/dataReader/outputDataReader.js"></script>
-        <script type="text/javascript" src="/js/plot/VectorFlux.js"></script>
-        <script type="text/javascript" src="/js/plot/Heatmap.js"></script>
         
         <script>
             
@@ -295,7 +284,18 @@
         </div>
 
         <#include "../footer.ftl">
-        
+        <script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>
+        <script type="text/javascript" src="https://code.highcharts.com/modules/heatmap.js"></script>
+        <script type="text/javascript" src="https://code.highcharts.com/modules/vector.js"></script>
+        <script type="text/javascript" src="https://code.highcharts.com/modules/exporting.js"></script>
+        <script type="text/javascript" src="/plugins/filestyle/bootstrap-filestyle.min.js"></script>
+        <script type="text/javascript" src="/plugins/chosen/chosen.jquery.min.js" ></script>
+        <script type="text/javascript" src="/plugins/chosen/prism.js" charset="utf-8"></script>
+        <script type="text/javascript" src="/js/chosen/init.js" charset="utf-8"></script>
+        <script type="text/javascript" src="/js/dataReader/BufferedFileReader.js"></script>
+        <script type="text/javascript" src="/js/dataReader/outputDataReader.js"></script>
+        <script type="text/javascript" src="/js/plot/VectorFlux.js"></script>
+        <script type="text/javascript" src="/js/plot/Heatmap.js"></script>
         <script>
             var progress = document.querySelector('.percent');
             chosen_init_all();
