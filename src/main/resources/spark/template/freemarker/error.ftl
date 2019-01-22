@@ -9,7 +9,7 @@
         <#include "nav.ftl">
 
         <div class="container">
-            ${message}
+            <div class="alert-danger">${message}</div>
         </div>
 
 

@@ -15,24 +15,28 @@
 
         <div class="container">
 
-            <h1>LOGIN PAGE</h1>
+            <legend>LOGIN PAGE</legend>
             <#if operation_result == "Failed" >
-            <p>LOGIN_AUTH_FAILED</p>
+            <div class="alert alert-warning">LOGIN_AUTH_FAILED</div>
             </#if>
             <form id="loginForm" method="post">
-                <table>
-                    <tr>
-                        <td><label>User Name :</label></td>
-                        <td><input type="text" name="username" placeholder="User Name" value="" required><br></td>
-                    </tr>
-                    <tr>
-                        <td><label>Password :</label></td>
-                        <td><input type="password" name="password" placeholder="Passowrd" value="" required><br></td>
-                    </tr>
-                    <tr>
-                        <td><input type="submit" value="Login"></td>
-                    </tr>
-                </table>
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-sm-2"><label class="control-label">User Name :</label></div>
+                        <div class="col-sm-4"><input type="text" class="form-control" name="username" placeholder="User Name" value="" required></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-sm-2"><label class="control-label">Password :</label></div>
+                        <div class="col-sm-4"><input type="password" class="form-control" name="password" placeholder="Passowrd" value="" required></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-sm-1"><input type="submit" class="btn" value="Login"></div>
+                    </div>
+                </div>
             </form>
         </div>
 

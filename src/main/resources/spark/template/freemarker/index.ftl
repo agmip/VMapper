@@ -8,7 +8,7 @@
 
         <#include "nav.ftl">
 
-        <div id="myCarousel" class="carousel slide" data-ride="carousel">
+        <div id="myCarousel" class="carousel slide" style="padding-top:50px;" data-ride="carousel">
             <!-- Indicators -->
             <ol class="carousel-indicators">
                 <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
@@ -57,7 +57,7 @@
         <div class="container">
 
             <div class="container-fluid text-left">
-                <h3>To run AFSIRS module</h3>
+                <legend>To run AFSIRS module</legend>
                 <ol>
                     <li>Select Soil Map from menu bar under Data Tools</li>
                     <li>Draw a polygon on the map to get the soil data for your field</li>
@@ -69,7 +69,7 @@
             </div>
             <hr>
             <div class="container-fluid text-left">
-                <h3>Browser Support</h3>
+                <legend>Browser Support</legend>
                 <p>To smoothly use the online AFSIRS, please check the following table and make sure your browser is supported.</p>
                 <table class="table table-bordered table-striped text-center">
                     <tr>
@@ -92,7 +92,7 @@
                 <p>* Browsers which are not included in the above might face issue while using the web site.</p>
                 <p>** By certain security configuration, Edge and IE might not work properly on Soil Map tool. Please try other browser if you have any issue with Edge or IE.</p>
             </div>
-
+            <hr>
         </div>
         <#include "footer.ftl">
 
