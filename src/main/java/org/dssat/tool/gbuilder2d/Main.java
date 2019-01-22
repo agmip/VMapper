@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import org.dssat.tool.gbuilder2d.dao.MetaDataDAO;
 import org.dssat.tool.gbuilder2d.util.Filters;
 import org.dssat.tool.gbuilder2d.util.Path;
 import org.slf4j.LoggerFactory;
@@ -64,6 +65,12 @@ public class Main {
         
         get(Path.Web.Demo.XBUILDER2D, (Request request, Response response) -> {
             return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.Demo.XBUILDER2D));
+                });
+        
+        get(Path.Web.Demo.METALIST, (Request request, Response response) -> {
+            HashMap data = new HashMap();
+            data.put("metalist", MetaDataDAO.list());
+            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.METALIST));
                 });
         
 //        get("*",                     PageController.serveNotFoundPage, new FreeMarkerEngine());

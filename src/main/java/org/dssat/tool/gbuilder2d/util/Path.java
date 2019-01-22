@@ -52,6 +52,7 @@ public class Path {
             public static final String IRRLIST = PACKAGE + "/irrlist";
             public static final String AUTOMAIL = PACKAGE + "/automail";
             public static final String XBUILDER2D = PACKAGE + "/xbuilder2d";
+            public static final String METALIST = PACKAGE + "/metalist";
         }
         
 //        public static class Worker {
@@ -100,6 +101,7 @@ public class Path {
             public static final String IRRLIST = PACKAGE + "/irrlist.ftl";
             public static final String GBUILDER2D = PACKAGE + "/gbuilder2d.ftl";
             public static final String XBUILDER2D = PACKAGE + "/xbuilder2d.ftl";
+            public static final String METALIST = PACKAGE + "/meta_list.ftl";
         }
     }
     
