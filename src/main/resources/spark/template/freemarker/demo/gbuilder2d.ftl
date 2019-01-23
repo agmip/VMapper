@@ -38,6 +38,7 @@
             }
             
             function handleRawData(rawData) {
+//            	console.log(JSON.stringify(rawData));
                 data = readDailyOutput(rawData);
                 daily = data["daily"];
                 titles = data["titles"];
@@ -297,21 +298,11 @@
         <script type="text/javascript" src="/js/plot/VectorFlux.js"></script>
         <script type="text/javascript" src="/js/plot/Heatmap.js"></script>
         <script>
-            var progress = document.querySelector('.percent');
-            chosen_init_all();
-            
-            let txtFile = new XMLHttpRequest();
-            txtFile.open("GET", "http://drive.google.com/open?id=1gxpC8ApTrARCdAdSTYqLwLDTjC21gTTs", true);
-            txtFile.onreadystatechange = function() {
-              if (txtFile.readyState === 4) {  // Makes sure the document is ready to parse.
-                if (txtFile.status === 200) {  // Makes sure it's found the file.
-                  let allText = txtFile.responseText; 
-                  let lines = allText.split("\n"); // Will separate each line into an array
-                  console.log(lines);
-                }
-              }
-            }
-            txtFile.send(null);
+            var progress;
+        	$(document).ready(function () {
+                progress = document.querySelector('.percent');
+                chosen_init_all();
+            });
         </script>
     </body>
 </html>
