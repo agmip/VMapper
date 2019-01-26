@@ -70,38 +70,49 @@
             }
             
             function updatePlotType() {
-                var plotTypeSelect = document.getElementById('plot_type');
-                var length = plotTypeSelect.options.length;
-                for (i = length - 1; i >= 0; i--) {
+                let plotTypeSelect = document.getElementById('plot_type');
+                let length = plotTypeSelect.options.length;
+                for (let i = length - 1; i >= 0; i--) {
                     plotTypeSelect.remove(i);
                 }
-                var optgroupHeatMap = document.createElement('optgroup');
-                optgroupHeatMap.label = "Heatmap Plot";
+//                var optgroupHeatMap = document.createElement('optgroup');
+                let optgroupHeatMap = $('<optgroup>');
+                optgroupHeatMap.attr('label', 'Heatmap Plot');
                 for (let key in plotVarDic) {
                     if (titles.indexOf(key) > -1) {
-                        var option = document.createElement('option');
+                        let option = document.createElement('option');
                         option.innerHTML = plotVarDic[key];
                         option.value = key;
+//                        let option = $('<option>');
+//                        option.attr('innerHTML', plotVarDic[key]);
+//                        option.attr('value', key);
                         optgroupHeatMap.append(option);
                     }
                 }
-                plotTypeSelect.append(optgroupHeatMap);
+                $('#plot_type').append(optgroupHeatMap);
                 
-                var optgroupVecFlux = document.createElement('optgroup');
-                optgroupVecFlux.label = "Vector Flux Plot";
+//                var optgroupVecFlux = document.createElement('optgroup');
+                let optgroupVecFlux = $('<optgroup>');
+                optgroupVecFlux.attr('label', 'Vector Flux Plot');
                 if (titles.indexOf("NFluxR_D") > -1 && titles.indexOf("NFluxL_D") > -1 && titles.indexOf("NFluxD_D") > -1 && titles.indexOf("NFluxU_D") > -1) {
-                    var option = document.createElement('option');
+                    let option = document.createElement('option');
                     option.innerHTML = "Soil N Flux";
                     option.value = "n_flux";
+//                    let option = $('<option>');
+//                    option.attr('innerHTML', "Soil N Flux");
+//                    option.attr('value', "n_flux");
                     optgroupVecFlux.append(option);
                 }
                 if (titles.indexOf("WFluxH") > -1 && titles.indexOf("WFluxV") > -1) {
-                    var option = document.createElement('option');
+                    let option = document.createElement('option');
                     option.innerHTML = "Soil Water Flux";
                     option.value = "water_flux";
+//                    let option = $('<option>');
+//                    option.attr('innerHTML', "Soil Water Flux");
+//                    option.attr('value', "water_flux");
                     optgroupVecFlux.append(option);
                 }
-                plotTypeSelect.append(optgroupVecFlux);
+                $('#plot_type').append(optgroupVecFlux);
                 $("#plot_type").chosen("destroy");
                 chosen_init("plot_type", ".chosen-select");
             }
