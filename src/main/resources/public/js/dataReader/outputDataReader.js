@@ -50,7 +50,9 @@ function readDailyOutput(rawData, data, titles) {
                 for (let j = 0; j < limit; j++) {
                     if (j !== yearIdx && j !== doyIdx && j !== dasIdx && j !== rowIdx && j !== colIdx) {
                         daily[titles[j]] = [[]];
-                        values[titles[j]] = [];
+                        if (values[titles[j]] === undefined) {
+                            values[titles[j]] = [];
+                        }
                     }
                 }
             }
