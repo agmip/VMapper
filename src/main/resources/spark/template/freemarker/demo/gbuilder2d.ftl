@@ -13,8 +13,9 @@
             var titles;
             var zoom = 50;
             var autoDas = -1;
+            var selections = [];
 //            const plotVarExludsion = ["YEAR", "DOY", "DAS", "ROW", "COL", "NFluxR_A", "NFluxL_A", "NFluxD_A", "NFluxU_A", "NFluxR_D", "NFluxL_D", "NFluxD_D", "NFluxU_D"];
-            const plotVarDic = {TotalN:"Soil N content", SWV:"Soil Water Content", AFERT:"Fertilization", IrrVol:"Irrigation", RLV:"Root Length Density", NO3UpTak:"NO3 Uptake", NH4UpTak:"NH4 Uptake", InfVol:"Infiltration", ES_RATE:"Evaporation Rate", EP_RATE:"Transpiration Rate"};
+            const plotVarDic = {SWV:"Soil Water Content", TotalN:"Soil N content", AFERT:"Fertilization", IrrVol:"Irrigation", RLV:"Root Length Density", NO3UpTak:"NO3 Uptake", NH4UpTak:"NH4 Uptake", InfVol:"Infiltration", ES_RATE:"Evaporation Rate", EP_RATE:"Transpiration Rate"};
             
             function readFile() {
                 
@@ -70,12 +71,12 @@
             }
             
             function updatePlotType() {
+                selections = [];
                 let plotTypeSelect = document.getElementById('plot_type');
                 let length = plotTypeSelect.options.length;
                 for (let i = length - 1; i >= 0; i--) {
                     plotTypeSelect.remove(i);
                 }
-//                var optgroupHeatMap = document.createElement('optgroup');
                 let optgroupHeatMap = $('<optgroup>');
                 optgroupHeatMap.attr('label', 'Heatmap Plot');
                 for (let key in plotVarDic) {
@@ -83,33 +84,23 @@
                         let option = document.createElement('option');
                         option.innerHTML = plotVarDic[key];
                         option.value = key;
-//                        let option = $('<option>');
-//                        option.attr('innerHTML', plotVarDic[key]);
-//                        option.attr('value', key);
                         optgroupHeatMap.append(option);
                     }
                 }
                 $('#plot_type').append(optgroupHeatMap);
                 
-//                var optgroupVecFlux = document.createElement('optgroup');
                 let optgroupVecFlux = $('<optgroup>');
                 optgroupVecFlux.attr('label', 'Vector Flux Plot');
-                if (titles.indexOf("NFluxR_D") > -1 && titles.indexOf("NFluxL_D") > -1 && titles.indexOf("NFluxD_D") > -1 && titles.indexOf("NFluxU_D") > -1) {
-                    let option = document.createElement('option');
-                    option.innerHTML = "Soil N Flux";
-                    option.value = "n_flux";
-//                    let option = $('<option>');
-//                    option.attr('innerHTML', "Soil N Flux");
-//                    option.attr('value', "n_flux");
-                    optgroupVecFlux.append(option);
-                }
                 if (titles.indexOf("WFluxH") > -1 && titles.indexOf("WFluxV") > -1) {
                     let option = document.createElement('option');
                     option.innerHTML = "Soil Water Flux";
                     option.value = "water_flux";
-//                    let option = $('<option>');
-//                    option.attr('innerHTML', "Soil Water Flux");
-//                    option.attr('value', "water_flux");
+                    optgroupVecFlux.append(option);
+                }
+                if (titles.indexOf("NFluxR_D") > -1 && titles.indexOf("NFluxL_D") > -1 && titles.indexOf("NFluxD_D") > -1 && titles.indexOf("NFluxU_D") > -1) {
+                    let option = document.createElement('option');
+                    option.innerHTML = "Soil N Flux";
+                    option.value = "n_flux";
                     optgroupVecFlux.append(option);
                 }
                 $('#plot_type').append(optgroupVecFlux);
@@ -118,14 +109,14 @@
             }
             
             function drawPlot() {
-                let options = document.getElementById("plot_type").selectedOptions;
+                updateSelections();
                 var day = document.getElementById('das_scroll_input').value;
                 if (day > daily.length) {
                     document.getElementById("plot_ctrl").hidden = true;
                     document.getElementById("plot_content").hidden = true;
                     return;
                 }
-                if (options.length > 0) {
+                if (selections.length > 0) {
                     document.getElementById("plot_ctrl").hidden = false;
                     document.getElementById("plot_content").hidden = false;
                 } else {
@@ -141,16 +132,16 @@
                     
                 }
                 
-                if (options.length === 1) {
+                if (selections.length === 1) {
                     document.getElementById("output_plot1").className = 'col-sm-12';
                 } else {
                     document.getElementById("output_plot1").className = 'col-sm-6';
                 }
                 
                 let cnt = 1;
-                for (let i in options) {
+                for (let i in selections) {
                     if (cnt > 4) break;
-                    let plotVar = options[i].value;
+                    let plotVar = selections[i];
                     if (plotVar === "water_flux") {
                         drawWaterVectorFluxPlot(data, soilProfile, 'output_plot' + cnt, day, zoom);
                     } else if (plotVar === "n_flux") {
@@ -161,6 +152,23 @@
                     cnt++;
                 }
                 
+            }
+            
+            function updateSelections() {
+                let options = document.getElementById("plot_type").options;
+                for(let i in options) {
+                    let val = options[i].value;
+                    let idx = selections.indexOf(val);
+                    if (options[i].selected) {
+                        if (idx < 0) {
+                            selections.push(val);
+                        }
+                    } else {
+                        if (idx >= 0) {
+                            selections.splice(selections.indexOf(val), 1);
+                        }
+                    }
+                }
             }
             
             function resetDate() {
