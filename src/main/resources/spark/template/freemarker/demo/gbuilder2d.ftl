@@ -318,7 +318,7 @@
         <script type="text/javascript" src="/js/plot/Heatmap.js"></script>
         <script>
             var progress;
-        	$(document).ready(function () {
+            $(document).ready(function () {
                 progress = document.querySelector('.percent');
                 chosen_init_all();
             });
