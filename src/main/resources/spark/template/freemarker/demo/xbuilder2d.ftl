@@ -13,16 +13,23 @@
                 background-color: #f1f1f1;
             }
 
-            /* Style the buttons inside the tab */
-            div.tab button {
+            /* Style the switch buttons inside the tab */
+            div.tab button.tablinks {
                 background-color: inherit;
                 float: left;
                 border: none;
                 outline: none;
                 cursor: pointer;
-                padding: 14px 16px;
+                padding: 8px 16px;
                 transition: 0.3s;
-                font-size: 17px;
+                font-size: 18px;
+                letter-spacing: 2px;
+            }
+
+            /* Style the clicking buttons inside the tab */
+            div.tab button.tabbtns {
+                float: right;
+                margin: 8px 16px;
             }
 
             /* Change background color of buttons on hover */
@@ -42,6 +49,49 @@
                 border: 1px solid #ccc;
                 border-top: none;
             }
+            
+            /* alternating column backgrounds */
+            .vis-time-axis .grid.vis-odd {
+                background: #f5f5f5;
+            }
+
+            /* gray background in weekends, white text color */
+            .vis-time-axis .vis-grid.vis-saturday,
+            .vis-time-axis .vis-grid.vis-sunday {
+                background: gray;
+            }
+            .vis-time-axis .vis-text.vis-saturday,
+            .vis-time-axis .vis-text.vis-sunday {
+                color: white;
+            }
+            
+            /* The whole thing */
+            .event-menu {
+                display: none;
+                z-index: 1000;
+                position: absolute;
+                overflow: hidden;
+                border: 1px solid #CCC;
+                white-space: nowrap;
+                font-family: sans-serif;
+                background: #FFF;
+                color: #333;
+                border-radius: 5px;
+                padding: 0;
+            }
+
+            /* Each of the items in the list */
+            .event-menu li {
+                padding: 8px 12px;
+                cursor: pointer;
+                list-style-type: none;
+                transition: all .3s ease;
+                user-select: none;
+            }
+
+            .event-menu li:hover {
+                background-color: #DEF;
+            }
         </style>
         
         <script>
@@ -57,8 +107,24 @@
                 return "new" + (events.getIds().length + 1);
             }
             
-            function addEvent() {
-                let event = {id: newId(), content: newId(), start: '2013-04-23'}; 
+            function defaultContent(target) {
+                return '<span class="glyphicon glyphicon-tint"></span> New ' + target.value;
+            }
+            
+            function defaultDate() {
+                if (Math.abs(timeline.getCurrentTime() - Date.now()) < 1) {
+                    let start = timeline.getWindow().start.valueOf();
+                    let end = timeline.getWindow().end.valueOf();
+    //                let ret = new Date();
+                    let ret = new Date(start + (end - start) / 8);
+                    return ret;
+                } else {
+                    return timeline.getCurrentTime();
+                }
+            }
+            
+            function addEvent(target) {
+                let event = {id: newId(), content: defaultContent(target), start: defaultDate()}; 
                 events.add(event);
                 timeline.setSelection(event.id);
             }
@@ -75,14 +141,19 @@
             }
             
             function removeEvents() {
-                events.clear();
+                if (timeline.getSelection().length === 0) {
+                    events.clear();
+                } else {
+                    removeEvent();
+                }
             }
 
             function drag(ev) {
                 var event = {
                     id: newId(),
                     type: "box",
-                    content: "New " + ev.target.value
+                    content: defaultContent(ev.target),
+                    event: "irrigation"
                 };
                 ev.dataTransfer.setData("text", JSON.stringify(event));
             }
@@ -99,11 +170,11 @@
                 }
                 document.getElementById(tabName).style.display = "block";
                 document.getElementById(tabName + "Tab").className += " active";
-                controlValidateInput(tabName);
-                if (tabName === "Decoef") {
-                    switchDecoef();
-                    setDecoefLabels();
-                }
+//                controlValidateInput(tabName);
+//                if (tabName === "Decoef") {
+//                    switchDecoef();
+//                    setDecoefLabels();
+//                }
             }
             
             function init() {
@@ -116,8 +187,8 @@
                   {id: "b", content: 'event 2', start: '2013-04-14', group:"ga"},
                   {id: "c", content: 'event 3', start: '2013-04-18', group:"ga"},
                   {id: "d", content: 'event 4', start: '2013-04-16', end: '2013-04-19'},
-                  {id: "e", content: 'event 5', start: '2013-04-25'},
-                  {id: "f", content: 'event 6', start: '2013-04-27'}
+                  {id: "e", content: 'event 5', start: '2013-04-25', group:"ga"},
+                  {id: "f", content: 'event 6', start: '2013-04-27', group:"ga"}
                 ]);
     //            events.on('*', function (event, properties, senderId) {
     //                console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
@@ -132,9 +203,16 @@
     //                start: new Date(),
     //                end: new Date(1000*60*60*24 + (new Date()).valueOf()),
                     editable: true,
-                    orientation: 'top',
+                    minHeight: 300,
+                    orientation: 'top',     // set date on the top
+                    horizontalScroll: true, // default scroll is to move forward/backward on timeline
+                    zoomKey: 'ctrlKey',     // use ctrl key + scroll to zoom in/out
+                    zoomMin: 2073600000,    // minimum zoom = 1 day
+                    itemsAlwaysDraggable: true,
+                    groupEditable: true,
+                    showCurrentTime: false,
                     onAdd: function(event, callback) {
-    //                    alert(event.start);
+//                        alert(event.event);
                         callback(event);
                         timeline.setSelection(event.id);
                     },
@@ -162,7 +240,44 @@
                     }
                 });
                 
+                timeline.on("mouseDown", function (properties) {
+                    timeline.setCurrentTime(properties.time);
+    
+                    // If the clicked element is not the menu
+                    if (!$(properties.event.target).parents(".event-menu").length > 0) {
+                        // Hide it
+                        $(".event-menu").hide(100);
+                    }
+                });
+                timeline.on("click", function(properties) {
+                    timeline.setCurrentTime(properties.time);
+                });
+                timeline.on("contextmenu", function(props) {
+                    props.event.preventDefault();
+                    // Show contextmenu
+                    $(".event-menu").finish().toggle(100).
+                    // In the right position (the mouse)
+                    css({
+                        top: event.pageY + "px",
+                        left: event.pageX + "px"
+                    });
+                });
+
+                // If the menu element is clicked
+                $(".event-menu li").click(function(){
+                    // This is the triggered action name
+                    addEvent($(this));
+                    // Hide it AFTER the action was triggered
+                    $(".event-menu").hide(100);
+                });
+                
                 openTab("SiteInfo");
+                openTab("Event");
+            }
+            
+            function saveFile() {
+                // TODO
+                alert("will save a XFile for you later!");
             }
         </script>
     </head>
@@ -173,45 +288,60 @@
 
         <div class="container-fluid primary-container">
             <div class="tab">
-                <button type="button" class="tablinks active" onclick="openTab('SiteInfo')" id= "SiteInfoTab">General</button>
-                <button type="button" class="tablinks" onclick="openTab('Irrigation')" id = "IrrigationTab">Irrigation</button>
-                <button type="button" class="tablinks" onclick="openTab('SoilWater')" id = "SoilWaterTab">Soil</button>
-                <button type="button" class="tablinks" onclick="openTab('Climate')" id = "ClimateTab">Climate</button>
-                <button type="button" class="tablinks" onclick="openTab('Decoef')" id = "DecoefTab">Coefficient</button>
+                <button type="button" class="tablinks active" onclick="openTab('SiteInfo')" id= "SiteInfoTab"><span class="glyphicon glyphicon-grain"></span> General</button>
+                <button type="button" class="tablinks" onclick="openTab('Event')" id = "EventTab"><span class="glyphicon glyphicon-calendar"></span> Operations</button>
+                <button type="button" class="tablinks" onclick="openTab('Treatment')" id = "TreatmentTab"><span class="glyphicon glyphicon-link"></span> Treatments</button>
+                <button type="button" class="tablinks" onclick="openTab('Config')" id = "ConfigTab"><span class="glyphicon glyphicon-cog"></span> Configurations</button>
+                <button type="button" class="btn btn-success tabbtns" onclick="saveFile()" id = "SaveTabBtn"><span class="glyphicon glyphicon-save"></span> Save</button>
             </div>
             <div id="SiteInfo" class="tabcontent">
                 <center>
+                </center>
+            </div>
+            <div id="Event" class="tabcontent">
+                <center>
                     <div class="row">
                         <div class="col-sm-8 text-left">
-                            <button draggable="true" ondragstart="drag(event)" class="btn btn-primary" value="One-time Event"><span class="glyphicon glyphicon-menu-hamburger"></span> One-time Event</button>
-                            <button draggable="true" ondragstart="drag(event)" class="btn btn-primary" value="Weekly Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Weekly Event</button>
-                            <button draggable="true" ondragstart="drag(event)" class="btn btn-primary" value="Monthly Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Monthly Event</button>
-                            <button draggable="true" ondragstart="drag(event)" class="btn btn-primary" value="Customized Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Customized Event</button>
+                            <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="One-time Event"><span class="glyphicon glyphicon-menu-hamburger"></span> One-time Event</button>
+                            <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Weekly Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Weekly Event</button>
+                            <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Monthly Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Monthly Event</button>
+                            <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Customized Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Customized Event</button>
                         </div>
                         <div class="col-sm-4 text-right">
-                            <button class="btn btn-success" onclick="test()">Test</button>
+                            <!--<button class="btn btn-success" onclick="test()">Test</button>-->
                             <button class="btn btn-success" onclick="addEvent()">Add</button>
-                            <button class="btn btn-success" onclick="editEvent()">Edit</button>
-                            <button class="btn btn-success" onclick="removeEvent()">Remove</button>
+<!--                            <button class="btn btn-success" onclick="editEvent()">Edit</button>
+                            <button class="btn btn-success" onclick="removeEvent()">Remove</button>-->
                             <button class="btn btn-success" onclick="removeEvents()">Clear</button>
                         </div>
                     </div>
                     <br/>
                     <div id="visualization"></div>
                     <br/>
-                </center>   
+                </center>
+                <ul class='event-menu'>
+                    <li value="One-time Event">One-time Event</li>
+                    <li value="Weekly Event">Weekly Event</li>
+                    <li value="Monthly Event">Monthly Event</li>
+                    <li value="Customized Event">Customized Event</li>
+                </ul>
+            </div>
+            <div id="Treatment" class="tabcontent">
+                <center>
+                </center>
+            </div>
+            <div id="Config" class="tabcontent">
+                <center>
+                </center>
             </div>
         </div>
 
         <#include "../footer.ftl">
         
         <script type="text/javascript">
-            
             $(document).ready(function () {
-                
                 init();
             });
-            
         </script>
     </body>
 </html>
