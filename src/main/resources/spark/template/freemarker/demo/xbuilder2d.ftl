@@ -58,7 +58,7 @@
             }
             
             function addEvent() {
-                let event = {id: newId(), content: 'event 7', start: '2013-04-23'}; 
+                let event = {id: newId(), content: newId(), start: '2013-04-23'}; 
                 events.add(event);
                 timeline.setSelection(event.id);
             }
@@ -145,7 +145,7 @@
                 };
 
                 // Create a Timeline
-                var timeline = new vis.Timeline(container, events, options);
+                timeline = new vis.Timeline(container, events, options);
                 timeline.on("select", function(properties) {
                     let selections = properties.items;
                     for (let i in selections) {
