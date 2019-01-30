@@ -214,12 +214,12 @@
 
                 // Create a DataSet (allows two way data-binding)
                 events = new vis.DataSet([
-                  {id: "a", content: 'event 1', start: '2013-04-20', editable: false},
-                  {id: "b", content: 'event 2', start: '2013-04-14', group:"ga"},
-                  {id: "c", content: 'event 3', start: '2013-04-18', group:"ga"},
-                  {id: "d", content: 'event 4', start: '2013-04-16', end: '2013-04-19'},
-                  {id: "e", content: 'event 5', start: '2013-04-25', group:"ga"},
-                  {id: "f", content: 'event 6', start: '2013-04-27', group:"ga"}
+                  {id: "a", content: 'Fixed event 1', start: '2013-04-20', editable: false},
+                  {id: "b", content: 'Weekly event 1.1', start: '2013-04-12', group:"ga"},
+                  {id: "c", content: 'Weekly event 1.2', start: '2013-04-19', group:"ga"},
+                  {id: "d", content: 'Daily event 4', start: '2013-04-15', end: '2013-04-19'},
+                  {id: "e", content: 'Weekly event 1.3', start: '2013-04-26', group:"ga"},
+                  {id: "f", content: 'Weekly event 1.4', start: '2013-05-03', group:"ga"}
                 ]);
     //            events.on('*', function (event, properties, senderId) {
     //                console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
