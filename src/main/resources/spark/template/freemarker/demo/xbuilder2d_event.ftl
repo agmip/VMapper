@@ -4,10 +4,25 @@
     }
 </script>
 <div class="tab">
-    <button type="button" class="tablinks event active" onclick="openTab('default', 'event')" id= "defaultTab"><span class="glyphicon glyphicon-grain"></span> Default</button>
+    <button type="button" class="tablinks active" onclick="openEventTab('default')" id= "defaultTab">Default</button>
+    <button type="button" class="tablinks" onclick="" id= "defaultTab">N-150</button>
+    <button type="button" class="tablinks" onclick="" id= "defaultTab">N-200</button>
+    <button type="button" class="tablinks" onclick="" id= "defaultTab">N-250</button>
+    <button type="button" class="tablinks" onclick="" id= "defaultTab">I-subsurface</button>
+    <button type="button" class="tablinks" onclick="" id= "defaultTab">I-surface</button>
+    <button type="button" class="tablinks" onclick="" id= "defaultTab">I-fixed</button>
     <button type="button" class="btn tabaddbtns" onclick="addEventConfig()" id = "AddEventConfigBtn"><span class="glyphicon glyphicon-plus"></span></button>
 </div>
-<div id="default" class="tabcontent event">
+<div id="default" class="tabcontent">
+    <fieldset>
+        <div id="output_file_group2" class="form-group has-feedback">
+            <label class="control-label" for="op_group_name">Management Setup Name</label>
+            <div class="input-group">
+                <input type="text" id="op_group_name" name="op_group_name" class="form-control" value="Default" required >
+                <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
+            </div>
+        </div>
+    </fieldset>
     <div class="row">
         <div class="col-sm-8 text-left">
             <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="One-time Event"><span class="glyphicon glyphicon-menu-hamburger"></span> One-time Event</button>
@@ -24,8 +39,7 @@
         </div>
     </div>
     <br/>
-    <div id="visualization"></div>
-    <br/>
+    <div class=""><div id="visualization"></div></div>
 </div>
 <ul class='event-menu'>
     <li value="One-time Event">One-time Event</li>
