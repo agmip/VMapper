@@ -46,8 +46,17 @@ h3, h4 {
     padding: 60px 1%;
 }
 .subcontainer {
-    padding: 40px 40px;
+    padding: 20px 20px;
 }
+.row {
+    padding-bottom: 10px; 
+}
+.control-label {
+    /*text-align: left;*/
+}
+/*:required {
+  background: red;
+}*/
 .carousel-inner img {
     width: 100%; /* Set width to 100% */
     margin: auto;

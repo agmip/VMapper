@@ -235,7 +235,7 @@
 
         <div class="container">
             <div class="row">
-                <div id="soilTypeSB_MAP" class="form-group">
+                <div id="output_file_group" class="form-group">
                     <label class="control-label col-sm-2" for="soil_file">Simulated Result :</label>
                     <div class="col-sm-6">
                         <!--<input type="file" id="output_file" name="output_file" class="form-control filestyle" data-text="Browse" data-placeholder="Browse Simulation Result Directory" data-btnClass="btn-primary" onchange="readFile();" placeholder="Browse Simulation Result Directory" data-toggle="tooltip" title="Browse Simulation Result Directory" webkitdirectory  multiple>-->
