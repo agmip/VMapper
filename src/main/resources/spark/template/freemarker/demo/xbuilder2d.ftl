@@ -165,33 +165,46 @@
                 };
                 ev.dataTransfer.setData("text", JSON.stringify(event));
             }
-
-            function openTab(tabName, tabType) {
-                if (tabType === undefined) {
-                    tabType = "main";
-                }
-                let i, tabcontent, tablinks;
-                tabcontent = document.getElementsByClassName("tabcontent");
-                for (i = 0; i < tabcontent.length; i++) {
-                    if (tabcontent[i].className.includes(tabType)) {
-                        tabcontent[i].style.display = "none";
-                    }
-                }
-                tablinks = document.getElementsByClassName("tablinks");
-                for (i = 0; i < tablinks.length; i++) {
-                    if (tablinks[i].className.includes(tabType)) {
-                        tablinks[i].className = tablinks[i].className.replace(" active", "");
-                    }
+            
+            function openMainTab(tabName) {
+                let tabs = ["SiteInfo", "Field", "Event", "Treatment", "Config"];
+                for (let i in tabs) {
+                    document.getElementById(tabs[i]).style.display = "none";
+                    let tabDiv = document.getElementById(tabs[i] + "Tab");
+                    tabDiv.className = tabDiv.className.replace(" active", "");
                 }
                 document.getElementById(tabName).style.display = "block";
                 document.getElementById(tabName + "Tab").className += " active";
-//                controlValidateInput(tabName);
                 if (tabName === "Event") {
-                    openTab("default", "event");
-                    if (fstTmlFlg) {
-                        fstTmlFlg = false;
-                        initTimeline();
-                    }
+                    openEventTab("default", "event");
+                } else if (tabName === "Treatment") {
+                    $("#tr_field_1").chosen("destroy");
+                    chosen_init("tr_field_1", ".chosen-select");
+                    $("#tr_management_1").chosen("destroy");
+                    chosen_init("tr_management_1", ".chosen-select");
+                    $("#tr_config_1").chosen("destroy");
+                    chosen_init("tr_config_1", ".chosen-select");
+                    $("#tr_field_2").chosen("destroy");
+                    chosen_init("tr_field_2", ".chosen-select");
+                    $("#tr_management_2").chosen("destroy");
+                    chosen_init("tr_management_2", ".chosen-select");
+                    $("#tr_config_2").chosen("destroy");
+                    chosen_init("tr_config_2", ".chosen-select");
+                }
+            }
+            
+            function openEventTab(tabName) {
+                let evTabs = ["default"];
+                for (let i in evTabs) {
+                    document.getElementById(evTabs[i]).style.display = "none";
+                    let tabDiv = document.getElementById(evTabs[i] + "Tab");
+                    tabDiv.className = tabDiv.className.replace(" active", "");
+                }
+                document.getElementById(tabName).style.display = "block";
+                document.getElementById(tabName + "Tab").className += " active";
+                if (fstTmlFlg) {
+                    fstTmlFlg = false;
+                    initTimeline();
                 }
             }
             
@@ -291,7 +304,7 @@
             }
             
             function init() {
-                openTab("SiteInfo");
+                openMainTab("SiteInfo");
                 chosen_init_all();
             }
             
@@ -308,23 +321,27 @@
 
         <div class="container-fluid primary-container">
             <div class="tab">
-                <button type="button" class="tablinks main active" onclick="openTab('SiteInfo')" id= "SiteInfoTab"><span class="glyphicon glyphicon-grain"></span> General</button>
-                <button type="button" class="tablinks main" onclick="openTab('Event')" id = "EventTab"><span class="glyphicon glyphicon-calendar"></span> Operations</button>
-                <button type="button" class="tablinks main" onclick="openTab('Treatment')" id = "TreatmentTab"><span class="glyphicon glyphicon-link"></span> Treatments</button>
-                <button type="button" class="tablinks main" onclick="openTab('Config')" id = "ConfigTab"><span class="glyphicon glyphicon-cog"></span> Configurations</button>
+                <button type="button" class="tablinks active" onclick="openMainTab('SiteInfo')" id= "SiteInfoTab"><span class="glyphicon glyphicon-list-alt"></span> General</button>
+                <button type="button" class="tablinks" onclick="openMainTab('Field')" id = "FieldTab"><span class="glyphicon glyphicon-grain"></span> Field</button>
+                <button type="button" class="tablinks" onclick="openMainTab('Event')" id = "EventTab"><span class="glyphicon glyphicon-calendar"></span> Management</button>
+                <button type="button" class="tablinks" onclick="openMainTab('Treatment')" id = "TreatmentTab"><span class="glyphicon glyphicon-link"></span> Treatments</button>
+                <button type="button" class="tablinks" onclick="openMainTab('Config')" id = "ConfigTab"><span class="glyphicon glyphicon-cog"></span> Configurations</button>
                 <button type="button" class="btn btn-success tabbtns" onclick="saveFile()" id = "SaveTabBtn"><span class="glyphicon glyphicon-save"></span> Save</button>
             </div>
-            <div id="SiteInfo" class="tabcontent main">
+            <div id="SiteInfo" class="tabcontent">
                 <#include "xbuilder2d_general.ftl">
             </div>
-            <div id="Event" class="tabcontent main">
-                <#include "xbuilder2d_event.ftl">
-            </div>
-            <div id="Treatment" class="tabcontent main">
+            <div id="Field" class="tabcontent">
                 <center>
                 </center>
             </div>
-            <div id="Config" class="tabcontent main">
+            <div id="Event" class="tabcontent">
+                <#include "xbuilder2d_event.ftl">
+            </div>
+            <div id="Treatment" class="tabcontent">
+                <#include "xbuilder2d_treatment.ftl">
+            </div>
+            <div id="Config" class="tabcontent">
                 <center>
                 </center>
             </div>
