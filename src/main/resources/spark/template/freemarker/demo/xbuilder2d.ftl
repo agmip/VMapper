@@ -3,6 +3,7 @@
 <html>
     <head>
         <#include "../header.ftl">
+        <#include "../chosen.ftl">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" />
         
@@ -20,16 +21,22 @@
                 border: none;
                 outline: none;
                 cursor: pointer;
-                padding: 8px 16px;
+                padding: 9px 16px;
                 transition: 0.3s;
-                font-size: 18px;
+                font-size: 13px;
                 letter-spacing: 2px;
             }
 
             /* Style the clicking buttons inside the tab */
             div.tab button.tabbtns {
                 float: right;
-                margin: 8px 16px;
+                margin: 3px 16px;
+            }
+
+            /* Style the add buttons inside the tab */
+            div.tab button.tabaddbtns {
+                float: left;
+                margin: 3px 16px;
             }
 
             /* Change background color of buttons on hover */
@@ -98,6 +105,7 @@
             let timeline;
             let container;
             let events;
+            let fstTmlFlg = true;
             
             function test() {
                 timeline.setSelection(["b", "c"]);
@@ -158,26 +166,36 @@
                 ev.dataTransfer.setData("text", JSON.stringify(event));
             }
 
-            function openTab(tabName) {
-                var i, tabcontent, tablinks;
+            function openTab(tabName, tabType) {
+                if (tabType === undefined) {
+                    tabType = "main";
+                }
+                let i, tabcontent, tablinks;
                 tabcontent = document.getElementsByClassName("tabcontent");
                 for (i = 0; i < tabcontent.length; i++) {
-                    tabcontent[i].style.display = "none";
+                    if (tabcontent[i].className.includes(tabType)) {
+                        tabcontent[i].style.display = "none";
+                    }
                 }
                 tablinks = document.getElementsByClassName("tablinks");
                 for (i = 0; i < tablinks.length; i++) {
-                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                    if (tablinks[i].className.includes(tabType)) {
+                        tablinks[i].className = tablinks[i].className.replace(" active", "");
+                    }
                 }
                 document.getElementById(tabName).style.display = "block";
                 document.getElementById(tabName + "Tab").className += " active";
 //                controlValidateInput(tabName);
-//                if (tabName === "Decoef") {
-//                    switchDecoef();
-//                    setDecoefLabels();
-//                }
+                if (tabName === "Event") {
+                    openTab("default", "event");
+                    if (fstTmlFlg) {
+                        fstTmlFlg = false;
+                        initTimeline();
+                    }
+                }
             }
             
-            function init() {
+            function initTimeline() {
                 // DOM element where the Timeline will be attached
                 container = document.getElementById('visualization');
 
@@ -270,9 +288,11 @@
                     // Hide it AFTER the action was triggered
                     $(".event-menu").hide(100);
                 });
-                
+            }
+            
+            function init() {
                 openTab("SiteInfo");
-                openTab("Event");
+                chosen_init_all();
             }
             
             function saveFile() {
@@ -288,55 +308,33 @@
 
         <div class="container-fluid primary-container">
             <div class="tab">
-                <button type="button" class="tablinks active" onclick="openTab('SiteInfo')" id= "SiteInfoTab"><span class="glyphicon glyphicon-grain"></span> General</button>
-                <button type="button" class="tablinks" onclick="openTab('Event')" id = "EventTab"><span class="glyphicon glyphicon-calendar"></span> Operations</button>
-                <button type="button" class="tablinks" onclick="openTab('Treatment')" id = "TreatmentTab"><span class="glyphicon glyphicon-link"></span> Treatments</button>
-                <button type="button" class="tablinks" onclick="openTab('Config')" id = "ConfigTab"><span class="glyphicon glyphicon-cog"></span> Configurations</button>
+                <button type="button" class="tablinks main active" onclick="openTab('SiteInfo')" id= "SiteInfoTab"><span class="glyphicon glyphicon-grain"></span> General</button>
+                <button type="button" class="tablinks main" onclick="openTab('Event')" id = "EventTab"><span class="glyphicon glyphicon-calendar"></span> Operations</button>
+                <button type="button" class="tablinks main" onclick="openTab('Treatment')" id = "TreatmentTab"><span class="glyphicon glyphicon-link"></span> Treatments</button>
+                <button type="button" class="tablinks main" onclick="openTab('Config')" id = "ConfigTab"><span class="glyphicon glyphicon-cog"></span> Configurations</button>
                 <button type="button" class="btn btn-success tabbtns" onclick="saveFile()" id = "SaveTabBtn"><span class="glyphicon glyphicon-save"></span> Save</button>
             </div>
-            <div id="SiteInfo" class="tabcontent">
+            <div id="SiteInfo" class="tabcontent main">
+                <#include "xbuilder2d_general.ftl">
+            </div>
+            <div id="Event" class="tabcontent main">
+                <#include "xbuilder2d_event.ftl">
+            </div>
+            <div id="Treatment" class="tabcontent main">
                 <center>
                 </center>
             </div>
-            <div id="Event" class="tabcontent">
-                <center>
-                    <div class="row">
-                        <div class="col-sm-8 text-left">
-                            <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="One-time Event"><span class="glyphicon glyphicon-menu-hamburger"></span> One-time Event</button>
-                            <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Weekly Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Weekly Event</button>
-                            <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Monthly Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Monthly Event</button>
-                            <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Customized Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Customized Event</button>
-                        </div>
-                        <div class="col-sm-4 text-right">
-                            <!--<button class="btn btn-success" onclick="test()">Test</button>-->
-                            <button class="btn btn-success" onclick="addEvent()">Add</button>
-<!--                            <button class="btn btn-success" onclick="editEvent()">Edit</button>
-                            <button class="btn btn-success" onclick="removeEvent()">Remove</button>-->
-                            <button class="btn btn-success" onclick="removeEvents()">Clear</button>
-                        </div>
-                    </div>
-                    <br/>
-                    <div id="visualization"></div>
-                    <br/>
-                </center>
-                <ul class='event-menu'>
-                    <li value="One-time Event">One-time Event</li>
-                    <li value="Weekly Event">Weekly Event</li>
-                    <li value="Monthly Event">Monthly Event</li>
-                    <li value="Customized Event">Customized Event</li>
-                </ul>
-            </div>
-            <div id="Treatment" class="tabcontent">
-                <center>
-                </center>
-            </div>
-            <div id="Config" class="tabcontent">
+            <div id="Config" class="tabcontent main">
                 <center>
                 </center>
             </div>
         </div>
 
         <#include "../footer.ftl">
+        
+        <script type="text/javascript" src="/plugins/chosen/chosen.jquery.min.js" ></script>
+        <script type="text/javascript" src="/plugins/chosen/prism.js" charset="utf-8"></script>
+        <script type="text/javascript" src="/js/chosen/init.js" charset="utf-8"></script>
         
         <script type="text/javascript">
             $(document).ready(function () {
