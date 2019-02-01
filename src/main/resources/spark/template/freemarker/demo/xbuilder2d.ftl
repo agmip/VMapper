@@ -295,7 +295,10 @@
                 <li id="SiteInfoTab" class="active">
                     <a data-toggle="tab" href="#SiteInfo"><span class="glyphicon glyphicon-list-alt"></span> General</a>
                 </li>
-                <li id="FieldTab">
+                <li id="TreatmentTab">
+                    <a data-toggle="tab" href="#Treatment"><span class="glyphicon glyphicon-link"></span> Treatments <span class="badge" id="treatment_badge">2</span></a>
+                </li>
+                <li id="FieldTab" class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         <span class="glyphicon glyphicon-link"></span>
                         Field
@@ -303,7 +306,7 @@
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a data-toggle="tab" href="#Field" class="create-link">Create new...</a></li>
+                        <li><a data-toggle="tab" href="#Field" class="create-link" id="field_create">Create new...</a></li>
                     </ul>
                 <li id="EventTab" class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -314,7 +317,7 @@
                     </a>
                     
                     <ul class="dropdown-menu">
-                        <li><a data-toggle="tab" href="#Event" class="create-link">Create new...</a></li>
+                        <li><a data-toggle="tab" href="#Event" class="create-link" id="management_create">Create new...</a></li>
                         <li><a data-toggle="tab" href="#Event">Default</a></li>
                         <li><a data-toggle="tab" href="#Event">N-150</a></li>
                         <li><a data-toggle="tab" href="#Event">N-200</a></li>
@@ -324,10 +327,7 @@
                         <li><a data-toggle="tab" href="#Event">I-fixed</a></li>
                     </ul>
                 </li>
-                <li id="TreatmentTab">
-                    <a data-toggle="tab" href="#Treatment"><span class="glyphicon glyphicon-link"></span> Treatments <span class="badge" id="treatment_badge">2</span></a>
-                </li>
-                <li id="ConfigTab">
+                <li id="ConfigTab" class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         <span class="glyphicon glyphicon-calendar"></span>
                         Configurations
@@ -335,7 +335,7 @@
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a data-toggle="tab" href="#Config" class="create-link">Create new...</a></li>
+                        <li><a data-toggle="tab" href="#Config" class="create-link" id="config_create">Create new...</a></li>
                     </ul>
                 </li>
                 <button id="SaveTabBtn" type="button" class="btn btn-success tabbtns" onclick="saveFile()"><span class="glyphicon glyphicon-save"></span> Save</li>
@@ -344,19 +344,21 @@
             <div id="SiteInfo" class="tab-pane fade in active">
                 <#include "xbuilder2d_general.ftl">
             </div>
+            <div id="Treatment" class="tab-pane fade">
+                <#include "xbuilder2d_treatment.ftl">
+            </div>
             <div id="Field" class="tab-pane fade">
-                <center>
-                </center>
+                <div class="subcontainer"><center>
+                    Under construction
+                </center></div>
             </div>
             <div id="Event" class="tab-pane fade">
                 <#include "xbuilder2d_event.ftl">
             </div>
-            <div id="Treatment" class="tab-pane fade">
-                <#include "xbuilder2d_treatment.ftl">
-            </div>
             <div id="Config" class="tab-pane fade">
-                <center>
-                </center>
+                <div class="subcontainer"><center>
+                    Under construction
+                </center></div>
             </div>
             </div>
         </div>

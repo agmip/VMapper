@@ -1,3 +1,11 @@
+<script>
+    function openTab(target) {
+        if (target.selectedIndex === 1) {
+            target.options[1].selected = false;
+            $("#" + target.id.replace("tr_", "").replace(/_\d+/, "") + "_create").click();
+        }
+    }
+</script>
 <div class="subcontainer">
     <fieldset>
         <legend>Treatment Information</legend>
@@ -21,17 +29,18 @@
             </td>
             <td>
                 <div class="input-group col-sm-11">
-                    <select id="tr_field_1" class="form-control chosen-select-deselect" data-placeholder="Choose a field..." required>
+                    <select id="tr_field_1" class="form-control chosen-select-deselect" onchange="openTab(this);" data-placeholder="Choose a field..." required>
                         <option value=""></option>
-                        <option value="PT">Default</option>
-                        <option value="TM">Field 2</option>
+                        <option value="">Create new...</option>
                     </select>
                 </div>
             </td>
             <td>
                 <div class="input-group col-sm-11">
-                    <select id="tr_management_1" class="form-control chosen-select-deselect" data-placeholder="Apply management setups..." multiple required>
-                        <option value="PT" selected>Default</option>
+                    <select id="tr_management_1" class="form-control chosen-select-deselect" onchange="openTab(this);" data-placeholder="Apply management setups..." multiple required>
+                        <option value=""></option>
+                        <option value="">Create new...</option>
+                        <option value="PT">Default</option>
                         <option value="TM">N-150</option>
                         <option value="TM">N-200</option>
                         <option value="TM">N-250</option>
@@ -43,10 +52,9 @@
             </td>
             <td>
                 <div class="input-group col-sm-11">
-                    <select id="tr_config_1" class="form-control chosen-select-deselect" data-placeholder="Choose a Configuration..." required>
+                    <select id="tr_config_1" class="form-control chosen-select-deselect" onchange="openTab(this);" data-placeholder="Choose a Configuration..." required>
                         <option value=""></option>
-                        <option value="PT">Default</option>
-                        <option value="TM">Config 2</option>
+                        <option value="">Create new...</option>
                     </select>
                 </div>
             </td>
@@ -60,17 +68,18 @@
             </td>
             <td>
                 <div class="input-group col-sm-11">
-                    <select id="tr_field_2" class="form-control chosen-select-deselect" data-placeholder="Choose a field..." required>
+                    <select id="tr_field_2" class="form-control chosen-select-deselect" onchange="openTab(this);" data-placeholder="Choose a field..." required>
                         <option value=""></option>
-                        <option value="PT">Default</option>
-                        <option value="TM">Field 2</option>
+                        <option value="">Create new...</option>
                     </select>
                 </div>
             </td>
             <td>
                 <div class="input-group col-sm-11">
-                    <select id="tr_management_2" class="form-control chosen-select-deselect" data-placeholder="Apply management setups..." multiple required>
-                        <option value="PT" selected>Default</option>
+                    <select id="tr_management_2" class="form-control chosen-select-deselect" onchange="openTab(this);" data-placeholder="Apply management setups..." multiple required>
+                        <option value=""></option>
+                        <option value="">Create new...</option>
+                        <option value="PT">Default</option>
                         <option value="TM">N-150</option>
                         <option value="TM">N-200</option>
                         <option value="TM">N-250</option>
@@ -82,10 +91,9 @@
             </td>
             <td>
                 <div class="input-group col-sm-11">
-                    <select id="tr_config_2" class="form-control chosen-select-deselect" data-placeholder="Choose a Configuration..." required>
+                    <select id="tr_config_2" class="form-control chosen-select-deselect" onchange="openTab(this);" data-placeholder="Choose a Configuration..." required>
                         <option value=""></option>
-                        <option value="PT">Default</option>
-                        <option value="TM">Config 2</option>
+                        <option value="">Create new...</option>
                     </select>
                 </div>
             </td>
