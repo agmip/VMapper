@@ -19,6 +19,9 @@
                 float: left;
                 margin: 5px 5px;
             }
+            .dropdown-menu li a.create-link{
+                font-style:italic;
+            }
             
             /* alternating column backgrounds */
             .vis-time-axis .grid.vis-odd {
@@ -292,19 +295,22 @@
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         <span class="glyphicon glyphicon-link"></span>
                         Field
+                        <span class="badge" id="field_badge">0</span>
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a data-toggle="tab" href="#Field" style="font-style:italic;">Create new...</a></li>
+                        <li><a data-toggle="tab" href="#Field" class="create-link">Create new...</a></li>
                     </ul>
                 <li id="EventTab" class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         <span class="glyphicon glyphicon-calendar"></span>
                         Management
+                        <span class="badge" id="management_badge">7</span>
                         <span class="caret"></span>
                     </a>
+                    
                     <ul class="dropdown-menu">
-                        <li><a data-toggle="tab" href="#Event" style="font-style:italic;">Create new...</a></li>
+                        <li><a data-toggle="tab" href="#Event" class="create-link">Create new...</a></li>
                         <li><a data-toggle="tab" href="#Event">Default</a></li>
                         <li><a data-toggle="tab" href="#Event">N-150</a></li>
                         <li><a data-toggle="tab" href="#Event">N-200</a></li>
@@ -315,16 +321,17 @@
                     </ul>
                 </li>
                 <li id="TreatmentTab">
-                    <a data-toggle="tab" href="#Treatment"><span class="glyphicon glyphicon-link"></span> Treatments</a>
+                    <a data-toggle="tab" href="#Treatment"><span class="glyphicon glyphicon-link"></span> Treatments <span class="badge" id="treatment_badge">2</span></a>
                 </li>
                 <li id="ConfigTab">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         <span class="glyphicon glyphicon-calendar"></span>
                         Configurations
+                        <span class="badge" id="config_badge">0</span>
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a data-toggle="tab" href="#Config" style="font-style:italic;">Create new...</a></li>
+                        <li><a data-toggle="tab" href="#Config" class="create-link">Create new...</a></li>
                     </ul>
                 </li>
                 <button id="SaveTabBtn" type="button" class="btn btn-success tabbtns" onclick="saveFile()"><span class="glyphicon glyphicon-save"></span> Save</li>
