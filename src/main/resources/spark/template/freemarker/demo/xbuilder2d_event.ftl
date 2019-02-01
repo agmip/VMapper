@@ -3,18 +3,9 @@
         alert("A tab will be created for the new operation group!");
     }
 </script>
-<div class="tab">
-    <button type="button" class="tablinks active" onclick="openEventTab('default')" id= "defaultTab">Default</button>
-    <button type="button" class="tablinks" onclick="" id= "defaultTab">N-150</button>
-    <button type="button" class="tablinks" onclick="" id= "defaultTab">N-200</button>
-    <button type="button" class="tablinks" onclick="" id= "defaultTab">N-250</button>
-    <button type="button" class="tablinks" onclick="" id= "defaultTab">I-subsurface</button>
-    <button type="button" class="tablinks" onclick="" id= "defaultTab">I-surface</button>
-    <button type="button" class="tablinks" onclick="" id= "defaultTab">I-fixed</button>
-    <button type="button" class="btn tabaddbtns" onclick="addEventConfig()" id = "AddEventConfigBtn"><span class="glyphicon glyphicon-plus"></span></button>
-</div>
-<div id="default" class="tabcontent">
+<div class="subcontainer">
     <fieldset>
+        <legend>Management Information</legend>
         <div id="output_file_group2" class="form-group has-feedback">
             <label class="control-label" for="op_group_name">Management Setup Name</label>
             <div class="input-group">

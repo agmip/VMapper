@@ -8,53 +8,16 @@
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" />
         
         <style type="text/css">
-            div.tab {
-                overflow: hidden;
-                border: 1px solid #ccc;
-                background-color: #f1f1f1;
-            }
-
-            /* Style the switch buttons inside the tab */
-            div.tab button.tablinks {
-                background-color: inherit;
-                float: left;
-                border: none;
-                outline: none;
-                cursor: pointer;
-                padding: 9px 16px;
-                transition: 0.3s;
-                font-size: 13px;
-                letter-spacing: 2px;
-            }
-
             /* Style the clicking buttons inside the tab */
-            div.tab button.tabbtns {
+            ul.nav-tabs button.tabbtns {
                 float: right;
-                margin: 3px 16px;
+                margin: 0px 16px;
             }
-
+            
             /* Style the add buttons inside the tab */
-            div.tab button.tabaddbtns {
+            ul.nav-tabs button.tabaddbtns {
                 float: left;
-                margin: 3px 16px;
-            }
-
-            /* Change background color of buttons on hover */
-            div.tab button:hover {
-                background-color: #ddd;
-            }
-
-            /* Create an active/current tablink class */
-            div.tab button.active {
-                background-color: #ccc;
-            }
-
-            /* Style the tab content */
-            .tabcontent {
-                display: none;
-                padding: 10px 10px;
-                border: 1px solid #ccc;
-                border-top: none;
+                margin: 5px 5px;
             }
             
             /* alternating column backgrounds */
@@ -166,47 +129,29 @@
                 ev.dataTransfer.setData("text", JSON.stringify(event));
             }
             
-            function openMainTab(tabName) {
-                let tabs = ["SiteInfo", "Field", "Event", "Treatment", "Config"];
-                for (let i in tabs) {
-                    document.getElementById(tabs[i]).style.display = "none";
-                    let tabDiv = document.getElementById(tabs[i] + "Tab");
-                    tabDiv.className = tabDiv.className.replace(" active", "");
-                }
-                document.getElementById(tabName).style.display = "block";
-                document.getElementById(tabName + "Tab").className += " active";
-                if (tabName === "Event") {
-                    openEventTab("default", "event");
-                } else if (tabName === "Treatment") {
-                    $("#tr_field_1").chosen("destroy");
-                    chosen_init("tr_field_1", ".chosen-select");
-                    $("#tr_management_1").chosen("destroy");
-                    chosen_init("tr_management_1", ".chosen-select");
-                    $("#tr_config_1").chosen("destroy");
-                    chosen_init("tr_config_1", ".chosen-select");
-                    $("#tr_field_2").chosen("destroy");
-                    chosen_init("tr_field_2", ".chosen-select");
-                    $("#tr_management_2").chosen("destroy");
-                    chosen_init("tr_management_2", ".chosen-select");
-                    $("#tr_config_2").chosen("destroy");
-                    chosen_init("tr_config_2", ".chosen-select");
-                }
-            }
-            
-            function openEventTab(tabName) {
-                let evTabs = ["default"];
-                for (let i in evTabs) {
-                    document.getElementById(evTabs[i]).style.display = "none";
-                    let tabDiv = document.getElementById(evTabs[i] + "Tab");
-                    tabDiv.className = tabDiv.className.replace(" active", "");
-                }
-                document.getElementById(tabName).style.display = "block";
-                document.getElementById(tabName + "Tab").className += " active";
-                if (fstTmlFlg) {
-                    fstTmlFlg = false;
-                    initTimeline();
-                }
-            }
+//            function openMainTab(target) {
+//                let tabName = target.id;
+//                if (tabName === "EventTab") {
+//                    if (fstTmlFlg) {
+//                        fstTmlFlg = false;
+//                        initTimeline();
+//                    }
+////                    openEventTab("default", "event");
+//                } else if (tabName === "TreatmentTab") {
+//                    $("#tr_field_1").chosen("destroy");
+//                    chosen_init("tr_field_1", ".chosen-select");
+//                    $("#tr_management_1").chosen("destroy");
+//                    chosen_init("tr_management_1", ".chosen-select");
+//                    $("#tr_config_1").chosen("destroy");
+//                    chosen_init("tr_config_1", ".chosen-select");
+//                    $("#tr_field_2").chosen("destroy");
+//                    chosen_init("tr_field_2", ".chosen-select");
+//                    $("#tr_management_2").chosen("destroy");
+//                    chosen_init("tr_management_2", ".chosen-select");
+//                    $("#tr_config_2").chosen("destroy");
+//                    chosen_init("tr_config_2", ".chosen-select");
+//                }
+//            }
             
             function initTimeline() {
                 // DOM element where the Timeline will be attached
@@ -304,8 +249,27 @@
             }
             
             function init() {
-                openMainTab("SiteInfo");
                 chosen_init_all();
+                $('.nav-tabs #EventTab').on('shown.bs.tab', function(){
+                    if (fstTmlFlg) {
+                        fstTmlFlg = false;
+                        initTimeline();
+                    }
+                });
+                $('.nav-tabs #TreatmentTab').on('shown.bs.tab', function(){
+                    $("#tr_field_1").chosen("destroy");
+                    chosen_init("tr_field_1", ".chosen-select");
+                    $("#tr_management_1").chosen("destroy");
+                    chosen_init("tr_management_1", ".chosen-select");
+                    $("#tr_config_1").chosen("destroy");
+                    chosen_init("tr_config_1", ".chosen-select");
+                    $("#tr_field_2").chosen("destroy");
+                    chosen_init("tr_field_2", ".chosen-select");
+                    $("#tr_management_2").chosen("destroy");
+                    chosen_init("tr_management_2", ".chosen-select");
+                    $("#tr_config_2").chosen("destroy");
+                    chosen_init("tr_config_2", ".chosen-select");
+                });
             }
             
             function saveFile() {
@@ -320,30 +284,69 @@
         <#include "../nav.ftl">
 
         <div class="container-fluid primary-container">
-            <div class="tab">
-                <button type="button" class="tablinks active" onclick="openMainTab('SiteInfo')" id= "SiteInfoTab"><span class="glyphicon glyphicon-list-alt"></span> General</button>
-                <button type="button" class="tablinks" onclick="openMainTab('Field')" id = "FieldTab"><span class="glyphicon glyphicon-grain"></span> Field</button>
-                <button type="button" class="tablinks" onclick="openMainTab('Event')" id = "EventTab"><span class="glyphicon glyphicon-calendar"></span> Management</button>
-                <button type="button" class="tablinks" onclick="openMainTab('Treatment')" id = "TreatmentTab"><span class="glyphicon glyphicon-link"></span> Treatments</button>
-                <button type="button" class="tablinks" onclick="openMainTab('Config')" id = "ConfigTab"><span class="glyphicon glyphicon-cog"></span> Configurations</button>
-                <button type="button" class="btn btn-success tabbtns" onclick="saveFile()" id = "SaveTabBtn"><span class="glyphicon glyphicon-save"></span> Save</button>
-            </div>
-            <div id="SiteInfo" class="tabcontent">
+            <ul class="nav nav-tabs">
+                <li id="SiteInfoTab" class="active">
+                    <a data-toggle="tab" href="#SiteInfo"><span class="glyphicon glyphicon-list-alt"></span> General</a>
+                </li>
+                <li id="FieldTab">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <span class="glyphicon glyphicon-link"></span>
+                        Field
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a data-toggle="tab" href="#Field" style="font-style:italic;">Create new...</a></li>
+                    </ul>
+                <li id="EventTab" class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                        Management
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a data-toggle="tab" href="#Event" style="font-style:italic;">Create new...</a></li>
+                        <li><a data-toggle="tab" href="#Event">Default</a></li>
+                        <li><a data-toggle="tab" href="#Event">N-150</a></li>
+                        <li><a data-toggle="tab" href="#Event">N-200</a></li>
+                        <li><a data-toggle="tab" href="#Event">N-250</a></li>
+                        <li><a data-toggle="tab" href="#Event">I-subsurface</a></li>
+                        <li><a data-toggle="tab" href="#Event">I-surface</a></li>
+                        <li><a data-toggle="tab" href="#Event">I-fixed</a></li>
+                    </ul>
+                </li>
+                <li id="TreatmentTab">
+                    <a data-toggle="tab" href="#Treatment"><span class="glyphicon glyphicon-link"></span> Treatments</a>
+                </li>
+                <li id="ConfigTab">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                        Configurations
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a data-toggle="tab" href="#Config" style="font-style:italic;">Create new...</a></li>
+                    </ul>
+                </li>
+                <button id="SaveTabBtn" type="button" class="btn btn-success tabbtns" onclick="saveFile()"><span class="glyphicon glyphicon-save"></span> Save</li>
+            </ul>
+            <div class="tab-content">
+            <div id="SiteInfo" class="tab-pane fade in active">
                 <#include "xbuilder2d_general.ftl">
             </div>
-            <div id="Field" class="tabcontent">
+            <div id="Field" class="tab-pane fade">
                 <center>
                 </center>
             </div>
-            <div id="Event" class="tabcontent">
+            <div id="Event" class="tab-pane fade">
                 <#include "xbuilder2d_event.ftl">
             </div>
-            <div id="Treatment" class="tabcontent">
+            <div id="Treatment" class="tab-pane fade">
                 <#include "xbuilder2d_treatment.ftl">
             </div>
-            <div id="Config" class="tabcontent">
+            <div id="Config" class="tab-pane fade">
                 <center>
                 </center>
+            </div>
             </div>
         </div>
 
