@@ -56,12 +56,12 @@
                     <a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logout&nbsp;&nbsp;&nbsp;&nbsp;</a>
                 </li>
                 <#else>
-                <li class="navbar-left">
+<!--                <li class="navbar-left">
                     <a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login</a>
                 </li>
                 <li class="navbar-defalut">
                     <a href="/register"><span class="glyphicon glyphicon-user"></span> Register&nbsp;&nbsp;&nbsp;&nbsp;</a>
-                </li>
+                </li>-->
                 </#if>
             </ul>
         </div>
