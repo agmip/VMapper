@@ -265,17 +265,17 @@
                 });
                 $('.nav-tabs #TreatmentTab').on('shown.bs.tab', function(){
                     $("#tr_field_1").chosen("destroy");
-                    chosen_init("tr_field_1", ".chosen-select");
+                    chosen_init("tr_field_1");
                     $("#tr_management_1").chosen("destroy");
-                    chosen_init("tr_management_1", ".chosen-select");
+                    chosen_init("tr_management_1");
                     $("#tr_config_1").chosen("destroy");
-                    chosen_init("tr_config_1", ".chosen-select");
+                    chosen_init("tr_config_1");
                     $("#tr_field_2").chosen("destroy");
-                    chosen_init("tr_field_2", ".chosen-select");
+                    chosen_init("tr_field_2");
                     $("#tr_management_2").chosen("destroy");
-                    chosen_init("tr_management_2", ".chosen-select");
+                    chosen_init("tr_management_2");
                     $("#tr_config_2").chosen("destroy");
-                    chosen_init("tr_config_2", ".chosen-select");
+                    chosen_init("tr_config_2");
                 });
             }
             

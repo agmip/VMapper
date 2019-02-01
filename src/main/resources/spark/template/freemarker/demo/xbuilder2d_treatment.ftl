@@ -22,6 +22,7 @@
             <td>
                 <div class="input-group col-sm-11">
                     <select id="tr_field_1" class="form-control chosen-select-deselect" data-placeholder="Choose a field..." required>
+                        <option value=""></option>
                         <option value="PT">Default</option>
                         <option value="TM">Field 2</option>
                     </select>
@@ -43,6 +44,7 @@
             <td>
                 <div class="input-group col-sm-11">
                     <select id="tr_config_1" class="form-control chosen-select-deselect" data-placeholder="Choose a Configuration..." required>
+                        <option value=""></option>
                         <option value="PT">Default</option>
                         <option value="TM">Config 2</option>
                     </select>
@@ -59,6 +61,7 @@
             <td>
                 <div class="input-group col-sm-11">
                     <select id="tr_field_2" class="form-control chosen-select-deselect" data-placeholder="Choose a field..." required>
+                        <option value=""></option>
                         <option value="PT">Default</option>
                         <option value="TM">Field 2</option>
                     </select>
@@ -80,6 +83,7 @@
             <td>
                 <div class="input-group col-sm-11">
                     <select id="tr_config_2" class="form-control chosen-select-deselect" data-placeholder="Choose a Configuration..." required>
+                        <option value=""></option>
                         <option value="PT">Default</option>
                         <option value="TM">Config 2</option>
                     </select>

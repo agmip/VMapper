@@ -105,7 +105,7 @@
                 }
                 $('#plot_type').append(optgroupVecFlux);
                 $("#plot_type").chosen("destroy");
-                chosen_init("plot_type", ".chosen-select");
+                chosen_init("plot_type");
             }
             
             function drawPlot() {
@@ -258,7 +258,7 @@
                 <div id="plot_options" class="form-group" hidden="true">
                     <label class="control-label col-sm-2">Plot Type :</label>
                     <div class="col-sm-6 text-left">
-                        <select id="plot_type" data-placeholder="Select Plot Type" title="Select Plot Type" onchange="drawPlot();" class="form-control chosen-select" multiple>
+                        <select id="plot_type" data-placeholder="Select Plot Type" title="Select Plot Type" onchange="drawPlot();" class="form-control chosen-select-max4" multiple>
                         <!--<select id="plot_type" class="form-control" title="Select Plot Type" multiple>-->
                             <!--<option value="">Select Plot Type (Up to 4)</option>-->
                         </select>
