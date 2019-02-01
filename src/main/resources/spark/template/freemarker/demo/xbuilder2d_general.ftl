@@ -56,51 +56,53 @@
     <fieldset>
         <legend>Experiment Information</legend>
         <div id="output_file_group" class="form-group has-feedback col-sm-12">
-            <label class="control-label" for="local_name">Experiment Name</label>
+            <label class="control-label" for="local_name">Experiment Name *</label>
             <div class="input-group col-sm-12">
+                <!--<span class="input-group-addon glyphicon">*</span>-->
                 <input type="text" id="local_name" name="local_name" class="form-control" placeholder="Locally used name for experiment" data-toggle="tooltip" title="Locally used name for experiment" required>
-                <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
+                <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
             </div>
         </div>
             <fieldset class="col-sm-4">
                 <legend data-toggle="tooltip" title="Used for file name">Experiment Identifier</legend>
-                <div class="form-group col-sm-6">
-                    <label class="control-label" for="institute">Institute</label>
+                <div class="form-group has-feedback col-sm-6">
+                    <label class="control-label" for="institute">Institute *</label>
                     <div class="input-group">
                         <input type="text" id="institute" name="institute" class="form-control" onchange="updateExname();" placeholder="Institute code" data-toggle="tooltip" title="Institute indentifier code" required>
-                        <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
+                        <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
                 </div>
-                <div class="form-group col-sm-6">
-                    <label class="control-label" for="in">Site</label>
+                <div class="form-group has-feedback col-sm-6">
+                    <label class="control-label" for="in">Site *</label>
                     <div class="input-group">
                         <input type="text" id="site" name="site" class="form-control" onchange="updateExname();" placeholder="Site code" data-toggle="tooltip" title="Site indentifier code" required>
-                        <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
+                        <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
                 </div>
-                <div class="form-group col-sm-6">
-                    <label class="control-label" for="start_year">Year</label>
+                <div class="form-group has-feedback col-sm-6">
+                    <label class="control-label" for="start_year">Year *</label>
                     <div class="input-group">
                         <input type="text" id="start_year" name="start_year" class="form-control" onchange="updateExname();" placeholder="Start year" data-toggle="tooltip" title="The start year of experiment" required>
-                        <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
+                        <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
                 </div>
-                <div class="form-group col-sm-6">
-                    <label class="control-label" for="exp_no">Experiment No.</label>
+                <div class="form-group has-feedback col-sm-6">
+                    <label class="control-label" for="exp_no">Experiment No. *</label>
                     <div class="input-group">
                         <input type="text" id="exp_no" name="exp_no" class="form-control" onchange="updateExname();" placeholder="Experiment no." data-toggle="tooltip" title="The index number of experiment" required>
-                        <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
+                        <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
                 </div>
-                <div class="form-group col-sm-6">
-                    <label class="control-label" for="exp_no">Crop</label>
+                <div class="form-group has-feedback col-sm-6">
+                    <label class="control-label" for="exp_no">Crop *</label>
                     <div class="input-group col-sm-12">
+                        <!--<span class="input-group-addon glyphicon">*</span>-->
                         <select id="crid" class="form-control chosen-select-deselect" onchange="updateExname();" data-placeholder="Choose a Crop..." required>
                             <option value=""></option>
                             <option value="PT">Potato</option>
                             <option value="TM">Tomato</option>
                         </select>
-                        <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
+                        <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
                 </div>
                 <div class="form-group col-sm-6">

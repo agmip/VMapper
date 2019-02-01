@@ -22,6 +22,10 @@
             .dropdown-menu li a.create-link{
                 font-style:italic;
             }
+            .align-middle{
+                text-align: center;
+                vertical-align: middle;
+            }
             
             /* alternating column backgrounds */
             .vis-time-axis .grid.vis-odd {

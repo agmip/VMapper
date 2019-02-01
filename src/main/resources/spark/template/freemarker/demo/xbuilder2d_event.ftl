@@ -7,10 +7,10 @@
     <fieldset>
         <legend>Management Information</legend>
         <div id="output_file_group2" class="form-group has-feedback">
-            <label class="control-label" for="op_group_name">Management Setup Name</label>
+            <label class="control-label" for="op_group_name">Management Setup Name *</label>
             <div class="input-group">
                 <input type="text" id="op_group_name" name="op_group_name" class="form-control" value="Default" required >
-                <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
+                <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
             </div>
         </div>
     </fieldset>

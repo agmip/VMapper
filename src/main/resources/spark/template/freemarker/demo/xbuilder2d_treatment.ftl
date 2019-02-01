@@ -13,20 +13,18 @@
         </thead>
         <tbody>
           <tr>
-              <td class="text-center">1</td>
+              <td class="align-middle"><label>1</label></td>
             <td>
                 <div class="input-group col-sm-11">
                     <input type="text" id="local_name" name="local_name" class="form-control" placeholder="Locally used name for experiment" data-toggle="tooltip" title="Locally used name for experiment" required>
-                    <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                 </div>
             </td>
             <td>
                 <div class="input-group col-sm-11">
-                    <select id="tr_field_1" class="form-control chosen-select-deselect" onchange="updateExname();" data-placeholder="Choose a field..." required>
+                    <select id="tr_field_1" class="form-control chosen-select-deselect" data-placeholder="Choose a field..." required>
                         <option value="PT">Default</option>
                         <option value="TM">Field 2</option>
                     </select>
-                    <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                 </div>
             </td>
             <td>
@@ -40,7 +38,6 @@
                         <option value="TM">I-surface</option>
                         <option value="TM">I-fixed</option>
                     </select>
-                    <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                 </div>
             </td>
             <td>
@@ -49,16 +46,14 @@
                         <option value="PT">Default</option>
                         <option value="TM">Config 2</option>
                     </select>
-                    <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                 </div>
             </td>
           </tr>
           <tr>
-              <td class="text-center">2</td>
+              <td class="align-middle"><label>2</label></td>
             <td>
                 <div class="input-group col-sm-11">
                     <input type="text" id="local_name" name="local_name" class="form-control" placeholder="Locally used name for experiment" data-toggle="tooltip" title="Locally used name for experiment" required>
-                    <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                 </div>
             </td>
             <td>
@@ -67,7 +62,6 @@
                         <option value="PT">Default</option>
                         <option value="TM">Field 2</option>
                     </select>
-                    <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                 </div>
             </td>
             <td>
@@ -81,7 +75,6 @@
                         <option value="TM">I-surface</option>
                         <option value="TM">I-fixed</option>
                     </select>
-                    <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                 </div>
             </td>
             <td>
@@ -90,7 +83,6 @@
                         <option value="PT">Default</option>
                         <option value="TM">Config 2</option>
                     </select>
-                    <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                 </div>
             </td>
           </tr>
