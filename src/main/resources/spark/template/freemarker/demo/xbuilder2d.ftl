@@ -6,16 +6,20 @@
         <#include "../chosen.ftl">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" />
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/handsontable-pro@latest/dist/handsontable.full.min.css">
         
         <script>
-            let timeline;
-            let container;
             let events;
+            let timeline;
+            let tmlContainer;
             let fstTmlFlg = true;
+            let spreadsheet;
+            let spsContainer;
+            let fstSpsFlg = true;
             
             function initTimeline() {
                 // DOM element where the Timeline will be attached
-                container = document.getElementById('visualization');
+                tmlContainer = document.getElementById('visualization');
 
                 // Create a DataSet (allows two way data-binding)
                 events = new vis.DataSet([
@@ -34,7 +38,7 @@
     //            });
 
                 // Configuration for the Timeline
-                var options = {
+                let tmlOptions = {
                     stack: true,
     //                start: new Date(),
     //                end: new Date(1000*60*60*24 + (new Date()).valueOf()),
@@ -59,7 +63,7 @@
                 };
 
                 // Create a Timeline
-                timeline = new vis.Timeline(container, events, options);
+                timeline = new vis.Timeline(tmlContainer, events, tmlOptions);
                 timeline.on("select", function(properties) {
                     let selections = properties.items;
                     for (let i in selections) {
@@ -106,6 +110,67 @@
                     // Hide it AFTER the action was triggered
                     $(".event-menu").hide(100);
                 });
+            }
+            
+            function initSpreadsheet() {
+                
+                var dataObject = [
+                    {id: "a", content: 'Fixed event 1', start: '2013-04-20', editable: false},
+                    {id: "b", content: 'Weekly event 1.1', start: '2013-04-12', group:"ga"},
+                    {id: "c", content: 'Weekly event 1.2', start: '2013-04-19', group:"ga"},
+                    {id: "d", content: 'Daily event 4', start: '2013-04-15', end: '2013-04-19'},
+                    {id: "e", content: 'Weekly event 1.3', start: '2013-04-26', group:"ga"},
+                    {id: "f", content: 'Weekly event 1.4', start: '2013-05-03', group:"ga"}
+                ];
+                spsContainer = document.querySelector('#spreadsheet_view');
+        //        var hotElementContainer = hotElement.parentNode;
+                var spsOptions = {
+                    data: dataObject,
+                    columns: [
+                        {
+                            data: 'content',
+                            type: 'text'
+                        },
+                        {
+                            data: 'start',
+                            type: 'text'
+                        },
+                        {
+                            data: 'type',
+                            type: 'text'
+                        },
+                        {
+                            data: 'key',
+                            type: 'text'
+                        },
+                        {
+                            data: 'value',
+                            type: 'text'
+                        }
+                    ],
+                    stretchH: 'all',
+        //                    width: 500,
+                    autoWrapRow: true,
+        //                    height: 450,
+                    minRows: 10,
+                    maxRows: 365 * 30,
+                    manualRowResize: true,
+                    manualColumnResize: true,
+                    rowHeaders: true,
+                    colHeaders: [
+                        'Name',
+                        'Date',
+                        'Type',
+                        'Key',
+                        'Value'
+                    ],
+                    manualRowMove: true,
+                    manualColumnMove: true,
+                    contextMenu: true,
+                    filters: true,
+                    dropdownMenu: true
+                };
+                spreadsheet = new Handsontable(spsContainer, spsOptions);
             }
             
             function init() {
@@ -229,7 +294,7 @@
         <script type="text/javascript" src="/plugins/chosen/chosen.jquery.min.js" ></script>
         <script type="text/javascript" src="/plugins/chosen/prism.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/chosen/init.js" charset="utf-8"></script>
-        
+        <script src="https://cdn.jsdelivr.net/npm/handsontable@latest/dist/handsontable.full.min.js"></script>
         <script type="text/javascript">
             $(document).ready(function () {
                 init();

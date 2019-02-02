@@ -61,34 +61,74 @@
         };
         ev.dataTransfer.setData("text", JSON.stringify(event));
     }
+    
+    function switchManagementViewType(target) {
+        let showBtn, hideBtn, showDiv, hideDiv;
+        if (target.id === "timeline_swc_btn") {
+            hideBtn = $("#spreadsheet_swc_btn");
+            hideDiv = $("#spreadsheet_view");
+            showBtn = $("#timeline_swc_btn");
+            showDiv = $("#timeline_view");
+        } else {
+            hideBtn = $("#timeline_swc_btn");
+            hideDiv = $("#timeline_view");
+            showBtn = $("#spreadsheet_swc_btn");
+            showDiv = $("#spreadsheet_view");
+        }
+        hideBtn.removeClass("btn-primary").addClass("btn-default");
+        showBtn.removeClass("btn-default").addClass("btn-primary");
+        hideDiv.fadeOut("fast",function() {
+            showDiv.fadeIn("fast", function() {
+                if (fstSpsFlg) {
+                    fstSpsFlg = false;
+                    initSpreadsheet();
+                }
+            });
+        });
+    }
 </script>
 <div class="subcontainer">
     <fieldset>
         <legend>Management Information</legend>
-        <div id="output_file_group2" class="form-group has-feedback">
-            <label class="control-label" for="op_group_name">Management Setup Name *</label>
-            <div class="input-group">
-                <input type="text" id="op_group_name" name="op_group_name" class="form-control" value="Default" required >
-                <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
+        <div class="row col-sm-12">
+            <div class="form-group has-feedback col-sm-4">
+                <label class="control-label" for="management_name">Management Setup Name *</label>
+                <div class="input-group col-sm-12">
+                    <input type="text" id="management_name" name="management_name" class="form-control" value="Default" required >
+                    <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
+                </div>
+            </div>
+            <div class="form-group has-feedback col-sm-4">
+                <label class="control-label">View Type</label>
+                <div class="input-group">
+                    <div class="btn-group slider">
+                        <button id="timeline_swc_btn" type="button" class="btn btn-primary" onclick="switchManagementViewType(this);">&nbsp;&nbsp;&nbsp;&nbsp;Timeline&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                        <button id="spreadsheet_swc_btn" type="button" class="btn btn-default" onclick="switchManagementViewType(this);">SpreadSheet</button>
+                    </div>
+                </div>
             </div>
         </div>
+        
     </fieldset>
-    <div class="row">
-        <div class="col-sm-8 text-left">
-            <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="One-time Event"><span class="glyphicon glyphicon-menu-hamburger"></span> One-time Event</button>
-            <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Weekly Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Weekly Event</button>
-            <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Monthly Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Monthly Event</button>
-            <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Customized Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Customized Event</button>
+    <div id="timeline_view">
+        <div class="row col-sm-12">
+            <div class="col-sm-8 text-left">
+                <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="One-time Event"><span class="glyphicon glyphicon-menu-hamburger"></span> One-time Event</button>
+                <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Weekly Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Weekly Event</button>
+                <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Monthly Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Monthly Event</button>
+                <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Customized Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Customized Event</button>
+            </div>
+            <div class="col-sm-4 text-right">
+                <!--<button class="btn btn-success" onclick="test()">Test</button>-->
+                <!--<button class="btn btn-success" onclick="addEvent({value:'One-time Event'})">Add</button>-->
+                <!--<button class="btn btn-success" onclick="editEvent()">Edit</button>-->
+                <!--<button class="btn btn-success" onclick="removeEvent()">Remove</button>-->
+                <button class="btn btn-danger" onclick="removeEvents()"><span class='glyphicon glyphicon-trash'></span> Clear</button>
+            </div>
         </div>
-        <div class="col-sm-4 text-right">
-            <!--<button class="btn btn-success" onclick="test()">Test</button>-->
-            <!--<button class="btn btn-success" onclick="addEvent({value:'One-time Event'})">Add</button>-->
-            <!--<button class="btn btn-success" onclick="editEvent()">Edit</button>-->
-            <!--<button class="btn btn-success" onclick="removeEvent()">Remove</button>-->
-            <button class="btn btn-danger" onclick="removeEvents()"><span class='glyphicon glyphicon-trash'></span> Clear</button>
-        </div>
+        <div id="visualization" class="col-sm-12"></div>
     </div>
-    <div id="visualization"></div>
+    <div id="spreadsheet_view" hidden></div>
 </div>
 <ul class='event-menu'>
     <li value="One-time Event">One-time Event</li>
