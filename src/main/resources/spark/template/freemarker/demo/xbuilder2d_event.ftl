@@ -116,7 +116,7 @@
     function syncDataToTml() {
         let x = -1, y = 0;
         for (let i = 0; i < events.length; i++) {
-            if (events[i].id === null || events[i].id === undefined) {
+            if (events[i].id === null || events[i].id === undefined || events[i].id.trim() === "") {
                 y++;
             } else if (y > 0) {
                 events.splice(x + 1, y);
@@ -127,6 +127,17 @@
             }
         }
         events.splice(x + 1, y);
+        let delIds = eventData.getIds({
+            filter: function (event) {
+                for (let i in events) {
+                    if (events[i].id === event.id) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        });
+        eventData.remove(delIds);
         eventData.update(events);
     }
 </script>
