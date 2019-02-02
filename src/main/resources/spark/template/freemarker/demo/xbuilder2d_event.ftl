@@ -8,7 +8,7 @@
     }
 
     function newId() {
-        return "new" + (events.getIds().length + 1);
+        return "new" + (eventData.getIds().length + 1);
     }
 
     function defaultContent(target) {
@@ -29,24 +29,24 @@
 
     function addEvent(target) {
         let event = {id: newId(), content: defaultContent(target), start: defaultDate()}; 
-        events.add(event);
+        eventData.add(event);
         timeline.setSelection(event.id);
     }
 
     function editEvent() {
         let selections = timeline.getSelection();
         if (selections.length > 0) {
-            events.update({id: selections[0], content: "event 2"});
+            eventData.update({id: selections[0], content: "event 2"});
         }
     }
 
     function removeEvent() {
-        events.remove(timeline.getSelection());
+        eventData.remove(timeline.getSelection());
     }
 
     function removeEvents() {
         if (timeline.getSelection().length === 0) {
-            events.clear();
+            eventData.clear();
         } else {
             removeEvent();
         }
@@ -75,16 +75,55 @@
             showBtn = $("#spreadsheet_swc_btn");
             showDiv = $("#spreadsheet_view");
         }
+        if(showBtn.hasClass("btn-primary")) {
+            return;
+        }
         hideBtn.removeClass("btn-primary").addClass("btn-default");
         showBtn.removeClass("btn-default").addClass("btn-primary");
         hideDiv.fadeOut("fast",function() {
             showDiv.fadeIn("fast", function() {
-                if (fstSpsFlg) {
-                    fstSpsFlg = false;
-                    initSpreadsheet();
+                if (target.id === "timeline_swc_btn") {
+                    syncDataToTml();
+                } else {
+                    if (fstSpsFlg) {
+                        fstSpsFlg = false;
+                        initSpreadsheet();
+                    } else {
+                        syncDataToSps();
+                    }
                 }
             });
         });
+    }
+    
+    function getEvents() {
+        let arr = eventData.get();
+        arr.forEach(function (data) {
+            data.start = new Date(data.start).toLocaleDateString("en-US",{year: 'numeric', month: '2-digit', day: '2-digit' });
+        });
+        return arr;
+    }
+    
+    function syncDataToSps() {
+        events = getEvents();
+        spreadsheet.loadData(events);
+    }
+    
+    function syncDataToTml() {
+        let x = -1, y = 0;
+        for (let i = 0; i < events.length; i++) {
+            if (events[i].id === null || events[i].id === undefined) {
+                y++;
+            } else if (y > 0) {
+                events.splice(x + 1, y);
+                y = 0;
+                i -= y;
+            } else {
+                x = i;
+            }
+        }
+        events.splice(x + 1, y);
+        eventData.update(events);
     }
 </script>
 <div class="subcontainer">
@@ -128,7 +167,9 @@
         </div>
         <div id="visualization" class="col-sm-12"></div>
     </div>
-    <div id="spreadsheet_view" hidden></div>
+    <div id="spreadsheet_view" class="col-sm-12" hidden>
+        <div id="visualization2" class="col-sm-12"></div>
+    </div>
 </div>
 <ul class='event-menu'>
     <li value="One-time Event">One-time Event</li>

@@ -9,12 +9,14 @@
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/handsontable-pro@latest/dist/handsontable.full.min.css">
         
         <script>
+            let eventData;
             let events;
             let timeline;
             let tmlContainer;
             let fstTmlFlg = true;
             let spreadsheet;
             let spsContainer;
+            let spsOptions;
             let fstSpsFlg = true;
             
             function initTimeline() {
@@ -22,18 +24,19 @@
                 tmlContainer = document.getElementById('visualization');
 
                 // Create a DataSet (allows two way data-binding)
-                events = new vis.DataSet([
-                  {id: "a", content: 'Fixed event 1', start: '2013-04-20', editable: false},
-                  {id: "b", content: 'Weekly event 1.1', start: '2013-04-12', group:"ga"},
-                  {id: "c", content: 'Weekly event 1.2', start: '2013-04-19', group:"ga"},
-                  {id: "d", content: 'Daily event 4', start: '2013-04-15', end: '2013-04-19'},
-                  {id: "e", content: 'Weekly event 1.3', start: '2013-04-26', group:"ga"},
-                  {id: "f", content: 'Weekly event 1.4', start: '2013-05-03', group:"ga"}
-                ]);
-    //            events.on('*', function (event, properties, senderId) {
+                events = [
+                  {id: "a", content: 'Fixed event 1', start: '04/20/2013', editable: false},
+                  {id: "b", content: 'Weekly event 1.1', start: '04/12/2013', group:"ga"},
+                  {id: "c", content: 'Weekly event 1.2', start: '04/19/2013', group:"ga"},
+                  {id: "d", content: 'Daily event 4', start: '04/15/2013', end: '04/19/2013'},
+                  {id: "e", content: 'Weekly event 1.3', start: '04/26/2013', group:"ga"},
+                  {id: "f", content: 'Weekly event 1.4', start: '05/03/2013', group:"ga"}
+                ];
+                eventData = new vis.DataSet(events);
+    //            eventData.on('*', function (event, properties, senderId) {
     //                console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
     //            });
-    //            events.on('add', function(event, properties, senderId) {
+    //            eventData.on('add', function(event, properties, senderId) {
     //                timeline.setSelection(properties.items);
     //            });
 
@@ -63,13 +66,13 @@
                 };
 
                 // Create a Timeline
-                timeline = new vis.Timeline(tmlContainer, events, tmlOptions);
+                timeline = new vis.Timeline(tmlContainer, eventData, tmlOptions);
                 timeline.on("select", function(properties) {
                     let selections = properties.items;
                     for (let i in selections) {
-                        if (events.get(selections[i]).group !== undefined) {
-                            let group = events.get(selections[i]).group;
-                            let groupEvents = events.getIds({
+                        if (eventData.get(selections[i]).group !== undefined) {
+                            let group = eventData.get(selections[i]).group;
+                            let groupEvents = eventData.getIds({
                                 filter: function (event) {
                                     return (event.group === group);
                                 }
@@ -113,19 +116,10 @@
             }
             
             function initSpreadsheet() {
-                
-                var dataObject = [
-                    {id: "a", content: 'Fixed event 1', start: '2013-04-20', editable: false},
-                    {id: "b", content: 'Weekly event 1.1', start: '2013-04-12', group:"ga"},
-                    {id: "c", content: 'Weekly event 1.2', start: '2013-04-19', group:"ga"},
-                    {id: "d", content: 'Daily event 4', start: '2013-04-15', end: '2013-04-19'},
-                    {id: "e", content: 'Weekly event 1.3', start: '2013-04-26', group:"ga"},
-                    {id: "f", content: 'Weekly event 1.4', start: '2013-05-03', group:"ga"}
-                ];
-                spsContainer = document.querySelector('#spreadsheet_view');
-        //        var hotElementContainer = hotElement.parentNode;
-                var spsOptions = {
-                    data: dataObject,
+                events = getEvents()
+                spsContainer = document.querySelector('#visualization2');
+                spsOptions = {
+                    data: events,
                     columns: [
                         {
                             data: 'content',
@@ -133,10 +127,15 @@
                         },
                         {
                             data: 'start',
-                            type: 'text'
+                            type: 'date',
+                            dateFormat: 'MM/DD/YYYY'
                         },
                         {
                             data: 'type',
+                            type: 'text'
+                        },
+                        {
+                            data: 'group',
                             type: 'text'
                         },
                         {
@@ -161,6 +160,7 @@
                         'Name',
                         'Date',
                         'Type',
+                        'Group',
                         'Key',
                         'Value'
                     ],
@@ -180,6 +180,9 @@
                         fstTmlFlg = false;
                         initTimeline();
                     }
+                });
+                $('.nav-tabs #EventTab').on('hide.bs.tab', function(){
+                    // TODO will sync the tml and sps
                 });
                 $('.nav-tabs #TreatmentTab').on('shown.bs.tab', function(){
                     // TODO
