@@ -9,9 +9,8 @@
         
         <style type="text/css">
             /* Style the clicking buttons inside the tab */
-            ul.nav-tabs button.tabbtns {
+            ul.nav-tabs li.tabbtns {
                 float: right;
-                margin: 0px 16px;
             }
             
             /* Style the add buttons inside the tab */
@@ -35,11 +34,11 @@
             /* gray background in weekends, white text color */
             .vis-time-axis .vis-grid.vis-saturday,
             .vis-time-axis .vis-grid.vis-sunday {
-                background: gray;
+                /*background: lightgray;*/
             }
             .vis-time-axis .vis-text.vis-saturday,
             .vis-time-axis .vis-text.vis-sunday {
-                color: white;
+                color: lightgray;
             }
             
             /* The whole thing */
@@ -76,89 +75,6 @@
             let container;
             let events;
             let fstTmlFlg = true;
-            
-            function test() {
-                timeline.setSelection(["b", "c"]);
-            }
-            
-            function newId() {
-                return "new" + (events.getIds().length + 1);
-            }
-            
-            function defaultContent(target) {
-                return '<span class="glyphicon glyphicon-tint"></span> New ' + target.value;
-            }
-            
-            function defaultDate() {
-                if (Math.abs(timeline.getCurrentTime() - Date.now()) < 1) {
-                    let start = timeline.getWindow().start.valueOf();
-                    let end = timeline.getWindow().end.valueOf();
-    //                let ret = new Date();
-                    let ret = new Date(start + (end - start) / 8);
-                    return ret;
-                } else {
-                    return timeline.getCurrentTime();
-                }
-            }
-            
-            function addEvent(target) {
-                let event = {id: newId(), content: defaultContent(target), start: defaultDate()}; 
-                events.add(event);
-                timeline.setSelection(event.id);
-            }
-            
-            function editEvent() {
-                let selections = timeline.getSelection();
-                if (selections.length > 0) {
-                    events.update({id: selections[0], content: "event 2"});
-                }
-            }
-            
-            function removeEvent() {
-                events.remove(timeline.getSelection());
-            }
-            
-            function removeEvents() {
-                if (timeline.getSelection().length === 0) {
-                    events.clear();
-                } else {
-                    removeEvent();
-                }
-            }
-
-            function drag(ev) {
-                var event = {
-                    id: newId(),
-                    type: "box",
-                    content: defaultContent(ev.target),
-                    event: "irrigation"
-                };
-                ev.dataTransfer.setData("text", JSON.stringify(event));
-            }
-            
-//            function openMainTab(target) {
-//                let tabName = target.id;
-//                if (tabName === "EventTab") {
-//                    if (fstTmlFlg) {
-//                        fstTmlFlg = false;
-//                        initTimeline();
-//                    }
-////                    openEventTab("default", "event");
-//                } else if (tabName === "TreatmentTab") {
-//                    $("#tr_field_1").chosen("destroy");
-//                    chosen_init("tr_field_1", ".chosen-select");
-//                    $("#tr_management_1").chosen("destroy");
-//                    chosen_init("tr_management_1", ".chosen-select");
-//                    $("#tr_config_1").chosen("destroy");
-//                    chosen_init("tr_config_1", ".chosen-select");
-//                    $("#tr_field_2").chosen("destroy");
-//                    chosen_init("tr_field_2", ".chosen-select");
-//                    $("#tr_management_2").chosen("destroy");
-//                    chosen_init("tr_management_2", ".chosen-select");
-//                    $("#tr_config_2").chosen("destroy");
-//                    chosen_init("tr_config_2", ".chosen-select");
-//                }
-//            }
             
             function initTimeline() {
                 // DOM element where the Timeline will be attached
@@ -264,6 +180,7 @@
                     }
                 });
                 $('.nav-tabs #TreatmentTab').on('shown.bs.tab', function(){
+                    // TODO
                     $("#tr_field_1").chosen("destroy");
                     chosen_init("tr_field_1");
                     $("#tr_management_1").chosen("destroy");
@@ -338,7 +255,9 @@
                         <li><a data-toggle="tab" href="#Config" class="create-link" id="config_create">Create new...</a></li>
                     </ul>
                 </li>
-                <button id="SaveTabBtn" type="button" class="btn btn-success tabbtns" onclick="saveFile()"><span class="glyphicon glyphicon-save"></span> Save</li>
+                
+                <li id="SaveTabBtn" class="tabbtns" onclick="saveFile()"><a href="#"><span class="glyphicon glyphicon-save"></span> Save</a></li>
+                <li id="OpenTabBtn" class="tabbtns" onclick="saveFile()"><a href="#"><span class="glyphicon glyphicon-open"></span> Load</a></li>
             </ul>
             <div class="tab-content">
             <div id="SiteInfo" class="tab-pane fade in active">
