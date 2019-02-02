@@ -12,7 +12,11 @@
     }
 
     function defaultContent(target) {
-        return '<span class="glyphicon glyphicon-tint"></span> New ' + target.value;
+        if (target.value !== undefined) {
+            return 'New ' + target.value;
+        } else {
+            return 'New ' + target[0].textContent;
+        }
     }
 
     function defaultDate() {
@@ -172,8 +176,8 @@
     </div>
 </div>
 <ul class='event-menu'>
-    <li value="One-time Event">One-time Event</li>
-    <li value="Weekly Event">Weekly Event</li>
-    <li value="Monthly Event">Monthly Event</li>
-    <li value="Customized Event">Customized Event</li>
+    <li>One-time Event</li>
+    <li>Weekly Event</li>
+    <li>Monthly Event</li>
+    <li>Customized Event</li>
 </ul>
