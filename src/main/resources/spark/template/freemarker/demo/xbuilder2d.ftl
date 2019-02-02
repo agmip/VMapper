@@ -7,69 +7,6 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" />
         
-        <style type="text/css">
-            /* Style the clicking buttons inside the tab */
-            ul.nav-tabs li.tabbtns {
-                float: right;
-            }
-            
-            /* Style the add buttons inside the tab */
-            ul.nav-tabs button.tabaddbtns {
-                float: left;
-                margin: 5px 5px;
-            }
-            .dropdown-menu li a.create-link{
-                font-style:italic;
-            }
-            .align-middle{
-                text-align: center;
-                vertical-align: middle;
-            }
-            
-            /* alternating column backgrounds */
-            .vis-time-axis .grid.vis-odd {
-                background: #f5f5f5;
-            }
-
-            /* gray background in weekends, white text color */
-            .vis-time-axis .vis-grid.vis-saturday,
-            .vis-time-axis .vis-grid.vis-sunday {
-                /*background: lightgray;*/
-            }
-            .vis-time-axis .vis-text.vis-saturday,
-            .vis-time-axis .vis-text.vis-sunday {
-                color: lightgray;
-            }
-            
-            /* The whole thing */
-            .event-menu {
-                display: none;
-                z-index: 1000;
-                position: absolute;
-                overflow: hidden;
-                border: 1px solid #CCC;
-                white-space: nowrap;
-                font-family: sans-serif;
-                background: #FFF;
-                color: #333;
-                border-radius: 5px;
-                padding: 0;
-            }
-
-            /* Each of the items in the list */
-            .event-menu li {
-                padding: 8px 12px;
-                cursor: pointer;
-                list-style-type: none;
-                transition: all .3s ease;
-                user-select: none;
-            }
-
-            .event-menu li:hover {
-                background-color: #DEF;
-            }
-        </style>
-        
         <script>
             let timeline;
             let container;
@@ -198,7 +135,12 @@
             
             function saveFile() {
                 // TODO
-                alert("will save a XFile for you later!");
+                alert("[TODO] will save a XFile for you later!");
+            }
+            
+            function openFile() {
+                // TODO
+                alert("[TODO] will show a dialog later to load an existing XFile!");
             }
         </script>
     </head>
@@ -257,7 +199,7 @@
                 </li>
                 
                 <li id="SaveTabBtn" class="tabbtns" onclick="saveFile()"><a href="#"><span class="glyphicon glyphicon-save"></span> Save</a></li>
-                <li id="OpenTabBtn" class="tabbtns" onclick="saveFile()"><a href="#"><span class="glyphicon glyphicon-open"></span> Load</a></li>
+                <li id="OpenTabBtn" class="tabbtns" onclick="openFile()"><a href="#"><span class="glyphicon glyphicon-open"></span> Load</a></li>
             </ul>
             <div class="tab-content">
             <div id="SiteInfo" class="tab-pane fade in active">

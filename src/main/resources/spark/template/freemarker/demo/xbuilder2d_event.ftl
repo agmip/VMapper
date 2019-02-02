@@ -1,6 +1,6 @@
 <script>
     function createManagementSetup() {
-        alert("A tab will be created for the new operation group!");
+        alert("[TODO] A tab will be created for the new operation group!");
     }
     
     function test() {
