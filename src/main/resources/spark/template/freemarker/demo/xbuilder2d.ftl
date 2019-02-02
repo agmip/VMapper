@@ -122,6 +122,10 @@
                     data: events,
                     columns: [
                         {
+                            data: 'id',
+                            type: 'text'
+                        },
+                        {
                             data: 'content',
                             type: 'text'
                         },
@@ -157,6 +161,7 @@
                     manualColumnResize: true,
                     rowHeaders: true,
                     colHeaders: [
+                        'ID',
                         'Name',
                         'Date',
                         'Type',
