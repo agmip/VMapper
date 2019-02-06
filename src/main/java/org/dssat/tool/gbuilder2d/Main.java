@@ -56,10 +56,10 @@ public class Main {
 
         // Set up routes
         get("/", (Request request, Response response) -> {
-            return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.Demo.GBUILDER2D));
+            return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.Demo.XBUILDER2D));
                 });
         
-        get(Path.Web.INDEX, (Request request, Response response) -> {
+        get(Path.Web.Demo.GBUILDER2D, (Request request, Response response) -> {
             return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.Demo.GBUILDER2D));
                 });
         
