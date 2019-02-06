@@ -227,9 +227,6 @@
                 <li id="SiteInfoTab" class="active">
                     <a data-toggle="tab" href="#SiteInfo"><span class="glyphicon glyphicon-list-alt"></span> General</a>
                 </li>
-                <li id="TreatmentTab">
-                    <a data-toggle="tab" href="#Treatment"><span class="glyphicon glyphicon-link"></span> Treatments <span class="badge" id="treatment_badge">2</span></a>
-                </li>
                 <li id="FieldTab" class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         <span class="glyphicon glyphicon-link"></span>
@@ -269,6 +266,9 @@
                     <ul class="dropdown-menu">
                         <li><a data-toggle="tab" href="#Config" class="create-link" id="config_create">Create new...</a></li>
                     </ul>
+                </li>
+                <li id="TreatmentTab">
+                    <a data-toggle="tab" href="#Treatment"><span class="glyphicon glyphicon-link"></span> Treatments <span class="badge" id="treatment_badge">2</span></a>
                 </li>
                 
                 <li id="SaveTabBtn" class="tabbtns" onclick="saveFile()"><a href="#"><span class="glyphicon glyphicon-save"></span> Save</a></li>
