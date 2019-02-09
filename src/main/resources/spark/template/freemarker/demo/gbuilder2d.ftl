@@ -14,6 +14,7 @@
             var zoom = 50;
             var autoDas = -1;
             var selections = [];
+            let charts = {};
 //            const plotVarExludsion = ["YEAR", "DOY", "DAS", "ROW", "COL", "NFluxR_A", "NFluxL_A", "NFluxD_A", "NFluxU_A", "NFluxR_D", "NFluxL_D", "NFluxD_D", "NFluxU_D"];
             const plotVarDic = {SWV:"Soil Water Content", TotalN:"Soil N content", AFERT:"Fertilization", IrrVol:"Irrigation", RLV:"Root Length Density", NO3UpTak:"NO3 Uptake", NH4UpTak:"NH4 Uptake", InfVol:"Infiltration", ES_RATE:"Evaporation Rate", EP_RATE:"Transpiration Rate"};
             
@@ -124,18 +125,15 @@
                     document.getElementById("plot_content").hidden = true;
                 }
                 
-                for (let i = 1; i <= 4; i++) {
-                    let plotDiv = document.getElementById("output_plot" + i);
-                    if (plotDiv !== undefined && plotDiv !== null) {
-                        plotDiv.innerHTML = "";
-                    }
-                    
-                }
-                
-                if (selections.length === 1) {
+                let div1Class = document.getElementById("output_plot1").className;
+                if (selections.length === 1 && div1Class === "col-sm-6") {
                     document.getElementById("output_plot1").className = 'col-sm-12';
-                } else {
+                    clearChart(0);
+                } else if (selections.length === 2 && div1Class === "col-sm-12") {
                     document.getElementById("output_plot1").className = 'col-sm-6';
+                    for (let i = 0; i <= selections.length; i++) {
+                        clearChart(i);
+                    }
                 }
                 
                 let cnt = 1;
@@ -143,11 +141,24 @@
                     if (cnt > 4) break;
                     let plotVar = selections[i];
                     if (plotVar === "water_flux") {
-                        drawWaterVectorFluxPlot(data, soilProfile, 'output_plot' + cnt, day, zoom);
+                        if (charts[plotVar] === undefined || charts[plotVar] === null) {
+                            charts[plotVar] = drawWaterVectorFluxPlot(data, soilProfile, 'output_plot' + cnt, day, zoom);
+                        } else {
+                            drawWaterVectorFluxPlot(data, soilProfile, 'output_plot' + cnt, day, zoom, charts[plotVar]);
+                        }
                     } else if (plotVar === "n_flux") {
-                        drawNitroFluxVectorPlot(data, soilProfile, 'output_plot' + cnt, day, zoom);
+                        if (charts[plotVar] === undefined || charts[plotVar] === null) {
+                            charts[plotVar] = drawNitroFluxVectorPlot(data, soilProfile, 'output_plot' + cnt, day, zoom);
+                        } else {
+                            drawNitroFluxVectorPlot(data, soilProfile, 'output_plot' + cnt, day, zoom, charts[plotVar]);
+                        }
+                        
                     } else if (plotVarDic[plotVar] !== undefined) {
-                        drawDailyHeatMapPlot(plotVar, plotVarDic[plotVar], data, soilProfile, 'output_plot' + cnt, day, zoom);
+                        if (charts[plotVar] === undefined || charts[plotVar] === null) {
+                            charts[plotVar] = drawDailyHeatMapPlot(plotVar, plotVarDic[plotVar], data, soilProfile, 'output_plot' + cnt, day, zoom);
+                        } else {
+                            drawDailyHeatMapPlot(plotVar, plotVarDic[plotVar], data, soilProfile, 'output_plot' + cnt, day, zoom, charts[plotVar]);
+                        }
                     }
                     cnt++;
                 }
@@ -156,6 +167,7 @@
             
             function updateSelections() {
                 let options = document.getElementById("plot_type").options;
+                let rmvIdx = selections.length;
                 for(let i in options) {
                     let val = options[i].value;
                     let idx = selections.indexOf(val);
@@ -166,8 +178,23 @@
                     } else {
                         if (idx >= 0) {
                             selections.splice(selections.indexOf(val), 1);
+                            charts[val].destroy();
+                            charts[val] = null;
+                            if (idx < rmvIdx) {
+                                rmvIdx = idx;
+                            }
                         }
                     }
+                }
+                for (let i = rmvIdx; i <= selections.length; i++) {
+                    clearChart(i);
+                }
+            }
+            
+            function clearChart(idx) {
+                if (charts[selections[idx]] !== undefined && charts[selections[idx]] !== null) {
+                    charts[selections[idx]].destroy();
+                    charts[selections[idx]] = null;
                 }
             }
             

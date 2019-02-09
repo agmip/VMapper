@@ -1,6 +1,6 @@
 /* global Highcharts */
 
-function drawWaterVectorFluxPlot(data, soilProfile, containerId, day, zoom) {
+function drawWaterVectorFluxPlot(data, soilProfile, containerId, day, zoom, chart) {
     var daily = data["daily"];
     var plotData = [];
     var plotTitle;
@@ -23,10 +23,15 @@ function drawWaterVectorFluxPlot(data, soilProfile, containerId, day, zoom) {
 
 //  console.log(plotData);
 
-    drawVectorFluxPlot(plotTitle, plotValTitle, plotData, soilProfile, containerId, zoom);
+    if (chart === undefined) {
+        return drawVectorFluxPlot(plotTitle, plotValTitle, plotData, soilProfile, containerId, zoom);
+    } else {
+        chart.series[0].setData(plotData, true, true, true);
+        return chart;
+    }
 }
 
-function drawNitroFluxVectorPlot(data, soilProfile, containerId, day, zoom) {
+function drawNitroFluxVectorPlot(data, soilProfile, containerId, day, zoom, chart) {
     var daily = data["daily"];
     var plotData = [];
     var plotTitle;
@@ -53,11 +58,17 @@ function drawNitroFluxVectorPlot(data, soilProfile, containerId, day, zoom) {
 
 //  console.log(plotData);
 
-    drawVectorFluxPlot(plotTitle, plotValTitle, plotData, soilProfile, containerId, zoom);
+    if (chart === undefined) {
+        return drawVectorFluxPlot(plotTitle, plotValTitle, plotData, soilProfile, containerId, zoom);
+    } else {
+        chart.series[0].setData(plotData, true, true, true);
+        return chart;
+    }
+    
 }
 
 function drawVectorFluxPlot(plotTitle, plotValTitle, plotData, soilProfile, containerId, zoom) {
-    Highcharts.chart(containerId, {
+    return Highcharts.chart(containerId, {
         title: {
             text: plotTitle
         },

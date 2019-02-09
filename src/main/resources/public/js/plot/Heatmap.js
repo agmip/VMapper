@@ -1,6 +1,6 @@
 /* global Highcharts */
 
-function drawDailyHeatMapPlot(plotVar, plotVarName, data, soilProfile, containerId, day, zoom) {
+function drawDailyHeatMapPlot(plotVar, plotVarName, data, soilProfile, containerId, day, zoom, chart) {
     let daily = data["daily"];
     let max = data["max"][plotVar];
     let min = data["min"][plotVar];
@@ -24,15 +24,18 @@ function drawDailyHeatMapPlot(plotVar, plotVarName, data, soilProfile, container
     }
     
 //    console.log("max:" + max + " min:" + min + " average:" + avg + " median:" + med + " color zoom:" + colorZoom)
+    if (chart === undefined) {
+        return drawHeatMapPlot(plotTitle, plotValTitle, plotData, max, min, soilProfile, containerId, colorZoom, zoom);
+    } else {
+        chart.series[0].setData(plotData);
+        return chart;
+    }
     
-    drawHeatMapPlot(plotTitle, plotValTitle, plotData, max, min, soilProfile, containerId, colorZoom, zoom);
 }
 
 function drawHeatMapPlot(plotTitle, plotValTitle, plotData, max, min, soilProfile, containerId, colorZoom, zoom) {
 
-    
-
-    Highcharts.chart(containerId, {
+    return Highcharts.chart(containerId, {
 
         chart: {
             type: 'heatmap',
