@@ -98,7 +98,21 @@ function drawHeatMapPlot(plotTitle, plotValTitle, plotData, max, min, soilProfil
                 data: plotData,
                 dataLabels: {
                     enabled: true,
-                    color: '#000000'
+                    color: '#000000',
+//                    format: '{point.value:.2f}'
+                    formatter: function () {
+                        let max = 4;
+                        let val = this.point.value;
+                        let numStr = val.toString().split(".");
+                        
+                        if (numStr.length < 2) {
+                            return val;
+                        } else {
+                            let bit = Math.max(0, max - numStr[0].length);
+                            bit = Math.min(bit, numStr[1].length);
+                            return Number(this.point.value).toFixed(bit);
+                        }
+                    }
                 }
             }]
 
