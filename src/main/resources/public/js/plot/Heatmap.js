@@ -70,8 +70,8 @@ function drawHeatMapPlot(plotTitle, plotValTitle, plotData, max, min, soilProfil
         colorAxis: {
             min: min * colorZoom,
             max: max * colorZoom,
-            minColor: '#DBE5F1',
-            maxColor: '#00B0F0'
+            minColor: '#f7f7f7',
+            maxColor: '#0275d8'
 //            maxColor: Highcharts.getOptions().colors[0]
         },
 
