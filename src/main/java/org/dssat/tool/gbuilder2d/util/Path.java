@@ -51,6 +51,7 @@ public class Path {
             private static final String PACKAGE = Demo.class.getSimpleName().toLowerCase();
             public static final String IRRLIST = PACKAGE + "/irrlist";
             public static final String AUTOMAIL = PACKAGE + "/automail";
+            public static final String GBUILDER1D = PACKAGE + "/gbuilder1d";
             public static final String GBUILDER2D = PACKAGE + "/gbuilder2d";
             public static final String XBUILDER2D = PACKAGE + "/xbuilder2d";
             public static final String METALIST = PACKAGE + "/metalist";
@@ -100,6 +101,7 @@ public class Path {
         public static class Demo {
             private static final String PACKAGE = Demo.class.getSimpleName().toLowerCase();
             public static final String IRRLIST = PACKAGE + "/irrlist.ftl";
+            public static final String GBUILDER1D = PACKAGE + "/gbuilder1d.ftl";
             public static final String GBUILDER2D = PACKAGE + "/gbuilder2d.ftl";
             public static final String XBUILDER2D = PACKAGE + "/xbuilder2d.ftl";
             public static final String METALIST = PACKAGE + "/meta_list.ftl";

@@ -29,6 +29,7 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-briefcase"></span> Data Tools <span class="caret"></span></a>
                     <ul class="dropdown-menu" role="menu">
                         <li><a href="/demo/xbuilder2d"><span class="glyphicon glyphicon-edit"></span> XBuilder 2D</a></li>
+                        <li><a href="/demo/gbuilder1d"><span class="glyphicon glyphicon-picture"></span> GBuilder 1D</a></li>
                         <li><a href="/demo/gbuilder2d"><span class="glyphicon glyphicon-picture"></span> GBuilder 2D</a></li>
                         <li><a href="#" onClick="window.open('/plot_demo.html')"><span class="glyphicon glyphicon-send"></span> Distributable Plot</a></li>
                     </ul>

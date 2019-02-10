@@ -59,6 +59,10 @@ public class Main {
             return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.Demo.XBUILDER2D));
                 });
         
+        get(Path.Web.Demo.GBUILDER1D, (Request request, Response response) -> {
+            return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.Demo.GBUILDER1D));
+                });
+        
         get(Path.Web.Demo.GBUILDER2D, (Request request, Response response) -> {
             return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.Demo.GBUILDER2D));
                 });
