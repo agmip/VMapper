@@ -12,7 +12,7 @@
             var soilProfile;
             var titles;
             var zoom = 50;
-            var autoDas = -1;
+            var autoDasFlg = false;
             var selections = [];
             let charts = {};
 //            const plotVarExludsion = ["YEAR", "DOY", "DAS", "ROW", "COL", "NFluxR_A", "NFluxL_A", "NFluxD_A", "NFluxU_A", "NFluxR_D", "NFluxL_D", "NFluxD_D", "NFluxU_D"];
@@ -73,6 +73,7 @@
             
             function updatePlotType() {
                 selections = [];
+                clearCharts();
                 let plotTypeSelect = document.getElementById('plot_type');
                 let length = plotTypeSelect.options.length;
                 for (let i = length - 1; i >= 0; i--) {
@@ -86,6 +87,9 @@
                         option.innerHTML = plotVarDic[key];
                         option.value = key;
                         optgroupHeatMap.append(option);
+                        if (selections.includes(key)) {
+                            option.selected = true;
+                        }
                     }
                 }
                 $('#plot_type').append(optgroupHeatMap);
@@ -96,12 +100,18 @@
                     let option = document.createElement('option');
                     option.innerHTML = "Soil Water Flux";
                     option.value = "water_flux";
+                    if (selections.includes(option.value)) {
+                        option.selected = true;
+                    }
                     optgroupVecFlux.append(option);
                 }
                 if (titles.indexOf("NFluxR_D") > -1 && titles.indexOf("NFluxL_D") > -1 && titles.indexOf("NFluxD_D") > -1 && titles.indexOf("NFluxU_D") > -1) {
                     let option = document.createElement('option');
                     option.innerHTML = "Soil N Flux";
                     option.value = "n_flux";
+                    if (selections.includes(option.value)) {
+                        option.selected = true;
+                    }
                     optgroupVecFlux.append(option);
                 }
                 $('#plot_type').append(optgroupVecFlux);
@@ -110,7 +120,6 @@
             }
             
             function drawPlot() {
-                updateSelections();
                 var day = document.getElementById('das_scroll_input').value;
                 if (day > daily.length) {
                     document.getElementById("plot_ctrl").hidden = true;
@@ -123,17 +132,6 @@
                 } else {
                     document.getElementById("plot_ctrl").hidden = true;
                     document.getElementById("plot_content").hidden = true;
-                }
-                
-                let div1Class = document.getElementById("output_plot1").className;
-                if (selections.length === 1 && div1Class === "col-sm-6") {
-                    document.getElementById("output_plot1").className = 'col-sm-12';
-                    clearChart(0);
-                } else if (selections.length === 2 && div1Class === "col-sm-12") {
-                    document.getElementById("output_plot1").className = 'col-sm-6';
-                    for (let i = 0; i <= selections.length; i++) {
-                        clearChart(i);
-                    }
                 }
                 
                 let cnt = 1;
@@ -189,12 +187,38 @@
                 for (let i = rmvIdx; i <= selections.length; i++) {
                     clearChart(i);
                 }
+                
+                let div1Class = document.getElementById("output_plot1").className;
+                if (selections.length === 1 && div1Class === "col-sm-6") {
+                    document.getElementById("output_plot1").className = 'col-sm-12';
+                    reflowChart(0);
+                } else if (selections.length === 2 && div1Class === "col-sm-12") {
+                    document.getElementById("output_plot1").className = 'col-sm-6';
+                    for (let i = 0; i <= selections.length; i++) {
+                        clearChart(i);
+                    }
+                }
+                
+                drawPlot();
             }
             
             function clearChart(idx) {
                 if (charts[selections[idx]] !== undefined && charts[selections[idx]] !== null) {
                     charts[selections[idx]].destroy();
                     charts[selections[idx]] = null;
+                }
+            }
+            
+            function reflowChart(idx) {
+                if (charts[selections[idx]] !== undefined && charts[selections[idx]] !== null) {
+                    charts[selections[idx]].reflow();
+                }
+            }
+            
+            function clearCharts() {
+                for (let key in charts) {
+                    charts[key].destroy();
+                    charts[key] = null;
                 }
             }
             
@@ -224,21 +248,30 @@
                 drawPlot();
             }
             
-            function AutoScroll() {
+            function AutoScroll(activeFlg) {
+                let autoScrollBtn = $("#auto_scroll_btn");
+                if (activeFlg === undefined) {
+                    autoDasFlg = !autoDasFlg;
+                    if (autoDasFlg) {
+                        autoScrollBtn.removeClass("glyphicon-play").addClass("glyphicon-pause");
+                    } else {
+                        autoScrollBtn.removeClass("glyphicon-pause").addClass("glyphicon-play");
+                    }
+                } else if (autoScrollBtn.hasClass("glyphicon-pause")) {
+                    autoDasFlg = activeFlg;
+                } else {
+                    autoDasFlg = false;
+                }
                 
-                document.getElementById('auto_scroll_btn').disabled = true;
                 das = Number(document.getElementById('das_scroll_input').value) + 1;
-                if (das < daily.length && (autoDas === das - 1 || autoDas < 0) ) {
-                    autoDas = das;
+                if (das < daily.length && das >= 0 && autoDasFlg) {
                     document.getElementById('das_scroll_input').value = das;
                     document.getElementById('das_scroll').value = das;
                     drawPlot();
-                    setTimeout(function () {AutoScroll();}, 500);
+                    setTimeout(AutoScroll, autoDasFlg, 500);
                 } else {
-                    autoDas = -1;
-                    document.getElementById('auto_scroll_btn').disabled = false;
+                    autoDasFlg = false;
                 }
-                
             }
             
             function scrollOne(chg) {
@@ -285,9 +318,7 @@
                 <div id="plot_options" class="form-group" hidden="true">
                     <label class="control-label col-sm-2">Plot Type :</label>
                     <div class="col-sm-6 text-left">
-                        <select id="plot_type" data-placeholder="Select Plot Type" title="Select Plot Type" onchange="drawPlot();" class="form-control chosen-select-max4" multiple>
-                        <!--<select id="plot_type" class="form-control" title="Select Plot Type" multiple>-->
-                            <!--<option value="">Select Plot Type (Up to 4)</option>-->
+                        <select id="plot_type" data-placeholder="Select Plot Type" title="Select Plot Type" onchange="updateSelections();" class="form-control chosen-select-max4" multiple>
                         </select>
                     </div>
                     <div class="col-sm-4">
@@ -296,27 +327,22 @@
                 </div>
                 <br/>
                 <div id="plot_ctrl" class="form-group" hidden="true">
-                    <label class="control-label col-sm-1">Plot :</label>
-                    <label class="control-label col-sm-1">DAS</label>
-                    <div class="col-sm-1 text-right">
-                        <button type="button" class="btn btn-primary text-right" onclick="scrollOne(-1);"><</button>
-                    </div>
-                    <div class="col-sm-4 text-right">
+                    <label class="control-label col-sm-2">DAS :</label>
+                    <div class="col-sm-5 text-right">
                         <input type="range" id="das_scroll" name="das_scroll" class="form-control" value="0" step="1" max="180" min="0" placeholder="" data-toggle="tooltip" title="" onchange="changeDate(this);">
-                    </div>
-                    <div class="col-sm-1">
-                        <button type="button" class="btn btn-primary text-right" onclick="scrollOne(1);">></button>
                     </div>
                     <div class="col-sm-1">
                         <input type="number" id="das_scroll_input" name="das_scroll_input" class="form-control" value="0" step="1" max="180" min="0" placeholder="" data-toggle="tooltip" title="" onchange="changeDate(this);">
                     </div>
-                    <div class="col-sm-1">
-                        <button id="auto_scroll_btn" type="button" class="btn btn-primary text-right" onclick="AutoScroll();">Auto Scroll</button>
+                    <div class="col-sm-2 btn-group">
+                        <button type="button" class="btn btn-primary glyphicon glyphicon-chevron-left" onclick="scrollOne(-1);"></button>
+                        <button id="auto_scroll_btn" type="button" class="btn btn-primary glyphicon glyphicon-play" onclick="AutoScroll();"></button>
+                        <button type="button" class="btn btn-primary glyphicon glyphicon-chevron-right" onclick="scrollOne(1);"></button>
                     </div>
                     <div class="col-sm-2 text-right">
-                        <button type="button" class="btn btn-primary text-right" onclick="zoomOut();">+</button>
-                        <lable id="zoom_val">50%</lable>
-                        <button type="button" class="btn btn-primary text-right" onclick="zoomIn();">-</button>
+                        <button type="button" class="btn btn-primary glyphicon glyphicon-plus" onclick="zoomOut();"></button>
+                        <label id="zoom_val" class="control-label">50%</label>
+                        <button type="button" class="btn btn-primary glyphicon glyphicon-minus" onclick="zoomIn();"></button>
                     </div>
                 </div>
             </div>
