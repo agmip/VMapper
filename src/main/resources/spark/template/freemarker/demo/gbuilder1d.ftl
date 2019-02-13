@@ -6,8 +6,8 @@
         
         <script>
             
-            let data;
-            let obvData;
+            let data = {};
+            let obvData = {};
             let daily;
             let obvDaily;
             let soilProfile;
@@ -16,13 +16,13 @@
             let selections = [];
             let charts = {};
             let loadTargets = [];
-            let curFileIdx = -1;
+            let curFileIdx = 0;
 //            const plotVarExludsion = ["YEAR", "DOY", "DAS", "ROW", "COL", "NFluxR_A", "NFluxL_A", "NFluxD_A", "NFluxU_A", "NFluxR_D", "NFluxL_D", "NFluxD_D", "NFluxU_D"];
             const plotVarDic = {SWV:"Soil Water Content", TotalN:"Soil N content", AFERT:"Fertilization", IrrVol:"Irrigation", RLV:"Root Length Density", NO3UpTak:"NO3 Uptake", NH4UpTak:"NH4 Uptake", InfVol:"Infiltration", ES_RATE:"Evaporation Rate", EP_RATE:"Transpiration Rate"};
             
             function readFile() {
                 
-                if (loadTargets.length === 0) {
+                if (curFileIdx === loadTargets.length) {
                     let files = document.getElementById('output_file').files;
                     if (files.length < 1) {
                 //        alert('Please select a directory!');

@@ -22,10 +22,14 @@ function drawSWV2DPlot(plotVar, plotVarName, data, obvData, containerId, cell, s
     for (var i = start; i < end; i++) {
         plotDataSim.push([subdaily[i].TS, subdaily[i][plotVar][cell.row][cell.col]]);
     }
-    for (var i = 0; i < obvSubdaily.length; i++) {
-        if (obvSubdaily[i].TS < subdaily[end - 1].TS) {
-            plotDataObv.push([obvSubdaily[i].TS, obvSubdaily[i][plotVar][cell.row][cell.col]]);
+    if (obvSubdaily !== undefined) {
+        for (var i = 0; i < obvSubdaily.length; i++) {
+            if (obvSubdaily[i].TS < subdaily[end - 1].TS) {
+                plotDataObv.push([obvSubdaily[i].TS, obvSubdaily[i][plotVar][cell.row][cell.col]]);
+            }
         }
+        max = Math.max(max, obvData["max"][plotVar]);
+        min = Math.min(min, obvData["min"][plotVar]);
     }
 
 //  console.log(plotData);
@@ -53,10 +57,10 @@ function drawLineScatterPlot(plotTitle, plotValTitle, plotData, containerId) {
 //            gridLineWidth: 1,
             type: 'datetime',
             tickInterval: 1000*3600*24,
-            title: {
-                text: 'Date Time',
-                align: 'low'
-            }
+//            title: {
+//                text: 'Date Time',
+//                align: 'low'
+//            }
         },
         yAxis: {
             min: plotData.min,
@@ -74,7 +78,7 @@ function drawLineScatterPlot(plotTitle, plotValTitle, plotData, containerId) {
         },
 
         tooltip: {
-            crosshairs: true,
+//            crosshairs: true,
             shared: true,
             split: true,
             distance: 30,
