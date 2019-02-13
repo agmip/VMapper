@@ -95,10 +95,6 @@ function drawVectorFluxPlot(plotTitle, plotValTitle, plotData, soilProfile, cont
                 align: 'low'
             }
         },
-        credits: {
-            text: "dssat2d-plot.herokuapp.com",
-            href: "http://dssat2d-plot.herokuapp.com/"
-        },
 
         tooltip: {
             formatter: function () {

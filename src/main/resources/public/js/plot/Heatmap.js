@@ -69,6 +69,10 @@ function drawHeatMapPlot(plotTitle, plotValTitle, plotData, max, min, soilProfil
                 align: 'low'
             }
         },
+        credits: {
+            text: "dssat2d-plot.herokuapp.com",
+            href: "http://dssat2d-plot.herokuapp.com/"
+        },
 
         colorAxis: {
             min: min * colorZoom,
