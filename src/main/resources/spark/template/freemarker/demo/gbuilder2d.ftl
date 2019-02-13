@@ -176,8 +176,6 @@
                     } else {
                         if (idx >= 0) {
                             selections.splice(selections.indexOf(val), 1);
-                            charts[val].destroy();
-                            charts[val] = null;
                             if (idx < rmvIdx) {
                                 rmvIdx = idx;
                             }
@@ -299,7 +297,7 @@
                     <label class="control-label col-sm-2" for="soil_file">Simulated Result :</label>
                     <div class="col-sm-6">
                         <!--<input type="file" id="output_file" name="output_file" class="form-control filestyle" data-text="Browse" data-placeholder="Browse Simulation Result Directory" data-btnClass="btn-primary" onchange="readFile();" placeholder="Browse Simulation Result Directory" data-toggle="tooltip" title="Browse Simulation Result Directory" webkitdirectory  multiple>-->
-                        <input type="file" id="output_file" name="output_file" class="form-control filestyle" data-text="Browse" data-placeholder="Browse Simulation Result File" data-btnClass="btn-primary" onchange="readFile();" placeholder="Browse Simulation Result File" data-toggle="tooltip" title="Browse Simulation Result File">
+                        <input type="file" id="output_file" name="output_file" accept=".out" class="form-control filestyle" data-text="Browse" data-placeholder="Browse Simulation Result File" data-btnClass="btn-primary" onchange="readFile();" placeholder="Browse Simulation Result File" data-toggle="tooltip" title="Browse Simulation Result File">
                     </div>
                     <div class="col-sm-4">
                         <button id="reload_btn" type="button" class="btn btn-primary text-right" onclick="readFile();" disabled>Reload</button>
