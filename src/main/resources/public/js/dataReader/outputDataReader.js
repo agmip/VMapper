@@ -1,5 +1,5 @@
-function readDailyOutput(rawData, data, titles) {
-    data = [];
+function readDailyOutput(rawData) {
+    let data = [];
     let date = [];
     let daily = {};
     let values = {};
@@ -8,7 +8,7 @@ function readDailyOutput(rawData, data, titles) {
     let avg = {}
     let med = {};
     let titleFlg = false;
-    titles = [];
+    let titles = [];
     let yearIdx = 0;
     let doyIdx = 1;
     let dasIdx = 2;
@@ -89,6 +89,174 @@ function readDailyOutput(rawData, data, titles) {
     return {"titles":titles, "daily":data, "max":max, "min":min, "average":avg, "median":med};
 }
 
+function readSubDailyOutput(rawData) {
+    let data = [];
+    let subdaily = {};
+    let values = {};
+    let max = {};
+    let min = {};
+    let avg = {}
+    let med = {};
+    let titleFlg = false;
+    let titles = [];
+    let yearIdx = 0;
+    let doyIdx = 1;
+    let dasIdx = 2;
+    let timeIdx = 3;
+    let incrIdx = 4;
+    let rowIdx = 5;
+    let colIdx = 6;
+    let year = 0;
+    let doy = 0;
+    let das = 0;
+    let time = 0;
+    let row = 0;
+    let col = 0;
+    for (let i = 0; i < rawData.length; i++) {
+        let line = rawData[i].trim();
+        if (line.startsWith("@")) {
+            titleFlg = true;
+            titles = readTitles(line);
+            yearIdx = titles.indexOf("YEAR");
+            doyIdx = titles.indexOf("DOY");
+            dasIdx = titles.indexOf("DAS");
+            timeIdx = titles.indexOf("TIME");
+            incrIdx = titles.indexOf("INCR");
+            rowIdx = titles.indexOf("ROW");
+            colIdx = titles.indexOf("COL");
+//            console.log(titles);
+        } else if (line.startsWith("!") || line.length === 0) {
+            continue;
+        } else if (titleFlg) {
+            let vals = line.split(/\s+/);
+            let limit = Math.min(titles.length, vals.length);
+            if (limit < vals.length) {
+                console.log("line " + i + " have less data than title");
+            }
+            row = Number(vals[rowIdx]);
+            col = Number(vals[colIdx]);
+            if (das + time !== vals[dasIdx] + vals[timeIdx]) {
+                year = vals[yearIdx];
+                doy = vals[doyIdx];
+                das = vals[dasIdx];
+                time = vals[timeIdx];
+                subdaily = {TS: getDateFromDoy(year, doy, time), TSAS: Number(das) + Number(time) / 24};
+                data.push(subdaily);
+                for (let j = 0; j < limit; j++) {
+                    if (j !== yearIdx && j !== doyIdx && j !== dasIdx && j !== timeIdx && j !== incrIdx && j !== rowIdx && j !== colIdx) {
+                        subdaily[titles[j]] = [[]];
+                        if (values[titles[j]] === undefined) {
+                            values[titles[j]] = [];
+                        }
+                    }
+                }
+            }
+            for (let j = 0; j < limit; j++) {
+                if (j !== yearIdx && j !== doyIdx && j !== dasIdx && j !== timeIdx && j !== incrIdx && j !== rowIdx && j !== colIdx) {
+                    while (subdaily[titles[j]].length < row) {
+                        subdaily[titles[j]].push([]);
+                    }
+                    let val = Number(vals[j]);
+                    subdaily[titles[j]][row - 1][col - 1] = val;
+                    values[titles[j]].push(val);
+                    if (max[titles[j]] === undefined || max[titles[j]] < val) {
+                        max[titles[j]] = val;
+                    }
+                    if (min[titles[j]] === undefined || min[titles[j]] > val) {
+                        min[titles[j]] = val;
+                    }
+                }
+            }
+
+        }
+    }
+    titles.splice(titles.indexOf("YEAR"), 1);
+    titles.splice(titles.indexOf("DOY"), 1);
+    titles.splice(titles.indexOf("DAS"), 1);
+    titles.splice(titles.indexOf("TIME"), 1);
+    titles.splice(titles.indexOf("INCR"), 1);
+    titles.splice(titles.indexOf("ROW"), 1);
+    titles.splice(titles.indexOf("COL"), 1);
+    
+    for (let key in values) {
+        avg[key] = average(values[key]);
+        med[key] = median(values[key]);
+    }
+    
+    return {"titles":titles, "subdaily":data, "max":max, "min":min, "average":avg, "median":med};
+}
+
+function readSubDailyObv(rawData) {
+    let data = [];
+    let subdaily = {};
+    let values = {};
+    let max = {};
+    let min = {};
+    let avg = {}
+    let med = {};
+    let titleFlg = false;
+    let titles = [];
+    let trtnoIdx = 0;
+    let dateIdx = 1;
+    let date;
+    for (let i = 0; i < rawData.length; i++) {
+        let line = rawData[i].trim();
+        if (line.startsWith("@")) {
+            titleFlg = true;
+            titles = readCSVTitles(line);
+            trtnoIdx = titles.indexOf("TRTNO");
+            dateIdx = titles.indexOf("Date");
+//            console.log(titles);
+        } else if (line.startsWith("!") || line.length === 0) {
+            continue;
+        } else if (titleFlg) {
+            let vals = line.split(",");
+            let limit = Math.min(titles.length, vals.length);
+            if (limit < vals.length) {
+                console.log("line " + i + " have less data than title");
+            }
+            date = vals[dateIdx];
+            subdaily = {TS: new Date(date)};
+            data.push(subdaily);
+            for (let j = 0; j < limit; j++) {
+                if (j !== trtnoIdx && j !== dateIdx) {
+                    let valName = titles[j][0];
+                    row = titles[j][1];
+                    col = titles[j][2];
+                    if (subdaily[valName] === undefined) {
+                        subdaily[valName] = [[]];
+                    }
+                    if (values[valName] === undefined) {
+                        values[valName] = [];
+                    }
+                    while (subdaily[valName].length < row) {
+                        subdaily[valName].push([]);
+                    }
+                    let val = Number(vals[j]);
+                    subdaily[valName][row - 1][col - 1] = val;
+                    values[valName].push(val);
+                    if (max[valName] === undefined || max[valName] < val) {
+                        max[valName] = val;
+                    }
+                    if (min[valName] === undefined || min[valName] > val) {
+                        min[valName] = val;
+                    }
+                }
+            }
+
+        }
+    }
+    titles.splice(titles.indexOf("Date"), 1);
+    titles.splice(titles.indexOf("TRTNO"), 1);
+    
+    for (let key in values) {
+        avg[key] = average(values[key]);
+        med[key] = median(values[key]);
+    }
+    
+    return {"titles":titles, "subdaily":data, "max":max, "min":min, "average":avg, "median":med};
+}
+
 function average(values) {
     let sum = 0;
     for (let i in values) {
@@ -136,6 +304,17 @@ function readTitles(line) {
     return titles;
 }
 
+function readCSVTitles(line) {
+    let titles = line.split(",");
+    titles[0] = "TRTNO";
+    for (let i = 1; i < titles.length; i++) {
+        if (titles[i].includes("_")) {
+            titles[i] = titles[i].split("_");
+        }
+    }
+    return titles;
+}
+
 function getSoilStructure(data) {
     let soilProfile = {};
     if (data.length > 0) {
@@ -143,6 +322,12 @@ function getSoilStructure(data) {
         let keys = Object.keys(lastDay);
         if (keys.indexOf("DAS") > -1) {
             keys.splice(keys.indexOf("DAS"), 1);
+        }
+        if (keys.indexOf("TS") > -1) {
+            keys.splice(keys.indexOf("TS"), 1);
+        }
+        if (keys.indexOf("TSAS") > -1) {
+            keys.splice(keys.indexOf("TSAS"), 1);
         }
         if (keys.length > 0) {
             let randomData = lastDay[keys[0]];
@@ -164,4 +349,20 @@ function getSoilStructure(data) {
         }
     }
     return soilProfile;
+}
+
+function getDateFromDoy (year, doy, hour) {
+
+    let date = new Date(year, 0, 0, 0, 0, 0, 0);
+    if (doy === undefined) {
+        return date;
+    }
+    let timeOfFirst = date.getTime(); // this is the time in milliseconds of 1/1/YYYY
+    let dayMilli = 1000 * 60 * 60 * 24;
+    doy = Number(doy);
+    if (hour !== undefined) {
+        doy += Number(hour) / 24;
+    }
+    date.setTime(timeOfFirst + doy * dayMilli);
+    return date;
 }

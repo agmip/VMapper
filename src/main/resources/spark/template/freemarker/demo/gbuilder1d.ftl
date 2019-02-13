@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
     <head>
@@ -7,52 +6,75 @@
         
         <script>
             
-            var data;
-            var daily;
-            var soilProfile;
-            var titles;
-            var zoom = 50;
-            var autoDasFlg = false;
-            var selections = [];
+            let data;
+            let obvData;
+            let daily;
+            let obvDaily;
+            let soilProfile;
+            let titles;
+            let obvTitles;
+            let selections = [];
             let charts = {};
+            let loadTargets = [];
+            let curFileIdx = -1;
 //            const plotVarExludsion = ["YEAR", "DOY", "DAS", "ROW", "COL", "NFluxR_A", "NFluxL_A", "NFluxD_A", "NFluxU_A", "NFluxR_D", "NFluxL_D", "NFluxD_D", "NFluxU_D"];
             const plotVarDic = {SWV:"Soil Water Content", TotalN:"Soil N content", AFERT:"Fertilization", IrrVol:"Irrigation", RLV:"Root Length Density", NO3UpTak:"NO3 Uptake", NH4UpTak:"NH4 Uptake", InfVol:"Infiltration", ES_RATE:"Evaporation Rate", EP_RATE:"Transpiration Rate"};
             
             function readFile() {
                 
-                let files = document.getElementById('output_file').files;
-                if (files.length < 1) {
-            //        alert('Please select a directory!');
-                    return;
-                }
-                document.getElementById('reload_btn').disabled = true;
-                document.getElementById('plot_options').hidden = true;
-                document.getElementById('plot_ctrl').hidden = true;
-                document.getElementById("plot_content").hidden = true;
-                resetDate();
-                for (let i=0; i<files.length; i++) {
-                    if (files[i].name === "CellDetailN.OUT") {
-                        readFileToBufferedArray(files[i], updateProgress, handleRawData);
+                if (loadTargets.length === 0) {
+                    let files = document.getElementById('output_file').files;
+                    if (files.length < 1) {
+                //        alert('Please select a directory!');
                         return;
                     }
+                    document.getElementById('reload_btn').disabled = true;
+                    document.getElementById('plot_options').hidden = true;
+                    document.getElementById("plot_content").hidden = true;
+                    loadTargets = [];
+                    curFileIdx = -1;
+                    for (let i = 0; i < files.length; i++) {
+                        if (files[i].name === "CellDetail.OUT" || files[i].name === "SWV_2dobv.csv") {
+                            loadTargets.push(files[i]);
+                        }
+                    }
+                    readFile();
+//                    alert('Does not find CellDetailN.OUT in the selected folder!');
+                } else {
+                    curFileIdx++;
+                    if (curFileIdx === loadTargets.length - 1) {
+                        readFileToBufferedArray(loadTargets[curFileIdx], updateProgress, handleRawData, {idx:curFileIdx, total:loadTargets.length});
+                    } else if (curFileIdx < loadTargets.length) {
+                        readFileToBufferedArray(loadTargets[curFileIdx], updateProgress, cacheData, {idx:curFileIdx, total:loadTargets.length});
+                    }
                 }
-                alert('Does not find CellDetailN.OUT in the selected folder!');
+            }
+            
+            function cacheData(rawData) {
+                if (rawData.length === 0) {
+                    return;
+                } else if (rawData[0].startsWith("*WATER BALANCE FOR CELL")) {
+                    data = readSubDailyOutput(rawData);
+                    daily = data["subdaily"];
+                    titles = data["titles"];
+                    soilProfile = getSoilStructure(daily);
+                } else if (rawData[0].startsWith("!,Subdaily Observation Data for 2D")) {
+                    obvData = readSubDailyObv(rawData);
+                    obvDaily = obvData["subdaily"];
+                    obvTitles = obvData["titles"];
+                }
+                readFile();
             }
             
             function handleRawData(rawData) {
-//            	console.log(JSON.stringify(rawData));
-                data = readDailyOutput(rawData);
-                daily = data["daily"];
-                titles = data["titles"];
-                soilProfile = getSoilStructure(daily);
+                cacheData(rawData);
                 document.getElementById('reload_btn').disabled = false;
                 document.getElementById('plot_options').hidden = false;
 
+//                console.log(JSON.stringify(daily));
 //                console.log("total_days: " + (data.length - 1));
 //                console.log("soil_profile: " + JSON.stringify(soilProfile));
 //                document.getElementById('output_file_content_rawdata').innerHTML = JSON.stringify(titles);
-                document.getElementById('das_scroll_input').max = daily.length - 1;
-                document.getElementById('das_scroll').max = daily.length - 1;
                 updatePlotType();
             }
             
@@ -80,85 +102,51 @@
                     plotTypeSelect.remove(i);
                 }
                 let optgroupHeatMap = $('<optgroup>');
-                optgroupHeatMap.attr('label', 'Heatmap Plot');
+                optgroupHeatMap.attr('label', 'Time Series Line Plot');
                 for (let key in plotVarDic) {
                     if (titles.indexOf(key) > -1) {
-                        let option = document.createElement('option');
-                        option.innerHTML = plotVarDic[key];
-                        option.value = key;
-                        optgroupHeatMap.append(option);
-                        if (selections.includes(key)) {
-                            option.selected = true;
+                        for (let i = 0; i < soilProfile.totRows; i++) {
+                            for (let j = 0; j < soilProfile.totCols; j++) {
+                                if (daily[1][key][i][j] !== undefined) {
+                                    let option = document.createElement('option');
+                                    option.innerHTML = plotVarDic[key] + " at [" + (i+1) + ", " + (j+1) + "]";
+                                    option.value = key + "_" + i + "_" + j;
+                                    optgroupHeatMap.append(option);
+                                    if (selections.includes(key)) {
+                                        option.selected = true;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
                 $('#plot_type').append(optgroupHeatMap);
                 
-                let optgroupVecFlux = $('<optgroup>');
-                optgroupVecFlux.attr('label', 'Vector Flux Plot');
-                if (titles.indexOf("WFluxH") > -1 && titles.indexOf("WFluxV") > -1) {
-                    let option = document.createElement('option');
-                    option.innerHTML = "Soil Water Flux";
-                    option.value = "water_flux";
-                    if (selections.includes(option.value)) {
-                        option.selected = true;
-                    }
-                    optgroupVecFlux.append(option);
-                }
-                if (titles.indexOf("NFluxR_D") > -1 && titles.indexOf("NFluxL_D") > -1 && titles.indexOf("NFluxD_D") > -1 && titles.indexOf("NFluxU_D") > -1) {
-                    let option = document.createElement('option');
-                    option.innerHTML = "Soil N Flux";
-                    option.value = "n_flux";
-                    if (selections.includes(option.value)) {
-                        option.selected = true;
-                    }
-                    optgroupVecFlux.append(option);
-                }
-                $('#plot_type').append(optgroupVecFlux);
                 $("#plot_type").chosen("destroy");
                 chosen_init("plot_type");
             }
             
             function drawPlot() {
-                var day = document.getElementById('das_scroll_input').value;
-                if (day > daily.length) {
-                    document.getElementById("plot_ctrl").hidden = true;
-                    document.getElementById("plot_content").hidden = true;
-                    return;
-                }
                 if (selections.length > 0) {
-                    document.getElementById("plot_ctrl").hidden = false;
+//                    document.getElementById("plot_ctrl").hidden = false;
                     document.getElementById("plot_content").hidden = false;
                 } else {
-                    document.getElementById("plot_ctrl").hidden = true;
+//                    document.getElementById("plot_ctrl").hidden = true;
                     document.getElementById("plot_content").hidden = true;
                 }
                 
-                let cnt = 1;
                 for (let i in selections) {
-                    if (cnt > 4) break;
                     let plotVar = selections[i];
-                    if (plotVar === "water_flux") {
+                    let plotVarInfo = plotVar.split("_");
+                    if (plotVarDic[plotVarInfo[0]] !== undefined) {
                         if (charts[plotVar] === undefined || charts[plotVar] === null) {
-                            charts[plotVar] = drawWaterVectorFluxPlot(data, soilProfile, 'output_plot' + cnt, day, zoom);
+                            drawSWV2DPlot(plotVarInfo[0], plotVarDic[plotVarInfo[0]], data, obvData, 'output_plot' + 1, {row:plotVarInfo[1], col:plotVarInfo[2]}, "full");
+//                            drawSWV2DPlot(plotVarInfo[0], plotVarDic[plotVarInfo[0]], data, obvData, 'output_plot' + 2, {row:plotVarInfo[1], col:plotVarInfo[2]}, "last");
                         } else {
-                            drawWaterVectorFluxPlot(data, soilProfile, 'output_plot' + cnt, day, zoom, charts[plotVar]);
-                        }
-                    } else if (plotVar === "n_flux") {
-                        if (charts[plotVar] === undefined || charts[plotVar] === null) {
-                            charts[plotVar] = drawNitroFluxVectorPlot(data, soilProfile, 'output_plot' + cnt, day, zoom);
-                        } else {
-                            drawNitroFluxVectorPlot(data, soilProfile, 'output_plot' + cnt, day, zoom, charts[plotVar]);
-                        }
-                        
-                    } else if (plotVarDic[plotVar] !== undefined) {
-                        if (charts[plotVar] === undefined || charts[plotVar] === null) {
-                            charts[plotVar] = drawDailyHeatMapPlot(plotVar, plotVarDic[plotVar], data, soilProfile, 'output_plot' + cnt, day, zoom);
-                        } else {
-                            drawDailyHeatMapPlot(plotVar, plotVarDic[plotVar], data, soilProfile, 'output_plot' + cnt, day, zoom, charts[plotVar]);
+                            drawSWV2DPlot(plotVarInfo[0], plotVarDic[plotVarInfo[0]], data, obvData, 'output_plot' + 1, {row:plotVarInfo[1], col:plotVarInfo[2]}, "full");
+//                            drawSWV2DPlot(plotVarInfo[0], plotVarDic[plotVarInfo[0]], data, obvData, 'output_plot' + 2, {row:plotVarInfo[1], col:plotVarInfo[2]}, "last");
                         }
                     }
-                    cnt++;
                 }
                 
             }
@@ -176,28 +164,28 @@
                     } else {
                         if (idx >= 0) {
                             selections.splice(selections.indexOf(val), 1);
-                            charts[val].destroy();
-                            charts[val] = null;
-                            if (idx < rmvIdx) {
-                                rmvIdx = idx;
-                            }
+//                            charts[val].destroy();
+//                            charts[val] = null;
+//                            if (idx < rmvIdx) {
+//                                rmvIdx = idx;
+//                            }
                         }
                     }
                 }
-                for (let i = rmvIdx; i <= selections.length; i++) {
-                    clearChart(i);
-                }
-                
-                let div1Class = document.getElementById("output_plot1").className;
-                if (selections.length === 1 && div1Class === "col-sm-6") {
-                    document.getElementById("output_plot1").className = 'col-sm-12';
-                    reflowChart(0);
-                } else if (selections.length === 2 && div1Class === "col-sm-12") {
-                    document.getElementById("output_plot1").className = 'col-sm-6';
-                    for (let i = 0; i <= selections.length; i++) {
-                        clearChart(i);
-                    }
-                }
+//                for (let i = rmvIdx; i <= selections.length; i++) {
+//                    clearChart(i);
+//                }
+//                
+//                let div1Class = document.getElementById("output_plot1").className;
+//                if (selections.length === 1 && div1Class === "col-sm-6") {
+//                    document.getElementById("output_plot1").className = 'col-sm-12';
+//                    reflowChart(0);
+//                } else if (selections.length === 2 && div1Class === "col-sm-12") {
+//                    document.getElementById("output_plot1").className = 'col-sm-6';
+//                    for (let i = 0; i <= selections.length; i++) {
+//                        clearChart(i);
+//                    }
+//                }
                 
                 drawPlot();
             }
@@ -219,71 +207,6 @@
                 for (let key in charts) {
                     charts[key].destroy();
                     charts[key] = null;
-                }
-            }
-            
-            function resetDate() {
-                document.getElementById('das_scroll_input').value = 0;
-                document.getElementById('das_scroll').value = 0;
-            }
-            
-            function changeDate(target) {
-                if (target.id === "das_scroll") {
-                    document.getElementById('das_scroll_input').value = target.value;
-                } else if (target.id === "das_scroll_input") {
-                    document.getElementById('das_scroll').value = target.value;
-                }
-                drawPlot();
-            }
-            
-            function zoomIn() {
-                zoom -= 10;
-                document.getElementById("zoom_val").textContent = zoom + "%";
-                drawPlot();
-            }
-            
-            function zoomOut() {
-                zoom += 10;
-                document.getElementById("zoom_val").textContent = zoom + "%";
-                drawPlot();
-            }
-            
-            function AutoScroll(activeFlg) {
-                let autoScrollBtn = $("#auto_scroll_btn");
-                if (activeFlg === undefined) {
-                    autoDasFlg = !autoDasFlg;
-                    if (autoDasFlg) {
-                        autoScrollBtn.removeClass("glyphicon-play").addClass("glyphicon-pause");
-                    } else {
-                        autoScrollBtn.removeClass("glyphicon-pause").addClass("glyphicon-play");
-                    }
-                } else if (autoScrollBtn.hasClass("glyphicon-pause")) {
-                    autoDasFlg = activeFlg;
-                } else {
-                    autoDasFlg = false;
-                }
-                
-                das = Number(document.getElementById('das_scroll_input').value) + 1;
-                if (das < daily.length && das >= 0 && autoDasFlg) {
-                    document.getElementById('das_scroll_input').value = das;
-                    document.getElementById('das_scroll').value = das;
-                    drawPlot();
-                    setTimeout(AutoScroll, autoDasFlg, 500);
-                } else {
-                    autoDasFlg = false;
-                }
-            }
-            
-            function scrollOne(chg) {
-                
-                var max = Number(document.getElementById('das_scroll_input').max);
-                var min = Number(document.getElementById('das_scroll_input').min);
-                var org = Number(document.getElementById('das_scroll_input').value);
-                var newDas = org + chg;
-                if (newDas < max && newDas > min) {
-                    document.getElementById('das_scroll_input').value = newDas;
-                    document.getElementById('das_scroll').value = newDas;
-                    drawPlot();
                 }
             }
         </script>
@@ -313,7 +236,6 @@
                         <div class="col-sm-10 text-left"><label id="soil_fileWarningMsg"></label></div>
                     </div>
                 </div>
-                <br/>
                 <div id="plot_options" class="form-group" hidden="true">
                     <label class="control-label col-sm-2">Plot Type :</label>
                     <div class="col-sm-6 text-left">
@@ -324,34 +246,12 @@
                         <button type="button" class="btn btn-primary text-right" onclick="drawPlot();">Draw Plot</button>
                     </div>
                 </div>
-                <br/>
-                <div id="plot_ctrl" class="form-group" hidden="true">
-                    <label class="control-label col-sm-2">DAS :</label>
-                    <div class="col-sm-5 text-right">
-                        <input type="range" id="das_scroll" name="das_scroll" class="form-control" value="0" step="1" max="180" min="0" placeholder="" data-toggle="tooltip" title="" onchange="changeDate(this);">
-                    </div>
-                    <div class="col-sm-1">
-                        <input type="number" id="das_scroll_input" name="das_scroll_input" class="form-control" value="0" step="1" max="180" min="0" placeholder="" data-toggle="tooltip" title="" onchange="changeDate(this);">
-                    </div>
-                    <div class="col-sm-2 btn-group">
-                        <button type="button" class="btn btn-primary glyphicon glyphicon-chevron-left" onclick="scrollOne(-1);"></button>
-                        <button id="auto_scroll_btn" type="button" class="btn btn-primary glyphicon glyphicon-play" onclick="AutoScroll();"></button>
-                        <button type="button" class="btn btn-primary glyphicon glyphicon-chevron-right" onclick="scrollOne(1);"></button>
-                    </div>
-                    <div class="col-sm-2 text-right">
-                        <button type="button" class="btn btn-primary glyphicon glyphicon-plus" onclick="zoomOut();"></button>
-                        <label id="zoom_val" class="control-label">50%</label>
-                        <button type="button" class="btn btn-primary glyphicon glyphicon-minus" onclick="zoomIn();"></button>
-                    </div>
-                </div>
             </div>
         </div>
         <div id="plot_content" class="container-fluid">
             <div id="plot_div" class="col-sm-12 text-left row" style="max-height:600px;">
-                <div id="output_plot1" class="col-sm-6"></div>
-                <div id="output_plot2" class="col-sm-6"></div>
-                <div id="output_plot3" class="col-sm-6"></div>
-                <div id="output_plot4" class="col-sm-6"></div>
+                <div id="output_plot1" class="col-sm-12"></div>
+                <div id="output_plot2" class="col-sm-12"></div>
             </div>
         </div>
 
@@ -360,6 +260,7 @@
         <script type="text/javascript" src="https://code.highcharts.com/modules/heatmap.js"></script>
         <script type="text/javascript" src="https://code.highcharts.com/modules/vector.js"></script>
         <script type="text/javascript" src="https://code.highcharts.com/modules/exporting.js"></script>
+        <script type="text/javascript" src="https://code.highcharts.com/modules/export-data.js"></script>
         <script type="text/javascript" src="/plugins/filestyle/bootstrap-filestyle.min.js"></script>
         <script type="text/javascript" src="/plugins/chosen/chosen.jquery.min.js" ></script>
         <script type="text/javascript" src="/plugins/chosen/prism.js" charset="utf-8"></script>
@@ -368,6 +269,7 @@
         <script type="text/javascript" src="/js/dataReader/outputDataReader.js"></script>
         <script type="text/javascript" src="/js/plot/VectorFlux.js"></script>
         <script type="text/javascript" src="/js/plot/Heatmap.js"></script>
+        <script type="text/javascript" src="/js/plot/LineScatter.js"></script>
         <script>
             var progress;
             $(document).ready(function () {

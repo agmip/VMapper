@@ -24,10 +24,15 @@ function errorHandler(evt) {
     ;
 }
 
-function readFileToBufferedArray(file, progressCallBack, resultHandleCallBack) {
+function readFileToBufferedArray(file, progressCallBack, resultHandleCallBack, filesInfo) {
     
     // Reset progress indicator on new file selection.
-    progressCallBack(0);
+    if (filesInfo === undefined) {
+        progressCallBack(0);
+    } else {
+        progressCallBack(filesInfo.idx/filesInfo.total);
+    }
+    
     reader = new FileReader();
     reader.onerror = errorHandler;
     let unitName = file.name.slice(0, -5);
@@ -41,7 +46,11 @@ function readFileToBufferedArray(file, progressCallBack, resultHandleCallBack) {
     reader.onloadend = function (evt) {
         if (evt.target.readyState === FileReader.DONE) { // DONE == 2
             // Update the progress bar
-            progressCallBack(stop / file.size);
+            if (filesInfo === undefined) {
+                progressCallBack(stop / file.size);
+            } else {
+                progressCallBack(stop / file.size * (filesInfo.idx + 1)/filesInfo.total);
+            }
 
             // Handle the cached content
             let tmp = evt.target.result;
