@@ -358,6 +358,7 @@
         <script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>
         <script type="text/javascript" src="https://code.highcharts.com/modules/heatmap.js"></script>
         <script type="text/javascript" src="https://code.highcharts.com/modules/vector.js"></script>
+        <script src="https://code.highcharts.com/modules/no-data-to-display.js"></script>
         <script type="text/javascript" src="https://code.highcharts.com/modules/exporting.js"></script>
         <script type="text/javascript" src="/plugins/filestyle/bootstrap-filestyle.min.js"></script>
         <script type="text/javascript" src="/plugins/chosen/chosen.jquery.min.js" ></script>
