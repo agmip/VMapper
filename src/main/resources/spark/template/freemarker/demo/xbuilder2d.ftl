@@ -9,6 +9,7 @@
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/handsontable-pro@latest/dist/handsontable.full.min.css">
         
         <script>
+            let expData = {};
             let eventData;
             let events;
             let timeline;
@@ -181,6 +182,13 @@
             function init() {
                 initStartYearSB();
                 chosen_init_all();
+                $('.exp_data').on('change', function() {
+                    if (this.value && this.value.trim()) {
+                        expData[this.id] = this.value.trim();
+                    } else if (expData[this.id]) {
+                        delete expData[this.id];
+                    }
+                });
                 $('.nav-tabs #EventTab').on('shown.bs.tab', function(){
                     if (fstTmlFlg) {
                         fstTmlFlg = false;
@@ -205,6 +213,10 @@
                     $("#tr_config_2").chosen("destroy");
                     chosen_init("tr_config_2");
                 });
+                $('.nav-tabs #PreviewTab').on('shown.bs.tab', function(){
+                    updatePreview();
+                });
+            }
             
             function initStartYearSB() {
                 let startYearSB = $('#start_year');
@@ -293,30 +305,36 @@
                 <li id="TreatmentTab">
                     <a data-toggle="tab" href="#Treatment"><span class="glyphicon glyphicon-link"></span> Treatments <span class="badge" id="treatment_badge">2</span></a>
                 </li>
+                <li id="PreviewTab">
+                    <a data-toggle="tab" href="#Preview"><span class="glyphicon glyphicon-list-alt"></span> Preview</a>
+                </li>
                 
                 <li id="SaveTabBtn" class="tabbtns" onclick="saveFile()"><a href="#"><span class="glyphicon glyphicon-save"></span> Save</a></li>
                 <li id="OpenTabBtn" class="tabbtns" onclick="openFile()"><a href="#"><span class="glyphicon glyphicon-open"></span> Load</a></li>
             </ul>
             <div class="tab-content">
-            <div id="SiteInfo" class="tab-pane fade in active">
-                <#include "xbuilder2d_general.ftl">
-            </div>
-            <div id="Treatment" class="tab-pane fade">
-                <#include "xbuilder2d_treatment.ftl">
-            </div>
-            <div id="Field" class="tab-pane fade">
-                <div class="subcontainer"><center>
-                    Under construction
-                </center></div>
-            </div>
-            <div id="Event" class="tab-pane fade">
-                <#include "xbuilder2d_event.ftl">
-            </div>
-            <div id="Config" class="tab-pane fade">
-                <div class="subcontainer"><center>
-                    Under construction
-                </center></div>
-            </div>
+                <div id="SiteInfo" class="tab-pane fade in active">
+                    <#include "xbuilder2d_general.ftl">
+                </div>
+                <div id="Treatment" class="tab-pane fade">
+                    <#include "xbuilder2d_treatment.ftl">
+                </div>
+                <div id="Field" class="tab-pane fade">
+                    <div class="subcontainer"><center>
+                        Under construction
+                    </center></div>
+                </div>
+                <div id="Event" class="tab-pane fade">
+                    <#include "xbuilder2d_event.ftl">
+                </div>
+                <div id="Config" class="tab-pane fade">
+                    <div class="subcontainer"><center>
+                        Under construction
+                    </center></div>
+                </div>
+                <div id="Preview" class="tab-pane fade">
+                    <#include "xbuilder2d_preview.ftl">
+                </div>
             </div>
         </div>
 
