@@ -17,15 +17,7 @@
         }
         
         let startYear = $('#start_year').val().substr(-2);
-        if (startYear.trim() !== "") {
-            startYear = Number(startYear);
-            if (startYear === NaN) {
-                startYear = "??";
-            } else if (startYear < 10) {
-                startYear = "0" + startYear;
-            }
-            $('#start_year').val(startYear + "");
-        } else {
+        if (startYear.trim() === "") {
             startYear = "??";
         }
         
@@ -82,7 +74,9 @@
                 <div class="form-group has-feedback col-sm-6">
                     <label class="control-label" for="start_year">Year *</label>
                     <div class="input-group">
-                        <input type="text" id="start_year" name="start_year" class="form-control" onchange="updateExname();" placeholder="Start year" data-toggle="tooltip" title="The start year of experiment" required>
+                        <select type="year" id="start_year" name="start_year" class="form-control chosen-select-deselect exp_data" onchange="updateExname();" placeholder="Choose start year..." data-toggle="tooltip" title="The start year of experiment" required>
+                            <option value=""></option>
+                        </select>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
                 </div>

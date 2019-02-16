@@ -1,8 +1,8 @@
 let chonsenConfigs = {
   'chosen-select'           : {},
-  'chosen-select-max4'       : { max_selected_options : 4},
-  'chosen-select-deselect'  : { allow_single_deselect: true },
-  'chosen-select-deselect-single'  : { allow_single_deselect: true, max_selected_options : 1 },
+  'chosen-select-max4'       : { max_selected_options : 4, search_contains: true},
+  'chosen-select-deselect'  : { allow_single_deselect: true, search_contains: true },
+  'chosen-select-deselect-single'  : { allow_single_deselect: true, max_selected_options : 1, search_contains: true },
   'chosen-select-no-single' : { disable_search_threshold: 10 },
   'chosen-select-no-results': { no_results_text: 'Oops, nothing found!' },
   'chosen-select-rtl'       : { rtl: true },

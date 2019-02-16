@@ -179,6 +179,7 @@
             }
             
             function init() {
+                initStartYearSB();
                 chosen_init_all();
                 $('.nav-tabs #EventTab').on('shown.bs.tab', function(){
                     if (fstTmlFlg) {
@@ -204,6 +205,28 @@
                     $("#tr_config_2").chosen("destroy");
                     chosen_init("tr_config_2");
                 });
+            
+            function initStartYearSB() {
+                let startYearSB = $('#start_year');
+                for (let i = 51; i <= 99; i++) {
+                    let option = document.createElement('option');
+                    option.innerHTML = "19" + i;
+                    option.value = "" + i;
+                    startYearSB.append(option);
+                }
+                for (let i = 0; i <= 9; i++) {
+                    let option = document.createElement('option');
+                    option.innerHTML = "200" + i;
+                    option.value = "0" + i;
+                    startYearSB.append(option);
+                }
+                for (let i = 10; i <= 50; i++) {
+                    let option = document.createElement('option');
+                    option.innerHTML = "20" + i;
+                    option.value = "" + i;
+                    startYearSB.append(option);
+                }
+                
             }
             
             function saveFile() {
