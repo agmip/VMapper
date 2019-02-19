@@ -10,8 +10,14 @@
         
         <script>
             let expData = {};
+            let fields = {};
+            let fieldData = {};
+            let fieldId;
             let eventData;
-            let events;
+            let events = [];
+            let trtSBIds = {};
+            let trtSBId;
+            let treatManagementLinks = [];
             let timeline;
             let tmlContainer;
             let fstTmlFlg = true;
@@ -183,13 +189,21 @@
                 initStartYearSB();
                 chosen_init_all();
                 $('.exp_data').on('change', function() {
-                    if (this.value && this.value.trim()) {
-                        expData[this.id] = this.value.trim();
-                    } else if (expData[this.id]) {
-                        delete expData[this.id];
+                    saveData(expData, this.id, this.value);
+                });
+                $('.field_data').on('change', function() {
+                    saveData(fieldData, this.id, this.value);
+                    if (this.id === "fl_name") {
+                        $('#' + fieldId).html(this.value);
                     }
                 });
+                $('.nav-tabs #FieldTab').on('shown.bs.tab', function(){
+                    $("#field_create").parent().removeClass("active");
+                    $("#" + fieldId).parent().addClass("active");
+                });
                 $('.nav-tabs #EventTab').on('shown.bs.tab', function(){
+//                    $("#event_create").parent().removeClass("active");
+//                    $("#" + eventId).parent().addClass("active");
                     if (fstTmlFlg) {
                         fstTmlFlg = false;
                         initTimeline();
@@ -199,6 +213,8 @@
                     // TODO will sync the tml and sps
                 });
                 $('.nav-tabs #TreatmentTab').on('shown.bs.tab', function(){
+//                    $("#management_create").parent().removeClass("active");
+//                    $("#" + mgnId).parent().addClass("active");
                     // TODO
                     $("#tr_field_1").chosen("destroy");
                     chosen_init("tr_field_1");
@@ -216,6 +232,9 @@
                 $('.nav-tabs #PreviewTab').on('shown.bs.tab', function(){
                     updatePreview();
                 });
+                trtSBIds[0] = 1;
+                trtSBIds[1] = 2;
+                trtSBId = trtSBIds[0];
             }
             
             function initStartYearSB() {
@@ -239,6 +258,37 @@
                     startYearSB.append(option);
                 }
                 
+            }
+    
+            function getNewCollectionNum(collection) {
+                let ret = -1;
+                for (let key in collection) {
+                    let keyNum = getNum(key);
+                    if (ret < keyNum) {
+                        ret = keyNum;
+                    }
+                }
+                return ret + 1;
+            }
+
+            function getNum(idStr) {
+                if (!idStr) {
+                    return 0;
+                }
+                let strs = idStr.split("_");
+                if (strs.length > 1) {
+                    return Number(strs[1]);
+                } else {
+                    return 0;
+                }
+            }
+            
+            function saveData(target, id, val) {
+                if (val && val.trim()) {
+                    target[id] = val.trim();
+                } else if (target[id]) {
+                    delete target[id];
+                }
             }
             
             function saveFile() {
@@ -269,8 +319,8 @@
                         <span class="badge" id="field_badge">0</span>
                         <span class="caret"></span>
                     </a>
-                    <ul class="dropdown-menu">
-                        <li><a data-toggle="tab" href="#Field" class="create-link" id="field_create">Create new...</a></li>
+                    <ul class="dropdown-menu" id="field_list">
+                        <li><a data-toggle="tab" href="#Field" class="create-link" id="field_create" onclick="createField();">Create new...</a></li>
                     </ul>
                 <li id="EventTab" class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -320,9 +370,7 @@
                     <#include "xbuilder2d_treatment.ftl">
                 </div>
                 <div id="Field" class="tab-pane fade">
-                    <div class="subcontainer"><center>
-                        Under construction
-                    </center></div>
+                    <#include "xbuilder2d_field.ftl">
                 </div>
                 <div id="Event" class="tab-pane fade">
                     <#include "xbuilder2d_event.ftl">

@@ -23,7 +23,7 @@
     }
     
     function updatePreview() {
-        $('#json_preview').html(JSON.stringify(expData));
+        $('#json_preview').html("<div><h3>Experiment Data</h3>" + JSON.stringify(expData) + "</div><div><h3>Field List</h3>" + JSON.stringify(fields) + "</div>");
     }
 </script>
 
