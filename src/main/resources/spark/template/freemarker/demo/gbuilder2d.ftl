@@ -54,6 +54,7 @@
                 document.getElementById('das_scroll_input').max = daily.length - 1;
                 document.getElementById('das_scroll').max = daily.length - 1;
                 updatePlotType();
+                updateSelections();
             }
             
             function updateProgress(progressVal) {
