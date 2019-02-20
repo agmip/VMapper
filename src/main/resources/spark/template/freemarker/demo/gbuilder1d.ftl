@@ -153,7 +153,7 @@
             
             function updateSelections() {
                 let options = document.getElementById("plot_type").options;
-                let rmvIdx = selections.length;
+//                let rmvIdx = selections.length;
                 for(let i in options) {
                     let val = options[i].value;
                     let idx = selections.indexOf(val);
@@ -163,6 +163,7 @@
                         }
                     } else {
                         if (idx >= 0) {
+//                            clearChart(i);
                             selections.splice(selections.indexOf(val), 1);
 //                            charts[val].destroy();
 //                            charts[val] = null;

@@ -26,7 +26,9 @@ function drawWaterVectorFluxPlot(data, soilProfile, containerId, day, zoom, char
     if (chart === undefined) {
         return drawVectorFluxPlot(plotTitle, plotValTitle, plotData, soilProfile, containerId, zoom);
     } else {
+        chart.series[0].update({vectorLength: zoom}, false);
         chart.series[0].setData(plotData, true, true, true);
+        chart.setSize(null, zoom + "%");
         return chart;
     }
 }
@@ -61,7 +63,9 @@ function drawNitroFluxVectorPlot(data, soilProfile, containerId, day, zoom, char
     if (chart === undefined) {
         return drawVectorFluxPlot(plotTitle, plotValTitle, plotData, soilProfile, containerId, zoom);
     } else {
+        chart.series[0].update({vectorLength: zoom}, false);
         chart.series[0].setData(plotData, true, true, true);
+        chart.setSize(null, zoom + "%");
         return chart;
     }
     
@@ -73,7 +77,7 @@ function drawVectorFluxPlot(plotTitle, plotValTitle, plotData, soilProfile, cont
             text: plotTitle
         },
         chart: {
-            height: 500
+            height: zoom + '%'
         },
         xAxis: {
             min: 1,

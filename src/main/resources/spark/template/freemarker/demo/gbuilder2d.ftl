@@ -175,12 +175,13 @@
                         }
                     } else {
                         if (idx >= 0) {
+                            clearChart(idx);
                             selections.splice(selections.indexOf(val), 1);
                             if (idx < rmvIdx) {
                                 rmvIdx = idx;
-                            }
                         }
                     }
+                }
                 }
                 for (let i = rmvIdx; i <= selections.length; i++) {
                     clearChart(i);
@@ -346,7 +347,7 @@
             </div>
         </div>
         <div id="plot_content" class="container-fluid">
-            <div id="plot_div" class="col-sm-12 text-left row" style="max-height:600px;">
+            <div id="plot_div" class="col-sm-12 text-left row">
                 <div id="output_plot1" class="col-sm-6"></div>
                 <div id="output_plot2" class="col-sm-6"></div>
                 <div id="output_plot3" class="col-sm-6"></div>
@@ -358,7 +359,7 @@
         <script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>
         <script type="text/javascript" src="https://code.highcharts.com/modules/heatmap.js"></script>
         <script type="text/javascript" src="https://code.highcharts.com/modules/vector.js"></script>
-        <script src="https://code.highcharts.com/modules/no-data-to-display.js"></script>
+        <script type="text/javascript" src="https://code.highcharts.com/modules/no-data-to-display.js"></script>
         <script type="text/javascript" src="https://code.highcharts.com/modules/exporting.js"></script>
         <script type="text/javascript" src="/plugins/filestyle/bootstrap-filestyle.min.js"></script>
         <script type="text/javascript" src="/plugins/chosen/chosen.jquery.min.js" ></script>

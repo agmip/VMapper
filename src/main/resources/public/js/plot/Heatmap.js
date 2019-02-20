@@ -28,6 +28,7 @@ function drawDailyHeatMapPlot(plotVar, plotVarName, data, soilProfile, container
         return drawHeatMapPlot(plotTitle, plotValTitle, plotData, max, min, soilProfile, containerId, colorZoom, zoom);
     } else {
         chart.series[0].setData(plotData);
+        chart.setSize(null, zoom + "%");
         return chart;
     }
     
@@ -40,8 +41,9 @@ function drawHeatMapPlot(plotTitle, plotValTitle, plotData, max, min, soilProfil
         chart: {
             type: 'heatmap',
             marginTop: 40,
-            marginBottom: 80,
-            plotBorderWidth: 1
+            marginBottom: 60,
+            plotBorderWidth: 1,
+            height: zoom + '%'
         },
 
         title: {
