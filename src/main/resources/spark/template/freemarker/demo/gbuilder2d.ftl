@@ -140,20 +140,20 @@
                     if (cnt > 4) break;
                     let plotVar = selections[i];
                     if (plotVar === "water_flux") {
-                        if (charts[plotVar] === undefined || charts[plotVar] === null) {
+                        if (charts[plotVar] === undefined) {
                             charts[plotVar] = drawWaterVectorFluxPlot(data, soilProfile, 'output_plot' + cnt, day, zoom);
                         } else {
                             drawWaterVectorFluxPlot(data, soilProfile, 'output_plot' + cnt, day, zoom, charts[plotVar]);
                         }
                     } else if (plotVar === "n_flux") {
-                        if (charts[plotVar] === undefined || charts[plotVar] === null) {
+                        if (charts[plotVar] === undefined) {
                             charts[plotVar] = drawNitroFluxVectorPlot(data, soilProfile, 'output_plot' + cnt, day, zoom);
                         } else {
                             drawNitroFluxVectorPlot(data, soilProfile, 'output_plot' + cnt, day, zoom, charts[plotVar]);
                         }
                         
                     } else if (plotVarDic[plotVar] !== undefined) {
-                        if (charts[plotVar] === undefined || charts[plotVar] === null) {
+                        if (charts[plotVar] === undefined) {
                             charts[plotVar] = drawDailyHeatMapPlot(plotVar, plotVarDic[plotVar], data, soilProfile, 'output_plot' + cnt, day, zoom);
                         } else {
                             drawDailyHeatMapPlot(plotVar, plotVarDic[plotVar], data, soilProfile, 'output_plot' + cnt, day, zoom, charts[plotVar]);
@@ -180,9 +180,9 @@
                             selections.splice(selections.indexOf(val), 1);
                             if (idx < rmvIdx) {
                                 rmvIdx = idx;
+                            }
                         }
                     }
-                }
                 }
                 for (let i = rmvIdx; i <= selections.length; i++) {
                     clearChart(i);
@@ -203,22 +203,24 @@
             }
             
             function clearChart(idx) {
-                if (charts[selections[idx]] !== undefined && charts[selections[idx]] !== null) {
+                if (charts[selections[idx]] !== undefined) {
                     charts[selections[idx]].destroy();
-                    charts[selections[idx]] = null;
+                    delete charts[selections[idx]];
                 }
             }
             
             function reflowChart(idx) {
-                if (charts[selections[idx]] !== undefined && charts[selections[idx]] !== null) {
+                if (charts[selections[idx]] !== undefined) {
                     charts[selections[idx]].reflow();
                 }
             }
             
             function clearCharts() {
                 for (let key in charts) {
-                    charts[key].destroy();
-                    charts[key] = null;
+                    if (charts[key] !== undefined) {
+                        charts[key].destroy();
+                        delete charts[key];
+                    }
                 }
             }
             

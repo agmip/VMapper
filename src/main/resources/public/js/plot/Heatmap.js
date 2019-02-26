@@ -7,6 +7,9 @@ function drawDailyHeatMapPlot(plotVar, plotVarName, data, soilProfile, container
     let avg = data["average"][plotVar];
     let med = data["median"][plotVar];
     let colorZoom = Math.abs((avg+med)/(max+min));
+    if (isNaN(colorZoom)) {
+        colorZoom = 1;
+    }
     let plotData = [];
     let plotTitle;
     let plotValTitle;
