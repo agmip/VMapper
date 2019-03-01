@@ -109,7 +109,7 @@
                             for (let j = 0; j < soilProfile.totCols; j++) {
                                 if (daily[1][key][i][j] !== undefined) {
                                     let option = document.createElement('option');
-                                    if (obvDaily[key][i][j]) {
+                                    if (obvDaily[1][key][i][j]) {
                                         option.innerHTML = "<strong>" + plotVarDic[key] + " at [" + (i+1) + ", " + (j+1) + "]</strong>";
                                     } else {
                                         option.innerHTML = plotVarDic[key] + " at [" + (i+1) + ", " + (j+1) + "]";
