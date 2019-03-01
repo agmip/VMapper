@@ -5,8 +5,8 @@ function drawSWV2DPlot(plotVar, plotVarName, data, obvData, containerId, cell, s
     let obvSubdaily = obvData["subdaily"];
     let plotDataSim = [];
     let plotDataObv = [];
-    let max = data["max"][plotVar];
-    let min = data["min"][plotVar];
+    let max = data["max"][plotVar][cell.row][cell.col];
+    let min = data["min"][plotVar][cell.row][cell.col];
     let plotTitle = "Time series Plot";
     let start, end;
     if (style === undefined || style === "full") {
@@ -28,8 +28,12 @@ function drawSWV2DPlot(plotVar, plotVarName, data, obvData, containerId, cell, s
                 plotDataObv.push([obvSubdaily[i].TS, obvSubdaily[i][plotVar][cell.row][cell.col]]);
             }
         }
-        max = Math.max(max, obvData["max"][plotVar]);
-        min = Math.min(min, obvData["min"][plotVar]);
+        if (obvData["max"][plotVar][cell.row][cell.col]) {
+            max = Math.max(max, obvData["max"][plotVar][cell.row][cell.col]);
+        }
+        if (obvData["min"][plotVar][cell.row][cell.col]) {
+            min = Math.min(min, obvData["min"][plotVar][cell.row][cell.col]);
+        }
     }
 
 //  console.log(plotData);

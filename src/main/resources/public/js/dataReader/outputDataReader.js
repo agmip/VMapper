@@ -146,24 +146,42 @@ function readSubDailyOutput(rawData) {
                     if (j !== yearIdx && j !== doyIdx && j !== dasIdx && j !== timeIdx && j !== incrIdx && j !== rowIdx && j !== colIdx) {
                         subdaily[titles[j]] = [[]];
                         if (values[titles[j]] === undefined) {
-                            values[titles[j]] = [];
+                            values[titles[j]] = [[[]]];
+                        }
+                        if (max[titles[j]] === undefined) {
+                            max[titles[j]] = [[]];
+                        }
+                        if (min[titles[j]] === undefined) {
+                            min[titles[j]] = [[]];
                         }
                     }
                 }
             }
             for (let j = 0; j < limit; j++) {
                 if (j !== yearIdx && j !== doyIdx && j !== dasIdx && j !== timeIdx && j !== incrIdx && j !== rowIdx && j !== colIdx) {
+                    let val = Number(vals[j]);
                     while (subdaily[titles[j]].length < row) {
                         subdaily[titles[j]].push([]);
                     }
-                    let val = Number(vals[j]);
                     subdaily[titles[j]][row - 1][col - 1] = val;
-                    values[titles[j]].push(val);
-                    if (max[titles[j]] === undefined || max[titles[j]] < val) {
-                        max[titles[j]] = val;
+                    while (values[titles[j]].length < row) {
+                        values[titles[j]].push([]);
                     }
-                    if (min[titles[j]] === undefined || min[titles[j]] > val) {
-                        min[titles[j]] = val;
+                    while (values[titles[j]][row - 1].length < col) {
+                        values[titles[j]][row - 1].push([]);
+                    }
+                    values[titles[j]][row - 1][col - 1].push(val);
+                    while (max[titles[j]].length < row) {
+                        max[titles[j]].push([]);
+                    }
+                    if (max[titles[j]][row - 1][col - 1] === undefined || max[titles[j]][row - 1][col - 1] < val) {
+                        max[titles[j]][row - 1][col - 1] = val;
+                    }
+                    while (min[titles[j]].length < row) {
+                        min[titles[j]].push([]);
+                    }
+                    if (min[titles[j]][row - 1][col - 1] === undefined || min[titles[j]][row - 1][col - 1] > val) {
+                        min[titles[j]][row - 1][col - 1] = val;
                     }
                 }
             }
@@ -179,8 +197,16 @@ function readSubDailyOutput(rawData) {
     titles.splice(titles.indexOf("COL"), 1);
     
     for (let key in values) {
-        avg[key] = average(values[key]);
-        med[key] = median(values[key]);
+        avg[key] = [];
+        med[key] = [];
+        for (let i in values[key]) {
+            avg[key].push([]);
+            med[key].push([]);
+            for (let j in values[key][i]) {
+                avg[key][i].push(average(values[key][i][j]));
+                med[key][i].push(median(values[key][i][j]));
+            }
+        }
     }
     
     return {"titles":titles, "subdaily":data, "max":max, "min":min, "average":avg, "median":med};
@@ -227,19 +253,37 @@ function readSubDailyObv(rawData) {
                         subdaily[valName] = [[]];
                     }
                     if (values[valName] === undefined) {
-                        values[valName] = [];
+                        values[valName] = [[[]]];
                     }
+                    if (max[valName] === undefined) {
+                        max[valName] = [[]];
+                    }
+                    if (min[valName] === undefined) {
+                        min[valName] = [[]];
+                    }
+                    let val = Number(vals[j]);
                     while (subdaily[valName].length < row) {
                         subdaily[valName].push([]);
                     }
-                    let val = Number(vals[j]);
                     subdaily[valName][row - 1][col - 1] = val;
-                    values[valName].push(val);
-                    if (max[valName] === undefined || max[valName] < val) {
-                        max[valName] = val;
+                    while (values[valName].length < row) {
+                        values[valName].push([[]]);
                     }
-                    if (min[valName] === undefined || min[valName] > val) {
-                        min[valName] = val;
+                    while (values[valName][row - 1].length < col) {
+                        values[valName][row - 1].push([]);
+                    }
+                    values[valName][row - 1][col - 1].push(val);
+                    while (max[valName].length < row) {
+                        max[valName].push([]);
+                    }
+                    if (max[valName][row - 1][col - 1] === undefined || max[valName][row - 1][col - 1] < val) {
+                        max[valName][row - 1][col - 1] = val;
+                    }
+                    while (min[valName].length < row) {
+                        min[valName].push([]);
+                    }
+                    if (min[valName][row - 1][col - 1] === undefined || min[valName][row - 1][col - 1] > val) {
+                        min[valName][row - 1][col - 1] = val;
                     }
                 }
             }
@@ -250,8 +294,16 @@ function readSubDailyObv(rawData) {
     titles.splice(titles.indexOf("TRTNO"), 1);
     
     for (let key in values) {
-        avg[key] = average(values[key]);
-        med[key] = median(values[key]);
+        avg[key] = [];
+        med[key] = [];
+        for (let i in values[key]) {
+            avg[key].push([]);
+            med[key].push([]);
+            for (let j in values[key][i]) {
+                avg[key][i].push(average(values[key][i][j]));
+                med[key][i].push(median(values[key][i][j]));
+            }
+        }
     }
     
     return {"titles":titles, "subdaily":data, "max":max, "min":min, "average":avg, "median":med};
