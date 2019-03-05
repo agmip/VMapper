@@ -358,7 +358,7 @@ function readSoilWat(rawData) {
             values = {};
             max = {};
             min = {};
-            avg = {}
+            avg = {};
             med = {};
             titleFlg = false;
             titles = [];

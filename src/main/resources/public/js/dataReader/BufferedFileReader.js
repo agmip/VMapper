@@ -21,7 +21,6 @@ function errorHandler(evt) {
         default:
             alert('An error occurred reading this file.');
     }
-    ;
 }
 
 function readFileToBufferedArray(file, progressCallBack, resultHandleCallBack, filesInfo) {
