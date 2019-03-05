@@ -21,7 +21,28 @@ function readDailyOutput(rawData) {
     let col = 0;
     for (let i = 0; i < rawData.length; i++) {
         let line = rawData[i].trim();
-        if (line.startsWith("@")) {
+        if (line.startsWith("*")) {
+            data = [];
+            date = [];
+            daily = {};
+            values = {};
+            max = {};
+            min = {};
+            avg = {}
+            med = {};
+            titleFlg = false;
+            titles = [];
+            yearIdx = 0;
+            doyIdx = 1;
+            dasIdx = 2;
+            rowIdx = 3;
+            colIdx = 4;
+            year = 0;
+            doy = 0;
+            das = 0;
+            row = 0;
+            col = 0;
+        } else if (line.startsWith("@")) {
             titleFlg = true;
             titles = readTitles(line);
             yearIdx = titles.indexOf("YEAR");
@@ -140,7 +161,7 @@ function readSubDailyOutput(rawData) {
                 doy = vals[doyIdx];
                 das = vals[dasIdx];
                 time = vals[timeIdx];
-                subdaily = {TS: getDateFromDoy(year, doy, time), TSAS: Number(das) + Number(time) / 24};
+                subdaily = {TS: getUTCDateFromDoy(year, doy, time), TSAS: Number(das) + Number(time) / 24};
                 data.push(subdaily);
                 for (let j = 0; j < limit; j++) {
                     if (j !== yearIdx && j !== doyIdx && j !== dasIdx && j !== timeIdx && j !== incrIdx && j !== rowIdx && j !== colIdx) {
@@ -307,6 +328,133 @@ function readSubDailyObv(rawData) {
     }
     
     return {"titles":titles, "subdaily":data, "max":max, "min":min, "average":avg, "median":med};
+}
+
+function readSoilWat(rawData) {
+    let data = [];
+    let date = [];
+    let daily = {};
+    let values = {};
+    let max = {};
+    let min = {};
+    let avg = {}
+    let med = {};
+    let titleFlg = false;
+    let titles = [];
+    let yearIdx = 0;
+    let doyIdx = 1;
+    let dasIdx = 2;
+    let year = 0;
+    let doy = 0;
+    let das = 0;
+    let perc = 0;
+    let irrc = 0;
+    for (let i = 0; i < rawData.length; i++) {
+        let line = rawData[i].trim();
+        if (line.startsWith("*")) {
+            data = [];
+            date = [];
+            daily = {};
+            values = {};
+            max = {};
+            min = {};
+            avg = {}
+            med = {};
+            titleFlg = false;
+            titles = [];
+            yearIdx = 0;
+            doyIdx = 1;
+            dasIdx = 2;
+            year = 0;
+            doy = 0;
+            das = 0;
+            perc = 0;
+            irrc = 0;
+        } else if (line.startsWith("@")) {
+            titleFlg = true;
+            titles = readTitles(line);
+            yearIdx = titles.indexOf("YEAR");
+            doyIdx = titles.indexOf("DOY");
+            dasIdx = titles.indexOf("DAS");
+            for (let j = 0; j < titles.length; j++) {
+                if (j !== yearIdx && j !== doyIdx && j !== dasIdx && j) {
+                    if (values[titles[j]] === undefined) {
+                        values[titles[j]] = [];
+                    }
+                }
+            }
+            values["PRED"] = [];
+            values["IRRD"] = [];
+//            console.log(titles);
+        } else if (line.startsWith("!") || line.length === 0) {
+            continue;
+        } else if (titleFlg) {
+            let vals = line.split(/\s+/);
+            let limit = Math.min(titles.length, vals.length);
+            if (limit < vals.length) {
+                console.log("line " + i + " have less data than title");
+            }
+            if (das !== vals[dasIdx]) {
+                year = vals[yearIdx];
+                doy = vals[doyIdx];
+                das = vals[dasIdx];
+                date.push({YEAR: year, DOY: doy, DAS: das});
+                daily = {DAS: das, DATE: getUTCDateFromDoy(year, doy, 12)};
+                data.push(daily);
+            }
+            for (let j = 0; j < limit; j++) {
+                if (j !== yearIdx && j !== doyIdx && j !== dasIdx && j) {
+                    let val = Number(vals[j]);
+                    daily[titles[j]] = val;
+                    values[titles[j]].push(val);
+                    if (max[titles[j]] === undefined || max[titles[j]] < val) {
+                        max[titles[j]] = val;
+                    }
+                    if (min[titles[j]] === undefined || min[titles[j]] > val) {
+                        min[titles[j]] = val;
+                    }
+                    if (titles[j] === "PREC") {
+                        let val = Number(vals[j]) - perc;
+                        perc = Number(vals[j]);
+                        daily["PRED"] = val;
+                        values["PRED"].push(val);
+                        if (max["PRED"] === undefined || max["PRED"] < val) {
+                            max["PRED"] = val;
+                        }
+                        if (min["PRED"] === undefined || min["PRED"] > val) {
+                            min["PRED"] = val;
+                        }
+                    } else if (titles[j] === "IRRC") {
+                        let val = Number(vals[j]) - irrc;
+                        irrc = Number(vals[j]);
+                        daily["IRRD"] = val;
+                        values["IRRD"].push(val);
+                        if (max["IRRD"] === undefined || max["IRRD"] < val) {
+                            max["IRRD"] = val;
+                        }
+                        if (min["IRRD"] === undefined || min["IRRD"] > val) {
+                            min["IRRD"] = val;
+                        }
+                    }
+                }
+            }
+            
+        }
+    }
+    titles.splice(titles.indexOf("YEAR"), 1);
+    titles.splice(titles.indexOf("DOY"), 1);
+    titles.splice(titles.indexOf("DAS"), 1);
+    titles.splice(titles.indexOf("ROW"), 1);
+    titles.splice(titles.indexOf("COL"), 1);
+    titles.push("PRED");
+    titles.push("IRRD");
+    
+    for (let key in values) {
+        avg[key] = average(values[key]);
+        med[key] = median(values[key]);
+    }
+    
+    return {"titles":titles, "daily":data, "max":max, "min":min, "average":avg, "median":med};
 }
 
 function average(values) {
