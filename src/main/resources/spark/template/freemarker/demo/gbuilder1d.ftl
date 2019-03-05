@@ -10,6 +10,7 @@
             let obvData = {};
             let daily;
             let obvDaily;
+            let soilWatData = {};
             let soilProfile;
             let titles;
             let obvTitles;
@@ -18,7 +19,7 @@
             let loadTargets = [];
             let curFileIdx = 0;
 //            const plotVarExludsion = ["YEAR", "DOY", "DAS", "ROW", "COL", "NFluxR_A", "NFluxL_A", "NFluxD_A", "NFluxU_A", "NFluxR_D", "NFluxL_D", "NFluxD_D", "NFluxU_D"];
-            const plotVarDic = {SWV:"Soil Water Content", TotalN:"Soil N content", AFERT:"Fertilization", IrrVol:"Irrigation", RLV:"Root Length Density", NO3UpTak:"NO3 Uptake", NH4UpTak:"NH4 Uptake", InfVol:"Infiltration", ES_RATE:"Evaporation Rate", EP_RATE:"Transpiration Rate"};
+            const plotVarDic = {SWV:"Soil Water Content (cm3/cm3)", TotalN:"Soil N content", AFERT:"Fertilization", IrrVol:"Irrigation", RLV:"Root Length Density", NO3UpTak:"NO3 Uptake", NH4UpTak:"NH4 Uptake", InfVol:"Infiltration", ES_RATE:"Evaporation Rate", EP_RATE:"Transpiration Rate"};
             
             function readFile() {
                 
@@ -34,7 +35,11 @@
                     loadTargets = [];
                     curFileIdx = -1;
                     for (let i = 0; i < files.length; i++) {
-                        if (files[i].name === "CellDetail.OUT" || files[i].name === "SWV_2dobv.csv") {
+                        if (files[i].name === "CellDetail.OUT" 
+                                || files[i].name === "SWV_2dobv.csv"
+//                                || files[i].name === "Weather.OUT"
+//                                || files[i].name === "SoilWat.OUT"
+                                || files[i].name === "SoilWat_ts.OUT") {
                             loadTargets.push(files[i]);
                         }
                     }
@@ -62,6 +67,10 @@
                     obvData = readSubDailyObv(rawData);
                     obvDaily = obvData["subdaily"];
                     obvTitles = obvData["titles"];
+                } else if (rawData[0].startsWith("*SOIL WATER DAILY OUTPUT FILE")) {
+                    soilWatData = readSoilWat(rawData);
+                } else if (rawData[0].startsWith("*WATER BALANCE OUTPUT FILE")) {
+                    soilWatData = readSoilWatTS(rawData);
                 }
                 readFile();
             }
@@ -109,7 +118,7 @@
                             for (let j = 0; j < soilProfile.totCols; j++) {
                                 if (daily[1][key][i][j] !== undefined) {
                                     let option = document.createElement('option');
-                                    if (obvDaily[1][key][i][j]) {
+                                    if (obvDaily[1][key][i] && obvDaily[1][key][i][j]) {
                                         option.innerHTML = "<strong>" + plotVarDic[key] + " at [" + (i+1) + ", " + (j+1) + "]</strong>";
                                     } else {
                                         option.innerHTML = plotVarDic[key] + " at [" + (i+1) + ", " + (j+1) + "]";
@@ -144,10 +153,10 @@
                     let plotVarInfo = plotVar.split("_");
                     if (plotVarDic[plotVarInfo[0]] !== undefined) {
                         if (charts[plotVar] === undefined || charts[plotVar] === null) {
-                            drawSWV2DPlot(plotVarInfo[0], plotVarDic[plotVarInfo[0]], data, obvData, 'output_plot' + 1, {row:plotVarInfo[1], col:plotVarInfo[2]}, "full");
+                            drawSWV2DPlot(plotVarInfo[0], plotVarDic[plotVarInfo[0]], {sim:data, obv:obvData, soilWat:soilWatData}, 'output_plot' + 1, {row:plotVarInfo[1], col:plotVarInfo[2]}, "full");
 //                            drawSWV2DPlot(plotVarInfo[0], plotVarDic[plotVarInfo[0]], data, obvData, 'output_plot' + 2, {row:plotVarInfo[1], col:plotVarInfo[2]}, "last");
                         } else {
-                            drawSWV2DPlot(plotVarInfo[0], plotVarDic[plotVarInfo[0]], data, obvData, 'output_plot' + 1, {row:plotVarInfo[1], col:plotVarInfo[2]}, "full");
+                            drawSWV2DPlot(plotVarInfo[0], plotVarDic[plotVarInfo[0]], {sim:data, obv:obvData, soilWat:soilWatData}, 'output_plot' + 1, {row:plotVarInfo[1], col:plotVarInfo[2]}, "full");
 //                            drawSWV2DPlot(plotVarInfo[0], plotVarDic[plotVarInfo[0]], data, obvData, 'output_plot' + 2, {row:plotVarInfo[1], col:plotVarInfo[2]}, "last");
                         }
                     }

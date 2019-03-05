@@ -1,12 +1,15 @@
 /* global Highcharts */
 
-function drawSWV2DPlot(plotVar, plotVarName, data, obvData, containerId, cell, style, chart) {
-    let subdaily = data["subdaily"];
-    let obvSubdaily = obvData["subdaily"];
+function drawSWV2DPlot(plotVar, plotVarName, data, containerId, cell, style, chart) {
+    
+    let subdaily = data["sim"]["subdaily"];
+    let obvSubdaily = data["obv"]["subdaily"];
+    let soilWatDaily = data["soilWat"]["subdaily"];
     let plotDataSim = [];
     let plotDataObv = [];
-    let max = data["max"][plotVar][cell.row][cell.col];
-    let min = data["min"][plotVar][cell.row][cell.col];
+    let eventData = {PRED:[], IRRD:[]};
+    let max = data["sim"]["max"][plotVar][cell.row][cell.col];
+    let min = data["sim"]["min"][plotVar][cell.row][cell.col];
     let plotTitle = "Time series Plot";
     let start, end;
     if (style === undefined || style === "full") {
@@ -28,17 +31,45 @@ function drawSWV2DPlot(plotVar, plotVarName, data, obvData, containerId, cell, s
                 plotDataObv.push([obvSubdaily[i].TS, obvSubdaily[i][plotVar][cell.row][cell.col]]);
             }
         }
-        if (obvData["max"][plotVar][cell.row][cell.col]) {
-            max = Math.max(max, obvData["max"][plotVar][cell.row][cell.col]);
+        if (data["obv"]["max"][plotVar][cell.row][cell.col]) {
+            max = Math.max(max, data["obv"]["max"][plotVar][cell.row][cell.col]);
         }
-        if (obvData["min"][plotVar][cell.row][cell.col]) {
-            min = Math.min(min, obvData["min"][plotVar][cell.row][cell.col]);
+        if (data["obv"]["min"][plotVar][cell.row][cell.col]) {
+            min = Math.min(min, data["obv"]["min"][plotVar][cell.row][cell.col]);
+        }
+    }
+    
+    if (soilWatDaily !== undefined) {
+        let incr;
+        for (var i = 0; i < soilWatDaily.length; i++) {
+//            eventData.PRED.push([soilWatDaily[i].TS, soilWatDaily[i].PRED]);
+//            eventData.IRRD.push([soilWatDaily[i].TS, soilWatDaily[i].IRRD]);
+            incr = soilWatDaily[i].INCR;
+            if (incr === 0) {
+                eventData.PRED.push([soilWatDaily[i].TS, soilWatDaily[i].PRED]);
+                eventData.IRRD.push([soilWatDaily[i].TS, soilWatDaily[i].IRRD]);
+            } else {
+                eventData.PRED.push([soilWatDaily[i].TS, soilWatDaily[i].PRED/incr*1440]);
+                eventData.IRRD.push([soilWatDaily[i].TS, soilWatDaily[i].IRRD/incr*1440]);
+            }
         }
     }
 
 //  console.log(plotData);
 
-    return drawLineScatterPlot(plotTitle, plotVarName, {sim:plotDataSim, obv:plotDataObv, max:max, min:min}, containerId);
+    return drawLineScatterPlot(
+        plotTitle,
+        plotVarName,
+        {
+            sim:plotDataSim,
+            obv:plotDataObv,
+            event:eventData,
+            max:max,
+            min:min
+//            max:[max, data.soilWat.max.PRED, data.soilWat.max.IRRD],
+//            min:[min, data.soilWat.min.PRED, data.soilWat.min.IRRD]
+        },
+        containerId);
 
 //    if (chart === undefined) {
 //        return drawLineScatterPlot(plotTitle, plotValTitle, {sim:plotDataSim, obv:plotDataObv}, containerId, zoom);
@@ -58,24 +89,62 @@ function drawLineScatterPlot(plotTitle, plotValTitle, plotData, containerId) {
             zoomType: 'x'
         },
         xAxis: {
-//            gridLineWidth: 1,
             type: 'datetime',
-            tickInterval: 1000*3600*24,
-//            title: {
-//                text: 'Date Time',
+//            tickInterval: 1000*3600*24,
+            title: {
+                text: "Date",
 //                align: 'low'
-//            }
+            },
+            crosshair: true
         },
-        yAxis: {
+        yAxis: [{ // Primary Plot Variable yAxis
             min: plotData.min,
             max: plotData.max,
-//            tickInterval: 1,
-//            reversed: true,
-//            title: {
-//                text: 'Soil layers',
+            title: {
+                text: plotValTitle,
 //                align: 'low'
-//            }
-        },
+                style: {
+                    color: Highcharts.getOptions().colors[0]
+                }
+            },
+            labels: {
+//                format: '{value} cm3/cm3',
+                style: {
+                    color: Highcharts.getOptions().colors[0]
+                }
+            }
+        },{ // Precipitation yAxis
+            gridLineWidth: 0,
+            title: {
+                text: 'Precipitation (mm)',
+                style: {
+                    color: Highcharts.getOptions().colors[4]
+                }
+            },
+            labels: {
+//                format: '{value} mm',
+                style: {
+                    color: Highcharts.getOptions().colors[4]
+                }
+            },
+            opposite: true
+
+        }, { // Irrigation yAxis
+            gridLineWidth: 0,
+            title: {
+                text: 'Irrigation (mm)',
+                style: {
+                    color: Highcharts.getOptions().colors[6]
+                }
+            },
+            labels: {
+//                format: '{value} mm',
+                style: {
+                    color: Highcharts.getOptions().colors[6]
+                }
+            },
+            opposite: true
+        }],
         credits: {
             text: "dssat2d-plot.herokuapp.com",
             href: "http://dssat2d-plot.herokuapp.com/"
@@ -95,16 +164,33 @@ function drawLineScatterPlot(plotTitle, plotValTitle, plotData, containerId) {
 //            }
         },
 
-//        plotOptions: {
-//            series: {
-//                animation: false
-//            }
-//        },
-
-        series: [{
-                    type: 'line',
-                    name: plotValTitle,
-                    data: plotData.sim
+        series: [
+            {
+                name: 'Precipitation (mm/d)',
+                type: 'area',
+                yAxis: 1,
+                data: plotData.event.PRED,
+                color: Highcharts.getOptions().colors[4]
+//                ,
+//                tooltip: {
+//                    valueSuffix: ' mm'
+//                }
+            }, {
+                name: 'Irrigation (mm/d)',
+                type: 'area',
+                yAxis: 2,
+                data: plotData.event.IRRD,
+                color: Highcharts.getOptions().colors[6]
+//                ,
+//                tooltip: {
+//                    valueSuffix: ' mm'
+//                }
+            }, {
+                type: 'line',
+                name: plotValTitle,
+                yAxis: 0,
+                data: plotData.sim,
+                color: Highcharts.getOptions().colors[0]
 //                    marker: {
 //                        enabled: false
 //                    },
@@ -114,18 +200,21 @@ function drawLineScatterPlot(plotTitle, plotValTitle, plotData, containerId) {
 //                        }
 //                    },
 //                    enableMouseTracking: false
-                }, {
-                    type: 'scatter',
-                    name: plotValTitle + '_obv',
-                    data: plotData.obv,
-                    marker: {
-                        radius: 2
-                    },
-                    tooltip: {
-                        headerFormat: '<span style="font-size: 10px">{point.x}</span><br/>',
-                        pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>'
-                    }
-                }]
+            }, {
+                type: 'scatter',
+                name: 'Observed ' + plotValTitle,
+                yAxis: 0,
+                data: plotData.obv,
+                color: Highcharts.getOptions().colors[1],
+                marker: {
+                    radius: 2
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size: 10px">{point.x}</span><br/>',
+                    pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>'
+                }
+            }
+        ]
     });
 }
 
