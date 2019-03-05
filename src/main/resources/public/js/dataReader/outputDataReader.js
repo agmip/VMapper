@@ -5,7 +5,7 @@ function readDailyOutput(rawData) {
     let values = {};
     let max = {};
     let min = {};
-    let avg = {}
+    let avg = {};
     let med = {};
     let titleFlg = false;
     let titles = [];
@@ -28,7 +28,7 @@ function readDailyOutput(rawData) {
             values = {};
             max = {};
             min = {};
-            avg = {}
+            avg = {};
             med = {};
             titleFlg = false;
             titles = [];
@@ -116,7 +116,7 @@ function readSubDailyOutput(rawData) {
     let values = {};
     let max = {};
     let min = {};
-    let avg = {}
+    let avg = {};
     let med = {};
     let titleFlg = false;
     let titles = [];
@@ -239,7 +239,7 @@ function readSubDailyObv(rawData) {
     let values = {};
     let max = {};
     let min = {};
-    let avg = {}
+    let avg = {};
     let med = {};
     let titleFlg = false;
     let titles = [];
@@ -337,7 +337,7 @@ function readSoilWat(rawData) {
     let values = {};
     let max = {};
     let min = {};
-    let avg = {}
+    let avg = {};
     let med = {};
     let titleFlg = false;
     let titles = [];
@@ -474,7 +474,7 @@ function median(values){
     return a-b;
   });
 
-  if(values.length ===0) return 0
+  if(values.length ===0) return 0;
 
   var half = Math.floor(values.length / 2);
 
