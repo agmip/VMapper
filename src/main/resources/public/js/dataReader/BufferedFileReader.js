@@ -49,7 +49,7 @@ function readFileToBufferedArray(file, progressCallBack, resultHandleCallBack, f
             if (filesInfo === undefined) {
                 progressCallBack(stop / file.size);
             } else {
-                progressCallBack(stop / file.size * (filesInfo.idx + 1)/filesInfo.total);
+                progressCallBack((stop / file.size + filesInfo.idx)/filesInfo.total);
             }
 
             // Handle the cached content
