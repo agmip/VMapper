@@ -566,3 +566,17 @@ function getDateFromDoy (year, doy, hour) {
     date.setTime(timeOfFirst + doy * dayMilli);
     return date;
 }
+
+function getUTCDateFromDoy (year, doy, hour) {
+
+    let date = Date.UTC(year, 0, 0, 0, 0, 0, 0);
+    if (doy === undefined) {
+        return date;
+    }
+    let dayMilli = 1000 * 60 * 60 * 24;
+    doy = Number(doy);
+    if (hour !== undefined) {
+        doy += Number(hour) / 24;
+    }
+    return date + doy * dayMilli;
+}
