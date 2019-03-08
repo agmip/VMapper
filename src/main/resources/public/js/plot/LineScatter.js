@@ -91,10 +91,10 @@ function drawLineScatterPlot(plotTitle, plotValTitle, plotData, containerId) {
         xAxis: {
             type: 'datetime',
 //            tickInterval: 1000*3600*24,
-            title: {
-                text: "Date",
+//            title: {
+//                text: "Date",
 //                align: 'low'
-            },
+//            },
             crosshair: true
         },
         yAxis: [{ // Primary Plot Variable yAxis
@@ -102,13 +102,11 @@ function drawLineScatterPlot(plotTitle, plotValTitle, plotData, containerId) {
             max: plotData.max,
             title: {
                 text: plotValTitle,
-//                align: 'low'
                 style: {
                     color: Highcharts.getOptions().colors[0]
                 }
             },
             labels: {
-//                format: '{value} cm3/cm3',
                 style: {
                     color: Highcharts.getOptions().colors[0]
                 }
@@ -116,15 +114,14 @@ function drawLineScatterPlot(plotTitle, plotValTitle, plotData, containerId) {
         },{ // Precipitation yAxis
             gridLineWidth: 0,
             title: {
-                text: 'Precipitation (mm)',
+                text: 'Precipitation (mm/d)',
                 style: {
-                    color: Highcharts.getOptions().colors[4]
+                    color: Highcharts.getOptions().colors[9]
                 }
             },
             labels: {
-//                format: '{value} mm',
                 style: {
-                    color: Highcharts.getOptions().colors[4]
+                    color: Highcharts.getOptions().colors[9]
                 }
             },
             opposite: true
@@ -132,13 +129,12 @@ function drawLineScatterPlot(plotTitle, plotValTitle, plotData, containerId) {
         }, { // Irrigation yAxis
             gridLineWidth: 0,
             title: {
-                text: 'Irrigation (mm)',
+                text: 'Irrigation (mm/d)',
                 style: {
                     color: Highcharts.getOptions().colors[6]
                 }
             },
             labels: {
-//                format: '{value} mm',
                 style: {
                     color: Highcharts.getOptions().colors[6]
                 }
@@ -170,21 +166,13 @@ function drawLineScatterPlot(plotTitle, plotValTitle, plotData, containerId) {
                 type: 'area',
                 yAxis: 1,
                 data: plotData.event.PRED,
-                color: Highcharts.getOptions().colors[4]
-//                ,
-//                tooltip: {
-//                    valueSuffix: ' mm'
-//                }
+                color: Highcharts.getOptions().colors[9]
             }, {
                 name: 'Irrigation (mm/d)',
                 type: 'area',
                 yAxis: 2,
                 data: plotData.event.IRRD,
                 color: Highcharts.getOptions().colors[6]
-//                ,
-//                tooltip: {
-//                    valueSuffix: ' mm'
-//                }
             }, {
                 type: 'line',
                 name: plotValTitle,
