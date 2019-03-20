@@ -8,7 +8,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import org.dssat.tool.gbuilder2d.dao.MetaDataDAO;
-import org.dssat.tool.gbuilder2d.util.Filters;
+import org.dssat.tool.gbuilder2d.util.JSONObject;
+import org.dssat.tool.gbuilder2d.util.JsonUtil;
 import org.dssat.tool.gbuilder2d.util.Path;
 import org.slf4j.LoggerFactory;
 import spark.ModelAndView;
@@ -18,6 +19,7 @@ import spark.Spark;
 import static spark.Spark.after;
 import static spark.Spark.get;
 import static spark.Spark.port;
+import static spark.Spark.post;
 import static spark.Spark.staticFiles;
 import spark.template.freemarker.FreeMarkerEngine;
 
@@ -77,10 +79,22 @@ public class Main {
             return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.METALIST));
                 });
         
+        post(Path.Web.Translator.DSSAT_EXP, (Request request, Response response) -> {
+            HashMap data = new HashMap();
+            JSONObject expData = JsonUtil.parseFrom(request.queryParams("exp"));
+            switch (expData.getOrBlank("crid")) {
+                case "TOM": expData.put("crid_dssat", "TM");break;
+                case "POT": expData.put("crid_dssat", "PT");break;
+            }
+            data.put("expData", expData);
+            data.put("fields", JsonUtil.parseFrom(request.queryParams("field")));
+            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Translator.DSSAT_EXP));
+                });
 //        get("*",                     PageController.serveNotFoundPage, new FreeMarkerEngine());
 
         //Set up after-filters (called after each get/post)
-        after("*",                   Filters.addGzipHeader);
+        
+//        after("*",                   Filters.addGzipHeader);
         } catch (Exception e) {
             e.printStackTrace(System.err);
         }

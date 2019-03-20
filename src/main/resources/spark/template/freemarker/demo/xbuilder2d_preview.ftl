@@ -23,7 +23,33 @@
     }
     
     function updatePreview() {
-        $('#json_preview').html("<div><h3>Experiment Data</h3>" + JSON.stringify(expData) + "</div><div><h3>Field List</h3>" + JSON.stringify(fields) + "</div>");
+        if ($("#json_swc_btn").hasClass("btn-primary")) {
+            updateJsonPreview();
+        } else {
+            updateDssatPreview();
+        }
+    }
+    
+    function updateJsonPreview() {
+        $('#json_preview').html("<div><h3>Experiment Data</h3>" +
+                JSON.stringify(expData) +
+                "</div><div><h3>Field List</h3>" +
+                JSON.stringify(fields) +
+                "</div><div><h3>Treatment List</h3>" +
+                JSON.stringify(trtData) +
+                "</div>");
+    }
+    
+    function updateDssatPreview() {
+        $.post("/translator/dssat_exp",
+            {
+                exp: JSON.stringify(expData),
+                field: JSON.stringify(fieldData)
+            },
+            function (xfile) {
+                $('#dssat_preview_text').html(xfile);
+            }
+        );
     }
 </script>
 
@@ -37,9 +63,7 @@
             </div>
         </legend>
         <div id="json_preview" class="form-group col-sm-12"></div>
-        <div id="dssat_preview" class="form-group col-sm-12" hidden>
-            under construction...
-        </div>
+        <div id="dssat_preview" class="form-group col-sm-12" hidden><textarea class="form-control" rows="25" id="dssat_preview_text" readonly></textarea></div>
 
     </fieldset>
 </div>

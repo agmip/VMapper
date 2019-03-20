@@ -57,6 +57,12 @@ public class Path {
             public static final String METALIST = PACKAGE + "/metalist";
         }
         
+        public static class Translator {
+            private static final String PACKAGE = Translator.class.getSimpleName().toLowerCase();
+            public static final String DSSAT = PACKAGE + "/dssat";
+            public static final String DSSAT_EXP = PACKAGE + "/dssat_exp";
+        }
+        
 //        public static class Worker {
 //            private static final String PACKAGE = "/" + Worker.class.getSimpleName().toLowerCase();;
 //            @Getter public static final String LOGIN = PACKAGE + "/login";
@@ -105,6 +111,11 @@ public class Path {
             public static final String GBUILDER2D = PACKAGE + "/gbuilder2d.ftl";
             public static final String XBUILDER2D = PACKAGE + "/xbuilder2d.ftl";
             public static final String METALIST = PACKAGE + "/meta_list.ftl";
+        }
+        
+        public static class Translator {
+            private static final String PACKAGE = Demo.class.getSimpleName().toLowerCase();
+            public static final String DSSAT_EXP = PACKAGE + "/xfile_template.ftl";
         }
     }
     
