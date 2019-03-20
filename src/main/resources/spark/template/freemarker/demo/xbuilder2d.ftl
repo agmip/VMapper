@@ -15,9 +15,8 @@
             let fieldId;
             let eventData;
             let events = [];
-            let trtSBIds = {};
-            let trtSBId;
-            let treatManagementLinks = [];
+            let managements = {};
+            let trtData = [];
             let timeline;
             let tmlContainer;
             let fstTmlFlg = true;
@@ -216,25 +215,25 @@
 //                    $("#management_create").parent().removeClass("active");
 //                    $("#" + mgnId).parent().addClass("active");
                     // TODO
-                    $("#tr_field_1").chosen("destroy");
-                    chosen_init("tr_field_1");
-                    $("#tr_management_1").chosen("destroy");
-                    chosen_init("tr_management_1");
-                    $("#tr_config_1").chosen("destroy");
-                    chosen_init("tr_config_1");
-                    $("#tr_field_2").chosen("destroy");
-                    chosen_init("tr_field_2");
-                    $("#tr_management_2").chosen("destroy");
-                    chosen_init("tr_management_2");
-                    $("#tr_config_2").chosen("destroy");
-                    chosen_init("tr_config_2");
+                    for (let trtid in trtData) {
+                        $("#tr_field_" + trtData[trtid].trtno).chosen("destroy");
+                        chosen_init("tr_field_" +  + trtData[trtid].trtno);
+                        $("#tr_management_" + trtData[trtid].trtno).chosen("destroy");
+                        chosen_init("tr_management_" + trtData[trtid].trtno);
+                        $("#tr_config_" + trtData[trtid].trtno).chosen("destroy");
+                        chosen_init("tr_config_" + trtData[trtid].trtno);
+                    }
                 });
                 $('.nav-tabs #PreviewTab').on('shown.bs.tab', function(){
                     updatePreview();
                 });
-                trtSBIds[0] = 1;
-                trtSBIds[1] = 2;
-                trtSBId = trtSBIds[0];
+                managements["mgn_0"] = {mgn_name: "N150", data: eventData};
+                managements["mgn_1"] = {mgn_name: "N200", data: eventData};
+                managements["mgn_2"] = {mgn_name: "N250", data: eventData};
+                managements["mgn_3"] = {mgn_name: "I-subsurface", data: eventData};
+                managements["mgn_4"] = {mgn_name: "I-surface", data: eventData};
+                managements["mgn_5"] = {mgn_name: "I-fixed", data: eventData};
+//                trtData.push({trtno:1});
             }
             
             function initStartYearSB() {
@@ -284,11 +283,20 @@
             }
             
             function saveData(target, id, val) {
-                if (val && val.trim()) {
-                    target[id] = val.trim();
-                } else if (target[id]) {
-                    delete target[id];
+                if (Array.isArray(val)) {
+                    if (val.length > 0) {
+                        target[id] = val;
+                    } else {
+                        delete target[id];
+                    }
+                } else {
+                    if (val && val.trim()) {
+                        target[id] = val.trim();
+                    } else if (target[id]) {
+                        delete target[id];
+                    }
                 }
+                
             }
             
             function saveFile() {
@@ -353,7 +361,7 @@
                     </ul>
                 </li>
                 <li id="TreatmentTab">
-                    <a data-toggle="tab" href="#Treatment"><span class="glyphicon glyphicon-link"></span> Treatments <span class="badge" id="treatment_badge">2</span></a>
+                    <a data-toggle="tab" href="#Treatment"><span class="glyphicon glyphicon-link"></span> Treatments <span class="badge" id="treatment_badge">0</span></a>
                 </li>
                 <li id="PreviewTab">
                     <a data-toggle="tab" href="#Preview"><span class="glyphicon glyphicon-list-alt"></span> Preview</a>
@@ -366,9 +374,6 @@
                 <div id="SiteInfo" class="tab-pane fade in active">
                     <#include "xbuilder2d_general.ftl">
                 </div>
-                <div id="Treatment" class="tab-pane fade">
-                    <#include "xbuilder2d_treatment.ftl">
-                </div>
                 <div id="Field" class="tab-pane fade">
                     <#include "xbuilder2d_field.ftl">
                 </div>
@@ -379,6 +384,9 @@
                     <div class="subcontainer"><center>
                         Under construction
                     </center></div>
+                </div>
+                <div id="Treatment" class="tab-pane fade">
+                    <#include "xbuilder2d_treatment.ftl">
                 </div>
                 <div id="Preview" class="tab-pane fade">
                     <#include "xbuilder2d_preview.ftl">

@@ -8,8 +8,8 @@
         $('#field_list').append('<li><a data-toggle="tab" href="#Field" id="' + fieldId + '" onclick="setField(this);">' + description + '</a></li>');
         $('#id_field').val("");
         $('#fl_name').val(description);
-        for (let i in trtSBIds) {
-            $('#tr_field_' + trtSBIds[i]).append('<option value="' + fieldId + '">' + description + '</option>');
+        for (let i in trtData) {
+            $('#tr_field_' + trtData[i].trtno).append('<option value="' + fieldId + '">' + description + '</option>');
         }
         $('#field_badge').html(Object.keys(fields).length);
     }
@@ -24,8 +24,8 @@
     function removeField() {
         delete fields[fieldId];
         $('#field_list li a[id="' + fieldId + '"]').remove();
-        for (let i in trtSBIds) {
-            $('#tr_field_' + trtSBIds[i] + ' option[value="' + fieldId + '"]').remove();
+        for (let i in trtData) {
+            $('#tr_field_' + trtData[i].trtno + ' option[value="' + fieldId + '"]').remove();
         }
         let fieldIds = Object.keys(fields);
         $('#field_badge').html(fieldIds.length);
@@ -39,10 +39,8 @@
 <div class="subcontainer">
     <fieldset>
         <legend>
-            Management Information&nbsp;&nbsp;&nbsp;
-            <div class="btn-group">
-                <a href="#"><span id="json_swc_btn" type="button" class="btn glyphicon glyphicon-trash" onclick="removeField();"></span></a>
-            </div>
+            Field Information&nbsp;&nbsp;&nbsp;
+            <a href="#"><span id="field_remove_btn" type="button" class="btn glyphicon glyphicon-trash" onclick="removeField();"></span></a>
         </legend>
         <div class="row col-sm-12">
             <div class="form-group has-feedback col-sm-4">
