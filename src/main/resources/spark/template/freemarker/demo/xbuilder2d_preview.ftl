@@ -44,7 +44,8 @@
         $.post("/translator/dssat_exp",
             {
                 exp: JSON.stringify(expData),
-                field: JSON.stringify(fieldData)
+                field: JSON.stringify(fieldData),
+                treatment: JSON.stringify(trtData)
             },
             function (xfile) {
                 $('#dssat_preview_text').html(xfile);
@@ -63,7 +64,7 @@
             </div>
         </legend>
         <div id="json_preview" class="form-group col-sm-12"></div>
-        <div id="dssat_preview" class="form-group col-sm-12" hidden><textarea class="form-control" rows="25" id="dssat_preview_text" readonly></textarea></div>
+        <div id="dssat_preview" class="form-group col-sm-12" hidden><textarea class="form-control" rows="25" id="dssat_preview_text" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea></div>
 
     </fieldset>
 </div>

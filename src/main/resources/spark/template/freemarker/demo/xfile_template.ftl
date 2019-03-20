@@ -23,7 +23,9 @@
 
 *TREATMENTS                        -------------FACTOR LEVELS------------
 @N R O C TNAME.................... CU FL SA IC MP MI MF MR MC MT ME MH SM
- 1 1 1 0 A_1P_dailyIrr              1  1  0  1  1  1  1  0  0  0  0  1  1
+<#list treatments as trt>
+${trt['trtno']?left_pad(2)} 1 1 0 ${(trt['trt_name']!)?right_pad(25)?substring(0,25)}  0 ${(trt['fid']!"0")?left_pad(2)}  0  0  0  0  0  0  0  0  0  0  0
+</#list>
 
 *CULTIVARS
 @C CR INGENO CNAME

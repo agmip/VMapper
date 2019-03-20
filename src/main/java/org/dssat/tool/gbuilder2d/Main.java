@@ -6,6 +6,7 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import org.dssat.tool.gbuilder2d.dao.MetaDataDAO;
 import org.dssat.tool.gbuilder2d.util.JSONObject;
@@ -88,6 +89,19 @@ public class Main {
             }
             data.put("expData", expData);
             data.put("fields", JsonUtil.parseFrom(request.queryParams("field")));
+            ArrayList<JSONObject> treatments = JsonUtil.parseFrom(request.queryParams("treatment")).getObjArr();
+            ArrayList<String> fieldList = new ArrayList();
+            for (JSONObject trt : treatments) {
+                String field = trt.getOrBlank("field");
+                if (!field.isEmpty()) {
+                    if (!fieldList.contains(field)) {
+                        fieldList.add(field);
+                    }
+                    trt.put("fid", fieldList.indexOf(field) + 1);
+                }
+                
+            }
+            data.put("treatments", treatments);
             return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Translator.DSSAT_EXP));
                 });
 //        get("*",                     PageController.serveNotFoundPage, new FreeMarkerEngine());
