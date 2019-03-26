@@ -11,7 +11,11 @@ function drawSWV2DPlot(plotVar, plotVarName, data, containerId, cell, style, cha
     let eventData = {PRED:[], IRRD:[]};
     let max = data["sim"]["maxAll"][plotVar];
     let min = data["sim"]["minAll"][plotVar];
-    let plotTitle = "Time series Plot at cell [" + (Number(cell.row) + 1) + ", " + (Number(cell.col) + 1) + "]";
+    let lastDS = soilProfile["DS"][Number(cell.row - 1)];
+    if (lastDS) {
+        lastDS = 0;
+    }
+    let plotTitle = "Time series Plot at cell [" + (Number(cell.row) + 1) + ", " + (Number(cell.col) + 1) + "], Depth: " + lastDS + " - " + soilProfile["DS"][Number(cell.row)] + " cm";
     let start, end;
     if (style === undefined || style === "full") {
         start = 1;
@@ -119,7 +123,7 @@ function drawLineScatterPlot(plotTitle, plotValTitle, plotData, containerId) {
                     color: Highcharts.getOptions().colors[0]
                 }
             },
-            plotLines: [{ // Light air
+            plotLines: [{ // DUL
                 value: plotData.soil.DUL,
                 width: 1,
                 color: 'rgba(68, 170, 213, 1)',
@@ -129,7 +133,7 @@ function drawLineScatterPlot(plotTitle, plotValTitle, plotData, containerId) {
                         color: '#606060'
                     }
                 }
-            }, { // Light air
+            }, { // LL
                 value: plotData.soil.LL,
                 width: 1,
                 color: 'rgba(68, 170, 213, 1)',
@@ -139,7 +143,7 @@ function drawLineScatterPlot(plotTitle, plotValTitle, plotData, containerId) {
                         color: '#606060'
                     }
                 }
-            }, { // Light air
+            }, { // SAT
                 value: plotData.soil.SAT,
                 width: 1,
                 color: 'rgba(68, 170, 213, 1)',

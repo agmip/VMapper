@@ -580,6 +580,51 @@ function readSoilWatTS(rawData) {
     return {"titles":titles, "subdaily":data, "max":max, "min":min, "average":avg, "median":med};
 }
 
+function readInfoOut(rawData) {
+    let data = {};
+    let profileFlg = false;
+    let titleFlg = false;
+    let titles = [];
+    let units = {};
+    let vals;
+    for (let i = 0; i < rawData.length; i++) {
+        let line = rawData[i].trim();
+        if (line.startsWith("CONSTRUCTED BED")) {
+            profileFlg = true;
+        } else if (profileFlg) {
+            if (line.startsWith("DS DLAYR    LL   DUL   SAT  Root    BD    OC  CLAY  SILT  SAND")) {
+                titles = readTitles(" LYR " + line + " PH");
+                for (let j = 0; j < titles.length; j++) {
+                    data[titles[j]] = [];
+                }
+                titleFlg = true;
+            } else if (line.startsWith("LYR  cm    cm  frac  frac  frac  Grow g/cm3     %     %     %     %    pH")) {
+                let tmp = line.split(/\s+/);
+                let limit = Math.min(titles.length, tmp.length);
+                for (let j = 0; j < limit; j++) {
+                    units[titles[j]] = tmp[j];
+                }
+                titleFlg = true;
+            } else if (line.startsWith("SOILDYN  YEAR DOY") || line === "") {
+                profileFlg = false;
+                titleFlg = false;
+                break;
+            } else if (titleFlg) {
+                vals = line.split(/\s+/);
+                let limit = Math.min(titles.length, vals.length);
+                if (limit < vals.length) {
+                    console.log("line " + i + " have less data than title");
+                }
+                for (let j = 0; j < limit; j++) {
+                    let val = Number(vals[j]);
+                    data[titles[j]].push(val);
+                }
+            }
+        }
+    }
+    return {"titles":titles, "units":units, "data":data};
+}
+
 function average(values) {
     let sum = 0;
     for (let i in values) {
