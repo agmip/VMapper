@@ -44,7 +44,7 @@
         $.post("/translator/dssat_exp",
             {
                 exp: JSON.stringify(expData),
-                field: JSON.stringify(fieldData),
+                field: JSON.stringify(fields),
                 treatment: JSON.stringify(trtData)
             },
             function (xfile) {

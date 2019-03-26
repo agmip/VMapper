@@ -88,19 +88,22 @@ public class Main {
                 case "POT": expData.put("crid_dssat", "PT");break;
             }
             data.put("expData", expData);
-            data.put("fields", JsonUtil.parseFrom(request.queryParams("field")));
+            JSONObject fieldData = JsonUtil.parseFrom(request.queryParams("field"));
             ArrayList<JSONObject> treatments = JsonUtil.parseFrom(request.queryParams("treatment")).getObjArr();
-            ArrayList<String> fieldList = new ArrayList();
+            ArrayList<String> fieldNameList = new ArrayList();
+            ArrayList fieldList = new ArrayList();
             for (JSONObject trt : treatments) {
                 String field = trt.getOrBlank("field");
                 if (!field.isEmpty()) {
-                    if (!fieldList.contains(field)) {
-                        fieldList.add(field);
+                    if (!fieldNameList.contains(field)) {
+                        fieldNameList.add(field);
+                        fieldList.add(fieldData.get(field));
                     }
-                    trt.put("fid", fieldList.indexOf(field) + 1);
+                    trt.put("fid", fieldNameList.indexOf(field) + 1);
                 }
                 
             }
+            data.put("fields", fieldList);
             data.put("treatments", treatments);
             return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Translator.DSSAT_EXP));
                 });

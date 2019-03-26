@@ -3,10 +3,19 @@
         let num = getNewCollectionNum(fields);
         fieldId = "field_" + num;
         let description = "New Field " + (num + 1);
+        let id_field = null;
         fields[fieldId] = {fl_name: description};
+        if (expData["exname"]) {
+            id_field = expData["exname"].substring(0,4) + (num + 1).toString().padStart(4, "0");
+        }
         fieldData = fields[fieldId];
         $('#field_list').append('<li><a data-toggle="tab" href="#Field" id="' + fieldId + '" onclick="setField(this);">' + description + '</a></li>');
-        $('#id_field').val("");
+        if (id_field) {
+            fieldData["id_field"] = id_field;
+            $('#id_field').val(id_field);
+        }
+        $('#soil_id').val("");
+        $('#wst_id').val("");
         $('#fl_name').val(description);
         for (let i in trtData) {
             $('#tr_field_' + trtData[i].trtno).append('<option value="' + fieldId + '">' + description + '</option>');
@@ -19,6 +28,8 @@
         fieldId = target.id;
         $('#id_field').val(fieldData['id_field']);
         $('#fl_name').val(fieldData['fl_name']);
+        $('#soil_id').val(fieldData['soil_id']);
+        $('#wst_id').val(fieldData['wst_id']);
     }
     
     function removeField() {

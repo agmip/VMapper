@@ -32,11 +32,13 @@ ${trt['trtno']?left_pad(2)} 1 1 0 ${(trt['trt_name']!)?right_pad(25)?substring(0
  1 TM DRI319 -99
 
 *FIELDS
+<#list fields as field>
 @L ID_FIELD WSTA....  FLSA  FLOB  FLDT  FLDD  FLDS  FLST SLTX  SLDP  ID_SOIL     BDWD  BDHT PMALB FLNAME
- 1 NECA180A IN16       -99   -99 -99     -99   -99 -99   -99    -99  NECA000020   120    20   -99 -99
+${field?counter?left_pad(2)} ${field['id_field']?right_pad(8)} ${field['wst_id']?right_pad(8)}   -99   -99 -99     -99   -99 -99   -99    -99  ${field['soil_id']?right_pad(10)}   -99   -99   -99 ${field['fl_name']!}
 @L ...........XCRD ...........YCRD .....ELEV .............AREA .SLEN .FLWR .SLAS FLHST FHDUR
- 1            -121            37.2       -99               -99   -99   -99   -99   -99   -99
-
+${field?counter?left_pad(2)}            -99             -99       -99               -99   -99   -99   -99   -99   -99
+</#list>
+ 
 *INITIAL CONDITIONS
 @C   PCR ICDAT  ICRT  ICND  ICRN  ICRE  ICWD ICRES ICREN ICREP ICRIP ICRID ICNAME
  1   -99 18079   -99   -99   -99   -99   -99   -99   -99   -99   -99   -99 -99
