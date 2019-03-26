@@ -118,6 +118,8 @@ function readSubDailyOutput(rawData) {
     let min = {};
     let avg = {};
     let med = {};
+    let maxAll = {};
+    let minAll = {};
     let titleFlg = false;
     let titles = [];
     let yearIdx = 0;
@@ -198,11 +200,17 @@ function readSubDailyOutput(rawData) {
                     if (max[titles[j]][row - 1][col - 1] === undefined || max[titles[j]][row - 1][col - 1] < val) {
                         max[titles[j]][row - 1][col - 1] = val;
                     }
+                    if (!maxAll[titles[j]] || maxAll[titles[j]] < val) {
+                        maxAll[titles[j]] = val;
+                    }
                     while (min[titles[j]].length < row) {
                         min[titles[j]].push([]);
                     }
                     if (min[titles[j]][row - 1][col - 1] === undefined || min[titles[j]][row - 1][col - 1] > val) {
                         min[titles[j]][row - 1][col - 1] = val;
+                    }
+                    if (!minAll[titles[j]] || minAll[titles[j]] > val) {
+                        minAll[titles[j]] = val;
                     }
                 }
             }
@@ -230,7 +238,7 @@ function readSubDailyOutput(rawData) {
         }
     }
     
-    return {"titles":titles, "subdaily":data, "max":max, "min":min, "average":avg, "median":med};
+    return {"titles":titles, "subdaily":data, "max":max, "min":min, "average":avg, "median":med, "maxAll":maxAll, "minAll":minAll};
 }
 
 function readSubDailyObv(rawData) {
@@ -241,6 +249,8 @@ function readSubDailyObv(rawData) {
     let min = {};
     let avg = {};
     let med = {};
+    let maxAll = {};
+    let minAll = {};
     let titleFlg = false;
     let titles = [];
     let trtnoIdx = 0;
@@ -300,11 +310,17 @@ function readSubDailyObv(rawData) {
                     if (max[valName][row - 1][col - 1] === undefined || max[valName][row - 1][col - 1] < val) {
                         max[valName][row - 1][col - 1] = val;
                     }
+                    if (!maxAll[valName] || maxAll[valName] < val) {
+                        maxAll[valName] = val;
+                    }
                     while (min[valName].length < row) {
                         min[valName].push([]);
                     }
                     if (min[valName][row - 1][col - 1] === undefined || min[valName][row - 1][col - 1] > val) {
                         min[valName][row - 1][col - 1] = val;
+                    }
+                    if (!minAll[valName] || minAll[valName] > val) {
+                        minAll[valName] = val;
                     }
                 }
             }
@@ -327,7 +343,7 @@ function readSubDailyObv(rawData) {
         }
     }
     
-    return {"titles":titles, "subdaily":data, "max":max, "min":min, "average":avg, "median":med};
+    return {"titles":titles, "subdaily":data, "max":max, "min":min, "average":avg, "median":med, "maxAll":maxAll, "minAll":minAll};
 }
 
 function readSoilWat(rawData) {

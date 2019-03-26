@@ -6,11 +6,11 @@
         
         <script>
             
-            let data = {};
-            let obvData = {};
+            let data;
+            let obvData;
             let daily;
             let obvDaily;
-            let soilWatData = {};
+            let soilWatData;
             let soilProfile;
             let titles;
             let obvTitles;
@@ -39,10 +39,18 @@
                                 || files[i].name === "SWV_2dobv.csv"
 //                                || files[i].name === "Weather.OUT"
 //                                || files[i].name === "SoilWat.OUT"
+                                || files[i].name === "INFO.OUT"
                                 || files[i].name === "SoilWat_ts.OUT") {
                             loadTargets.push(files[i]);
                         }
                     }
+                    data = {};
+                    obvData = {};
+                    soilWatData = {};
+                    soilProfile = {};
+                    soilProfile["LL"] = [];
+                    soilProfile["DUL"] = [];
+                    soilProfile["SAT"] = [];
                     readFile();
 //                    alert('Does not find CellDetailN.OUT in the selected folder!');
                 } else {
@@ -62,7 +70,32 @@
                     data = readSubDailyOutput(rawData);
                     daily = data["subdaily"];
                     titles = data["titles"];
-                    soilProfile = getSoilStructure(daily);
+                    let tmp = getSoilStructure(daily);
+                    tmp["LL"] = soilProfile["LL"];
+                    tmp["DUL"] = soilProfile["DUL"];
+                    tmp["SAT"] = soilProfile["SAT"];
+                    soilProfile = tmp;
+                } else if (rawData[0].startsWith("*INFO DETAIL FILE")) {
+//                    let tmp = getSoilProfile(rawData);
+//                    soilProfile["LL"] = tmp["LL"];
+//                    soilProfile["DUL"] = tmp["DUL"];
+//                    soilProfile["SAT"] = tmp["SAT"];
+                    // A1P, A2P
+//                    soilProfile["LL"] = [0.189,0.189,0.189,0.189,0.186,0.178,0.178,0.178,0.178,0.178,0.178,0.178,0.178,0.178,0.178,0.178,0.178,0.178,0.178,0.178,0.178,0.178];
+//                    soilProfile["DUL"] = [0.314,0.314,0.314,0.314,0.311,0.305,0.305,0.305,0.305,0.305,0.305,0.305,0.305,0.305,0.305,0.305,0.305,0.305,0.305,0.305,0.305,0.305];
+//                    soilProfile["SAT"] = [0.441,0.441,0.441,0.441,0.442,0.444,0.444,0.444,0.444,0.444,0.444,0.444,0.444,0.444,0.444,0.444,0.444,0.444,0.444,0.444,0.444,0.444];
+                    // A3B, A4B
+//                    soilProfile["LL"] = [0.187,0.187,0.187,0.187,0.186,0.183,0.183,0.183,0.183,0.183,0.183,0.183,0.183,0.183,0.183,0.183,0.183,0.183,0.183,0.183,0.183,0.183];
+//                    soilProfile["DUL"] = [0.309,0.309,0.309,0.309,0.309,0.308,0.308,0.308,0.308,0.308,0.308,0.308,0.308,0.308,0.308,0.308,0.308,0.308,0.308,0.308,0.308,0.308];
+//                    soilProfile["SAT"] = [0.437,0.437,0.437,0.437,0.438,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44];
+                    // B1B, B2B
+//                    soilProfile["LL"] = [0.218,0.218,0.218,0.218,0.219,0.221,0.221,0.221,0.221,0.221,0.221,0.221,0.221,0.221,0.221,0.221,0.221,0.221,0.221,0.221,0.221,0.221];
+//                    soilProfile["DUL"] = [0.364,0.364,0.364,0.364,0.364,0.364,0.364,0.364,0.364,0.364,0.364,0.364,0.364,0.364,0.364,0.364,0.364,0.364,0.364,0.364,0.364,0.364];
+//                    soilProfile["SAT"] = [0.471,0.471,0.471,0.471,0.47,0.469,0.469,0.469,0.469,0.469,0.469,0.469,0.469,0.469,0.469,0.469,0.469,0.469,0.469,0.469,0.469,0.469];
+                    // B1B, B2B
+//                    soilProfile["LL"] = [0.213,0.213,0.213,0.213,0.209,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2];
+//                    soilProfile["DUL"] = [0.356,0.356,0.356,0.356,0.353,0.346,0.346,0.346,0.346,0.346,0.346,0.346,0.346,0.346,0.346,0.346,0.346,0.346,0.346,0.346,0.346,0.346];
+//                    soilProfile["SAT"] = [0.465,0.465,0.465,0.465,0.465,0.465,0.465,0.465,0.465,0.465,0.465,0.465,0.465,0.465,0.465,0.465,0.465,0.465,0.465,0.465,0.465,0.465];
                 } else if (rawData[0].startsWith("!,Subdaily Observation Data for 2D")) {
                     obvData = readSubDailyObv(rawData);
                     obvDaily = obvData["subdaily"];
@@ -153,10 +186,10 @@
                     let plotVarInfo = plotVar.split("_");
                     if (plotVarDic[plotVarInfo[0]] !== undefined) {
                         if (charts[plotVar] === undefined || charts[plotVar] === null) {
-                            drawSWV2DPlot(plotVarInfo[0], plotVarDic[plotVarInfo[0]], {sim:data, obv:obvData, soilWat:soilWatData}, 'output_plot' + 1, {row:plotVarInfo[1], col:plotVarInfo[2]}, "full");
+                            drawSWV2DPlot(plotVarInfo[0], plotVarDic[plotVarInfo[0]], {sim:data, obv:obvData, soilWat:soilWatData, soilProfile:soilProfile}, 'output_plot' + 1, {row:plotVarInfo[1], col:plotVarInfo[2]}, "full");
 //                            drawSWV2DPlot(plotVarInfo[0], plotVarDic[plotVarInfo[0]], data, obvData, 'output_plot' + 2, {row:plotVarInfo[1], col:plotVarInfo[2]}, "last");
                         } else {
-                            drawSWV2DPlot(plotVarInfo[0], plotVarDic[plotVarInfo[0]], {sim:data, obv:obvData, soilWat:soilWatData}, 'output_plot' + 1, {row:plotVarInfo[1], col:plotVarInfo[2]}, "full");
+                            drawSWV2DPlot(plotVarInfo[0], plotVarDic[plotVarInfo[0]], {sim:data, obv:obvData, soilWat:soilWatData, soilProfile:soilProfile}, 'output_plot' + 1, {row:plotVarInfo[1], col:plotVarInfo[2]}, "full");
 //                            drawSWV2DPlot(plotVarInfo[0], plotVarDic[plotVarInfo[0]], data, obvData, 'output_plot' + 2, {row:plotVarInfo[1], col:plotVarInfo[2]}, "last");
                         }
                     }

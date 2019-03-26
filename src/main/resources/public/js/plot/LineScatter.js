@@ -5,12 +5,13 @@ function drawSWV2DPlot(plotVar, plotVarName, data, containerId, cell, style, cha
     let subdaily = data["sim"]["subdaily"];
     let obvSubdaily = data["obv"]["subdaily"];
     let soilWatDaily = data["soilWat"]["subdaily"];
+    let soilProfile = data["soilProfile"];
     let plotDataSim = [];
     let plotDataObv = [];
     let eventData = {PRED:[], IRRD:[]};
-    let max = data["sim"]["max"][plotVar][cell.row][cell.col];
-    let min = data["sim"]["min"][plotVar][cell.row][cell.col];
-    let plotTitle = "Time series Plot";
+    let max = data["sim"]["maxAll"][plotVar];
+    let min = data["sim"]["minAll"][plotVar];
+    let plotTitle = "Time series Plot at cell [" + (Number(cell.row) + 1) + ", " + (Number(cell.col) + 1) + "]";
     let start, end;
     if (style === undefined || style === "full") {
         start = 1;
@@ -31,11 +32,17 @@ function drawSWV2DPlot(plotVar, plotVarName, data, containerId, cell, style, cha
                 plotDataObv.push([obvSubdaily[i].TS, obvSubdaily[i][plotVar][cell.row][cell.col]]);
             }
         }
-        if (data["obv"]["max"][plotVar][cell.row][cell.col]) {
-            max = Math.max(max, data["obv"]["max"][plotVar][cell.row][cell.col]);
+//        if (data["obv"]["max"][plotVar][cell.row][cell.col]) {
+//            max = Math.max(max, data["obv"]["max"][plotVar][cell.row][cell.col]);
+//        }
+//        if (data["obv"]["min"][plotVar][cell.row][cell.col]) {
+//            min = Math.min(min, data["obv"]["min"][plotVar][cell.row][cell.col]);
+//        }
+        if (data["obv"]["maxAll"][plotVar]) {
+            max = Math.max(max, data["obv"]["maxAll"][plotVar]);
         }
-        if (data["obv"]["min"][plotVar][cell.row][cell.col]) {
-            min = Math.min(min, data["obv"]["min"][plotVar][cell.row][cell.col]);
+        if (data["obv"]["minAll"][plotVar]) {
+            min = Math.min(min, data["obv"]["minAll"][plotVar]);
         }
     }
     
@@ -64,6 +71,7 @@ function drawSWV2DPlot(plotVar, plotVarName, data, containerId, cell, style, cha
             sim:plotDataSim,
             obv:plotDataObv,
             event:eventData,
+            soil:{DUL:soilProfile["DUL"][cell.row], LL:soilProfile["LL"][cell.row], SAT:soilProfile["SAT"][cell.row]},
             max:max,
             min:min
 //            max:[max, data.soilWat.max.PRED, data.soilWat.max.IRRD],
@@ -110,7 +118,38 @@ function drawLineScatterPlot(plotTitle, plotValTitle, plotData, containerId) {
                 style: {
                     color: Highcharts.getOptions().colors[0]
                 }
-            }
+            },
+            plotLines: [{ // Light air
+                value: plotData.soil.DUL,
+                width: 1,
+                color: 'rgba(68, 170, 213, 1)',
+                label: {
+                    text: 'DUL = ' + plotData.soil.DUL,
+                    style: {
+                        color: '#606060'
+                    }
+                }
+            }, { // Light air
+                value: plotData.soil.LL,
+                width: 1,
+                color: 'rgba(68, 170, 213, 1)',
+                label: {
+                    text: 'LL = ' + plotData.soil.LL,
+                    style: {
+                        color: '#606060'
+                    }
+                }
+            }, { // Light air
+                value: plotData.soil.SAT,
+                width: 1,
+                color: 'rgba(68, 170, 213, 1)',
+                label: {
+                    text: 'SAT = ' + plotData.soil.SAT,
+                    style: {
+                        color: '#606060'
+                    }
+                }
+            }]
         },{ // Precipitation yAxis
             gridLineWidth: 0,
             title: {
