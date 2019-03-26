@@ -5,8 +5,8 @@ function drawWaterVectorFluxPlot(data, soilProfile, containerId, day, zoom, char
     var plotData = [];
     var plotTitle;
     var plotValTitle;
-    plotTitle = "Soil Water Vector Flux Plot";
-    plotValTitle = "Soil Water Vector Flux (cm3/cm3)";
+    plotTitle = "Soil Water Vector Flux Plot (cm2/d)";
+    plotValTitle = "Soil Water Vector Flux (cm2/d)";
     var WFluxH = daily[day]["WFluxH"];
     var WFluxV = daily[day]["WFluxV"];
     for (var i = 0; i < soilProfile["totRows"]; i++) {
@@ -38,8 +38,8 @@ function drawNitroFluxVectorPlot(data, soilProfile, containerId, day, zoom, char
     var plotData = [];
     var plotTitle;
     var plotValTitle;
-    plotTitle = "Soil N Vector Flux Plot";
-    plotValTitle = "Soil N Vector Flux";
+    plotTitle = "Soil N Vector Flux Plot (kg[N]/ha/d)";
+    plotValTitle = "Soil N Vector Flux (kg[N]/ha/d)";
     var NFluxR = daily[day]["NFluxR_D"];
     var NFluxL = daily[day]["NFluxL_D"];
     var NFluxD = daily[day]["NFluxD_D"];

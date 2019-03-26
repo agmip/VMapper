@@ -16,7 +16,7 @@
             var selections = [];
             let charts = {};
 //            const plotVarExludsion = ["YEAR", "DOY", "DAS", "ROW", "COL", "NFluxR_A", "NFluxL_A", "NFluxD_A", "NFluxU_A", "NFluxR_D", "NFluxL_D", "NFluxD_D", "NFluxU_D"];
-            const plotVarDic = {SWV:"Soil Water Content", TotalN:"Soil N content", AFERT:"Fertilization", IrrVol:"Irrigation", RLV:"Root Length Density", NO3UpTak:"NO3 Uptake", NH4UpTak:"NH4 Uptake", InfVol:"Infiltration", ES_RATE:"Evaporation Rate", EP_RATE:"Transpiration Rate"};
+            const plotVarDic = {SWV:"Soil Water Content (cm3[water]/cm3[soil])", TotalN:"Soil N content (g[N]/g[soil])", AFERT:"Fertilization (kg[N]/ha)", IrrVol:"Irrigation (cm3[water]/cm[row_length])", RLV:"Root Length Density (cm/cm3)", NO3UpTak:"NO3 Uptake (kg[N]/ha)", NH4UpTak:"NH4 Uptake (kg[N]/ha)", InfVol:"Infiltration (cm3[water]/cm3[soil])", ES_RATE:"Evaporation Rate (mm/d)", EP_RATE:"Transpiration Rate (mm/d)"};
             
             function readFile() {
                 
@@ -85,7 +85,7 @@
                 for (let key in plotVarDic) {
                     if (titles.indexOf(key) > -1) {
                         let option = document.createElement('option');
-                        option.innerHTML = plotVarDic[key];
+                        option.innerHTML = plotVarDic[key].split(" (")[0];
                         option.value = key;
                         optgroupHeatMap.append(option);
                         if (selections.includes(key)) {
