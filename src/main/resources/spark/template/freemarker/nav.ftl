@@ -31,7 +31,7 @@
                         <li><a href="/demo/xbuilder2d"><span class="glyphicon glyphicon-edit"></span> XBuilder 2D</a></li>
                         <li><a href="/demo/gbuilder1d"><span class="glyphicon glyphicon-picture"></span> GBuilder 1D</a></li>
                         <li><a href="/demo/gbuilder2d"><span class="glyphicon glyphicon-picture"></span> GBuilder 2D</a></li>
-                        <li><a href="#" onClick="window.open('/plot_demo.html')"><span class="glyphicon glyphicon-send"></span> Distributable Plot</a></li>
+                        <li><a href="#" onClick="window.open('https://dssat2d-plot-demo.herokuapp.com/')"><span class="glyphicon glyphicon-send"></span> Distributable Plot</a></li>
                     </ul>
                 </li>
     <!--            <li class="dropdown">
