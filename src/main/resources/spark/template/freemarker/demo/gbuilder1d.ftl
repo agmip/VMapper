@@ -272,7 +272,7 @@
                     </div>
                 </div>
                 <div id="plot_options" class="form-group" hidden="true">
-                    <label class="control-label col-sm-2">Plot Type :</label>
+                    <label class="control-label col-sm-2">Output Variable :</label>
                     <div class="col-sm-6 text-left">
                         <select id="plot_type" data-placeholder="Select Plot Type" title="Select Plot Type" onchange="updateSelections();" class="form-control chosen-select-deselect-single" multiple>
                         </select>

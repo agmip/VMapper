@@ -318,7 +318,7 @@
                 </div>
                 <br/>
                 <div id="plot_options" class="form-group" hidden="true">
-                    <label class="control-label col-sm-2">Plot Type :</label>
+                    <label class="control-label col-sm-2">Output Variable :</label>
                     <div class="col-sm-6 text-left">
                         <select id="plot_type" data-placeholder="Select Plot Type" title="Select Plot Type" onchange="updateSelections();" class="form-control chosen-select-max4" multiple>
                         </select>
@@ -329,7 +329,7 @@
                 </div>
                 <br/>
                 <div id="plot_ctrl" class="form-group" hidden="true">
-                    <label class="control-label col-sm-2">DAS :</label>
+                    <label class="control-label col-sm-2">Day of Simulation :</label>
                     <div class="col-sm-5 text-right">
                         <input type="range" id="das_scroll" name="das_scroll" class="form-control" value="0" step="1" max="180" min="0" placeholder="" data-toggle="tooltip" title="" onchange="changeDate(this);">
                     </div>
