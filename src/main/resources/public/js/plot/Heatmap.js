@@ -63,17 +63,28 @@ function drawHeatMapPlot(plotTitle, plotValTitle, plotData, max, min, soilProfil
                 align: 'low'
             }
         },
-        yAxis: {
+        yAxis: [{
             min: 1,
             softMax: soilProfile["totRows"],
             tickInterval: 1,
             gridLineWidth:0,
             reversed: true,
             title: {
+                text: 'Central line of Bed',
+                align: 'high'
+            }
+        },{
+            title: {
                 text: 'Soil layers',
                 align: 'low'
             }
-        },
+        },{
+            title: {
+                text: 'Central line of Farrow',
+                align: 'high'
+            },
+            opposite: true
+        }],
         credits: {
             text: "dssat2d-plot.herokuapp.com",
             href: "http://dssat2d-plot.herokuapp.com/"
@@ -111,6 +122,7 @@ function drawHeatMapPlot(plotTitle, plotValTitle, plotData, max, min, soilProfil
                 dataLabels: {
                     enabled: true,
                     color: '#000000',
+                    style:{"fontSize": "8px"},
 //                    format: '{point.value:.2f}'
                     formatter: function () {
                         let max = 4;
