@@ -40,7 +40,7 @@
         for (let mid in managements) {
             trtMgnSB.append($('<option value="' + mid + '"></option>').append(managements[mid].mgn_name));
         }
-        trtMgnSB.attr("id", "tr_management_" + trtno);
+        trtMgnSB.attr("id", "tr_mgn_" + trtno);
         
         let trtCfgCell = $("<td></td>");
         trtRow.append(trtCfgCell);
@@ -52,8 +52,8 @@
         
         $("#tr_field_" + trtno).chosen("destroy");
         chosen_init("tr_field_" + trtno);
-        $("#tr_management_" + trtno).chosen("destroy");
-        chosen_init("tr_management_" + trtno);
+        $("#tr_mgn_" + trtno).chosen("destroy");
+        chosen_init("tr_mgn_" + trtno);
         $("#tr_config_" + trtno).chosen("destroy");
         chosen_init("tr_config_" + trtno);
         trtData.push({trtno:trtno});
@@ -70,7 +70,7 @@
             $("#trt_remove_btn_" + trtData[trtid].trtno).attr("id", "trt_remove_btn_" + newId);
             $("#trt_name_" + trtData[trtid].trtno).attr("id", "tr_field_" + newId);
             $("#tr_field_" + trtData[trtid].trtno).attr("id", "tr_field_" + newId);
-            $("#tr_management_" + trtData[trtid].trtno).attr("id", "tr_field_" + newId);
+            $("#tr_mgn_" + trtData[trtid].trtno).attr("id", "tr_field_" + newId);
             $("#tr_config_" + trtData[trtid].trtno).attr("id", "tr_field_" + newId);
             trtData[trtid].trtno = newId;
         }
@@ -130,7 +130,7 @@
                     </td>
                     <td>
                         <div class="input-group col-sm-11">
-                            <select id="tr_management_1" name="management" class="form-control chosen-select-deselect" onchange="trtOptSelect(this);" data-placeholder="Apply management setups..." multiple required>
+                            <select id="tr_mgn_1" name="management" class="form-control chosen-select-deselect" onchange="trtOptSelect(this);" data-placeholder="Apply management setups..." multiple required>
                                 <option value=""></option>
                                 <option value="">Create new...</option>
                                 <option value="PT">Default</option>
