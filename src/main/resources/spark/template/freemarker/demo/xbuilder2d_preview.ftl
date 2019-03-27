@@ -33,11 +33,23 @@
     function updateJsonPreview() {
         $('#json_preview').html("<div><h3>Experiment Data</h3>" +
                 JSON.stringify(expData) +
-                "</div><div><h3>Field List</h3>" +
-                JSON.stringify(fields) +
                 "</div><div><h3>Treatment List</h3>" +
                 JSON.stringify(trtData) +
+                "</div><div><h3>Field List</h3>" +
+                JSON.stringify(fields) +
+                "</div><div><h3>Management List</h3>" +
+                JSON.stringify(getManagements()) +
                 "</div>");
+    }
+    
+    function getManagements() {
+        let ret = {};
+        for (let id in managements) {
+            ret[id] = {};
+            ret[id].mgn_name = managements[id].mgn_name;
+            ret[id].data = managements[id].data;
+        }
+        return ret;
     }
     
     function updateDssatPreview() {
@@ -45,6 +57,7 @@
             {
                 exp: JSON.stringify(expData),
                 field: JSON.stringify(fields),
+                management: JSON.stringify(managements),
                 treatment: JSON.stringify(trtData)
             },
             function (xfile) {

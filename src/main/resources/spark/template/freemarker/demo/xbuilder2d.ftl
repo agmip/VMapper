@@ -13,9 +13,10 @@
             let fields = {};
             let fieldData = {};
             let fieldId;
-            let eventData;
-            let events = [];
-            let managements = {};
+            let eventData;        // Data container for current management data
+            let events = [];      // Array of event object for current current management data
+            let managements = {}; // Map for all management data (mgnId: mgnData)
+            let mgnId;            // Current management ID
             let trtData = [];
             let timeline;
             let tmlContainer;
@@ -23,28 +24,13 @@
             let spreadsheet;
             let spsContainer;
             let spsOptions;
-            let fstSpsFlg = true;
+            let configs = {}
+            let configData = {}
+            let configId;
             
             function initTimeline() {
                 // DOM element where the Timeline will be attached
                 tmlContainer = document.getElementById('visualization');
-
-                // Create a DataSet (allows two way data-binding)
-                events = [
-                  {id: "a", content: 'Fixed event 1', start: '04/20/2013', editable: false},
-                  {id: "b", content: 'Weekly event 1.1', start: '04/12/2013', group:"ga"},
-                  {id: "c", content: 'Weekly event 1.2', start: '04/19/2013', group:"ga"},
-                  {id: "d", content: 'Daily event 4', start: '04/15/2013', end: '04/19/2013'},
-                  {id: "e", content: 'Weekly event 1.3', start: '04/26/2013', group:"ga"},
-                  {id: "f", content: 'Weekly event 1.4', start: '05/03/2013', group:"ga"}
-                ];
-                eventData = new vis.DataSet(events);
-    //            eventData.on('*', function (event, properties, senderId) {
-    //                console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
-    //            });
-    //            eventData.on('add', function(event, properties, senderId) {
-    //                timeline.setSelection(properties.items);
-    //            });
 
                 // Configuration for the Timeline
                 let tmlOptions = {
@@ -122,9 +108,10 @@
             }
             
             function initSpreadsheet() {
-                events = getEvents()
+                events = getEvents();
                 spsContainer = document.querySelector('#visualization2');
                 spsOptions = {
+                    licenseKey: 'non-commercial-and-evaluation',
                     data: events,
                     columns: [
                         {
@@ -141,7 +128,7 @@
                             dateFormat: 'MM/DD/YYYY'
                         },
                         {
-                            data: 'type',
+                            data: 'event',
                             type: 'text'
                         },
                         {
@@ -201,19 +188,27 @@
                     $("#" + fieldId).parent().addClass("active");
                 });
                 $('.nav-tabs #EventTab').on('shown.bs.tab', function(){
-//                    $("#event_create").parent().removeClass("active");
-//                    $("#" + eventId).parent().addClass("active");
+                    $("#event_create").parent().removeClass("active");
+                    $("#" + mgnId).parent().addClass("active");
                     if (fstTmlFlg) {
                         fstTmlFlg = false;
                         initTimeline();
+                        initSpreadsheet();
+                    } else {
+                        timeline.setItems(eventData);
+                        timeline.fit();
+                        syncDataToSps();
                     }
                 });
                 $('.nav-tabs #EventTab').on('hide.bs.tab', function(){
-                    // TODO will sync the tml and sps
+                    syncEventData();
+                });
+                $('.nav-tabs #ConfigTab').on('shown.bs.tab', function(){
+                    $("#config_create").parent().removeClass("active");
+                    $("#" + cfgId).parent().addClass("active");
+                    // TODO
                 });
                 $('.nav-tabs #TreatmentTab').on('shown.bs.tab', function(){
-//                    $("#management_create").parent().removeClass("active");
-//                    $("#" + mgnId).parent().addClass("active");
                     // TODO
                     for (let trtid in trtData) {
                         $("#tr_field_" + trtData[trtid].trtno).chosen("destroy");
@@ -227,13 +222,29 @@
                 $('.nav-tabs #PreviewTab').on('shown.bs.tab', function(){
                     updatePreview();
                 });
-                managements["mgn_0"] = {mgn_name: "N150", data: eventData};
-                managements["mgn_1"] = {mgn_name: "N200", data: eventData};
-                managements["mgn_2"] = {mgn_name: "N250", data: eventData};
-                managements["mgn_3"] = {mgn_name: "I-subsurface", data: eventData};
-                managements["mgn_4"] = {mgn_name: "I-surface", data: eventData};
-                managements["mgn_5"] = {mgn_name: "I-fixed", data: eventData};
+                
+                // Create a DataSet (allows two way data-binding)
+                events = [
+                  {id: "a", content: 'Fixed event 1', start: '04/20/2013', editable: false},
+                  {id: "b", content: 'Weekly event 1.1', start: '04/12/2013', group:"ga"},
+                  {id: "c", content: 'Weekly event 1.2', start: '04/19/2013', group:"ga"},
+                  {id: "d", content: 'Daily event 4', start: '04/15/2013', end: '04/19/2013'},
+                  {id: "e", content: 'Weekly event 1.3', start: '04/26/2013', group:"ga"},
+                  {id: "f", content: 'Weekly event 1.4', start: '05/03/2013', group:"ga"}
+                ];
+                eventData = new vis.DataSet(events);
+                managements["mgn_0"] = createMgnData("Default", events);
+                eventData = managements["mgn_0"].tmlData;
+                managements["mgn_1"] = createMgnData("N150", []);
+                managements["mgn_2"] = createMgnData("N200", []);
+                managements["mgn_3"] = createMgnData("N250", []);
+                managements["mgn_4"] = createMgnData("I-subsurface", []);
+                managements["mgn_5"] = createMgnData("I-surface", []);
+                managements["mgn_6"] = createMgnData("I-fixed", []);
 //                trtData.push({trtno:1});
+                configData = {};
+                configId = "config_0";
+                configs[configId] = {config_name: "Default", data: configData};
             }
             
             function initStartYearSB() {
@@ -334,19 +345,19 @@
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         <span class="glyphicon glyphicon-calendar"></span>
                         Management
-                        <span class="badge" id="management_badge">7</span>
+                        <span class="badge" id="mgn_badge">7</span>
                         <span class="caret"></span>
                     </a>
                     
-                    <ul class="dropdown-menu">
-                        <li><a data-toggle="tab" href="#Event" class="create-link" id="management_create">Create new...</a></li>
-                        <li><a data-toggle="tab" href="#Event">Default</a></li>
-                        <li><a data-toggle="tab" href="#Event">N-150</a></li>
-                        <li><a data-toggle="tab" href="#Event">N-200</a></li>
-                        <li><a data-toggle="tab" href="#Event">N-250</a></li>
-                        <li><a data-toggle="tab" href="#Event">I-subsurface</a></li>
-                        <li><a data-toggle="tab" href="#Event">I-surface</a></li>
-                        <li><a data-toggle="tab" href="#Event">I-fixed</a></li>
+                    <ul class="dropdown-menu" id="mgn_list">
+                        <li><a data-toggle="tab" href="#Event" class="create-link" id="management_create" onclick="createManagement();">Create new...</a></li>
+                        <li><a data-toggle="tab" href="#Event" id="mgn_0" onclick="setManagement(this);">Default</a></li>
+                        <li><a data-toggle="tab" href="#Event" id="mgn_1" onclick="setManagement(this);">N-150</a></li>
+                        <li><a data-toggle="tab" href="#Event" id="mgn_2" onclick="setManagement(this);">N-200</a></li>
+                        <li><a data-toggle="tab" href="#Event" id="mgn_3" onclick="setManagement(this);">N-250</a></li>
+                        <li><a data-toggle="tab" href="#Event" id="mgn_4" onclick="setManagement(this);">I-subsurface</a></li>
+                        <li><a data-toggle="tab" href="#Event" id="mgn_5" onclick="setManagement(this);">I-surface</a></li>
+                        <li><a data-toggle="tab" href="#Event" id="mgn_6" onclick="setManagement(this);">I-fixed</a></li>
                     </ul>
                 </li>
                 <li id="ConfigTab" class="dropdown">
@@ -399,6 +410,7 @@
         <script type="text/javascript" src="/plugins/chosen/chosen.jquery.min.js" ></script>
         <script type="text/javascript" src="/plugins/chosen/prism.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/chosen/init.js" charset="utf-8"></script>
+        <script type="text/javascript" src="/js/bootbox/bootbox.all.min.js" charset="utf-8"></script>
         <script src="https://cdn.jsdelivr.net/npm/handsontable@latest/dist/handsontable.full.min.js"></script>
         <script type="text/javascript">
             $(document).ready(function () {

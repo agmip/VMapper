@@ -1,6 +1,123 @@
 <script>
-    function createManagementSetup() {
-        alert("[TODO] A tab will be created for the new operation group!");
+    function createMgnData(name, events) {
+        let tmlData = new vis.DataSet(events);
+//        tmlData.on('*', function (event, properties, senderId) {
+//            console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
+//        });
+        tmlData.on('add', function(event, properties, senderId) {
+//            console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
+            showEventTypePrompt();
+        });
+        return {mgn_name: name, data: events, tmlData: tmlData};
+    }
+    
+    function showEventTypePrompt(eventType) {
+        if (!eventType) {
+            eventType = "";
+        }
+        bootbox.prompt({
+            title: "Please select the event type",
+            inputType: 'select',
+            value: eventType,
+            inputOptions: [
+                    {text: 'Choose one...', value: ''},
+                    {text: 'Planting',      value: 'planting',},
+                    {text: 'Irrigation',    value: 'irrigation'},
+                    {text: 'Fertilizer',    value: 'fertilizer'},
+                    {text: 'Harvest',       value: 'harvest'}
+                ],
+            callback: function(result){ 
+                if (!result) {
+                    if (result === "") {
+                        showEventTypePrompt();
+                    } else {
+                        removeEvent();
+                    }
+                } else {
+                    showEventDataDialog(result);
+                }
+            }
+        });
+    }
+    
+    function showEventDataDialog(eventType) {
+        bootbox.dialog({
+            title: "Please input event data",
+            size: 'large',
+            message: $('.event-input-' + eventType).html(),
+            buttons: {
+                cancel: {
+                        label: "Cancel",
+                        className: 'btn-default',
+                        callback: removeEvent
+                    },
+                back: {
+                        label: "&nbsp;Back&nbsp;",
+                        className: 'btn-default',
+                        callback: function(){
+                            showEventTypePrompt(eventType);
+                        }
+                    },
+                ok: {
+                        label: "&nbsp;Save&nbsp;",
+                        className: 'btn-primary',
+                        callback: function(){
+                            $('.event-input-item').each(function () {
+                                editEvent($(this).attr("name"), $(this).val());
+                            })
+                        }
+                    }
+            }
+        });
+    }
+    
+    function createManagement() {
+        let num = getNewCollectionNum(managements);
+        mgnId = "mgn_" + num;
+        let description = "New Management " + (num + 1);
+        events = [];
+        managements[mgnId] = createMgnData(description, events);
+        eventData = managements[mgnId].tmlData;
+        $('#mgn_list').append('<li><a data-toggle="tab" href="#Event" id="' + mgnId + '" onclick="setManagement(this);">' + description + '</a></li>');
+        $('#mgn_name').val(description);
+        for (let i in trtData) {
+            $('#tr_mgn_' + trtData[i].trtno).append('<option value="' + mgnId + '">' + description + '</option>');
+        }
+        $('#mgn_badge').html(Object.keys(managements).length);
+    }
+    
+    function setManagement(target) {
+        syncEventData();
+        events = managements[target.id].data;
+        eventData = managements[target.id].tmlData;
+        mgnId = target.id;
+        $('#mgn_name').val(managements[target.id]['mgn_name']);
+    }
+    
+    function removeManagement() {
+        delete managements[mgnId];
+        $('#mgn_list li a[id="' + mgnId + '"]').remove();
+        for (let i in trtData) {
+            $('#tr_mgn_' + trtData[i].trtno + ' option[value="' + mgnId + '"]').remove();
+        }
+        let mgnIds = Object.keys(managements);
+        $('#mgn_badge').html(mgnIds.length);
+        if (mgnIds.length > 0) {
+            $("#" + mgnIds[0]).click();
+        } else {
+            $("#SiteInfoTab a").click();
+        }
+    }
+    
+    function syncEventData() {
+        if (!mgnId) {
+            return;
+        }
+        if ($("#spreadsheet_swc_btn").hasClass("btn-primary")) {
+            syncDataToTml();
+        } else {
+            events = getEvents();
+        }
     }
     
     function test() {
@@ -37,10 +154,12 @@
         timeline.setSelection(event.id);
     }
 
-    function editEvent() {
+    function editEvent(name, value) {
         let selections = timeline.getSelection();
         if (selections.length > 0) {
-            eventData.update({id: selections[0], content: "event 2"});
+            let updData = {id: selections[0]};
+            updData[name] = value;
+            eventData.update(updData);
         }
     }
 
@@ -68,7 +187,19 @@
     
     function switchManagementViewType(target) {
         let showBtn, hideBtn, showDiv, hideDiv;
-        if (target.id === "timeline_swc_btn") {
+        if (!target) {
+            if ($("#spreadsheet_swc_btn").hasClass("btn-primary")) {
+                hideBtn = $("#timeline_swc_btn");
+                hideDiv = $("#timeline_view");
+                showBtn = $("#spreadsheet_swc_btn");
+                showDiv = $("#spreadsheet_view");
+            } else {
+                hideBtn = $("#spreadsheet_swc_btn");
+                hideDiv = $("#spreadsheet_view");
+                showBtn = $("#timeline_swc_btn");
+                showDiv = $("#timeline_view");
+            }
+        } else if (target.id === "timeline_swc_btn") {
             hideBtn = $("#spreadsheet_swc_btn");
             hideDiv = $("#spreadsheet_view");
             showBtn = $("#timeline_swc_btn");
@@ -79,22 +210,22 @@
             showBtn = $("#spreadsheet_swc_btn");
             showDiv = $("#spreadsheet_view");
         }
-        if(showBtn.hasClass("btn-primary")) {
+        if(target && showBtn.hasClass("btn-primary")) {
             return;
         }
-        hideBtn.removeClass("btn-primary").addClass("btn-default");
-        showBtn.removeClass("btn-default").addClass("btn-primary");
+        if (target) {
+            hideBtn.removeClass("btn-primary").addClass("btn-default");
+            showBtn.removeClass("btn-default").addClass("btn-primary");
+        }
         hideDiv.fadeOut("fast",function() {
             showDiv.fadeIn("fast", function() {
-                if (target.id === "timeline_swc_btn") {
+                if (showBtn.attr("id") === "timeline_swc_btn") {
                     syncDataToTml();
                 } else {
-                    if (fstSpsFlg) {
-                        fstSpsFlg = false;
-                        initSpreadsheet();
-                    } else {
-                        syncDataToSps();
-                    }
+                    syncDataToSps();
+                }
+                if (!mgnId) {
+                    return;
                 }
             });
         });
@@ -105,6 +236,7 @@
         arr.forEach(function (data) {
             data.start = new Date(data.start).toLocaleDateString("en-US",{year: 'numeric', month: '2-digit', day: '2-digit' });
         });
+        managements[mgnId].data = arr;
         return arr;
     }
     
@@ -146,9 +278,9 @@
         <legend>Management Information</legend>
         <div class="row col-sm-12">
             <div class="form-group has-feedback col-sm-4">
-                <label class="control-label" for="management_name">Management Setup Name *</label>
+                <label class="control-label" for="management_name">Management Name *</label>
                 <div class="input-group col-sm-12">
-                    <input type="text" id="management_name" name="management_name" class="form-control" value="Default" required >
+                    <input type="text" id="mgn_name" name="mgn_name" class="form-control" value="Default" required >
                     <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                 </div>
             </div>
@@ -192,3 +324,66 @@
     <li>Monthly Event</li>
     <li>Customized Event</li>
 </ul>
+<div class="event-input-planting" hidden>
+    <p ></p>
+    <div class="col-sm-12">
+        <div class="form-group">
+            <label class="control-label">Event Type</label>
+            <div class="input-group col-sm-12">
+                <input type="text" name="event" class="form-control event-input-item" value="planting" readonly >
+            </div>
+        </div>
+        <div class="form-group has-feedback">
+            <label class="control-label" for="cul_id">Cultivar ID *</label>
+            <div class="input-group col-sm-12">
+                <input type="text" name="cul_id" class="form-control event-input-item" value="" required >
+            </div>
+        </div>
+        <div class="form-group has-feedback">
+            <label class="control-label" for="plds">Row Spacing *</label>
+            <div class="input-group col-sm-12">
+                <input type="text" name="plds" class="form-control event-input-item" value="" required >
+            </div>
+        </div>
+    </div>
+    <p>&nbsp;</p>
+</div>
+<div class="event-input-irrigation" hidden>
+    <p ></p>
+    <div class="col-sm-12">
+        <div class="form-group">
+            <label class="control-label">Event Type</label>
+            <div class="input-group col-sm-12">
+                <input type="text" name="event" class="form-control event-input-item" value="irrigation" readonly >
+            </div>
+        </div>
+        Under construction...
+    </div>
+    <p>&nbsp;</p>
+</div>
+<div class="event-input-fertilizer" hidden>
+    <p ></p>
+    <div class="col-sm-12">
+        <div class="form-group">
+            <label class="control-label">Event Type</label>
+            <div class="input-group col-sm-12">
+                <input type="text" name="event" class="form-control event-input-item" value="fertilizer" readonly >
+            </div>
+        </div>
+        Under construction...
+    </div>
+    <p>&nbsp;</p>
+</div>
+<div class="event-input-harvest" hidden>
+    <p ></p>
+    <div class="col-sm-12">
+        <div class="form-group">
+            <label class="control-label">Event Type</label>
+            <div class="input-group col-sm-12">
+                <input type="text" name="event" class="form-control event-input-item" value="harvest" readonly >
+            </div>
+        </div>
+        Under construction...
+    </div>
+    <p>&nbsp;</p>
+</div>
