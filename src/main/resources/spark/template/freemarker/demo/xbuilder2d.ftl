@@ -56,6 +56,12 @@
                         alert('dropped object with content: "' + objectData.content + '" to event: "' + event.content + '"');
                     }
                 };
+                
+                let startYear = $('#start_year').val();
+                if (startYear && !isNaN(startYear)) {
+                    tmlOptions.start = new Date(startYear, 0, 1, 0, 0, 0, 0);
+                    tmlOptions.end = new Date(startYear, 11, 31, 0, 0, 0, 0);
+                }
 
                 // Create a Timeline
                 timeline = new vis.Timeline(tmlContainer, eventData, tmlOptions);
@@ -196,7 +202,14 @@
                         initSpreadsheet();
                     } else {
                         timeline.setItems(eventData);
-                        timeline.fit();
+                        if (events.length === 0) {
+                            let startYear = $('#start_year').val();
+                            if (startYear && !isNaN(startYear)) {
+                                timeline.setWindow(new Date(startYear, 0, 1, 0, 0, 0, 0), new Date(startYear, 11, 31, 0, 0, 0, 0));
+                            }
+                        } else {
+                            timeline.fit();
+                        }
                         syncDataToSps();
                     }
                 });
@@ -252,19 +265,19 @@
                 for (let i = 51; i <= 99; i++) {
                     let option = document.createElement('option');
                     option.innerHTML = "19" + i;
-                    option.value = "" + i;
+                    option.value = "19" + i;
                     startYearSB.append(option);
                 }
                 for (let i = 0; i <= 9; i++) {
                     let option = document.createElement('option');
                     option.innerHTML = "200" + i;
-                    option.value = "0" + i;
+                    option.value = "200" + i;
                     startYearSB.append(option);
                 }
                 for (let i = 10; i <= 50; i++) {
                     let option = document.createElement('option');
                     option.innerHTML = "20" + i;
-                    option.value = "" + i;
+                    option.value = "20" + i;
                     startYearSB.append(option);
                 }
                 
