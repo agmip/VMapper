@@ -16,10 +16,20 @@ public class JSONObject extends org.json.simple.JSONObject {
 
     public JSONObject(Map m) {
         super(m);
+        for (Object key : m.keySet()) {
+            if (m.get(key) instanceof Map) {
+                super.put(key, new JSONObject((Map) m.get(key)));
+            }
+        }
     }
 
     public JSONObject(org.json.simple.JSONObject o) {
         super(o);
+        for (Object key : o.keySet()) {
+            if (o.get(key) instanceof org.json.simple.JSONObject) {
+                super.put(key, new JSONObject((org.json.simple.JSONObject) o.get(key)));
+            }
+        }
     }
 
     public String getOrBlank(String key) {
@@ -49,6 +59,14 @@ public class JSONObject extends org.json.simple.JSONObject {
             return new BigDecimal(read).setScale(round, BigDecimal.ROUND_HALF_UP).doubleValue();
         }
         return null;
+    }
+
+    public JSONObject getAsObj(String key) {
+        if (this.containsKey(key)) {
+            return (JSONObject) this.get(key);
+        } else {
+            return new JSONObject();
+        }
     }
 
     public Double getAsDouble(String key) {

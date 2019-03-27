@@ -24,31 +24,42 @@
 *TREATMENTS                        -------------FACTOR LEVELS------------
 @N R O C TNAME.................... CU FL SA IC MP MI MF MR MC MT ME MH SM
 <#list treatments as trt>
-${trt['trtno']?left_pad(2)} 1 1 0 ${(trt['trt_name']!)?right_pad(25)?substring(0,25)}  0 ${(trt['fid']!"0")?left_pad(2)}  0  0  0  0  0  0  0  0  0  0  0
+${trt['trtno']?left_pad(2)} 1 1 0 ${(trt['trt_name']!)?right_pad(25)?substring(0,25)}  0 ${(trt['flid']!"0")?left_pad(2)}  0  0 ${(trt['plid']!"0")?left_pad(2)} ${(trt['irid']!"0")?left_pad(2)} ${(trt['feid']!"0")?left_pad(2)}  0  0  0  0  0  0
 </#list>
+<#-- 
 
 *CULTIVARS
 @C CR INGENO CNAME
  1 TM DRI319 -99
+-->
+<#if fields?size gt 0>
 
 *FIELDS
+</#if>
 <#list fields as field>
 @L ID_FIELD WSTA....  FLSA  FLOB  FLDT  FLDD  FLDS  FLST SLTX  SLDP  ID_SOIL     BDWD  BDHT PMALB FLNAME
-${field?counter?left_pad(2)} ${field['id_field']?right_pad(8)} ${field['wst_id']?right_pad(8)}   -99   -99 -99     -99   -99 -99   -99    -99  ${field['soil_id']?right_pad(10)}   -99   -99   -99 ${field['fl_name']!}
+${field?counter?left_pad(2)} ${(field['id_field']!-99)?right_pad(8)} ${(field['wst_id']!-99)?right_pad(8)}   -99   -99 -99     -99   -99 -99   -99    -99  ${(field['soil_id']!-99)?right_pad(10)}   -99   -99   -99 ${field['fl_name']!}
 @L ...........XCRD ...........YCRD .....ELEV .............AREA .SLEN .FLWR .SLAS FLHST FHDUR
 ${field?counter?left_pad(2)}            -99             -99       -99               -99   -99   -99   -99   -99   -99
-</#list>
- 
+</#list> 
+<#-- 
+
 *INITIAL CONDITIONS
 @C   PCR ICDAT  ICRT  ICND  ICRN  ICRE  ICWD ICRES ICREN ICREP ICRIP ICRID ICNAME
  1   -99 18079   -99   -99   -99   -99   -99   -99   -99   -99   -99   -99 -99
 @C  ICBL  SH2O  SNH4  SNO3
  1    10   -99   0.7    56
  1    20   -99     0    93
+-->
+<#if managements.planting?size gt 0>
 
 *PLANTING DETAILS
+</#if>
+<#list managements.planting as event>
 @P PDATE EDATE  PPOP  PPOE  PLME  PLDS  PLRS  PLRD  PLDP  PLWT  PAGE  PENV  PLPH  SPRL                        PLNAME
- 1 18095   -99   1.6   1.6     T     R   203    90  1.02   2.2  27.5  20.1   -99   -99                        -99
+ 1 18095   -99   1.6   1.6     T     R   203    90  1.02   2.2  27.5  20.1   -99 ${(event['plspl']!-99)?left_pad(5)}                        ${event['pl_name']!}
+</#list>
+<#-- 
 
 *IRRIGATION AND WATER MANAGEMENT
 @I  EFIR  IDEP  ITHR  IEPT  IOFF  IAME  IAMT IRTLN IRNAME
@@ -72,6 +83,7 @@ ${field?counter?left_pad(2)}            -99             -99       -99           
 *HARVEST DETAILS
 @H HDATE  HSTG  HCOM HSIZE   HPC  HBPC HNAME
  1 18225 -99   -99   -99     -99   -99 -99
+-->
 
 *SIMULATION CONTROLS
 @N GENERAL     NYERS NREPS START SDATE RSEED SNAME.................... SMODEL
