@@ -238,7 +238,7 @@
                 
                 // Create a DataSet (allows two way data-binding)
                 events = [
-                  {id: "a", content: 'Fixed event 1', start: '04/20/2013', editable: false},
+                  {id: "a", content: 'Fixed event 1', start: '04/11/2013', event: 'planting', cul_id:'DRI319', editable: false},
                   {id: "b", content: 'Weekly event 1.1', start: '04/12/2013', group:"ga"},
                   {id: "c", content: 'Weekly event 1.2', start: '04/19/2013', group:"ga"},
                   {id: "d", content: 'Daily event 4', start: '04/15/2013', end: '04/19/2013'},
@@ -248,12 +248,12 @@
                 eventData = new vis.DataSet(events);
                 managements["mgn_0"] = createMgnData("Default", events);
                 eventData = managements["mgn_0"].tmlData;
-                managements["mgn_1"] = createMgnData("N150", []);
-                managements["mgn_2"] = createMgnData("N200", []);
-                managements["mgn_3"] = createMgnData("N250", []);
-                managements["mgn_4"] = createMgnData("I-subsurface", []);
-                managements["mgn_5"] = createMgnData("I-surface", []);
-                managements["mgn_6"] = createMgnData("I-fixed", []);
+//                managements["mgn_1"] = createMgnData("N150", []);
+//                managements["mgn_2"] = createMgnData("N200", []);
+//                managements["mgn_3"] = createMgnData("N250", []);
+//                managements["mgn_4"] = createMgnData("I-subsurface", []);
+//                managements["mgn_5"] = createMgnData("I-surface", []);
+//                managements["mgn_6"] = createMgnData("I-fixed", []);
 //                trtData.push({trtno:1});
                 configData = {};
                 configId = "config_0";
@@ -358,19 +358,19 @@
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         <span class="glyphicon glyphicon-calendar"></span>
                         Management
-                        <span class="badge" id="mgn_badge">7</span>
+                        <span class="badge" id="mgn_badge">1</span>
                         <span class="caret"></span>
                     </a>
                     
                     <ul class="dropdown-menu" id="mgn_list">
-                        <li><a data-toggle="tab" href="#Event" class="create-link" id="management_create" onclick="createManagement();">Create new...</a></li>
+                        <li><a data-toggle="tab" href="#Event" class="create-link" id="mgn_create" onclick="createManagement();">Create new...</a></li>
                         <li><a data-toggle="tab" href="#Event" id="mgn_0" onclick="setManagement(this);">Default</a></li>
-                        <li><a data-toggle="tab" href="#Event" id="mgn_1" onclick="setManagement(this);">N-150</a></li>
+<!--                        <li><a data-toggle="tab" href="#Event" id="mgn_1" onclick="setManagement(this);">N-150</a></li>
                         <li><a data-toggle="tab" href="#Event" id="mgn_2" onclick="setManagement(this);">N-200</a></li>
                         <li><a data-toggle="tab" href="#Event" id="mgn_3" onclick="setManagement(this);">N-250</a></li>
                         <li><a data-toggle="tab" href="#Event" id="mgn_4" onclick="setManagement(this);">I-subsurface</a></li>
                         <li><a data-toggle="tab" href="#Event" id="mgn_5" onclick="setManagement(this);">I-surface</a></li>
-                        <li><a data-toggle="tab" href="#Event" id="mgn_6" onclick="setManagement(this);">I-fixed</a></li>
+                        <li><a data-toggle="tab" href="#Event" id="mgn_6" onclick="setManagement(this);">I-fixed</a></li>-->
                     </ul>
                 </li>
                 <li id="ConfigTab" class="dropdown">
