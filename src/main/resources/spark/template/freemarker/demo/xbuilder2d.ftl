@@ -91,7 +91,9 @@
                     }
                 });
                 timeline.on("click", function(properties) {
-                    timeline.setCurrentTime(properties.time);
+                    if (properties.time) {
+                        timeline.setCurrentTime(properties.time);
+                    }
                 });
                 timeline.on("contextmenu", function(props) {
                     props.event.preventDefault();
@@ -99,8 +101,8 @@
                     $(".event-menu").finish().toggle(100).
                     // In the right position (the mouse)
                     css({
-                        top: event.pageY + "px",
-                        left: event.pageX + "px"
+                        top: props.event.pageY + "px",
+                        left: props.event.pageX + "px"
                     });
                 });
 
