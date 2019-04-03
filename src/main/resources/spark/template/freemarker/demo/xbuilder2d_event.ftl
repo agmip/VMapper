@@ -80,7 +80,7 @@
                                 }
                                 editEvent(varName, varValue);
                             }
-                        })
+                        });
                     }
                 }
             }

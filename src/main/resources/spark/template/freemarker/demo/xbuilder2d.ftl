@@ -24,8 +24,8 @@
             let spreadsheet;
             let spsContainer;
             let spsOptions;
-            let configs = {}
-            let configData = {}
+            let configs = {};
+            let configData = {};
             let configId;
             
             function initTimeline() {
