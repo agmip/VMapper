@@ -6,15 +6,18 @@
 //        });
         tmlData.on('add', function(event, properties, senderId) {
 //            console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
-            showEventTypePrompt();
+            if (properties.items && properties.items.length === 1) {
+                showEventTypePrompt(properties.items[0]);
+            }
         });
         return {mgn_name: name, data: events, tmlData: tmlData};
     }
     
-    function showEventTypePrompt(eventType) {
+    function showEventTypePrompt(itemId, eventType) {
         if (!eventType) {
             eventType = "";
         }
+        let itemData = eventData.get(itemId);
         bootbox.prompt({
             title: "Please select the event type",
             inputType: 'select',
@@ -34,39 +37,65 @@
                         removeEvent();
                     }
                 } else {
-                    showEventDataDialog(result);
+                    itemData.event = result;
+                    showEventDataDialog(itemData);
                 }
             }
         });
     }
     
-    function showEventDataDialog(eventType) {
-        bootbox.dialog({
+    function showEventDataDialog(itemData, editFlg) {
+        let cancelBtn = {
+            label: "Cancel",
+            className: 'btn-default',
+            callback: removeEvent
+        };
+        if (editFlg) {
+            delete cancelBtn.callback;
+        }
+        let promptClass = 'event-input-' + itemData.event;
+        let dialog = bootbox.dialog({
             title: "Please input event data",
             size: 'large',
-            message: $('.event-input-' + eventType).html(),
+            message: $("." + promptClass).html(),
             buttons: {
-                cancel: {
-                        label: "Cancel",
-                        className: 'btn-default',
-                        callback: removeEvent
-                    },
+                cancel: cancelBtn,
                 back: {
-                        label: "&nbsp;Back&nbsp;",
-                        className: 'btn-default',
-                        callback: function(){
-                            showEventTypePrompt(eventType);
-                        }
-                    },
-                ok: {
-                        label: "&nbsp;Save&nbsp;",
-                        className: 'btn-primary',
-                        callback: function(){
-                            $('.event-input-item').each(function () {
-                                editEvent($(this).attr("name"), $(this).val());
-                            })
-                        }
+                    label: "&nbsp;Back&nbsp;",
+                    className: 'btn-default',
+                    callback: function(){
+                        showEventTypePrompt(itemData.id, itemData.event);
                     }
+                },
+                ok: {
+                    label: "&nbsp;Save&nbsp;",
+                    className: 'btn-primary',
+                    callback: function(){
+                        $('.event-input-item').each(function () {
+                            if ($(this).val().toString().trim() !== "") {
+                                let varName = $(this).attr("name");
+                                let varValue = $(this).val();
+                                if (varName === "start") {
+                                    varValue = dateUtil.toLocaleStr(varValue);
+                                }
+                                editEvent(varName, varValue);
+                            }
+                        })
+                    }
+                }
+            }
+        });
+        dialog.init(function(){
+//            $('[name=crop_name]').val($('#crid').find(":selected").text());
+//            $('[name=crid]').val($('#crid').val());
+            $("." + promptClass + " input").val("");
+            for (let key in itemData) {
+                $('[name=' + key + ']').val(itemData[key]);
+            }
+            if (itemData.start) {
+                $('[name=start]').val(dateUtil.toYYYYMMDDStr(itemData.start));
+            } else {
+                $('[name=start]').val(dateUtil.toYYYYMMDDStr(new Date(defaultDate())));
             }
         });
     }
@@ -277,6 +306,11 @@
         eventData.remove(delIds);
         eventData.update(events);
     }
+    
+    function rangeNumInput(target) {
+        let value = target.value;
+        $('[name=' + target.name + ']').val(value);
+    }
 </script>
 <div class="subcontainer">
     <fieldset>
@@ -330,31 +364,140 @@
     <li>Customized Event</li>
 </ul>
 <div class="event-input-planting" hidden>
-    <p ></p>
+    <p></p>
     <div class="col-sm-12">
-        <div class="form-group">
+        <!-- 1st row -->
+        <div class="form-group col-sm-12">
+            <label class="control-label">Event Name</label>
+            <div class="input-group col-sm-12">
+                <input type="text" name="content" class="form-control event-input-item" value="" >
+            </div>
+        </div>
+        <!-- 2nd row -->
+        <div class="form-group col-sm-4">
             <label class="control-label">Event Type</label>
             <div class="input-group col-sm-12">
                 <input type="text" name="event" class="form-control event-input-item" value="planting" readonly >
             </div>
         </div>
-        <div class="form-group has-feedback">
+        <div class="form-group col-sm-4">
+            <label class="control-label" for="cul_id">Planting Date</label>
+            <div class="input-group col-sm-12">
+                <input type="date" name="start" class="form-control event-input-item" value="">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="control-label" for="cul_id">Emergence Date</label>
+            <div class="input-group col-sm-12">
+                <input type="date" name="edate" class="form-control event-input-item" value="">
+            </div>
+        </div>
+        <!-- 3rd row -->
+        <div class="form-group col-sm-4">
+            <label class="control-label" for="plma">Planting Method *</label>
+            <div class="input-group col-sm-12">
+                <select name="plma" class="form-control event-input-item" data-placeholder="Choose a method..." required>
+                    <option value=""></option>
+                    <option value="B">Bedded</option>
+                    <option value="S">Dry seed</option>
+                    <option value="T">Transplants</option>
+                    <option value="N">Nursery</option>
+                    <option value="P">Pregerminated seed</option>
+                    <option value="R">Ratoon</option>
+                    <option value="V">Vertically planted sticks</option>
+                    <option value="H">Horizontally planted sticks</option>
+                    <option value="I">Inclined (45o) sticks</option>
+                    <option value="C">Cutting</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="control-label" for="plds">Planting Distribution *</label>
+            <div class="input-group col-sm-12">
+                <select name="plds" class="form-control event-input-item" data-placeholder="Choose a type of distribution..." required>
+                    <option value=""></option>
+                    <option value="R">Rows</option>
+                    <option value="H">Hills</option>
+                    <option value="U">Uniform/Broadcast</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="control-label" for="plrs">Row Spacing (cm) *</label>
+            <div class="input-group col-sm-12">
+                <div class="col-sm-7">
+                    <input type="range" name="plrs" step="1" max="300" min="1" class="form-control" value="" placeholder="Row spacing (cm)" data-toggle="tooltip" title="Row spacing (cm)" onchange="rangeNumInput(this)">
+                </div>
+                <div class="col-sm-5">
+                    <input type="number" name="plrs" step="1" max="999" min="1" class="form-control event-input-item" value="" onchange="rangeNumInput(this)" required >
+                </div>
+            </div>
+        </div>
+        <!-- 4th row -->
+        <div class="form-group col-sm-6">
+            <label class="control-label" for="plrd">Row Direction (degree from north) *</label>
+            <div class="input-group col-sm-12">
+                <div class="col-sm-7">
+                    <input type="range" name="plrd" step="1" max="360" min="1" class="form-control" value="" placeholder="Row spacing (cm)" data-toggle="tooltip" title="Row spacing (cm)" onchange="rangeNumInput(this)">
+                </div>
+                <div class="col-sm-5">
+                    <input type="number" name="plrd" step="90" max="360" min="1" class="form-control event-input-item" value="" onchange="rangeNumInput(this)" required >
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="control-label" for="pldp">Planting Depth (cm) *</label>
+            <div class="input-group col-sm-12">
+                <div class="col-sm-7">
+                    <input type="range" name="pldp" step="1" max="100" min="1" class="form-control" value="" placeholder="Row spacing (cm)" data-toggle="tooltip" title="Row spacing (cm)" onchange="rangeNumInput(this)">
+                </div>
+                <div class="col-sm-5">
+                    <input type="number" name="pldp" step="1" max="999" min="1" class="form-control event-input-item" value="" onchange="rangeNumInput(this)" required >
+                </div>
+            </div>
+        </div>
+        <!-- 5th row -->
+        <div class="form-group col-sm-6">
+            <label class="control-label" for="plpop">Plant population at Seeding (plants/m2) *</label>
+            <div class="input-group col-sm-12">
+                <div class="col-sm-7">
+                    <input type="range" name="plpop" step="0.1" max="10" min="0.1" class="form-control" value="" placeholder="Row spacing (cm)" data-toggle="tooltip" title="Row spacing (cm)" onchange="rangeNumInput(this)">
+                </div>
+                <div class="col-sm-5">
+                    <input type="number" name="plpop" step="1" max="9999" min="1" class="form-control event-input-item" value="" onchange="rangeNumInput(this)" required >
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="control-label" for="plpoe">Plant population at Emergence (plants/m2)</label>
+            <div class="input-group col-sm-12">
+                <div class="col-sm-7">
+                    <input type="range" name="plpoe" step="0.1" max="10" min="0.1" class="form-control" value="" placeholder="Row spacing (cm)" data-toggle="tooltip" title="Row spacing (cm)" onchange="rangeNumInput(this)">
+                </div>
+                <div class="col-sm-5">
+                    <input type="number" name="plpoe" step="1" max="9999" min="1" class="form-control event-input-item" value="" onchange="rangeNumInput(this)" required >
+                </div>
+            </div>
+        </div>
+        <!-- 6th row -->
+<!--        <div class="form-group col-sm-4">
+            <label class="control-label" for="cul_id">Crop</label>
+            <div class="input-group col-sm-12">
+                <input type="text" name="crop_name" class="form-control" value="" readonly >
+                <input type="hidden" name="crid" class="form-control event-input-item" value="" >
+            </div>
+        </div>
+        <div class="form-group has-feedback col-sm-4">
             <label class="control-label" for="cul_id">Cultivar ID *</label>
             <div class="input-group col-sm-12">
                 <input type="text" name="cul_id" class="form-control event-input-item" value="" required >
             </div>
-        </div>
-        <div class="form-group has-feedback">
-            <label class="control-label" for="plds">Row Spacing *</label>
-            <div class="input-group col-sm-12">
-                <input type="text" name="plds" class="form-control event-input-item" value="" required >
-            </div>
-        </div>
+        </div>-->
     </div>
     <p>&nbsp;</p>
 </div>
 <div class="event-input-irrigation" hidden>
-    <p ></p>
+    <p></p>
     <div class="col-sm-12">
         <div class="form-group">
             <label class="control-label">Event Type</label>
@@ -367,7 +510,7 @@
     <p>&nbsp;</p>
 </div>
 <div class="event-input-fertilizer" hidden>
-    <p ></p>
+    <p></p>
     <div class="col-sm-12">
         <div class="form-group">
             <label class="control-label">Event Type</label>
@@ -380,7 +523,7 @@
     <p>&nbsp;</p>
 </div>
 <div class="event-input-harvest" hidden>
-    <p ></p>
+    <p></p>
     <div class="col-sm-12">
         <div class="form-group">
             <label class="control-label">Event Type</label>

@@ -246,11 +246,11 @@
                 // Create a DataSet (allows two way data-binding)
                 events = [
                   {id: "a", content: 'Fixed event 1', start: '04/11/2013', event: 'planting', cul_id:'DRI319', editable: false},
-                  {id: "b", content: 'Weekly event 1.1', start: '04/12/2013', group:"ga"},
-                  {id: "c", content: 'Weekly event 1.2', start: '04/19/2013', group:"ga"},
-                  {id: "d", content: 'Daily event 4', start: '04/15/2013', end: '04/19/2013'},
-                  {id: "e", content: 'Weekly event 1.3', start: '04/26/2013', group:"ga"},
-                  {id: "f", content: 'Weekly event 1.4', start: '05/03/2013', group:"ga"}
+                  {id: "b", content: 'Weekly event 1.1', start: '04/12/2013', event: 'irrigation', group:"ga"},
+                  {id: "c", content: 'Weekly event 1.2', start: '04/19/2013', event: 'irrigation', group:"ga"},
+                  {id: "d", content: 'Daily event 4', start: '04/15/2013', end: '04/19/2013', event: 'fertilizer'},
+                  {id: "e", content: 'Weekly event 1.3', start: '04/26/2013', event: 'irrigation', group:"ga"},
+                  {id: "f", content: 'Weekly event 1.4', start: '05/03/2013', event: 'irrigation', group:"ga"}
                 ];
                 eventData = new vis.DataSet(events);
                 managements["mgn_0"] = createMgnData("Default", events);
