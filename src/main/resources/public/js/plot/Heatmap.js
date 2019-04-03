@@ -127,6 +127,9 @@ function drawHeatMapPlot(plotTitle, plotValTitle, plotData, max, min, soilProfil
                     formatter: function () {
                         let max = 4;
                         let val = this.point.value;
+                        if (!val) {
+                            val = "NaN";
+                        }
                         let numStr = val.toString().split(".");
                         
                         if (numStr.length < 2) {
