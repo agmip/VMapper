@@ -21,7 +21,7 @@
             value: eventType,
             inputOptions: [
                     {text: 'Choose one...', value: ''},
-                    {text: 'Planting',      value: 'planting',},
+                    {text: 'Planting',      value: 'planting'},
                     {text: 'Irrigation',    value: 'irrigation'},
                     {text: 'Fertilizer',    value: 'fertilizer'},
                     {text: 'Harvest',       value: 'harvest'}
@@ -126,6 +126,10 @@
 
     function newId() {
         return "new" + (eventData.getIds().length + 1);
+    }
+    
+    function isValidId(id) {
+        return id.startsWith("new");
     }
 
     function defaultContent(target) {

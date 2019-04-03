@@ -7,7 +7,7 @@ let chonsenConfigs = {
   'chosen-select-no-results': { no_results_text: 'Oops, nothing found!' },
   'chosen-select-rtl'       : { rtl: true },
   'chosen-select-width'     : { width: '95%' }
-}
+};
 
 function chosen_init_all() {
     for (let selector in chonsenConfigs) {
@@ -16,7 +16,22 @@ function chosen_init_all() {
 }
 
 function chosen_init(id, className) {
-    let target = $("#"+id)
+    let target = $("#"+id);
+    if (className === undefined) {
+        for (let selector in chonsenConfigs) {
+            if (target.hasClass(selector)) {
+                target.chosen(chonsenConfigs[selector]);
+                return;
+            }
+        }
+        target.chosen(chonsenConfigs["chosen-select"]);
+    } else {
+        target.chosen(chonsenConfigs[className]);
+    }
+}
+
+function chosen_init_name(name, className) {
+    let target = $("[name="+name+"]");
     if (className === undefined) {
         for (let selector in chonsenConfigs) {
             if (target.hasClass(selector)) {
