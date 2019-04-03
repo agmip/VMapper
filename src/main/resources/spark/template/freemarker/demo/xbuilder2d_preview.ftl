@@ -49,7 +49,7 @@
             ret[id].mgn_name = managements[id].mgn_name;
             ret[id].data = managements[id].data;
             for (let i = 0; i < ret[id].data.length; i++) {
-                ret[id].data[i].date = new Date(ret[id].data[i].start).toLocaleDateString("fr-ca",{year: 'numeric', month: '2-digit', day: '2-digit' });
+                ret[id].data[i].date = dateUtil.toYYYYMMDDStr(ret[id].data[i].start);
 //                delete ret[id].data[i].content;
             }
         }

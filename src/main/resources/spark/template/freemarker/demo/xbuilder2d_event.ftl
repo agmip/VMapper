@@ -238,7 +238,7 @@
     function getEvents() {
         let arr = eventData.get();
         arr.forEach(function (data) {
-            data.start = new Date(data.start).toLocaleDateString("en-US",{year: 'numeric', month: '2-digit', day: '2-digit' });
+            data.date = dateUtil.toYYYYMMDDStr(data.start);
         });
         managements[mgnId].data = arr;
         return arr;
@@ -261,6 +261,7 @@
             } else {
                 x = i;
             }
+            events[i].start = dateUtil.toLocaleStr(events[i].date);
         }
         events.splice(x + 1, y);
         let delIds = eventData.getIds({

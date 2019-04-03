@@ -48,8 +48,13 @@
                     showCurrentTime: false,
                     onAdd: function(event, callback) {
 //                        alert(event.event);
-                        callback(event);
-                        timeline.setSelection(event.id);
+                        if (isValidId(event.id)) {
+                            callback(event);
+                            timeline.setSelection(event.id);
+                        }
+                    },
+                    onUpdate: function (item, callback) {
+                        showEventDataDialog(item, true);
                     },
                     onDropObjectOnItem: function(objectData, event, callback) {
                         if (!event) { return; }
@@ -131,9 +136,9 @@
                             type: 'text'
                         },
                         {
-                            data: 'start',
+                            data: 'date',
                             type: 'date',
-                            dateFormat: 'MM/DD/YYYY'
+                            dateFormat: 'YYYY-MM-DD'
                         },
                         {
                             data: 'event',
@@ -422,6 +427,7 @@
 
         <#include "../footer.ftl">
         
+        <script type="text/javascript" src="/js/util/dateUtil.js" charset="utf-8"></script>
         <script type="text/javascript" src="/plugins/chosen/chosen.jquery.min.js" ></script>
         <script type="text/javascript" src="/plugins/chosen/prism.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/chosen/init.js" charset="utf-8"></script>
