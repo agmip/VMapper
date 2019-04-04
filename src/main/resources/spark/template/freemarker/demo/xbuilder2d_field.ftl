@@ -46,6 +46,16 @@
             $("#SiteInfoTab a").click();
         }
     }
+    
+    function rangeNumInputId(target) {
+        let type = target.type;
+        if (type === "range") {
+            $('#' + target.name).val(target.value).trigger("change");
+        } else {
+            $('[name=' + target.id + ']').val(target.value);
+        }
+        
+    }
 </script>
 <div class="subcontainer">
     <fieldset>
@@ -82,6 +92,41 @@
                 <div class="input-group col-sm-12">
                     <input type="text" id="wst_id" name="wst_id" class="form-control field_data" value="" placeholder="Weather station identifier" data-toggle="tooltip" title="Weather station identifier to link to site information">
                     <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
+                </div>
+            </div>
+        </div>
+        <div class="row col-sm-12">
+            <div class="form-group has-feedback col-sm-3">
+                <label class="control-label" for="bdwd">Soil Bed Width (cm)</label>
+                <div class="input-group col-sm-12">
+                    <div class="col-sm-7">
+                        <input type="range" name="bdwd" step="1" max="300" min="1" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInputId(this)">
+                    </div>
+                    <div class="col-sm-5">
+                        <input type="number" id="bdwd" step="1" max="999" min="1" class="form-control field_data" value="" oninput="rangeNumInputId(this)" >
+                    </div>
+                </div>
+            </div>
+            <div class="form-group has-feedback col-sm-3">
+                <label class="control-label" for="bdht">Soil Bed Height (cm)</label>
+                <div class="input-group col-sm-12">
+                    <div class="col-sm-7">
+                        <input type="range" name="bdht" step="1" max="100" min="1" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInputId(this)">
+                    </div>
+                    <div class="col-sm-5">
+                        <input type="number" id="bdht" step="1" max="999" min="1" class="form-control field_data" value="" oninput="rangeNumInputId(this)" >
+                    </div>
+                </div>
+            </div>
+            <div class="form-group has-feedback col-sm-3">
+                <label class="control-label" for="pmalb">Albedo of plastic mulch</label>
+                <div class="input-group col-sm-12">
+                    <div class="col-sm-7">
+                        <input type="range" name="pmalb" step="0.01" max="1" min="0.01" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInputId(this)">
+                    </div>
+                    <div class="col-sm-5">
+                        <input type="number" id="pmalb" step="0.1" max="1" min="0.01" class="form-control field_data" value="" oninput="rangeNumInputId(this)" >
+                    </div>
                 </div>
             </div>
         </div>

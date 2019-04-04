@@ -35,11 +35,11 @@ ${trt['trtno']?left_pad(2)} 1 1 0 ${(trt['trt_name']!)?right_pad(25)?substring(0
 <#if fields?size gt 0>
 
 *FIELDS
-@L ID_FIELD WSTA....  FLSA  FLOB  FLDT  FLDD  FLDS  FLST SLTX  SLDP  ID_SOIL     BDWD  BDHT PMALB FLNAME
+@L ID_FIELD WSTA....  FLSA  FLOB  FLDT  FLDD  FLDS  FLST SLTX  SLDP  ID_SOIL    FLNAME
 </#if>
 <#-- tier 1 -->
 <#list fields as field>
-${field?counter?left_pad(2)} ${(field['id_field']!-99)?right_pad(8)} ${(field['wst_id']!-99)?right_pad(8)}   -99   -99 -99     -99   -99 -99   -99    -99  ${(field['soil_id']!-99)?right_pad(10)}   -99   -99   -99 ${field['fl_name']!}
+${field?counter?left_pad(2)} ${(field['id_field']!-99)?right_pad(8)} ${(field['wst_id']!-99)?right_pad(8)}   -99   -99 -99     -99   -99 -99   -99    -99  ${(field['soil_id']!-99)?right_pad(10)} ${field['fl_name']!}
 </#list>
 <#if fields?size gt 0>
 @L ...........XCRD ...........YCRD .....ELEV .............AREA .SLEN .FLWR .SLAS FLHST FHDUR
@@ -47,6 +47,13 @@ ${field?counter?left_pad(2)} ${(field['id_field']!-99)?right_pad(8)} ${(field['w
 <#-- tier 2 -->
 <#list fields as field>
 ${field?counter?left_pad(2)}            -99             -99       -99               -99   -99   -99   -99   -99   -99
+</#list>
+<#if fields?size gt 0>
+@L  BDWD  BDHT PMALB
+</#if>
+<#-- tier 3 -->
+<#list fields as field>
+${field?counter?left_pad(2)} ${(field['bdwd']!-99)?left_pad(5)} ${(field['bdht']!-99)?left_pad(5)} ${(field['pmalb']!-99)?left_pad(5)}
 </#list> 
 <#-- 
 
