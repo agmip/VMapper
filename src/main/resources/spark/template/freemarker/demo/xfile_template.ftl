@@ -74,12 +74,19 @@ ${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['eda
 <#list managements.irrigation as eventArr>
 @I  EFIR  IDEP  ITHR  IEPT  IOFF  IAME  IAMT IRTLN IRNAME
 ${eventArr?counter?left_pad(2)}   -99   -99   -99   -99   -99   -99   -99     1 -99
+<#if eventArr[0]?? && eventArr[0].irstr??>
 @I  IRLN IRSPC IROFS IRDEP
 ${eventArr?counter?left_pad(2)}     1  35.6     0  35.6
 @I IDATE  IROP IRVAL IRSTR IRDUR IRINT IRNUM  IRLN
 <#list eventArr as event>
-${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} IR005  0.08  1:00  1380     0     1     1
+${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['irop']!-99)?left_pad(5)} ${(event['irval']!-99)?left_pad(5)}  1:00  1380     0     1     1
 </#list>
+<#else>
+@I IDATE  IROP IRVAL
+<#list eventArr as event>
+${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['irop']!-99)?left_pad(5)} ${(event['irval']!-99)?left_pad(5)}
+</#list>
+</#if>
 </#list>
 <#if managements.fertilizer?size gt 0>
 

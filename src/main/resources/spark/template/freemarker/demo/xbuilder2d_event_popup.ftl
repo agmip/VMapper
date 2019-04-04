@@ -251,13 +251,70 @@
 <div class="event-input-irrigation" hidden>
     <p></p>
     <div class="col-sm-12">
-        <div class="form-group">
-            <label class="control-label">Event Type</label>
+        <!-- 1st row -->
+        <div class="form-group col-sm-12">
+            <label class="control-label">Event Name</label>
             <div class="input-group col-sm-12">
-                <input type="text" name="event" class="form-control event-input-item" value="irrigation" readonly >
+                <input type="text" name="content" class="form-control event-input-item" value="" >
             </div>
         </div>
-        Under construction...
+        <!-- 2nd row -->
+        <div class="form-group col-sm-4">
+            <label class="control-label">Event Type</label>
+            <div class="input-group col-sm-12">
+                <input type="text" name="event" class="form-control event-input-item" value="fertilizer" readonly >
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="control-label" for="cul_id">Event Date</label>
+            <div class="input-group col-sm-12">
+                <input type="date" name="start" class="form-control event-input-item" value="">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="control-label" for="ireff">Efficiency (fraction)</label>
+            <div class="input-group col-sm-12">
+                <div class="col-sm-7">
+                    <input type="range" name="ireff" step="0.05" max="1" min="0" class="form-control" value="" placeholder="Irrigation Efficiency (fraction)" data-toggle="tooltip" title="Irrigation Efficiency (fraction)" oninput="rangeNumInput(this)">
+                </div>
+                <div class="col-sm-5">
+                    <input type="number" name="ireff" step="0.05" max="1" min="0" class="form-control event-input-item" value="" oninput="rangeNumInput(this)" >
+                </div>
+            </div>
+        </div>
+        <!-- 3rd row -->
+        <div class="form-group col-sm-4">
+            <label class="control-label" for="irval">Amount of Water (mm) *</label>
+            <div class="input-group col-sm-12">
+                <div class="col-sm-7">
+                    <input type="range" name="irval" step="0.1" max="100" min="0" class="form-control" value="" placeholder="Irrigation amount, depth of water (mm)" data-toggle="tooltip" title="Irrigation amount, depth of water (mm)" oninput="rangeNumInput(this)">
+                </div>
+                <div class="col-sm-5">
+                    <input type="number" name="irval" step="0.1" max="999" min="0" class="form-control event-input-item" value="" oninput="rangeNumInput(this)" >
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="control-label" for="irop">Opertion *</label>
+            <div class="input-group col-sm-12">
+                <select name="irop" class="form-control event-input-item" data-placeholder="Choose a fertilizer material...">
+                    <option value=""></option>
+                    <option value="IR001">Furrow, mm</option>
+                    <option value="IR002">Alternating furrows, mm</option>
+                    <option value="IR003">Flood, mm</option>
+                    <option value="IR004">Sprinkler, mm</option>
+                    <option value="IR005">Drip or trickle, mm</option>
+                    <option value="IR006">Flood depth, mm</option>
+                    <option value="IR007">Water table depth, mm</option>
+                    <option value="IR008">Percolation rate, mm day-1</option>
+                    <option value="IR009">Bund height, mm</option>
+                    <option value="IR010">Puddling (for Rice only)</option>
+                    <option value="IR011">Constant flood depth, mm</option>
+                    <option value="IR012">Subsurface (burried) drip, mm</option>
+                    <option value="IR999">Irrigation method unknown/not given</option>
+                </select>
+            </div>
+        </div>
     </div>
     <p>&nbsp;</p>
 </div>
