@@ -103,12 +103,16 @@
         }
     }
 </script>
+
+<!-- Timeline context menu Dialog -->
 <ul class='event-menu'>
     <li>One-time Event</li>
     <li>Weekly Event</li>
     <li>Monthly Event</li>
     <li>Customized Event</li>
 </ul>
+
+<!-- Planting Dialog -->
 <div class="event-input-planting" hidden>
     <p></p>
     <div class="col-sm-12">
@@ -242,6 +246,8 @@
     </div>
     <p>&nbsp;</p>
 </div>
+
+<!-- Irrigation Dialog -->
 <div class="event-input-irrigation" hidden>
     <p></p>
     <div class="col-sm-12">
@@ -255,6 +261,8 @@
     </div>
     <p>&nbsp;</p>
 </div>
+
+<!-- Fertilizer Dialog -->
 <div class="event-input-fertilizer" hidden>
     <p></p>
     <div class="col-sm-12">
@@ -268,6 +276,8 @@
     </div>
     <p>&nbsp;</p>
 </div>
+
+<!-- Harvest Dialog -->
 <div class="event-input-harvest" hidden>
     <p></p>
     <div class="col-sm-12">
