@@ -24,7 +24,7 @@
 *TREATMENTS                        -------------FACTOR LEVELS------------
 @N R O C TNAME.................... CU FL SA IC MP MI MF MR MC MT ME MH SM
 <#list treatments as trt>
-${trt['trtno']?left_pad(2)} 1 1 0 ${(trt['trt_name']!)?right_pad(25)?substring(0,25)}  0 ${(trt['flid']!"0")?left_pad(2)}  0  0 ${(trt['plid']!"0")?left_pad(2)} ${(trt['irid']!"0")?left_pad(2)} ${(trt['feid']!"0")?left_pad(2)}  0  0  0  0  0 ${(trt['smid']!"0")?left_pad(2)}
+${trt['trtno']?left_pad(2)} 1 1 0 ${(trt['trt_name']!)?right_pad(25)?substring(0,25)} ${(trt['cuid']!"0")?left_pad(2)} ${(trt['flid']!"0")?left_pad(2)}  0 ${(trt['icid']!"0")?left_pad(2)} ${(trt['plid']!"0")?left_pad(2)} ${(trt['irid']!"0")?left_pad(2)} ${(trt['feid']!"0")?left_pad(2)}  0  0  0  0 ${(trt['haid']!"0")?left_pad(2)} ${(trt['smid']!"0")?left_pad(2)}
 </#list>
 <#-- 
 
@@ -67,11 +67,11 @@ ${field?counter?left_pad(2)}            -99             -99       -99           
 ${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['edate']!-99)?left_pad(5)} ${(event['plpop']!-99)?left_pad(5)} ${(event['plpoe']!-99)?left_pad(5)} ${(event['plma']!-99)?left_pad(5)} ${(event['plds']!-99)?left_pad(5)} ${(event['plrs']!-99)?left_pad(5)} ${(event['plrd']!-99)?left_pad(5)} ${(event['pldp']!-99)?left_pad(5)} ${(event['plmwt']!-99)?left_pad(5)} ${(event['page']!-99)?left_pad(5)} ${(event['plenv']!-99)?left_pad(5)} ${(event['plph']!-99)?left_pad(5)} ${(event['plspl']!-99)?left_pad(5)}                        ${event['pl_name']!}
 </#list>
 </#list>
-<#if managements.fertilizer?size gt 0>
+<#if managements.irrigation?size gt 0>
 
 *IRRIGATION AND WATER MANAGEMENT
 </#if>
-<#list managements.fertilizer as eventArr>
+<#list managements.irrigation as eventArr>
 @I  EFIR  IDEP  ITHR  IEPT  IOFF  IAME  IAMT IRTLN IRNAME
 ${eventArr?counter?left_pad(2)}   -99   -99   -99   -99   -99   -99   -99     1 -99
 @I  IRLN IRSPC IROFS IRDEP
@@ -81,7 +81,7 @@ ${eventArr?counter?left_pad(2)}     1  35.6     0  35.6
 ${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} IR005  0.08  1:00  1380     0     1     1
 </#list>
 </#list>
- <#if managements.fertilizer?size gt 0>
+<#if managements.fertilizer?size gt 0>
 
 *FERTILIZERS (INORGANIC)
 @F FDATE  FMCD  FACD  FDEP  FAMN  FAMP  FAMK  FAMC  FAMO  FOCD FERNAME
@@ -91,12 +91,16 @@ ${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} IR005  0.08  
 ${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} FE001 AP005  35.6  23.9   -99   -99   -99   -99   -99 ${event['fe_name']!}
 </#list>
 </#list>
-<#--
+ <#if managements.harvest?size gt 0>
 
 *HARVEST DETAILS
 @H HDATE  HSTG  HCOM HSIZE   HPC  HBPC HNAME
- 1 18225 -99   -99   -99     -99   -99 -99
--->
+</#if>
+<#list managements.harvest as eventArr>
+<#list eventArr as event>
+${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} -99   -99   -99     -99   -99 -99
+</#list>
+</#list>
 <#if configs?size gt 0>
 
 *SIMULATION CONTROLS
@@ -109,7 +113,7 @@ ${config?counter?left_pad(2)} OP          ${(config.options.water!"Y")?left_pad(
 @N METHODS     WTHER INCON LIGHT EVAPO INFIL PHOTO HYDRO NSWIT MESOM MESEV MESOL
 ${config?counter?left_pad(2)} ME              M     M     E     R     N     C     G     1     G     S     2
 @N MANAGEMENT  PLANT IRRIG FERTI RESID HARVS
-${config?counter?left_pad(2)} MA              R     R     R     R     R
+${config?counter?left_pad(2)} MA              R     R     R     R ${(config.management.harvs!"M")?left_pad(5)}
 @N OUTPUTS     FNAME OVVEW SUMRY FROPT GROUT CAOUT WAOUT NIOUT MIOUT DIOUT VBOSE CHOUT OPOUT
 ${config?counter?left_pad(2)} OU              N     Y     Y     1     Y     Y     Y     Y     N     N     D     N     N
 

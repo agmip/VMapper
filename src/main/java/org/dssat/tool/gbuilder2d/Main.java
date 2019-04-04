@@ -164,16 +164,15 @@ public class Main {
         config.put("general", new JSONObject());
         config.put("options", new JSONObject());
         config.put("methods", new JSONObject());
-        config.put("mangement", new JSONObject());
-        if (!trt.getOrBlank("irid").isEmpty()) {
-            config.getAsObj("options").put("water", "Y");
-        } else {
+        config.put("management", new JSONObject());
+        if (trt.getOrBlank("irid").isEmpty()) {
             config.getAsObj("options").put("water", "N");
         }
         if (trt.getOrBlank("feid").isEmpty()) {
             config.getAsObj("options").put("nitro", "N");
-        } else {
-            config.getAsObj("options").put("nitro", "Y");
+        }
+        if (!trt.getOrBlank("haid").isEmpty()) {
+            config.getAsObj("management").put("harvs", "R");
         }
         if (!trt.getOrBlank("sdate").isEmpty()) {
             config.getAsObj("general").put("sdate", trt.get("sdate"));
