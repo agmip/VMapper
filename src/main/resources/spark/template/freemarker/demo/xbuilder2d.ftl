@@ -410,6 +410,7 @@
                 </div>
                 <div id="Event" class="tab-pane fade">
                     <#include "xbuilder2d_event.ftl">
+                    <#include "xbuilder2d_event_popup.ftl">
                 </div>
                 <div id="Config" class="tab-pane fade">
                     <div class="subcontainer"><center>
