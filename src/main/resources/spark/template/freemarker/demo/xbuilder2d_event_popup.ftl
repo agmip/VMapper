@@ -188,7 +188,7 @@
             <label class="control-label" for="plrd">Row Direction (degree from north) *</label>
             <div class="input-group col-sm-12">
                 <div class="col-sm-7">
-                    <input type="range" name="plrd" step="1" max="360" min="1" class="form-control" value="" placeholder="Row spacing (cm)" data-toggle="tooltip" title="Row spacing (cm)" onchange="rangeNumInput(this)">
+                    <input type="range" name="plrd" step="1" max="360" min="1" class="form-control" value="" placeholder="Row Direction (degree from north)" data-toggle="tooltip" title="Row Direction (degree from north)" onchange="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
                     <input type="number" name="plrd" step="90" max="360" min="1" class="form-control event-input-item" value="" onchange="rangeNumInput(this)" required >
@@ -199,7 +199,7 @@
             <label class="control-label" for="pldp">Planting Depth (cm) *</label>
             <div class="input-group col-sm-12">
                 <div class="col-sm-7">
-                    <input type="range" name="pldp" step="1" max="100" min="1" class="form-control" value="" placeholder="Row spacing (cm)" data-toggle="tooltip" title="Row spacing (cm)" onchange="rangeNumInput(this)">
+                    <input type="range" name="pldp" step="1" max="100" min="1" class="form-control" value="" placeholder="Planting Depth (cm)" data-toggle="tooltip" title="Planting Depth (cm)" onchange="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
                     <input type="number" name="pldp" step="1" max="999" min="1" class="form-control event-input-item" value="" onchange="rangeNumInput(this)" required >
@@ -211,7 +211,7 @@
             <label class="control-label" for="plpop">Plant population at Seeding (plants/m2) *</label>
             <div class="input-group col-sm-12">
                 <div class="col-sm-7">
-                    <input type="range" name="plpop" step="0.1" max="10" min="0.1" class="form-control" value="" placeholder="Row spacing (cm)" data-toggle="tooltip" title="Row spacing (cm)" onchange="rangeNumInput(this)">
+                    <input type="range" name="plpop" step="0.1" max="10" min="0.1" class="form-control" value="" placeholder="Plant population at Seeding (plants/m2)" data-toggle="tooltip" title="Plant population at Seeding (plants/m2)" onchange="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
                     <input type="number" name="plpop" step="1" max="9999" min="1" class="form-control event-input-item" value="" onchange="rangeNumInput(this)" required >
@@ -222,7 +222,7 @@
             <label class="control-label" for="plpoe">Plant population at Emergence (plants/m2)</label>
             <div class="input-group col-sm-12">
                 <div class="col-sm-7">
-                    <input type="range" name="plpoe" step="0.1" max="10" min="0.1" class="form-control" value="" placeholder="Row spacing (cm)" data-toggle="tooltip" title="Row spacing (cm)" onchange="rangeNumInput(this)">
+                    <input type="range" name="plpoe" step="0.1" max="10" min="0.1" class="form-control" value="" placeholder="Plant population at Emergence (plants/m2)" data-toggle="tooltip" title="Plant population at Emergence (plants/m2)" onchange="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
                     <input type="number" name="plpoe" step="1" max="9999" min="1" class="form-control event-input-item" value="" onchange="rangeNumInput(this)" required >
@@ -289,34 +289,34 @@
             </div>
         </div>
         <!-- 2nd row -->
-        <div class="form-group col-sm-6">
+        <div class="form-group col-sm-4">
             <label class="control-label">Event Type</label>
             <div class="input-group col-sm-12">
                 <input type="text" name="event" class="form-control event-input-item" value="harvest" readonly >
             </div>
         </div>
-        <div class="form-group col-sm-6">
-            <label class="control-label" for="cul_id">Harvest Date</label>
+        <div class="form-group col-sm-4">
+            <label class="control-label" for="cul_id">Event Date</label>
             <div class="input-group col-sm-12">
                 <input type="date" name="start" class="form-control event-input-item" value="">
             </div>
         </div>
-        <!-- 3rd row -->
         <div class="form-group col-sm-4">
             <label class="control-label" for="hastg">Stage</label>
             <div class="input-group col-sm-12">
                 <div class="col-sm-7">
-                    <input type="range" name="hastg_num" step="1" max="20" min="1" class="form-control" value="" placeholder="Row spacing (cm)" data-toggle="tooltip" title="Row spacing (cm)" onchange="rangeNumInputSP(this)">
+                    <input type="range" name="hastg_num" step="1" max="20" min="1" class="form-control" value="" placeholder="Harvest Stage (code)" data-toggle="tooltip" title="Row spacing (cm)" onchange="rangeNumInputSP(this)">
                 </div>
                 <div class="col-sm-5">
                     <input type="text" name="hastg" class="form-control event-input-item" value="" readonly>
                 </div>
             </div>
         </div>
-        <div class="form-group col-sm-4">
+        <!-- 3rd row -->
+        <div class="form-group col-sm-6">
             <label class="control-label" for="hacom">Component</label>
             <div class="input-group col-sm-12">
-                <select name="hacom" class="form-control event-input-item" data-placeholder="Choose a method...">
+                <select name="hacom" class="form-control event-input-item" data-placeholder="Choose a harvest component...">
                     <option value=""></option>
                     <option value="C">Canopy</option>
                     <option value="L">Leaves</option>
@@ -324,10 +324,10 @@
                 </select>
             </div>
         </div>
-        <div class="form-group col-sm-4">
+        <div class="form-group col-sm-6">
             <label class="control-label" for="hasiz">Size Group</label>
             <div class="input-group col-sm-12">
-                <select name="hasiz" class="form-control event-input-item" data-placeholder="Choose a type of distribution...">
+                <select name="hasiz" class="form-control event-input-item" data-placeholder="Choose a size group of harvest...">
                     <option value=""></option>
                     <option value="A">All</option>
                     <option value="S">Small - less than 1/3 full size</option>
@@ -337,22 +337,22 @@
             </div>
         </div>
         <!-- 4th row -->
-        <div class="form-group col-sm-4">
+        <div class="form-group col-sm-6">
             <label class="control-label" for="happc">Grain Harvest (%)</label>
             <div class="input-group col-sm-12">
                 <div class="col-sm-7">
-                    <input type="range" name="happc" step="1" max="100" min="1" class="form-control" value="" placeholder="Row spacing (cm)" data-toggle="tooltip" title="Row spacing (cm)" onchange="rangeNumInput(this)">
+                    <input type="range" name="happc" step="1" max="100" min="1" class="form-control" value="" placeholder="Grain Harvest (%)" data-toggle="tooltip" title="Grain harvest (%)" onchange="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
                     <input type="number" name="happc" step="1" max="100" min="1" class="form-control event-input-item" value="" onchange="rangeNumInput(this)" >
                 </div>
             </div>
         </div>
-        <div class="form-group col-sm-4">
+        <div class="form-group col-sm-6">
             <label class="control-label" for="habpc">Byproduct takeoff (%)</label>
             <div class="input-group col-sm-12">
                 <div class="col-sm-7">
-                    <input type="range" name="habpc" step="1" max="100" min="1" class="form-control" value="" placeholder="Row spacing (cm)" data-toggle="tooltip" title="Row spacing (cm)" onchange="rangeNumInput(this)">
+                    <input type="range" name="habpc" step="1" max="100" min="1" class="form-control" value="" placeholder="Byproduct takeoff (%)" data-toggle="tooltip" title="Byproduct takeoff (%)" onchange="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
                     <input type="number" name="habpc" step="1" max="100" min="1" class="form-control event-input-item" value="" onchange="rangeNumInput(this)">
