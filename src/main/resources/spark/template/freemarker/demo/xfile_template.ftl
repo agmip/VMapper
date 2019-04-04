@@ -24,7 +24,7 @@
 *TREATMENTS                        -------------FACTOR LEVELS------------
 @N R O C TNAME.................... CU FL SA IC MP MI MF MR MC MT ME MH SM
 <#list treatments as trt>
-${trt['trtno']?left_pad(2)} 1 1 0 ${(trt['trt_name']!)?right_pad(25)?substring(0,25)}  0 ${(trt['flid']!"0")?left_pad(2)}  0  0 ${(trt['plid']!"0")?left_pad(2)} ${(trt['irid']!"0")?left_pad(2)} ${(trt['feid']!"0")?left_pad(2)}  0  0  0  0  0  0
+${trt['trtno']?left_pad(2)} 1 1 0 ${(trt['trt_name']!)?right_pad(25)?substring(0,25)}  0 ${(trt['flid']!"0")?left_pad(2)}  0  0 ${(trt['plid']!"0")?left_pad(2)} ${(trt['irid']!"0")?left_pad(2)} ${(trt['feid']!"0")?left_pad(2)}  0  0  0  0  0 ${(trt['smid']!"0")?left_pad(2)}
 </#list>
 <#-- 
 
@@ -35,11 +35,17 @@ ${trt['trtno']?left_pad(2)} 1 1 0 ${(trt['trt_name']!)?right_pad(25)?substring(0
 <#if fields?size gt 0>
 
 *FIELDS
-</#if>
-<#list fields as field>
 @L ID_FIELD WSTA....  FLSA  FLOB  FLDT  FLDD  FLDS  FLST SLTX  SLDP  ID_SOIL     BDWD  BDHT PMALB FLNAME
+</#if>
+<#-- tier 1 -->
+<#list fields as field>
 ${field?counter?left_pad(2)} ${(field['id_field']!-99)?right_pad(8)} ${(field['wst_id']!-99)?right_pad(8)}   -99   -99 -99     -99   -99 -99   -99    -99  ${(field['soil_id']!-99)?right_pad(10)}   -99   -99   -99 ${field['fl_name']!}
+</#list>
+<#if fields?size gt 0>
 @L ...........XCRD ...........YCRD .....ELEV .............AREA .SLEN .FLWR .SLAS FLHST FHDUR
+</#if>
+<#-- tier 2 -->
+<#list fields as field>
 ${field?counter?left_pad(2)}            -99             -99       -99               -99   -99   -99   -99   -99   -99
 </#list> 
 <#-- 
@@ -54,57 +60,69 @@ ${field?counter?left_pad(2)}            -99             -99       -99           
 <#if managements.planting?size gt 0>
 
 *PLANTING DETAILS
-</#if>
-<#list managements.planting as event>
 @P PDATE EDATE  PPOP  PPOE  PLME  PLDS  PLRS  PLRD  PLDP  PLWT  PAGE  PENV  PLPH  SPRL                        PLNAME
- 1 18095   -99   1.6   1.6     T     R   203    90  1.02   2.2  27.5  20.1   -99 ${(event['plspl']!-99)?left_pad(5)}                        ${event['pl_name']!}
+</#if>
+<#list managements.planting as eventArr>
+<#list eventArr as event>
+${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['edate']!-99)?left_pad(5)} ${(event['plpop']!-99)?left_pad(5)} ${(event['plpoe']!-99)?left_pad(5)} ${(event['plma']!-99)?left_pad(5)} ${(event['plds']!-99)?left_pad(5)} ${(event['plrs']!-99)?left_pad(5)} ${(event['plrd']!-99)?left_pad(5)} ${(event['pldp']!-99)?left_pad(5)} ${(event['plmwt']!-99)?left_pad(5)} ${(event['page']!-99)?left_pad(5)} ${(event['plenv']!-99)?left_pad(5)} ${(event['plph']!-99)?left_pad(5)} ${(event['plspl']!-99)?left_pad(5)}                        ${event['pl_name']!}
 </#list>
-<#-- 
+</#list>
+<#if managements.fertilizer?size gt 0>
 
 *IRRIGATION AND WATER MANAGEMENT
+</#if>
+<#list managements.fertilizer as eventArr>
 @I  EFIR  IDEP  ITHR  IEPT  IOFF  IAME  IAMT IRTLN IRNAME
- 1   -99   -99   -99   -99   -99   -99   -99     1 -99
+${eventArr?counter?left_pad(2)}   -99   -99   -99   -99   -99   -99   -99     1 -99
 @I  IRLN IRSPC IROFS IRDEP
- 1     1  35.6     0  35.6
+${eventArr?counter?left_pad(2)}     1  35.6     0  35.6
 @I IDATE  IROP IRVAL IRSTR IRDUR IRINT IRNUM  IRLN
- 1 18095 IR005  0.08  1:00  1380     0     1     1
+<#list eventArr as event>
+${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} IR005  0.08  1:00  1380     0     1     1
+</#list>
+</#list>
+ <#if managements.fertilizer?size gt 0>
 
 *FERTILIZERS (INORGANIC)
 @F FDATE  FMCD  FACD  FDEP  FAMN  FAMP  FAMK  FAMC  FAMO  FOCD FERNAME
- 1 18122 FE001 AP005  35.6  23.9   -99   -99   -99   -99   -99 -99
- 1 18129 FE001 AP005  35.6  23.9   -99   -99   -99   -99   -99 -99
- 1 18134 FE001 AP005  35.6  23.9   -99   -99   -99   -99   -99 -99
- 1 18141 FE001 AP005  35.6  23.9   -99   -99   -99   -99   -99 -99
- 1 18150 FE001 AP005  35.6  23.9   -99   -99   -99   -99   -99 -99
- 1 18155 FE001 AP005  35.6  23.9   -99   -99   -99   -99   -99 -99
- 1 18165 FE001 AP005  35.6  23.9   -99   -99   -99   -99   -99 -99
- 1 18170 FE001 AP005  35.6  23.9   -99   -99   -99   -99   -99 -99
+</#if>
+<#list managements.fertilizer as eventArr>
+<#list eventArr as event>
+${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} FE001 AP005  35.6  23.9   -99   -99   -99   -99   -99 ${event['fe_name']!}
+</#list>
+</#list>
+<#--
 
 *HARVEST DETAILS
 @H HDATE  HSTG  HCOM HSIZE   HPC  HBPC HNAME
  1 18225 -99   -99   -99     -99   -99 -99
 -->
+<#if configs?size gt 0>
 
 *SIMULATION CONTROLS
+</#if>
+<#list configs as config>
 @N GENERAL     NYERS NREPS START SDATE RSEED SNAME.................... SMODEL
- 1 GE              1     1     S 18079  2150 DEFAULT SIMULATION CONTRL 
+${config?counter?left_pad(2)} GE              1     1     S ${(config.general.sdate!-99)?left_pad(5)}  2150 DEFAULT SIMULATION CONTRL 
 @N OPTIONS     WATER NITRO SYMBI PHOSP POTAS DISES  CHEM  TILL   CO2
- 1 OP              Y     Y     Y     N     N     N     N     N     M
+${config?counter?left_pad(2)} OP          ${(config.options.water!"Y")?left_pad(5)} ${(config.options.nitro!"Y")?left_pad(5)}     Y     N     N     N     N     N     M
 @N METHODS     WTHER INCON LIGHT EVAPO INFIL PHOTO HYDRO NSWIT MESOM MESEV MESOL
- 1 ME              M     M     E     R     N     C     G     1     G     S     2
+${config?counter?left_pad(2)} ME              M     M     E     R     N     C     G     1     G     S     2
 @N MANAGEMENT  PLANT IRRIG FERTI RESID HARVS
- 1 MA              R     R     R     R     R
+${config?counter?left_pad(2)} MA              R     R     R     R     R
 @N OUTPUTS     FNAME OVVEW SUMRY FROPT GROUT CAOUT WAOUT NIOUT MIOUT DIOUT VBOSE CHOUT OPOUT
- 1 OU              N     Y     Y     1     Y     Y     Y     Y     N     N     D     N     N
+${config?counter?left_pad(2)} OU              N     Y     Y     1     Y     Y     Y     Y     N     N     D     N     N
 
 @  AUTOMATIC MANAGEMENT
 @N PLANTING    PFRST PLAST PH2OL PH2OU PH2OD PSTMX PSTMN
- 1 PL          82050 82064    40   100    30    40    10
+${config?counter?left_pad(2)} PL          82050 82064    40   100    30    40    10
 @N IRRIGATION  IMDEP ITHRL ITHRU IROFF IMETH IRAMT IREFF
- 1 IR             30    50   100 GS000 IR001    10  1.00
+${config?counter?left_pad(2)} IR             30    50   100 GS000 IR001    10  1.00
 @N NITROGEN    NMDEP NMTHR NAMNT NCODE NAOFF
- 1 NI             30    50    25 FE001 GS000
+${config?counter?left_pad(2)} NI             30    50    25 FE001 GS000
 @N RESIDUES    RIPCN RTIME RIDEP
- 1 RE            100     1    20
+${config?counter?left_pad(2)} RE            100     1    20
 @N HARVEST     HFRST HLAST HPCNP HPCNR
- 1 HA              0 83057   100     0
+${config?counter?left_pad(2)} HA              0 83057   100     0
+ 
+ </#list>
