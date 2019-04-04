@@ -98,7 +98,7 @@ ${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} FE001 AP005  
 </#if>
 <#list managements.harvest as eventArr>
 <#list eventArr as event>
-${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} -99   -99   -99     -99   -99 -99
+${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['hastg']!-99)?left_pad(5)} ${(event['hacom']!-99)?left_pad(5)} ${(event['hasiz']!-99)?left_pad(5)} ${(event['happc']!-99)?left_pad(5)} ${(event['habpc']!-99)?left_pad(5)} ${event['ha_name']!}
 </#list>
 </#list>
 <#if configs?size gt 0>
