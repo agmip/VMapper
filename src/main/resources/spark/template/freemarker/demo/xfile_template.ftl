@@ -88,7 +88,7 @@ ${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} IR005  0.08  
 </#if>
 <#list managements.fertilizer as eventArr>
 <#list eventArr as event>
-${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} FE001 AP005  35.6  23.9   -99   -99   -99   -99   -99 ${event['fe_name']!}
+${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['fecd']!-99)?left_pad(5)} ${(event['feacd']!-99)?left_pad(5)} ${(event['fedep']!-99)?left_pad(5)} ${(event['feamn']!-99)?left_pad(5)} ${(event['feamp']!-99)?left_pad(5)} ${(event['feamk']!-99)?left_pad(5)} ${(event['feamc']!-99)?left_pad(5)} ${(event['feamo']!-99)?left_pad(5)} ${(event['feocd']!-99)?left_pad(5)} ${event['fe_name']!}
 </#list>
 </#list>
  <#if managements.harvest?size gt 0>

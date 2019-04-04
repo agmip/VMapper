@@ -266,13 +266,172 @@
 <div class="event-input-fertilizer" hidden>
     <p></p>
     <div class="col-sm-12">
-        <div class="form-group">
+        <!-- 1st row -->
+        <div class="form-group col-sm-12">
+            <label class="control-label">Event Name</label>
+            <div class="input-group col-sm-12">
+                <input type="text" name="content" class="form-control event-input-item" value="" >
+            </div>
+        </div>
+        <!-- 2nd row -->
+        <div class="form-group col-sm-4">
             <label class="control-label">Event Type</label>
             <div class="input-group col-sm-12">
                 <input type="text" name="event" class="form-control event-input-item" value="fertilizer" readonly >
             </div>
         </div>
-        Under construction...
+        <div class="form-group col-sm-4">
+            <label class="control-label" for="cul_id">Event Date</label>
+            <div class="input-group col-sm-12">
+                <input type="date" name="start" class="form-control event-input-item" value="">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="control-label" for="fedep">Depth (cm)</label>
+            <div class="input-group col-sm-12">
+                <div class="col-sm-7">
+                    <input type="range" name="fedep" step="1" max="300" min="1" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" onchange="rangeNumInput(this)">
+                </div>
+                <div class="col-sm-5">
+                    <input type="number" name="fedep" step="1" max="999" min="1" class="form-control event-input-item" value="" onchange="rangeNumInput(this)" >
+                </div>
+            </div>
+        </div>
+        <!-- 3rd row -->
+        <div class="form-group col-sm-6">
+            <label class="control-label" for="fecd">Fertilizer Material *</label>
+            <div class="input-group col-sm-12">
+                <select name="fecd" class="form-control event-input-item" data-placeholder="Choose a fertilizer material...">
+                    <option value=""></option>
+                    <option value="FE001">Ammonium nitrate</option>
+                    <option value="FE002">Ammonium sulfate</option>
+                    <option value="FE003">Ammonium nitrate sulfate</option>
+                    <option value="FE004">Anhydrous ammonia</option>
+                    <option value="FE005">Urea</option>
+                    <option value="FE006">Diammnoium phosphate</option>
+                    <option value="FE007">Monoammonium phosphate</option>
+                    <option value="FE008">Calcium nitrate</option>
+                    <option value="FE009">Aqua ammonia</option>
+                    <option value="FE010">Urea ammonium nitrate solution</option>
+                    <option value="FE011">Calcium ammonium nitrate solution</option>
+                    <option value="FE012">Ammonium polyphosphate</option>
+                    <option value="FE013">Single super phosphate</option>
+                    <option value="FE014">Triple super phosphate</option>
+                    <option value="FE015">Liquid phosphoric acid</option>
+                    <option value="FE016">Potassium chloride</option>
+                    <option value="FE017">Potassium nitrate</option>
+                    <option value="FE018">Potassium sulfate</option>
+                    <option value="FE019">Urea super granules</option>
+                    <option value="FE020">Dolomitic limestone</option>
+                    <option value="FE021">Rock phosphate</option>
+                    <option value="FE022">Calcitic limestone</option>
+                    <option value="FE024">Rhizobium</option>
+                    <option value="FE026">Calcium hydroxide</option>
+                    <option value="FE051">Urea super granules</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="control-label" for="feacd">Fertilizer Applications *</label>
+            <div class="input-group col-sm-12">
+                <select name="feacd" class="form-control event-input-item" data-placeholder="Choose a fertilizer application...">
+                    <option value=""></option>
+                    <option value="AP001">Broadcast, not incorporated</option>
+                    <option value="AP002">Broadcast, incorporated</option>
+                    <option value="AP003">Banded on surface</option>
+                    <option value="AP004">Banded beneath surface</option>
+                    <option value="AP005">Applied in irrigation water</option>
+                    <option value="AP006">Foliar spray</option>
+                    <option value="AP007">Bottom of hole</option>
+                    <option value="AP008">On the seed</option>
+                    <option value="AP009">Injected</option>
+                    <option value="AP011">Broadcast on flooded/saturated soil, none in soil</option>
+                    <option value="AP012">Broadcast on flooded/saturated soil, 15% in soil</option>
+                    <option value="AP013">Broadcast on flooded/saturated soil, 30% in soil</option>
+                    <option value="AP014">Broadcast on flooded/saturated soil, 45% in soil</option>
+                    <option value="AP015">Broadcast on flooded/saturated soil, 60% in soil</option>
+                    <option value="AP016">Broadcast on flooded/saturated soil, 75% in soil</option>
+                    <option value="AP017">Broadcast on flooded/saturated soil, 90% in soil</option>
+                    <option value="AP018">Band on saturated soil,2cm flood, 92% in soil</option>
+                    <option value="AP019">Deeply placed urea super granules/pellets, 95% in soil</option>
+                    <option value="AP020">Deeply placed urea super granules/pellets, 100% in soil</option>
+                    <option value="AP999">Application method unknown/not given</option>
+                </select>
+            </div>
+        </div>
+        <!-- 3rd row -->
+        <div class="form-group col-sm-4">
+            <label class="control-label" for="feamn">Nitrogen (kg/ha)</label>
+            <div class="input-group col-sm-12">
+                <div class="col-sm-7">
+                    <input type="range" name="feamn" step="1" max="999" min="1" class="form-control" value="" placeholder="Nitrogen in applied fertilizer (ka/ha)" data-toggle="tooltip" title="Nitrogen in applied fertilizer (ka/ha)" onchange="rangeNumInput(this)">
+                </div>
+                <div class="col-sm-5">
+                    <input type="number" name="feamn" step="1" max="9999" min="1" class="form-control event-input-item" value="" onchange="rangeNumInput(this)" >
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="control-label" for="feamp">Phosphorus (kg/ha)</label>
+            <div class="input-group col-sm-12">
+                <div class="col-sm-7">
+                    <input type="range" name="feamp" step="1" max="999" min="1" class="form-control" value="" placeholder="Phosphorus in applied fertilizer (ka/ha)" data-toggle="tooltip" title="Phosphorus in applied fertilizer (ka/ha)" onchange="rangeNumInput(this)">
+                </div>
+                <div class="col-sm-5">
+                    <input type="number" name="feamp" step="1" max="9999" min="1" class="form-control event-input-item" value="" onchange="rangeNumInput(this)" >
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="control-label" for="feamk">Potassium (kg/ha)</label>
+            <div class="input-group col-sm-12">
+                <div class="col-sm-7">
+                    <input type="range" name="feamk" step="1" max="999" min="1" class="form-control" value="" placeholder="Potassium in applied fertilizer (ka/ha)" data-toggle="tooltip" title="Potassium in applied fertilizer (ka/ha)" onchange="rangeNumInput(this)">
+                </div>
+                <div class="col-sm-5">
+                    <input type="number" name="feamk" step="1" max="9999" min="1" class="form-control event-input-item" value="" onchange="rangeNumInput(this)" >
+                </div>
+            </div>
+        </div>
+        <!-- 4th row -->
+        <div class="form-group col-sm-4">
+            <label class="control-label" for="feamc">Calcium (kg/ha)</label>
+            <div class="input-group col-sm-12">
+                <div class="col-sm-7">
+                    <input type="range" name="feamc" step="1" max="999" min="1" class="form-control" value="" placeholder="Calcium in applied fertilizer (ka/ha)" data-toggle="tooltip" title="Calcium in applied fertilizer (ka/ha)" onchange="rangeNumInput(this)">
+                </div>
+                <div class="col-sm-5">
+                    <input type="number" name="feamc" step="1" max="9999" min="1" class="form-control event-input-item" value="" onchange="rangeNumInput(this)" >
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="control-label" for="feamo">Other - amount (kg/ha)</label>
+            <div class="input-group col-sm-12">
+                <div class="col-sm-7">
+                    <input type="range" name="feamo" step="1" max="999" min="1" class="form-control" value="" placeholder="Other elements in applied fertilizer (ka/ha)" data-toggle="tooltip" title="Other elements in applied fertilizer (ka/ha)" onchange="rangeNumInput(this)">
+                </div>
+                <div class="col-sm-5">
+                    <input type="number" name="feamo" step="1" max="9999" min="1" class="form-control event-input-item" value="" onchange="rangeNumInput(this)" >
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="control-label" for="feocd">Other - name</label>
+            <div class="input-group col-sm-12">
+                <select name="feocd" class="form-control event-input-item" data-placeholder="Choose a type for other element...">
+                    <option value=""></option>
+                    <option value="Mg">Magnesium</option>
+                    <option value="Mn">Manganese</option>
+                    <option value="Cd">Cadmium</option>
+                    <option value="Zn">Zinc</option>
+                    <option value="S">Sulfur</option>
+                    <option value="Fe">Iron</option>
+                    <option value="Se">Selenium</option>
+                    <option value="B">Boron</option>
+                </select>
+            </div>
+        </div>
     </div>
     <p>&nbsp;</p>
 </div>
