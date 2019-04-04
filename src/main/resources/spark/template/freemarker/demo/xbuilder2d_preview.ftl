@@ -57,6 +57,7 @@
     }
     
     function updateDssatPreview() {
+        $('#dssat_preview_text').html('Loading...');
         $.post("/translator/dssat_exp",
             {
                 exp: JSON.stringify(expData),
