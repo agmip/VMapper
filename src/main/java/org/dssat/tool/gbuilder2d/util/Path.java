@@ -120,31 +120,31 @@ public class Path {
     }
     
     public static class Folder {
-//        public final static String WORKING = "working";
-        public final static String WATER_USE_PERMIT = "Permit";
-        public final static String WATER_USE_PERMIT_OUTPUT = "Output";
         public final static String DATA = "Data";
-        public static File getUserWaterUsePermitDir(String userId) {
-            File ret = Paths.get(WATER_USE_PERMIT, userId).toFile();
-            if (!ret.isDirectory()) {
-                ret.mkdirs();
-            }
+        public final static String CULTIVAR = "Genotype";
+        public final static String CULTIVAR_LIST = "crop_list.csv";
+        public static final int DSSAT_VERSION = 47;
+        public static File getCulFile(String modelName) {
+            File ret = Paths.get(DATA, CULTIVAR, getDSSATFileNameWithVer(modelName, "CUL")).toFile();
             return ret;
         }
-        public static File getUserWaterUsePermitOutputDir(String userId) {
-            File ret = Paths.get(WATER_USE_PERMIT_OUTPUT, userId).toFile();
-            if (!ret.isDirectory()) {
-                ret.mkdirs();
-            }
+        public static File getCulListFile() {
+            File ret = Paths.get(DATA, CULTIVAR_LIST).toFile();
             return ret;
         }
-        public static File getUserWaterUsePermitOutputJsonFile(String userId, String permitId) {
-            return Paths.get(getUserWaterUsePermitOutputDir(userId).getPath(),
-                    permitId + ".json").toFile();
+        
+        public static String getDSSATFileNameWithVer(String pref) {
+            return getDSSATFileNameWithVer(pref, null);
         }
-        public static File getDataFile(String fileName) {
-            return Paths.get(DATA, fileName).toFile();
+        
+        public static String getDSSATFileNameWithVer(String pref, String ext) {
+            if (pref == null || pref.trim().isEmpty()) {
+                return "";
+            } else if (ext == null || ext.trim().isEmpty()) {
+                return pref.trim().toUpperCase() + "0" + DSSAT_VERSION;
+            } else {
+                return pref.trim().toUpperCase() + "0" + DSSAT_VERSION + "." + ext.trim().toUpperCase();
+            }
         }
     }
-
 }
