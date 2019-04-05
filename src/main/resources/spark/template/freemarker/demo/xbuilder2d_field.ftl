@@ -40,6 +40,9 @@
         }
         let fieldIds = Object.keys(fields);
         $('#field_badge').html(fieldIds.length);
+        for (let i in trtData) {
+            $('#tr_field_' + trtData[i].trtno).trigger("change");
+        }
         if (fieldIds.length > 0) {
             $("#" + fieldIds[0]).click();
         } else {

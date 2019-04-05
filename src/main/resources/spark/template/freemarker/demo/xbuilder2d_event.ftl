@@ -44,6 +44,9 @@
         }
         let mgnIds = Object.keys(managements);
         $('#mgn_badge').html(mgnIds.length);
+        for (let i in trtData) {
+            $('#tr_mgn_' + trtData[i].trtno).trigger("change");
+        }
         if (mgnIds.length > 0) {
             $("#" + mgnIds[0]).click();
         } else {
