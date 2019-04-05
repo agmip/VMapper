@@ -222,7 +222,10 @@
 </script>
 <div class="subcontainer">
     <fieldset>
-        <legend>Management Information</legend>
+        <legend>
+            Management Information&nbsp;&nbsp;&nbsp;
+            <a href="#"><span id="mgn_remove_btn" type="button" class="btn glyphicon glyphicon-trash" onclick="removeManagement();"></span></a>
+        </legend>
         <div class="row col-sm-12">
             <div class="form-group has-feedback col-sm-4">
                 <label class="control-label" for="mgn_name">Management Name *</label>
