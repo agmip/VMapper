@@ -225,7 +225,7 @@
                 });
                 $('.nav-tabs #ConfigTab').on('shown.bs.tab', function(){
                     $("#config_create").parent().removeClass("active");
-                    $("#" + cfgId).parent().addClass("active");
+                    $("#" + configId).parent().addClass("active");
                     // TODO
                 });
                 $('.nav-tabs #TreatmentTab').on('shown.bs.tab', function(){
@@ -287,7 +287,6 @@
                     option.value = "20" + i;
                     startYearSB.append(option);
                 }
-                
             }
     
             function getNewCollectionNum(collection) {
