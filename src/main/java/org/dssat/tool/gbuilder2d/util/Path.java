@@ -57,6 +57,11 @@ public class Path {
             public static final String METALIST = PACKAGE + "/metalist";
         }
         
+        public static class Data {
+            private static final String PACKAGE = Data.class.getSimpleName().toLowerCase();
+            public static final String CULTIVAR = PACKAGE + "/cultivar";
+        }
+        
         public static class Translator {
             private static final String PACKAGE = Translator.class.getSimpleName().toLowerCase();
             public static final String DSSAT = PACKAGE + "/dssat";

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import org.dssat.tool.gbuilder2d.dao.MetaDataDAO;
+import org.dssat.tool.gbuilder2d.util.DataUtil;
 import org.dssat.tool.gbuilder2d.util.JSONObject;
 import org.dssat.tool.gbuilder2d.util.JsonUtil;
 import org.dssat.tool.gbuilder2d.util.Path;
@@ -61,7 +62,9 @@ public class Main {
 
         // Set up routes
         get("/", (Request request, Response response) -> {
-            return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.Demo.XBUILDER2D));
+            HashMap data = new HashMap();
+            data.put("culMetaList", DataUtil.getCulMetaData().values());
+            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.XBUILDER2D));
                 });
         
         get(Path.Web.Demo.GBUILDER1D, (Request request, Response response) -> {
@@ -73,7 +76,9 @@ public class Main {
                 });
         
         get(Path.Web.Demo.XBUILDER2D, (Request request, Response response) -> {
-            return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.Demo.XBUILDER2D));
+            HashMap data = new HashMap();
+            data.put("culMetaList", DataUtil.getCulMetaData().values());
+            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.XBUILDER2D));
                 });
         
         get(Path.Web.Demo.METALIST, (Request request, Response response) -> {
@@ -82,35 +87,43 @@ public class Main {
             return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.METALIST));
                 });
         
+        get(Path.Web.Data.CULTIVAR, (Request request, Response response) -> {
+            String crid = request.queryParams("crid");
+            return DataUtil.getCulDataList(crid).toJSONString();
+                });
+        
         post(Path.Web.Translator.DSSAT_EXP, (Request request, Response response) -> {
             HashMap data = new HashMap();
             
             // Handle meta data
             JSONObject expData = JsonUtil.parseFrom(request.queryParams("exp"));
-            switch (expData.getOrBlank("crid")) {
-                case "TOM": expData.put("crid_dssat", "TM");break;
-                case "POT": expData.put("crid_dssat", "PT");break;
-            }
+            expData.put("crid", DataUtil.getDssatCropCode(expData.getOrBlank("crid")));
             
-            // Handle field and management data
+            // Handle cultivar， field and management data
             // Initialize data containers
+            JSONObject culData = JsonUtil.parseFrom(request.queryParams("cultivar"));
+            ArrayList<String> culIdList = new ArrayList();
+            ArrayList culList = new ArrayList();
             JSONObject fieldData = JsonUtil.parseFrom(request.queryParams("field"));
-            JSONObject mgnData = JsonUtil.parseFrom(request.queryParams("management"));
-            ArrayList<JSONObject> treatments = JsonUtil.parseFrom(request.queryParams("treatment")).getObjArr();
             ArrayList<String> fieldIdList = new ArrayList();
+            ArrayList fieldList = new ArrayList();
+            JSONObject mgnData = JsonUtil.parseFrom(request.queryParams("management"));
             HashMap<String, ArrayList<String>> mgnIdList = new HashMap();
             mgnIdList.put("planting",  new ArrayList());
             mgnIdList.put("irrigation",  new ArrayList());
             mgnIdList.put("fertilizer",  new ArrayList());
             mgnIdList.put("harvest",  new ArrayList());
-            ArrayList fieldList = new ArrayList();
             HashMap<String, ArrayList<ArrayList>> mgnList = new HashMap();
             mgnList.put("planting",  new ArrayList());
             mgnList.put("irrigation",  new ArrayList());
             mgnList.put("fertilizer",  new ArrayList());
             mgnList.put("harvest",  new ArrayList());
             ArrayList<JSONObject> configList = new ArrayList();
+            ArrayList<JSONObject> treatments = JsonUtil.parseFrom(request.queryParams("treatment")).getObjArr();
             for (JSONObject trt : treatments) {
+                
+                // Handle cultivar data
+                setupCultivars(trt, culData, culIdList, culList);
                 
                 // Handle field data
                 setupFields(trt, fieldData, fieldIdList, fieldList);
@@ -123,6 +136,7 @@ public class Main {
             }
             
             data.put("expData", expData);
+            data.put("cultivars", culList);
             data.put("fields", fieldList);
             data.put("managements", mgnList);
             data.put("treatments", treatments);
@@ -145,6 +159,17 @@ public class Main {
             } catch (IOException | URISyntaxException ex) {
                 LOG.warn(ex.getMessage());
             }
+        }
+    }
+    
+    private static void setupCultivars(JSONObject trt, JSONObject culData, ArrayList<String> culIdList, ArrayList culList) {
+        String culId = trt.getOrBlank("cul_id");
+        if (!culId.isEmpty()) {
+            if (!culIdList.contains(culId)) {
+                culIdList.add(culId);
+                culList.add(culData.get(culId));
+            }
+            trt.put("flid", culIdList.indexOf(culId) + 1);
         }
     }
     

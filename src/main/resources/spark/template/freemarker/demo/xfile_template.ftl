@@ -1,4 +1,4 @@
-*EXP.DETAILS: ${expData['exname']!'????????'}${expData['crid_dssat']!'??'} ${expData['local_name']!}
+*EXP.DETAILS: ${expData['exname']!'????????'}${expData['crid']!'??'} ${expData['local_name']!}
 
 *GENERAL
 <#if expData['people']??>
@@ -26,12 +26,14 @@
 <#list treatments as trt>
 ${trt['trtno']?left_pad(2)} 1 1 0 ${(trt['trt_name']!)?right_pad(25)?substring(0,25)} ${(trt['cuid']!"0")?left_pad(2)} ${(trt['flid']!"0")?left_pad(2)}  0 ${(trt['icid']!"0")?left_pad(2)} ${(trt['plid']!"0")?left_pad(2)} ${(trt['irid']!"0")?left_pad(2)} ${(trt['feid']!"0")?left_pad(2)}  0  0  0  0 ${(trt['haid']!"0")?left_pad(2)} ${(trt['smid']!"0")?left_pad(2)}
 </#list>
-<#-- 
+<#if cultivars?size gt 0>
 
 *CULTIVARS
 @C CR INGENO CNAME
- 1 TM DRI319 -99
--->
+</#if>
+<#list cultivars as cultivar>
+${cultivar?counter?left_pad(2)}${(expData['crid']!-99)?left_pad(3)} ${(cultivar['dssat_cul_id']!(cultivar['cul_id']!-99))?left_pad(6)} ${cultivar['cul_name']!-99}
+</#list>
 <#if fields?size gt 0>
 
 *FIELDS

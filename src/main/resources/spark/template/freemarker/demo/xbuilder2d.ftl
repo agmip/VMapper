@@ -13,6 +13,7 @@
             let fields = {};
             let fieldData = {};
             let fieldId;
+            let cultivars = {};
             let eventData;        // Data container for current management data
             let events = [];      // Array of event object for current current management data
             let managements = {}; // Map for all management data (mgnId: mgnData)
@@ -233,6 +234,8 @@
                     for (let trtid in trtData) {
                         $("#tr_field_" + trtData[trtid].trtno).chosen("destroy");
                         chosen_init("tr_field_" +  + trtData[trtid].trtno);
+                        $("#tr_cul_" + trtData[trtid].trtno).chosen("destroy");
+                        chosen_init("tr_cul_" +  + trtData[trtid].trtno);
                         $("#tr_mgn_" + trtData[trtid].trtno).chosen("destroy");
                         chosen_init("tr_mgn_" + trtData[trtid].trtno);
                         $("#tr_config_" + trtData[trtid].trtno).chosen("destroy");

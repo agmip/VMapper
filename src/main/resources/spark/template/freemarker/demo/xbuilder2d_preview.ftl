@@ -39,6 +39,8 @@
                 JSON.stringify(fields) +
                 "</div><div><h3>Management List</h3>" +
                 JSON.stringify(getManagements()) +
+                "</div><div><h3>Cultivar List</h3>" +
+                JSON.stringify(cultivars) +
                 "</div>");
     }
     
@@ -61,6 +63,7 @@
         $.post("/translator/dssat_exp",
             {
                 exp: JSON.stringify(expData),
+                cultivar: JSON.stringify(cultivars),
                 field: JSON.stringify(fields),
                 management: JSON.stringify(getManagements()),
                 treatment: JSON.stringify(trtData)

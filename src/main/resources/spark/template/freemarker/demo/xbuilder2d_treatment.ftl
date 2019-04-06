@@ -31,6 +31,17 @@
         }
         trtFieldSB.attr("id", "tr_field_" + trtno);
         
+        let trtCulCell = $("<td></td>");
+        trtRow.append(trtCulCell);
+        let trtCulSB = $('<select name="cul" class="form-control chosen-select-deselect" onchange="trtOptSelect(this);" data-placeholder="Choose a cultivar..." required></select>');
+        trtCulCell.append($('<div class="input-group col-sm-11"></div>').append(trtCulSB));
+        trtCulSB.append('<option value=""></option>');
+        trtCulSB.append('<option value="">Create new...</option>');
+        for (let culId in cultivars) {
+            trtCulSB.append($('<option value="' + culId + '"></option>').append(cultivars[culId].cul_name));
+        }
+        trtCulSB.attr("id", "tr_cul_" + trtno);
+        
         let trtMgnCell = $("<td></td>");
         trtRow.append(trtMgnCell);
         let trtMgnSB = $('<select name="management" class="form-control chosen-select-deselect" onchange="trtOptSelect(this);" data-placeholder="Apply management setups..." multiple required></select>');
@@ -52,6 +63,8 @@
         
         $("#tr_field_" + trtno).chosen("destroy");
         chosen_init("tr_field_" + trtno);
+        $("#tr_cul_" + trtno).chosen("destroy");
+        chosen_init("tr_cul_" + trtno);
         $("#tr_mgn_" + trtno).chosen("destroy");
         chosen_init("tr_mgn_" + trtno);
         $("#tr_config_" + trtno).chosen("destroy");
@@ -80,7 +93,14 @@
     function trtOptSelect(target) {
         if (target.selectedIndex === 1) {
             target.options[1].selected = false;
-            $("#" + target.id.replace("tr_", "").replace(/_\d+/, "") + "_create").click();
+            if (target.name !== "cul") {
+                $("#" + target.id.replace("tr_", "").replace(/_\d+/, "") + "_create").click();
+            } else {
+                // TODO create customized cultivar
+                $("#" + target.id).chosen("destroy");
+                chosen_init(target.id);
+                alert("This function will be done later...");
+            }
         } else {
             let trtid = Number(target.id.replace(/tr_\w+_/, "")) - 1;
             if (target.name === "management") {
@@ -89,6 +109,9 @@
                     values.push(target.selectedOptions[i].value);
                 }; 
                 saveData(trtData[trtid], target.name, values);
+            } else if (target.name === "cul") {
+                saveData(trtData[trtid], "cul_id", target.value);
+                saveData(trtData[trtid], "cul_name", target.selectedOptions[0].text);
             } else {
                 saveData(trtData[trtid], target.name, target.value);
             }
@@ -106,9 +129,10 @@
             <thead>
                 <tr class="info">
                     <th class="col-sm-1 text-center">Index</th>
-                    <th class="col-sm-3">Name</th>
+                    <th class="col-sm-2">Name</th>
                     <th class="col-sm-2">Field</th>
-                    <th class="col-sm-4">Management</th>
+                    <th class="col-sm-2">Cultivar</th>
+                    <th class="col-sm-3">Management</th>
                     <th class="col-sm-2">Configuration</th>
                 </tr>
             </thead>

@@ -37,10 +37,10 @@
         let crid = $('#crid').val();
         if (crid === "") {
             crid = "??";
-        } else if (crid === "POT") {
-            crid = "PT";
-        } else if (crid === "TOM") {
-            crid = "TM";
+        <#list culMetaList as culMeta>
+        } else if (crid === "${culMeta.agmip_code!}") {
+            crid = "${culMeta.dssat_code!}";
+        </#list>
         } else {
             crid = "??";
         }
@@ -50,6 +50,28 @@
             $('#exname').trigger('change');
         }
         $('#exname_label').html(institute + site + startYear + expNo + "." + crid + "X");
+    }
+    
+    function updateCulSB(target) {
+        for (let i in trtData) {
+            $('#tr_cul_' + trtData[i].trtno + " option").remove("[value!='']");
+            $('#tr_cul_' + trtData[i].trtno).trigger("change");
+        }
+        if (target.value === "") {
+            cultivars = {};
+        } else {
+            $.get("/data/cultivar?crid=" + target.value,
+                function (culJsonStr) {
+                    cultivars = JSON.parse(culJsonStr);
+                    for (let i in trtData) {
+                        let sb = $('#tr_cul_' + trtData[i].trtno);
+                        for (let culId in cultivars) {
+                            sb.append($('<option value="' + culId + '"></option>').append(cultivars[culId].cul_name));
+                        }
+                    }
+                }
+            );
+        }
     }
 </script>
 
@@ -82,9 +104,22 @@
                 </div>
                 <div class="form-group has-feedback col-sm-6">
                     <label class="control-label" for="start_year">Year *</label>
-                    <div class="input-group">
+                    <div class="input-group col-sm-12">
                         <select type="year" id="start_year" name="start_year" class="form-control chosen-select-deselect exp_data" onchange="updateExname();" placeholder="Choose start year..." data-toggle="tooltip" title="The start year of experiment" required>
                             <option value=""></option>
+                        </select>
+                        <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
+                    </div>
+                </div>
+                <div class="form-group has-feedback col-sm-6">
+                    <label class="control-label" for="exp_no">Crop *</label>
+                    <div class="input-group col-sm-12">
+                        <!--<span class="input-group-addon glyphicon">*</span>-->
+                        <select id="crid" class="form-control chosen-select-deselect exp_data" onchange="updateCulSB(this);updateExname();" data-placeholder="Choose a Crop..." required>
+                            <option value=""></option>
+                            <#list culMetaList as culMeta>
+                            <option value="${culMeta.agmip_code!}">${culMeta.name!}</option>
+                            </#list>
                         </select>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
@@ -93,18 +128,6 @@
                     <label class="control-label" for="exp_no">Experiment No. *</label>
                     <div class="input-group">
                         <input type="text" id="exp_no" name="exp_no" class="form-control exp_data" onchange="updateExname();" placeholder="Experiment no." data-toggle="tooltip" title="The index number of experiment" required>
-                        <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
-                    </div>
-                </div>
-                <div class="form-group has-feedback col-sm-6">
-                    <label class="control-label" for="exp_no">Crop *</label>
-                    <div class="input-group col-sm-12">
-                        <!--<span class="input-group-addon glyphicon">*</span>-->
-                        <select id="crid" class="form-control chosen-select-deselect exp_data" onchange="updateExname();" data-placeholder="Choose a Crop..." required>
-                            <option value=""></option>
-                            <option value="POT">Potato</option>
-                            <option value="TOM">Tomato</option>
-                        </select>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
                 </div>
