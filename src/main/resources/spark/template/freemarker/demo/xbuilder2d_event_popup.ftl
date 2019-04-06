@@ -18,7 +18,7 @@
             callback: function(result){ 
                 if (!result) {
                     if (result === "") {
-                        showEventTypePrompt();
+                        showEventTypePrompt(itemId);
                     } else {
                         removeEvent();
                     }
