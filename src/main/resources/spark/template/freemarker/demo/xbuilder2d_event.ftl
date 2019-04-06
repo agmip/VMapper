@@ -85,6 +85,14 @@
         }
     }
 
+    function defaultEvent(target) {
+        if (target.value !== undefined) {
+            return target.value.replace(" Event", "").toLowerCase();
+        } else {
+            return target[0].textContent.replace(" Event", "").toLowerCase();
+        }
+    }
+
     function defaultDate() {
         if (Math.abs(timeline.getCurrentTime() - Date.now()) < 1) {
             let start = timeline.getWindow().start.valueOf();
@@ -98,7 +106,7 @@
     }
 
     function addEvent(target) {
-        let event = {id: newId(), content: defaultContent(target), start: defaultDate()}; 
+        let event = {id: newId(), content: defaultContent(target), start: defaultDate(), event:defaultEvent(target)}; 
         eventData.add(event);
         timeline.setSelection(event.id);
     }
@@ -125,13 +133,9 @@
     }
 
     function drag(ev) {
-        var event = {
-            id: newId(),
-            type: "box",
-            content: defaultContent(ev.target),
-            event: "irrigation"
-        };
+        let event = {id: newId(), content: defaultContent(ev.target), event:defaultEvent(ev.target)}; 
         ev.dataTransfer.setData("text", JSON.stringify(event));
+        timeline.setSelection(event.id);
     }
     
     function switchManagementViewType(target) {
@@ -252,10 +256,10 @@
     <div id="timeline_view">
         <div class="row col-sm-12">
             <div class="col-sm-8 text-left">
-                <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="One-time Event"><span class="glyphicon glyphicon-menu-hamburger"></span> One-time Event</button>
-                <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Weekly Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Weekly Event</button>
-                <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Monthly Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Monthly Event</button>
-                <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Customized Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Customized Event</button>
+                <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Planting Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Planting Event</button>
+                <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Irrigation Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Irrigation Event</button>
+                <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Fertilizer Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Fertilizer Event</button>
+                <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Harvest Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Harvest Event</button>
             </div>
             <div class="col-sm-4 text-right">
                 <!--<button class="btn btn-success" onclick="test()">Test</button>-->

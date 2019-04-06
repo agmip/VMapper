@@ -4,33 +4,37 @@
             eventType = "";
         }
         let itemData = eventData.get(itemId);
-        bootbox.prompt({
-            title: "Please select the event type",
-            inputType: 'select',
-            value: eventType,
-            inputOptions: [
-                    {text: 'Choose one...', value: ''},
-                    {text: 'Planting',      value: 'planting'},
-                    {text: 'Irrigation',    value: 'irrigation'},
-                    {text: 'Fertilizer',    value: 'fertilizer'},
-                    {text: 'Harvest',       value: 'harvest'}
-                ],
-            callback: function(result){ 
-                if (!result) {
-                    if (result === "") {
-                        showEventTypePrompt(itemId);
+        if (!itemData.event) {
+            bootbox.prompt({
+                title: "Please select the event type",
+                inputType: 'select',
+                value: eventType,
+                inputOptions: [
+                        {text: 'Choose one...', value: ''},
+                        {text: 'Planting',      value: 'planting'},
+                        {text: 'Irrigation',    value: 'irrigation'},
+                        {text: 'Fertilizer',    value: 'fertilizer'},
+                        {text: 'Harvest',       value: 'harvest'}
+                    ],
+                callback: function(result){ 
+                    if (!result) {
+                        if (result === "") {
+                            showEventTypePrompt(itemId);
+                        } else {
+                            removeEvent();
+                        }
                     } else {
-                        removeEvent();
+                        itemData.event = result;
+                        showEventDataDialog(itemData);
                     }
-                } else {
-                    itemData.event = result;
-                    showEventDataDialog(itemData);
                 }
-            }
-        });
+            });
+        } else {
+            showEventDataDialog(itemData, true);
+        }
     }
     
-    function showEventDataDialog(itemData, editFlg) {
+    function showEventDataDialog(itemData, noBackFlg, editFlg) {
         let buttons = {
             cancel: {
                 label: "Cancel",
@@ -63,8 +67,10 @@
         };
         if (editFlg) {
             delete buttons.cancel.callback;
-            delete buttons.back;
         }
+        if (noBackFlg) {
+            delete buttons.back;
+        } 
         let promptClass = 'event-input-' + itemData.event;
         let dialog = bootbox.dialog({
             title: "Please input event data",
@@ -106,10 +112,10 @@
 
 <!-- Timeline context menu Dialog -->
 <ul class='event-menu'>
-    <li>One-time Event</li>
-    <li>Weekly Event</li>
-    <li>Monthly Event</li>
-    <li>Customized Event</li>
+    <li>Planting Event</li>
+    <li>Irrigation Event</li>
+    <li>Fertilizer Event</li>
+    <li>Harvest Event</li>
 </ul>
 
 <!-- Planting Dialog -->

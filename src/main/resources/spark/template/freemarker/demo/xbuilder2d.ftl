@@ -55,7 +55,7 @@
                         }
                     },
                     onUpdate: function (item, callback) {
-                        showEventDataDialog(item, true);
+                        showEventDataDialog(item, true, true);
                     },
                     onDropObjectOnItem: function(objectData, event, callback) {
                         if (!event) { return; }
