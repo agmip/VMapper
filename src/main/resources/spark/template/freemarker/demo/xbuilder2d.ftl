@@ -435,7 +435,7 @@
         <script type="text/javascript" src="/plugins/chosen/prism.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/chosen/init.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/bootbox/bootbox.all.min.js" charset="utf-8"></script>
-        <script src="https://cdn.jsdelivr.net/npm/handsontable@latest/dist/handsontable.full.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.js"></script>
         <script type="text/javascript">
             $(document).ready(function () {
                 init();
