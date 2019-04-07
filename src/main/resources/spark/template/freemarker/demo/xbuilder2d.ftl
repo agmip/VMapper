@@ -129,10 +129,6 @@
                     data: events,
                     columns: [
                         {
-                            data: 'id',
-                            type: 'text'
-                        },
-                        {
                             data: 'content',
                             type: 'text'
                         },
@@ -143,18 +139,6 @@
                         },
                         {
                             data: 'event',
-                            type: 'text'
-                        },
-                        {
-                            data: 'group',
-                            type: 'text'
-                        },
-                        {
-                            data: 'key',
-                            type: 'text'
-                        },
-                        {
-                            data: 'value',
                             type: 'text'
                         }
                     ],
@@ -168,13 +152,9 @@
                     manualColumnResize: true,
                     rowHeaders: true,
                     colHeaders: [
-                        'ID',
                         'Name',
                         'Date',
-                        'Type',
-                        'Group',
-                        'Key',
-                        'Value'
+                        'Type'
                     ],
                     manualRowMove: true,
                     manualColumnMove: true,
