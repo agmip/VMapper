@@ -6,11 +6,17 @@
 //        });
         tmlData.on('add', function(event, properties, senderId) {
             console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
-            if (properties.items && properties.items.length === 1 && !properties.items[0].creator) {
-                showEventTypePrompt(properties.items[0]);
+            if (properties.items && properties.items.length === 1) {
+                let itemData = eventData.get(properties.items);
+                if (!itemData[0].creator) {
+                    showEventTypePrompt(properties.items[0]);
+                } else {
+                    delete itemData[0].creator;
+                }
             } else if (properties.items) {
-                for (let i = 0; i < properties.items.length; i++) {
-                    delete properties.items[i].creator;
+                let itemData = eventData.get(properties.items);
+                for (let i = 0; i < itemData.length; i++) {
+                    delete itemData[i].creator;
                 }
             }
         });
