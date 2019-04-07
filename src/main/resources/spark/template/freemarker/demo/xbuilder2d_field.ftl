@@ -89,7 +89,7 @@
             <div class="form-group has-feedback col-sm-4">
                 <label class="control-label" for="id_field">Field ID</label>
                 <div class="input-group col-sm-12">
-                    <input type="text" id="id_field" name="id_field" class="form-control field_data" value="" placeholder="Field identifier" data-toggle="tooltip" title="Field, identifier usually consisting of institution+site+4 digit number">
+                    <input type="text" id="id_field" name="id_field" class="form-control field_data max-8" value="" placeholder="Field identifier" data-toggle="tooltip" title="Field, identifier usually consisting of institution+site+4 digit number">
                     <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                 </div>
             </div>
@@ -105,14 +105,14 @@
             <div class="form-group has-feedback col-sm-4">
                 <label class="control-label" for="soil_id">Soil ID</label>
                 <div class="input-group col-sm-12">
-                    <input type="text" id="soil_id" name="soil_id" class="form-control field_data" value="" placeholder="Soil identifier" data-toggle="tooltip" title="Unique soil identifier linking from SOIL_PROFILES">
+                    <input type="text" id="soil_id" name="soil_id" class="form-control field_data max-10" value="" placeholder="Soil identifier" data-toggle="tooltip" title="Unique soil identifier linking from SOIL_PROFILES">
                     <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                 </div>
             </div>
             <div class="form-group has-feedback col-sm-4">
                 <label class="control-label" for="wst_id">Weather Station ID</label>
                 <div class="input-group col-sm-12">
-                    <input type="text" id="wst_id" name="wst_id" class="form-control field_data" value="" placeholder="Weather station identifier" data-toggle="tooltip" title="Weather station identifier to link to site information">
+                    <input type="text" id="wst_id" name="wst_id" class="form-control field_data max-4" value="" placeholder="Weather station identifier" data-toggle="tooltip" title="Weather station identifier to link to site information">
                     <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                 </div>
             </div>
@@ -125,7 +125,7 @@
                         <input type="range" name="bdwd" step="1" max="300" min="1" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInputId(this)">
                     </div>
                     <div class="col-sm-5">
-                        <input type="number" name="bdwd" id="bdwd" step="1" max="999" min="1" class="form-control field_data" value="" oninput="rangeNumInputId(this)" >
+                        <input type="number" name="bdwd" id="bdwd" step="1" max="999" min="1" class="form-control field_data max-5" value="" oninput="rangeNumInputId(this)" >
                     </div>
                 </div>
             </div>
@@ -136,7 +136,7 @@
                         <input type="range" name="bdht" step="1" max="100" min="1" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInputId(this)">
                     </div>
                     <div class="col-sm-5">
-                        <input type="number" name="bdht" id="bdht" step="1" max="999" min="1" class="form-control field_data" value="" oninput="rangeNumInputId(this)" >
+                        <input type="number" name="bdht" id="bdht" step="1" max="999" min="1" class="form-control field_data max-5" value="" oninput="rangeNumInputId(this)" >
                     </div>
                 </div>
             </div>
@@ -147,7 +147,7 @@
                         <input type="range" name="pmalb" step="0.01" max="1" min="0.01" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInputId(this)">
                     </div>
                     <div class="col-sm-5">
-                        <input type="number" name="pmalb" id="pmalb" step="0.1" max="1" min="0.01" class="form-control field_data" value="" oninput="rangeNumInputId(this)" >
+                        <input type="number" name="pmalb" id="pmalb" step="0.1" max="1" min="0.01" class="form-control field_data max-5" value="" oninput="rangeNumInputId(this)" >
                     </div>
                 </div>
             </div>

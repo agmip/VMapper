@@ -108,14 +108,14 @@
                 <div class="form-group has-feedback col-sm-6">
                     <label class="control-label" for="institute">Institute Code *</label>
                     <div class="input-group">
-                        <input type="text" id="institute" name="institute" class="form-control exp_data" onchange="updateExname(this);" placeholder="Institute code" data-toggle="tooltip" title="Institute indentifier code" required>
+                        <input type="text" id="institute" name="institute" class="form-control exp_data max-2" onchange="updateExname(this);" placeholder="Institute code" data-toggle="tooltip" title="Institute indentifier code" required>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
                 </div>
                 <div class="form-group has-feedback col-sm-6">
                     <label class="control-label" for="in">Site Code *</label>
                     <div class="input-group">
-                        <input type="text" id="site" name="site" class="form-control exp_data" onchange="updateExname(this);" placeholder="Site code" data-toggle="tooltip" title="Site indentifier code" required>
+                        <input type="text" id="site" name="site" class="form-control exp_data max-2" onchange="updateExname(this);" placeholder="Site code" data-toggle="tooltip" title="Site indentifier code" required>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
                 </div>
@@ -144,7 +144,7 @@
                 <div class="form-group has-feedback col-sm-6">
                     <label class="control-label" for="exp_no">Experiment No. *</label>
                     <div class="input-group">
-                        <input type="text" id="exp_no" name="exp_no" class="form-control exp_data" onchange="updateExname(this);" placeholder="Experiment no." data-toggle="tooltip" title="The index number of experiment" required>
+                        <input type="text" id="exp_no" name="exp_no" class="form-control exp_data max-2" onchange="updateExname(this);" placeholder="Experiment no." data-toggle="tooltip" title="The index number of experiment" required>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
                 </div>

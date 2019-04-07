@@ -93,6 +93,9 @@
             if (!itemData.start) {
                 $('[name=start]').val(dateUtil.toYYYYMMDDStr(new Date(defaultDate())));
             }
+            dialog.find('.max-5').on('input', function() {
+                limitLength(this, 5);
+            });
         });
     }
     
@@ -188,7 +191,7 @@
                     <input type="range" name="plrs" step="1" max="300" min="1" class="form-control" value="" placeholder="Row spacing (cm)" data-toggle="tooltip" title="Row spacing (cm)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
-                    <input type="number" name="plrs" step="1" max="999" min="1" class="form-control event-input-item" value="" oninput="rangeNumInput(this)" required >
+                    <input type="number" name="plrs" step="1" max="999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
                 </div>
             </div>
         </div>
@@ -200,7 +203,7 @@
                     <input type="range" name="plrd" step="1" max="360" min="1" class="form-control" value="" placeholder="Row Direction (degree from north)" data-toggle="tooltip" title="Row Direction (degree from north)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
-                    <input type="number" name="plrd" step="10" max="360" min="1" class="form-control event-input-item" value="" oninput="rangeNumInput(this)" required >
+                    <input type="number" name="plrd" step="10" max="360" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
                 </div>
             </div>
         </div>
@@ -211,7 +214,7 @@
                     <input type="range" name="pldp" step="1" max="100" min="1" class="form-control" value="" placeholder="Planting Depth (cm)" data-toggle="tooltip" title="Planting Depth (cm)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
-                    <input type="number" name="pldp" step="1" max="999" min="1" class="form-control event-input-item" value="" oninput="rangeNumInput(this)" required >
+                    <input type="number" name="pldp" step="1" max="999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
                 </div>
             </div>
         </div>
@@ -223,7 +226,7 @@
                     <input type="range" name="plpop" step="0.1" max="10" min="0.1" class="form-control" value="" placeholder="Plant population at Seeding (plants/m2)" data-toggle="tooltip" title="Plant population at Seeding (plants/m2)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
-                    <input type="number" name="plpop" step="1" max="9999" min="1" class="form-control event-input-item" value="" oninput="rangeNumInput(this)" required >
+                    <input type="number" name="plpop" step="1" max="9999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
                 </div>
             </div>
         </div>
@@ -234,7 +237,7 @@
                     <input type="range" name="plpoe" step="0.1" max="10" min="0.1" class="form-control" value="" placeholder="Plant population at Emergence (plants/m2)" data-toggle="tooltip" title="Plant population at Emergence (plants/m2)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
-                    <input type="number" name="plpoe" step="1" max="9999" min="1" class="form-control event-input-item" value="" oninput="rangeNumInput(this)" required >
+                    <input type="number" name="plpoe" step="1" max="9999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
                 </div>
             </div>
         </div>
@@ -287,7 +290,7 @@
                     <input type="range" name="ireff" step="0.05" max="1" min="0" class="form-control" value="" placeholder="Irrigation Efficiency (fraction)" data-toggle="tooltip" title="Irrigation Efficiency (fraction)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
-                    <input type="number" name="ireff" step="0.05" max="1" min="0" class="form-control event-input-item" value="" oninput="rangeNumInput(this)" >
+                    <input type="number" name="ireff" step="0.05" max="1" min="0" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" >
                 </div>
             </div>
         </div>
@@ -299,7 +302,7 @@
                     <input type="range" name="irval" step="0.1" max="100" min="0" class="form-control" value="" placeholder="Irrigation amount, depth of water (mm)" data-toggle="tooltip" title="Irrigation amount, depth of water (mm)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
-                    <input type="number" name="irval" step="0.1" max="999" min="0" class="form-control event-input-item" value="" oninput="rangeNumInput(this)" >
+                    <input type="number" name="irval" step="0.1" max="999" min="0" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" >
                 </div>
             </div>
         </div>
@@ -359,7 +362,7 @@
                     <input type="range" name="fedep" step="1" max="300" min="1" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
-                    <input type="number" name="fedep" step="1" max="999" min="1" class="form-control event-input-item" value="" oninput="rangeNumInput(this)" >
+                    <input type="number" name="fedep" step="1" max="999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" >
                 </div>
             </div>
         </div>
@@ -433,7 +436,7 @@
                     <input type="range" name="feamn" step="1" max="999" min="1" class="form-control" value="" placeholder="Nitrogen in applied fertilizer (ka/ha)" data-toggle="tooltip" title="Nitrogen in applied fertilizer (ka/ha)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
-                    <input type="number" name="feamn" step="1" max="9999" min="1" class="form-control event-input-item" value="" oninput="rangeNumInput(this)" >
+                    <input type="number" name="feamn" step="1" max="9999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" >
                 </div>
             </div>
         </div>
@@ -444,7 +447,7 @@
                     <input type="range" name="feamp" step="1" max="999" min="1" class="form-control" value="" placeholder="Phosphorus in applied fertilizer (ka/ha)" data-toggle="tooltip" title="Phosphorus in applied fertilizer (ka/ha)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
-                    <input type="number" name="feamp" step="1" max="9999" min="1" class="form-control event-input-item" value="" oninput="rangeNumInput(this)" >
+                    <input type="number" name="feamp" step="1" max="9999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" >
                 </div>
             </div>
         </div>
@@ -455,7 +458,7 @@
                     <input type="range" name="feamk" step="1" max="999" min="1" class="form-control" value="" placeholder="Potassium in applied fertilizer (ka/ha)" data-toggle="tooltip" title="Potassium in applied fertilizer (ka/ha)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
-                    <input type="number" name="feamk" step="1" max="9999" min="1" class="form-control event-input-item" value="" oninput="rangeNumInput(this)" >
+                    <input type="number" name="feamk" step="1" max="9999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" >
                 </div>
             </div>
         </div>
@@ -467,7 +470,7 @@
                     <input type="range" name="feamc" step="1" max="999" min="1" class="form-control" value="" placeholder="Calcium in applied fertilizer (ka/ha)" data-toggle="tooltip" title="Calcium in applied fertilizer (ka/ha)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
-                    <input type="number" name="feamc" step="1" max="9999" min="1" class="form-control event-input-item" value="" oninput="rangeNumInput(this)" >
+                    <input type="number" name="feamc" step="1" max="9999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" >
                 </div>
             </div>
         </div>
@@ -478,7 +481,7 @@
                     <input type="range" name="feamo" step="1" max="999" min="1" class="form-control" value="" placeholder="Other elements in applied fertilizer (ka/ha)" data-toggle="tooltip" title="Other elements in applied fertilizer (ka/ha)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
-                    <input type="number" name="feamo" step="1" max="9999" min="1" class="form-control event-input-item" value="" oninput="rangeNumInput(this)" >
+                    <input type="number" name="feamo" step="1" max="9999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" >
                 </div>
             </div>
         </div>
@@ -569,7 +572,7 @@
                     <input type="range" name="happc" step="1" max="100" min="1" class="form-control" value="" placeholder="Grain Harvest (%)" data-toggle="tooltip" title="Grain harvest (%)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
-                    <input type="number" name="happc" step="1" max="100" min="1" class="form-control event-input-item" value="" oninput="rangeNumInput(this)" >
+                    <input type="number" name="happc" step="1" max="100" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" >
                 </div>
             </div>
         </div>
@@ -580,7 +583,7 @@
                     <input type="range" name="habpc" step="1" max="100" min="1" class="form-control" value="" placeholder="Byproduct takeoff (%)" data-toggle="tooltip" title="Byproduct takeoff (%)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
-                    <input type="number" name="habpc" step="1" max="100" min="1" class="form-control event-input-item" value="" oninput="rangeNumInput(this)">
+                    <input type="number" name="habpc" step="1" max="100" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)">
                 </div>
             </div>
         </div>

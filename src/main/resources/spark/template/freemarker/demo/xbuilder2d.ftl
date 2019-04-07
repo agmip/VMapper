@@ -191,6 +191,21 @@
                         }
                     }
                 });
+                $('.max-2').on('input', function() {
+                    limitLength(this, 2);
+                });
+                $('.max-4').on('input', function() {
+                    limitLength(this, 4);
+                });
+                $('.max-5').on('input', function() {
+                    limitLength(this, 5);
+                });
+                $('.max-8').on('input', function() {
+                    limitLength(this, 8);
+                });
+                $('.max-10').on('input', function() {
+                    limitLength(this, 10);
+                });
                 $('.mgn_data').on('change', function() {
                     saveData(managements[mgnId], this.id, this.value);
                     if (this.id === "mgn_name") {
@@ -247,6 +262,23 @@
                 $('.nav-tabs #PreviewTab').on('shown.bs.tab', function(){
                     updatePreview();
                 });
+            }
+            
+            function limitLength(target, maxLength) {
+                if (target.value.toString().length > maxLength) {
+                    let value = Number(target.value);
+                    if (isNaN(value)) {
+                        target.value = target.value.toString().substring(0, maxLength);
+                    } else {
+                        let intNum = value.toFixed(0);
+                        let decBit = maxLength - intNum.length - 1;
+                        if (decBit > 0) {
+                            target.value = value.toFixed(decBit);
+                        } else {
+                            target.value = intNum.substring(0, maxLength);
+                        }
+                    }
+                }
             }
             
             function initStartYearSB() {
