@@ -9,7 +9,7 @@
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/handsontable-pro@latest/dist/handsontable.full.min.css">
         
         <script>
-            let expData = {};
+            let expData = {version : "0.0.1"};
             let fields = {};
             let fieldData = {};
             let fieldId;
@@ -315,8 +315,32 @@
             }
             
             function saveFile() {
-                // TODO
-                alert("[TODO] will save a XFile for you later!");
+                if (!$("#PreviewTab").hasClass("active")) {
+                    $("#PreviewTab a").click();
+                    bootbox.alert({
+                        message: "Please review the result before saving the file",
+                        backdrop: true
+                    });
+                } else {
+                    let text, ext;
+                    if ($("#json_swc_btn").hasClass("btn-primary")) {
+                        text = getFinalJson();
+                        ext = expData.crid_dssat + ".json";
+                        
+                    } else {
+                        text = $('#dssat_preview_text').html();
+                        ext = expData.crid_dssat + "X";
+                        if (text === "Loading...") {
+                            bootbox.alert({
+                                message: "Please wait for preview content shown up...",
+                                backdrop: true
+                            });
+                            return;
+                        }
+                    }
+                    let blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+                    saveAs(blob, expData.exname + "." + ext);
+                }
             }
             
             function openFile() {
@@ -411,7 +435,7 @@
         </div>
 
         <#include "../footer.ftl">
-        
+        <script type="text/javascript" src='/plugins/FileSaver/FileSaver.js'></script>
         <script type="text/javascript" src="/js/util/dateUtil.js" charset="utf-8"></script>
         <script type="text/javascript" src="/plugins/chosen/chosen.jquery.min.js" ></script>
         <script type="text/javascript" src="/plugins/chosen/prism.js" charset="utf-8"></script>

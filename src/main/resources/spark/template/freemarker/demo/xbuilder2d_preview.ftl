@@ -44,6 +44,16 @@
                 "</div>");
     }
     
+    function getFinalJson() {
+        return JSON.stringify({
+            experiment:expData,
+            treatment: trtData,
+            field: fields,
+            management: getManagements(),
+            cultivars:cultivars
+        });
+    }
+    
     function getManagements() {
         let ret = {};
         for (let id in managements) {

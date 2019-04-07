@@ -1,5 +1,5 @@
 <script>
-    function updateExname() {
+    function updateExname(target) {
         let institute = $('#institute').val().toUpperCase().substring(0, 2);
 //        $('#institute').val(institute);
         if (institute.length < 1) {
@@ -34,21 +34,38 @@
             expNo = "??";
         }
         
-        let crid = $('#crid').val();
-        if (crid === "") {
-            crid = "??";
-        <#list culMetaList as culMeta>
-        } else if (crid === "${culMeta.agmip_code!}") {
-            crid = "${culMeta.dssat_code!}";
-        </#list>
+        let crid;
+        if (target.id === "crid") {
+            crid = $('#crid').val();
+            if (crid === "") {
+                crid = "??";
+            <#list culMetaList as culMeta>
+            } else if (crid === "${culMeta.agmip_code!}") {
+                crid = "${culMeta.dssat_code!}";
+            </#list>
+            } else {
+                crid = "??";
+            }
+            if (crid !== "??") {
+                expData.crid_dssat = crid;
+            } else {
+                delete expData.crid_dssat;
+            }
         } else {
-            crid = "??";
+            if (expData.crid_dssat) {
+                crid = expData.crid_dssat;
+            } else {
+                crid = "??";
+            }
         }
         
-        $('#exname').val(institute + site + startYear + expNo);
-        if (!(institute + site + startYear + expNo).includes("?")) {
-            $('#exname').trigger('change');
+        let exname = institute + site + startYear + expNo
+        if (exname.includes("?")) {
+            $('#exname').val("");
+        } else {
+            $('#exname').val(exname);
         }
+        $('#exname').trigger('change');
         $('#exname_label').html(institute + site + startYear + expNo + "." + crid + "X");
     }
     
@@ -91,21 +108,21 @@
                 <div class="form-group has-feedback col-sm-6">
                     <label class="control-label" for="institute">Institute *</label>
                     <div class="input-group">
-                        <input type="text" id="institute" name="institute" class="form-control exp_data" onchange="updateExname();" placeholder="Institute code" data-toggle="tooltip" title="Institute indentifier code" required>
+                        <input type="text" id="institute" name="institute" class="form-control exp_data" onchange="updateExname(this);" placeholder="Institute code" data-toggle="tooltip" title="Institute indentifier code" required>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
                 </div>
                 <div class="form-group has-feedback col-sm-6">
                     <label class="control-label" for="in">Site *</label>
                     <div class="input-group">
-                        <input type="text" id="site" name="site" class="form-control exp_data" onchange="updateExname();" placeholder="Site code" data-toggle="tooltip" title="Site indentifier code" required>
+                        <input type="text" id="site" name="site" class="form-control exp_data" onchange="updateExname(this);" placeholder="Site code" data-toggle="tooltip" title="Site indentifier code" required>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
                 </div>
                 <div class="form-group has-feedback col-sm-6">
                     <label class="control-label" for="start_year">Year *</label>
                     <div class="input-group col-sm-12">
-                        <select type="year" id="start_year" name="start_year" class="form-control chosen-select-deselect exp_data" onchange="updateExname();" placeholder="Choose start year..." data-toggle="tooltip" title="The start year of experiment" required>
+                        <select type="year" id="start_year" name="start_year" class="form-control chosen-select-deselect exp_data" onchange="updateExname(this);" placeholder="Choose start year..." data-toggle="tooltip" title="The start year of experiment" required>
                             <option value=""></option>
                         </select>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
@@ -115,7 +132,7 @@
                     <label class="control-label" for="exp_no">Crop *</label>
                     <div class="input-group col-sm-12">
                         <!--<span class="input-group-addon glyphicon">*</span>-->
-                        <select id="crid" class="form-control chosen-select-deselect exp_data" onchange="updateCulSB(this);updateExname();" data-placeholder="Choose a Crop..." required>
+                        <select id="crid" class="form-control chosen-select-deselect exp_data" onchange="updateCulSB(this);updateExname(this);" data-placeholder="Choose a Crop..." required>
                             <option value=""></option>
                             <#list culMetaList as culMeta>
                             <option value="${culMeta.agmip_code!}">${culMeta.name!}</option>
@@ -127,7 +144,7 @@
                 <div class="form-group has-feedback col-sm-6">
                     <label class="control-label" for="exp_no">Experiment No. *</label>
                     <div class="input-group">
-                        <input type="text" id="exp_no" name="exp_no" class="form-control exp_data" onchange="updateExname();" placeholder="Experiment no." data-toggle="tooltip" title="The index number of experiment" required>
+                        <input type="text" id="exp_no" name="exp_no" class="form-control exp_data" onchange="updateExname(this);" placeholder="Experiment no." data-toggle="tooltip" title="The index number of experiment" required>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
                 </div>
