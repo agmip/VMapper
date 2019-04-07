@@ -215,14 +215,15 @@
                     !events[i].content || events[i].content.trim() === "" ||
                     !events[i].date || events[i].date.trim() === "") {
                 y++;
-            } else  if (y > 0) {
-                events.splice(x + 1, y);
-                y = 0;
-                i -= y;
-            } else {
+            } else  {
+                if (y > 0) {
+                    events.splice(x + 1, y);
+                    i -= y;
+                    y = 0;
+                }
                 x = i;
+                events[i].start = dateUtil.toLocaleStr(events[i].date);
             }
-            events[i].start = dateUtil.toLocaleStr(events[i].date);
         }
         events.splice(x + 1, y);
         for (let i = 0; i < events.length; i++) {
