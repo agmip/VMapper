@@ -19,8 +19,8 @@
 <#if expData['exp_narr']??>
 @NOTES
  ${expData['exp_narr']} 
+ 
 </#if>
-
 *TREATMENTS                        -------------FACTOR LEVELS------------
 @N R O C TNAME.................... CU FL SA IC MP MI MF MR MC MT ME MH SM
 <#list treatments as trt>
