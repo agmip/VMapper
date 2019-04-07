@@ -166,7 +166,7 @@
                 spreadsheet = new Handsontable(spsContainer, spsOptions);
             }
             
-            function init() {
+            function reset() {
                 initStartYearSB();
                 chosen_init_all();
                 if (timeline) {
@@ -175,6 +175,10 @@
                 if (spreadsheet) {
                     spreadsheet.destroy();
                 }
+            }
+            
+            function init() {
+                reset();
                 $('.exp_data').on('change', function() {
                     saveData(expData, this.id, this.value);
                 });
@@ -396,9 +400,8 @@
                 for (let id in rawData.treatment) {
                     addTrt(Number(id) + 1, rawData.treatment[id]);
                 }
-//                trtData = rawData.treatment;
                 
-                init();
+                reset();
                 $("#SiteInfoTab a").click();
             }
         </script>
