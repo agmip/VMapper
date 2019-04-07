@@ -116,7 +116,6 @@
                     optgroupVecFlux.append(option);
                 }
                 $('#plot_type').append(optgroupVecFlux);
-                $("#plot_type").chosen("destroy");
                 chosen_init("plot_type");
             }
             

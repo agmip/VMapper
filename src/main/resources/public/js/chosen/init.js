@@ -11,12 +11,14 @@ let chonsenConfigs = {
 
 function chosen_init_all() {
     for (let selector in chonsenConfigs) {
+        $("."+selector).chosen("destroy");
         $("."+selector).chosen(chonsenConfigs[selector]);
     }
 }
 
 function chosen_init(id, className) {
     let target = $("#"+id);
+    target.chosen("destroy");
     if (className === undefined) {
         for (let selector in chonsenConfigs) {
             if (target.hasClass(selector)) {
@@ -32,6 +34,7 @@ function chosen_init(id, className) {
 
 function chosen_init_name(name, className) {
     let target = $("[name="+name+"]");
+    target.chosen("destroy");
     if (className === undefined) {
         for (let selector in chonsenConfigs) {
             if (target.hasClass(selector)) {

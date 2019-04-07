@@ -61,13 +61,9 @@
         trtCfgSB.append('<option value="">Create new...</option>');
         trtCfgSB.attr("id", "tr_config_" + trtno);
         
-        $("#tr_field_" + trtno).chosen("destroy");
         chosen_init("tr_field_" + trtno);
-        $("#tr_cul_" + trtno).chosen("destroy");
         chosen_init("tr_cul_" + trtno);
-        $("#tr_mgn_" + trtno).chosen("destroy");
         chosen_init("tr_mgn_" + trtno);
-        $("#tr_config_" + trtno).chosen("destroy");
         chosen_init("tr_config_" + trtno);
         trtData.push({trtno:trtno});
         $('#treatment_badge').html(trtData.length);
@@ -97,7 +93,6 @@
                 $("#" + target.id.replace("tr_", "").replace(/_\d+/, "") + "_create").click();
             } else {
                 // TODO create customized cultivar
-                $("#" + target.id).chosen("destroy");
                 chosen_init(target.id);
                 alert("This function will be done later...");
             }

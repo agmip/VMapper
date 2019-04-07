@@ -156,7 +156,6 @@
                 }
                 $('#plot_type').append(optgroupHeatMap);
                 
-                $("#plot_type").chosen("destroy");
                 chosen_init("plot_type");
             }
             
