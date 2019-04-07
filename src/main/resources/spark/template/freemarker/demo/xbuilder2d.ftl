@@ -182,6 +182,18 @@
                     saveData(fieldData, this.id, this.value);
                     if (this.id === "fl_name") {
                         $('#' + fieldId).html(this.value);
+                        for (let i in trtData) {
+                            $('#tr_field_' + trtData[i].trtno).children('option[value=' + fieldId + ']').html(this.value);
+                        }
+                    }
+                });
+                $('.mgn_data').on('change', function() {
+                    saveData(managements[mgnId], this.id, this.value);
+                    if (this.id === "mgn_name") {
+                        $('#' + mgnId).html(this.value);
+                        for (let i in trtData) {
+                            $('#tr_mgn_' + trtData[i].trtno).children('option[value=' + mgnId + ']').html(this.value);
+                        }
                     }
                 });
                 $('.nav-tabs #SiteInfoTab').on('shown.bs.tab', function(){
