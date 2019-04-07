@@ -83,11 +83,14 @@
 //            $('[name=crid]').val($('#crid').val());
             $("." + promptClass + " input").val("");
             for (let key in itemData) {
-                $('[name=' + key + ']').val(itemData[key]);
+                
+                if (key === "start") {
+                    $('[name=start]').val(dateUtil.toYYYYMMDDStr(itemData.start));
+                } else {
+                    $('[name=' + key + ']').val(itemData[key]);
+                }
             }
-            if (itemData.start) {
-                $('[name=start]').val(dateUtil.toYYYYMMDDStr(itemData.start));
-            } else {
+            if (!itemData.start) {
                 $('[name=start]').val(dateUtil.toYYYYMMDDStr(new Date(defaultDate())));
             }
         });
