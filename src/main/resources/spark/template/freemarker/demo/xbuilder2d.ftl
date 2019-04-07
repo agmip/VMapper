@@ -183,7 +183,7 @@
                     $("#" + fieldId).parent().addClass("active");
                 });
                 $('.nav-tabs #EventTab').on('shown.bs.tab', function(){
-                    $("#event_create").parent().removeClass("active");
+                    $("#mgn_create").parent().removeClass("active");
                     $("#" + mgnId).parent().addClass("active");
                     if (fstTmlFlg) {
                         fstTmlFlg = false;
