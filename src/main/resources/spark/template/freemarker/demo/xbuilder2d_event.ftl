@@ -5,9 +5,13 @@
 //            console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
 //        });
         tmlData.on('add', function(event, properties, senderId) {
-//            console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
-            if (properties.items && properties.items.length === 1) {
+            console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
+            if (properties.items && properties.items.length === 1 && !properties.items[0].creator) {
                 showEventTypePrompt(properties.items[0]);
+            } else if (properties.items) {
+                for (let i = 0; i < properties.items.length; i++) {
+                    delete properties.items[i].creator;
+                }
             }
         });
         return {mgn_name: name, data: events, tmlData: tmlData};
@@ -18,6 +22,7 @@
         mgnId = "mgn_" + num;
         let description = "New Management " + (num + 1);
         events = [];
+        eventId = 0;
         managements[mgnId] = createMgnData(description, events);
         eventData = managements[mgnId].tmlData;
         $('#mgn_list').append('<li><a data-toggle="tab" href="#Event" id="' + mgnId + '" onclick="setManagement(this);">' + description + '</a></li>');
@@ -63,6 +68,11 @@
         } else {
             events = getEvents();
         }
+        if (events.length === 0) {
+            eventId = 0;
+        } else {
+            eventId = Number(events[events.length - 1].id) + 1;
+        }
     }
     
     function test() {
@@ -70,7 +80,7 @@
     }
 
     function newId() {
-        return "new" + (eventData.getIds().length + 1);
+        return eventId++;
     }
     
     function isValidId(id) {
@@ -201,9 +211,11 @@
     function syncDataToTml() {
         let x = -1, y = 0;
         for (let i = 0; i < events.length; i++) {
-            if (events[i].id === null || events[i].id === undefined || events[i].id.trim() === "") {
+            if (!events[i].event || events[i].event.trim() === "" ||
+                    !events[i].content || events[i].content.trim() === "" ||
+                    !events[i].date || events[i].date.trim() === "") {
                 y++;
-            } else if (y > 0) {
+            } else  if (y > 0) {
                 events.splice(x + 1, y);
                 y = 0;
                 i -= y;
@@ -213,6 +225,12 @@
             events[i].start = dateUtil.toLocaleStr(events[i].date);
         }
         events.splice(x + 1, y);
+        for (let i = 0; i < events.length; i++) {
+            if (!events[i].id) {
+                events[i].id = newId();
+                events[i].creator = "sps";
+            }
+        }
         let delIds = eventData.getIds({
             filter: function (event) {
                 for (let i in events) {
@@ -260,6 +278,17 @@
                 <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Irrigation Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Irrigation Event</button>
                 <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Fertilizer Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Fertilizer Event</button>
                 <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Harvest Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Harvest Event</button>
+
+<!--                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Add Event...<span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" value="Planting Event"><a href="#"><span class="glyphicon glyphicon-menu-hamburger"></span> Planting Event</a></li>
+                        <li draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" value="Irrigation Event"><a href="#"><span class="glyphicon glyphicon-menu-hamburger"></span> Irrigation Event</a></li>
+                        <li draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" value="Fertilizer Event"><a href="#"><span class="glyphicon glyphicon-menu-hamburger"></span> Fertilizer Event</a></li>
+                        <li draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" value="Harvest Event"><a href="#"><span class="glyphicon glyphicon-menu-hamburger"></span> Harvest Event</a></li>
+                        
+                    </ul>
+                </div>-->
             </div>
             <div class="col-sm-4 text-right">
                 <!--<button class="btn btn-success" onclick="test()">Test</button>-->
@@ -272,6 +301,13 @@
         <div id="visualization" class="col-sm-12"></div>
     </div>
     <div id="spreadsheet_view" class="col-sm-12" hidden>
+        <ul class="nav nav-pills">
+            <li class="active"><a data-toggle="pill" href="#All">&nbsp;&nbsp;&nbsp;All&nbsp;&nbsp;&nbsp;</a></li>
+            <li><a data-toggle="pill" href="#Planting" onclick="alert('under construction...');">Planting</a></li>
+            <li><a data-toggle="pill" href="#Irrigation" onclick="alert('under construction...');">Irrigation</a></li>
+            <li><a data-toggle="pill" href="#Fertilizer" onclick="alert('under construction...');">Fertilizer</a></li>
+            <li><a data-toggle="pill" href="#Harvest" onclick="alert('under construction...');">Harvest</a></li>
+        </ul>
         <div id="visualization2" class="col-sm-12"></div>
     </div>
 </div>
