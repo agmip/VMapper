@@ -106,14 +106,14 @@
             <fieldset class="col-sm-4">
                 <legend data-toggle="tooltip" title="Used for file name">Experiment Identifier</legend>
                 <div class="form-group has-feedback col-sm-6">
-                    <label class="control-label" for="institute">Institute *</label>
+                    <label class="control-label" for="institute">Institute Code *</label>
                     <div class="input-group">
                         <input type="text" id="institute" name="institute" class="form-control exp_data" onchange="updateExname(this);" placeholder="Institute code" data-toggle="tooltip" title="Institute indentifier code" required>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
                 </div>
                 <div class="form-group has-feedback col-sm-6">
-                    <label class="control-label" for="in">Site *</label>
+                    <label class="control-label" for="in">Site Code *</label>
                     <div class="input-group">
                         <input type="text" id="site" name="site" class="form-control exp_data" onchange="updateExname(this);" placeholder="Site code" data-toggle="tooltip" title="Site indentifier code" required>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
