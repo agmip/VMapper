@@ -22,7 +22,7 @@
         mgnId = "mgn_" + num;
         let description = "New Management " + (num + 1);
         events = [];
-        eventId = 0;
+        eventId = 1;
         managements[mgnId] = createMgnData(description, events);
         eventData = managements[mgnId].tmlData;
         $('#mgn_list').append('<li><a data-toggle="tab" href="#Event" id="' + mgnId + '" onclick="setManagement(this);">' + description + '</a></li>');
@@ -69,7 +69,7 @@
             events = getEvents();
         }
         if (events.length === 0) {
-            eventId = 0;
+            eventId = 1;
         } else {
             eventId = Number(events[events.length - 1].id) + 1;
         }

@@ -16,7 +16,7 @@
             let cultivars = {};
             let eventData;        // Data container for current management data
             let events = [];      // Array of event object for current current management data
-            let eventId = 0;
+            let eventId = 1;
             let managements = {}; // Map for all management data (mgnId: mgnData)
             let mgnId;            // Current management ID
             let trtData = [];
@@ -229,14 +229,14 @@
                 
                 // Create a DataSet (allows two way data-binding)
                 events = [
-                  {id: 0, content: 'Fixed event 1', start: '04/11/2013', event: 'planting', cul_id:'DRI319', editable: false},
-                  {id: 1, content: 'Weekly event 1.1', start: '04/12/2013', event: 'irrigation', group:"ga"},
-                  {id: 2, content: 'Weekly event 1.2', start: '04/19/2013', event: 'irrigation', group:"ga"},
-                  {id: 3, content: 'Daily event 4', start: '04/15/2013', end: '04/19/2013', event: 'fertilizer'},
-                  {id: 4, content: 'Weekly event 1.3', start: '04/26/2013', event: 'irrigation', group:"ga"},
-                  {id: 5, content: 'Weekly event 1.4', start: '05/03/2013', event: 'irrigation', group:"ga"}
+                  {id: 1, content: 'Fixed event 1', start: '04/11/2013', event: 'planting', cul_id:'DRI319', editable: false},
+                  {id: 2, content: 'Weekly event 1.1', start: '04/12/2013', event: 'irrigation', group:"ga"},
+                  {id: 3, content: 'Weekly event 1.2', start: '04/19/2013', event: 'irrigation', group:"ga"},
+                  {id: 4, content: 'Daily event 4', start: '04/15/2013', end: '04/19/2013', event: 'fertilizer'},
+                  {id: 5, content: 'Weekly event 1.3', start: '04/26/2013', event: 'irrigation', group:"ga"},
+                  {id: 6, content: 'Weekly event 1.4', start: '05/03/2013', event: 'irrigation', group:"ga"}
                 ];
-                eventId = 6;
+                eventId = 7;
                 eventData = new vis.DataSet(events);
                 managements["mgn_0"] = createMgnData("Default", events);
                 eventData = managements["mgn_0"].tmlData;
