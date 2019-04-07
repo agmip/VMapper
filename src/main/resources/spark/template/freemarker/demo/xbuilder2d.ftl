@@ -398,6 +398,7 @@
                 $('.exp_data').each(function() {
                     $(this).val(expData[$(this).attr("id")]);
                 });
+                updateExname();
                 
                 // Load cultivars
                 cultivars = rawData.cultivar;

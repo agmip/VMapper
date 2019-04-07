@@ -35,7 +35,7 @@
         }
         
         let crid;
-        if (target.id === "crid") {
+        if (target && target.id === "crid") {
             crid = $('#crid').val();
             if (crid === "") {
                 crid = "??";
@@ -65,8 +65,10 @@
         } else {
             $('#exname').val(exname);
         }
-        $('#exname').trigger('change');
-        $('#exname_label').html(institute + site + startYear + expNo + "." + crid + "X");
+        if (target) {
+            $('#exname').trigger('change');
+        }
+        $('#exname_label').html(exname + "." + crid + "X");
     }
     
     function updateCulSB(target) {
