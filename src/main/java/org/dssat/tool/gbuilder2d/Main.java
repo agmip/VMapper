@@ -121,7 +121,7 @@ public class Main {
             mgnList.put("fertilizer",  new ArrayList());
             mgnList.put("harvest",  new ArrayList());
             ArrayList<JSONObject> configList = new ArrayList();
-            ArrayList<JSONObject> treatments = JsonUtil.parseFrom(request.queryParams("treatment")).getObjArr();
+            ArrayList<JSONObject> treatments = rawData.getObjArr("treatment");
             for (JSONObject trt : treatments) {
                 
                 // Handle cultivar data
