@@ -33,26 +33,31 @@
     function updateJsonPreview() {
         $('#json_preview').html("<div><h3>Experiment Data</h3>" +
                 JSON.stringify(expData) +
-                "</div><div><h3>Treatment List</h3>" +
+                "<hr></div><div><h3>Treatment List</h3>" +
                 JSON.stringify(trtData) +
-                "</div><div><h3>Field List</h3>" +
+                "<hr></div><div><h3>Field List</h3>" +
                 JSON.stringify(fields) +
-                "</div><div><h3>Management List</h3>" +
+                "<hr></div><div><h3>Management List</h3>" +
                 JSON.stringify(getManagements()) +
-                "</div><div><h3>Cultivar List</h3>" +
+                "<hr></div><div><h3>Cultivar List</h3>" +
                 JSON.stringify(cultivars) +
-                "</div>");
+                "<hr></div>");
     }
     
     function getFinalJson() {
-        return JSON.stringify({
-            experiment:expData,
-            treatment: trtData,
-            field: fields,
-            management: getManagements(),
-            cultivars:cultivars,
+        return JSON.stringify(getFinalData());
+    }
+    
+    function getFinalData() {
+        let ret = {
+            experiment : expData,
+            cultivar : cultivars,
+            field : fields,
+            management : getManagements(),
+            treatment : trtData,
             version : "0.0.1"
-        });
+        };
+        return ret;
     }
     
     function getManagements() {
