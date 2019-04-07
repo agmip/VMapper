@@ -9,7 +9,7 @@
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/handsontable-pro@latest/dist/handsontable.full.min.css">
         
         <script>
-            let expData = {version : "0.0.1"};
+            let expData = {};
             let fields = {};
             let fieldData = {};
             let fieldId;

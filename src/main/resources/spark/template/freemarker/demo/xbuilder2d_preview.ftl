@@ -50,7 +50,8 @@
             treatment: trtData,
             field: fields,
             management: getManagements(),
-            cultivars:cultivars
+            cultivars:cultivars,
+            version : "0.0.1"
         });
     }
     
