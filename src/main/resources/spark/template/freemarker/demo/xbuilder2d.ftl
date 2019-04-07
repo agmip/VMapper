@@ -211,15 +211,10 @@
                     // TODO
                 });
                 $('.nav-tabs #TreatmentTab').on('shown.bs.tab', function(){
-                    // TODO
                     for (let trtid in trtData) {
-//                        $("#tr_field_" + trtData[trtid].trtno).chosen("destroy");
                         chosen_init("tr_field_" +  + trtData[trtid].trtno);
-//                        $("#tr_cul_" + trtData[trtid].trtno).chosen("destroy");
                         chosen_init("tr_cul_" +  + trtData[trtid].trtno);
-//                        $("#tr_mgn_" + trtData[trtid].trtno).chosen("destroy");
                         chosen_init("tr_mgn_" + trtData[trtid].trtno);
-//                        $("#tr_config_" + trtData[trtid].trtno).chosen("destroy");
                         chosen_init("tr_config_" + trtData[trtid].trtno);
                     }
                 });
