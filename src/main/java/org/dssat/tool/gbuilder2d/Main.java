@@ -94,20 +94,22 @@ public class Main {
         
         post(Path.Web.Translator.DSSAT_EXP, (Request request, Response response) -> {
             HashMap data = new HashMap();
+            String jsonStr = request.queryParams("data");
+            JSONObject rawData = JsonUtil.parseFrom(jsonStr);
             
             // Handle meta data
-            JSONObject expData = JsonUtil.parseFrom(request.queryParams("exp"));
+            JSONObject expData = rawData.getAsObj("experiment");
             expData.put("crid", DataUtil.getDssatCropCode(expData.getOrBlank("crid")));
             
             // Handle cultivar， field and management data
             // Initialize data containers
-            JSONObject culData = JsonUtil.parseFrom(request.queryParams("cultivar"));
+            JSONObject culData = rawData.getAsObj("cultivar");
             ArrayList<String> culIdList = new ArrayList();
             ArrayList culList = new ArrayList();
-            JSONObject fieldData = JsonUtil.parseFrom(request.queryParams("field"));
+            JSONObject fieldData = rawData.getAsObj("field");
             ArrayList<String> fieldIdList = new ArrayList();
             ArrayList fieldList = new ArrayList();
-            JSONObject mgnData = JsonUtil.parseFrom(request.queryParams("management"));
+            JSONObject mgnData = rawData.getAsObj("management");
             HashMap<String, ArrayList<String>> mgnIdList = new HashMap();
             mgnIdList.put("planting",  new ArrayList());
             mgnIdList.put("irrigation",  new ArrayList());

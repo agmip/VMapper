@@ -77,13 +77,7 @@
     function updateDssatPreview() {
         $('#dssat_preview_text').html('Loading...');
         $.post("/translator/dssat_exp",
-            {
-                exp: JSON.stringify(expData),
-                cultivar: JSON.stringify(cultivars),
-                field: JSON.stringify(fields),
-                management: JSON.stringify(getManagements()),
-                treatment: JSON.stringify(trtData)
-            },
+            {data : getFinalJson()},
             function (xfile) {
                 $('#dssat_preview_text').html(xfile);
             }
