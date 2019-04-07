@@ -122,7 +122,7 @@
                 <div class="form-group has-feedback col-sm-6">
                     <label class="control-label" for="start_year">Year *</label>
                     <div class="input-group col-sm-12">
-                        <select type="year" id="start_year" name="start_year" class="form-control chosen-select-deselect exp_data" onchange="updateExname(this);" placeholder="Choose start year..." data-toggle="tooltip" title="The start year of experiment" required>
+                        <select id="start_year" name="start_year" class="form-control chosen-select-deselect exp_data" onchange="updateExname(this);" placeholder="Choose start year..." data-toggle="tooltip" title="The start year of experiment" required>
                             <option value=""></option>
                         </select>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
