@@ -5,7 +5,7 @@
 //            console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
 //        });
         tmlData.on('add', function(event, properties, senderId) {
-            console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
+//            console.log('event:', event, 'properties:', properties, 'senderId:', senderId);
             if (properties.items && properties.items.length === 1) {
                 let itemData = eventData.get(properties.items);
                 if (!itemData[0].creator) {
