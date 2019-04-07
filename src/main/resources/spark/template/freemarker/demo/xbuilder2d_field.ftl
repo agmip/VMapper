@@ -1,22 +1,33 @@
 <script>
-    function createField() {
-        let num = getNewCollectionNum(fields);
-        fieldId = "field_" + num;
-        let description = "New Field " + (num + 1);
+    function createField(id, rawData) {
+        let num;
+        let description;
+        if (id) {
+            fieldId = id;
+            description = rawData.fl_name;
+            fields[fieldId] = rawData;
+        } else {
+            num = getNewCollectionNum(fields);
+            fieldId = "field_" + num;
+            description = "New Field " + (num + 1);
+            fields[fieldId] = {fl_name: description};
+        }
         let id_field = null;
-        fields[fieldId] = {fl_name: description};
         if (expData["exname"]) {
             id_field = expData["exname"].substring(0,4) + (num + 1).toString().padStart(4, "0");
         }
         fieldData = fields[fieldId];
         $('#field_list').append('<li><a data-toggle="tab" href="#Field" id="' + fieldId + '" onclick="setField(this);">' + description + '</a></li>');
-        if (id_field) {
+        if (!id && id_field) {
             fieldData["id_field"] = id_field;
-            $('#id_field').val(id_field);
         }
+        $('#id_field').val(fieldData.id_field);
         $('#soil_id').val("");
         $('#wst_id').val("");
         $('#fl_name').val(description);
+        $('#bdht').val("").trigger("input");
+        $('#bdwd').val("").trigger("input");
+        $('#pmalb').val("").trigger("input");
         for (let i in trtData) {
             $('#tr_field_' + trtData[i].trtno).append('<option value="' + fieldId + '">' + description + '</option>');
         }
@@ -30,9 +41,15 @@
         $('#fl_name').val(fieldData['fl_name']);
         $('#soil_id').val(fieldData['soil_id']);
         $('#wst_id').val(fieldData['wst_id']);
+        $('#bdht').val(fieldData['bdht']).trigger("input");
+        $('#bdwd').val(fieldData['bdwd']).trigger("input");
+        $('#pmalb').val(fieldData['pmalb']).trigger("input");
     }
     
-    function removeField() {
+    function removeField(id) {
+        if (id) {
+            fieldId = id;
+        }
         delete fields[fieldId];
         $('#field_list li a[id="' + fieldId + '"]').remove();
         for (let i in trtData) {
@@ -43,10 +60,12 @@
         for (let i in trtData) {
             $('#tr_field_' + trtData[i].trtno).trigger("change");
         }
-        if (fieldIds.length > 0) {
-            $("#" + fieldIds[0]).click();
-        } else {
-            $("#SiteInfoTab a").click();
+        if (!id) {
+            if (fieldIds.length > 0) {
+                $("#" + fieldIds[0]).click();
+            } else {
+                $("#SiteInfoTab a").click();
+            }
         }
     }
     
@@ -55,7 +74,7 @@
         if (type === "range") {
             $('#' + target.name).val(target.value).trigger("change");
         } else {
-            $('[name=' + target.id + ']').val(target.value);
+            $('[name=' + target.name + ']').val(target.value);
         }
         
     }
@@ -106,7 +125,7 @@
                         <input type="range" name="bdwd" step="1" max="300" min="1" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInputId(this)">
                     </div>
                     <div class="col-sm-5">
-                        <input type="number" id="bdwd" step="1" max="999" min="1" class="form-control field_data" value="" oninput="rangeNumInputId(this)" >
+                        <input type="number" name="bdwd" id="bdwd" step="1" max="999" min="1" class="form-control field_data" value="" oninput="rangeNumInputId(this)" >
                     </div>
                 </div>
             </div>
@@ -117,7 +136,7 @@
                         <input type="range" name="bdht" step="1" max="100" min="1" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInputId(this)">
                     </div>
                     <div class="col-sm-5">
-                        <input type="number" id="bdht" step="1" max="999" min="1" class="form-control field_data" value="" oninput="rangeNumInputId(this)" >
+                        <input type="number" name="bdht" id="bdht" step="1" max="999" min="1" class="form-control field_data" value="" oninput="rangeNumInputId(this)" >
                     </div>
                 </div>
             </div>
@@ -128,7 +147,7 @@
                         <input type="range" name="pmalb" step="0.01" max="1" min="0.01" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInputId(this)">
                     </div>
                     <div class="col-sm-5">
-                        <input type="number" id="pmalb" step="0.1" max="1" min="0.01" class="form-control field_data" value="" oninput="rangeNumInputId(this)" >
+                        <input type="number" name="pmalb" id="pmalb" step="0.1" max="1" min="0.01" class="form-control field_data" value="" oninput="rangeNumInputId(this)" >
                     </div>
                 </div>
             </div>

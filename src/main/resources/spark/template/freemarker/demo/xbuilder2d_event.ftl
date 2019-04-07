@@ -23,12 +23,19 @@
         return {mgn_name: name, data: events, tmlData: tmlData};
     }
 
-    function createManagement() {
-        let num = getNewCollectionNum(managements);
-        mgnId = "mgn_" + num;
-        let description = "New Management " + (num + 1);
-        events = [];
-        eventId = 1;
+    function createManagement(id, rawData) {
+        let description;
+        if (id && rawData) {
+            mgnId = id ;
+            events = rawData.data;
+            description = rawData.mgn_name;
+        } else {
+            let num = getNewCollectionNum(managements);
+            mgnId = "mgn_" + num;
+            description = "New Management " + (num + 1);
+            events = [];
+            eventId = 1;
+        }
         managements[mgnId] = createMgnData(description, events);
         eventData = managements[mgnId].tmlData;
         $('#mgn_list').append('<li><a data-toggle="tab" href="#Event" id="' + mgnId + '" onclick="setManagement(this);">' + description + '</a></li>');
@@ -47,7 +54,10 @@
         $('#mgn_name').val(managements[target.id]['mgn_name']);
     }
     
-    function removeManagement() {
+    function removeManagement(id) {
+        if (id) {
+            mgnId = id;
+        }
         delete managements[mgnId];
         $('#mgn_list li a[id="' + mgnId + '"]').remove();
         for (let i in trtData) {
@@ -58,10 +68,12 @@
         for (let i in trtData) {
             $('#tr_mgn_' + trtData[i].trtno).trigger("change");
         }
-        if (mgnIds.length > 0) {
-            $("#" + mgnIds[0]).click();
-        } else {
-            $("#SiteInfoTab a").click();
+        if (!id) {
+            if (mgnIds.length > 0) {
+                $("#" + mgnIds[0]).click();
+            } else {
+                $("#SiteInfoTab a").click();
+            }
         }
     }
     

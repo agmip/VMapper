@@ -169,6 +169,12 @@
             function init() {
                 initStartYearSB();
                 chosen_init_all();
+                if (timeline) {
+                    timeline.destroy();
+                }
+                if (spreadsheet) {
+                    spreadsheet.destroy();
+                }
                 $('.exp_data').on('change', function() {
                     saveData(expData, this.id, this.value);
                 });
@@ -177,6 +183,10 @@
                     if (this.id === "fl_name") {
                         $('#' + fieldId).html(this.value);
                     }
+                });
+                $('.nav-tabs #SiteInfoTab').on('shown.bs.tab', function(){
+                    chosen_init("start_year");
+                    chosen_init("crid");
                 });
                 $('.nav-tabs #FieldTab').on('shown.bs.tab', function(){
                     $("#field_create").parent().removeClass("active");
@@ -221,30 +231,6 @@
                 $('.nav-tabs #PreviewTab').on('shown.bs.tab', function(){
                     updatePreview();
                 });
-                
-                // Create a DataSet (allows two way data-binding)
-                events = [
-                  {id: 1, content: 'Fixed event 1', start: '04/11/2013', event: 'planting', cul_id:'DRI319', editable: false},
-                  {id: 2, content: 'Weekly event 1.1', start: '04/12/2013', event: 'irrigation', group:"ga"},
-                  {id: 3, content: 'Weekly event 1.2', start: '04/19/2013', event: 'irrigation', group:"ga"},
-                  {id: 4, content: 'Daily event 4', start: '04/15/2013', end: '04/19/2013', event: 'fertilizer'},
-                  {id: 5, content: 'Weekly event 1.3', start: '04/26/2013', event: 'irrigation', group:"ga"},
-                  {id: 6, content: 'Weekly event 1.4', start: '05/03/2013', event: 'irrigation', group:"ga"}
-                ];
-                eventId = 7;
-                eventData = new vis.DataSet(events);
-                managements["mgn_0"] = createMgnData("Default", events);
-                eventData = managements["mgn_0"].tmlData;
-//                managements["mgn_1"] = createMgnData("N150", []);
-//                managements["mgn_2"] = createMgnData("N200", []);
-//                managements["mgn_3"] = createMgnData("N250", []);
-//                managements["mgn_4"] = createMgnData("I-subsurface", []);
-//                managements["mgn_5"] = createMgnData("I-surface", []);
-//                managements["mgn_6"] = createMgnData("I-fixed", []);
-//                trtData.push({trtno:1});
-                configData = {};
-                configId = "config_0";
-                configs[configId] = {config_name: "Default", data: configData};
             }
             
             function initStartYearSB() {
@@ -339,8 +325,69 @@
             }
             
             function openFile() {
+                $('<input type="file" accept=".json" onchange="readFile(this);">').click();
+            }
+            
+            function readFile(target) {
+                let files = target.files;
+                if (files.length < 1) {
+                    return;
+                }
+                for (let i=0; i<files.length; i++) {
+                    readFileToBufferedArray(files[i], updateProgress, loadData);
+                }
+            }
+            
+            function updateProgress() {
                 // TODO
-                alert("[TODO] will show a dialog later to load an existing XFile!");
+            }
+            
+            function loadData(rawData) {
+                rawData = JSON.parse(rawData);
+                
+                // Load meta data
+                expData = rawData.experiment;
+                $('.exp_data').each(function() {
+                    $(this).val(expData[$(this).attr("id")]);
+                });
+                
+                // Load cultivars
+                cultivars = rawData.cultivar;
+                
+                // Load fields
+                for (let id in fields) {
+                    removeField(id);
+                }
+                for (let id in rawData.field) {
+                    createField(id, rawData.field[id]);
+                }
+                
+                // Load managements
+                for (let id in managements) {
+                    removeManagement(id);
+                }
+                for (let id in rawData.management) {
+                    createManagement(id, rawData.management[id]);
+                }
+                fstTmlFlg = true;
+                
+                // Load configs
+                // TODO
+                configs = {};
+                configData = {};
+                configId;
+                
+                // Load treatments
+                for (let id = trtData.length; id > 0 ; id--) {
+                    removeTrt(Number(id));
+                }
+                for (let id in rawData.treatment) {
+                    addTrt(Number(id) + 1, rawData.treatment[id]);
+                }
+//                trtData = rawData.treatment;
+                
+                init();
+                $("#SiteInfoTab a").click();
             }
         </script>
     </head>
@@ -368,19 +415,12 @@
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         <span class="glyphicon glyphicon-calendar"></span>
                         Management
-                        <span class="badge" id="mgn_badge">1</span>
+                        <span class="badge" id="mgn_badge">0</span>
                         <span class="caret"></span>
                     </a>
                     
                     <ul class="dropdown-menu" id="mgn_list">
                         <li><a data-toggle="tab" href="#Event" class="create-link" id="mgn_create" onclick="createManagement();">Create new...</a></li>
-                        <li><a data-toggle="tab" href="#Event" id="mgn_0" onclick="setManagement(this);">Default</a></li>
-<!--                        <li><a data-toggle="tab" href="#Event" id="mgn_1" onclick="setManagement(this);">N-150</a></li>
-                        <li><a data-toggle="tab" href="#Event" id="mgn_2" onclick="setManagement(this);">N-200</a></li>
-                        <li><a data-toggle="tab" href="#Event" id="mgn_3" onclick="setManagement(this);">N-250</a></li>
-                        <li><a data-toggle="tab" href="#Event" id="mgn_4" onclick="setManagement(this);">I-subsurface</a></li>
-                        <li><a data-toggle="tab" href="#Event" id="mgn_5" onclick="setManagement(this);">I-surface</a></li>
-                        <li><a data-toggle="tab" href="#Event" id="mgn_6" onclick="setManagement(this);">I-fixed</a></li>-->
                     </ul>
                 </li>
                 <li id="ConfigTab" class="dropdown">
@@ -435,6 +475,7 @@
         <script type="text/javascript" src="/plugins/chosen/chosen.jquery.min.js" ></script>
         <script type="text/javascript" src="/plugins/chosen/prism.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/chosen/init.js" charset="utf-8"></script>
+        <script type="text/javascript" src="/js/dataReader/BufferedFileReader.js"></script>
         <script type="text/javascript" src="/js/bootbox/bootbox.all.min.js" charset="utf-8"></script>
         <script src="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.js"></script>
         <script type="text/javascript">

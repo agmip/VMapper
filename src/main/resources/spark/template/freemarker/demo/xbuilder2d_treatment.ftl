@@ -1,6 +1,11 @@
 <script>
-    function addTrt() {
-        let trtno = trtData.length + 1;
+    function addTrt(id, rawData) {
+        let trtno;
+        if (id) {
+            trtno = id;
+        } else {
+            trtno = trtData.length + 1;
+        }
         let trtRow = $("<tr></tr>");
         $("#trt_table_body").append(trtRow);
         
@@ -14,7 +19,10 @@
         trtRow.append(trtNameCell);
         let trtNameInput = $('<input type="text" name="trt_name" class="form-control" placeholder="Treatment name" data-toggle="tooltip" title="Treatment name" required>');
         trtNameCell.append($("<div class='input-group col-sm-11'></div>").append(trtNameInput));
-        trtNameInput.attr("id", "trt_name_" + trtno)
+        trtNameInput.attr("id", "trt_name_" + trtno);
+        if (rawData) {
+            trtNameInput.val(rawData.trt_name);
+        }
         trtNameInput.on('change', function() {
             let trtid = Number(this.id.replace("trt_name_", "")) - 1;
             saveData(trtData[trtid], this.name, this.value);
@@ -30,6 +38,9 @@
             trtFieldSB.append($('<option value="' + fid + '"></option>').append(fields[fid].fl_name));
         }
         trtFieldSB.attr("id", "tr_field_" + trtno);
+        if (rawData) {
+            trtFieldSB.val(rawData.field);
+        }
         
         let trtCulCell = $("<td></td>");
         trtRow.append(trtCulCell);
@@ -41,6 +52,9 @@
             trtCulSB.append($('<option value="' + culId + '"></option>').append(cultivars[culId].cul_name));
         }
         trtCulSB.attr("id", "tr_cul_" + trtno);
+        if (rawData) {
+            trtCulSB.val(rawData.cul_id);
+        }
         
         let trtMgnCell = $("<td></td>");
         trtRow.append(trtMgnCell);
@@ -52,6 +66,11 @@
             trtMgnSB.append($('<option value="' + mid + '"></option>').append(managements[mid].mgn_name));
         }
         trtMgnSB.attr("id", "tr_mgn_" + trtno);
+        if (rawData && rawData.management) {
+            rawData.management.forEach(item => {
+                trtMgnSB.children('option[value=' + item + ']').attr('selected', true);
+            });
+        }
         
         let trtCfgCell = $("<td></td>");
         trtRow.append(trtCfgCell);
@@ -60,18 +79,29 @@
         trtCfgSB.append('<option value=""></option>');
         trtCfgSB.append('<option value="">Create new...</option>');
         trtCfgSB.attr("id", "tr_config_" + trtno);
+        if (rawData) {
+            trtCfgSB.val(rawData.config);
+        }
         
         chosen_init("tr_field_" + trtno);
         chosen_init("tr_cul_" + trtno);
         chosen_init("tr_mgn_" + trtno);
         chosen_init("tr_config_" + trtno);
-        trtData.push({trtno:trtno});
+        if (id) {
+            trtData.push(rawData);
+        } else {
+            trtData.push({trtno:trtno});
+        }
         $('#treatment_badge').html(trtData.length);
     }
     
     function removeTrt(target) {
-        $("#" + target.id).parent().parent().parent().remove();
-        let rmvId = Number(target.id.replace("trt_remove_btn_", "")) - 1;
+        let id = target.id;
+        if (!id) {
+            id = "trt_remove_btn_" + target;
+        }
+        $("#" + id).parent().parent().parent().remove();
+        let rmvId = Number(id.replace("trt_remove_btn_", "")) - 1;
         trtData.splice(rmvId, 1);
         for (let trtid = rmvId; trtid < trtData.length; trtid++) {
             let newId = trtid + 1;
