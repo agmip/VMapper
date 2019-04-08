@@ -230,6 +230,9 @@
                         fstTmlFlg = false;
                         initTimeline();
                         initSpreadsheet();
+                        if (events.length !== 0) {
+                            timeline.fit();
+                        }
                     } else {
                         timeline.setItems(eventData);
                         if (events.length === 0) {
