@@ -171,7 +171,7 @@ public class Main {
                 culIdList.add(culId);
                 culList.add(culData.get(culId));
             }
-            trt.put("flid", culIdList.indexOf(culId) + 1);
+            trt.put("cuid", culIdList.indexOf(culId) + 1);
         }
     }
     
