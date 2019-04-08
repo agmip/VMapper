@@ -73,7 +73,7 @@
         } 
         let promptClass = 'event-input-' + itemData.event;
         let dialog = bootbox.dialog({
-            title: "Please input event data",
+            title: "<h2>" + itemData.event + " Event Information</h2>",
             size: 'large',
             message: $("." + promptClass).html(),
             buttons: buttons
@@ -92,6 +92,9 @@
             }
             if (!itemData.start) {
                 $('[name=start]').val(dateUtil.toYYYYMMDDStr(new Date(defaultDate())));
+            }
+            if (itemData.event === "planting") {
+                plmaSBHelper({value:itemData.plma});
             }
             dialog.find('.max-5').on('input', function() {
                 limitLength(this, 5);
@@ -112,6 +115,14 @@
             $('[name=hastg]').val(value);
         } else {
             rangeNumInput(target);
+        }
+    }
+    
+    function plmaSBHelper(target) {
+        if (target.value === "T") {
+            $("[name=pl_tran_info]").fadeIn();
+        } else {
+            $("[name=pl_tran_info]").fadeOut();
         }
     }
 </script>
@@ -158,7 +169,7 @@
         <div class="form-group col-sm-4">
             <label class="control-label" for="plma">Planting Method *</label>
             <div class="input-group col-sm-12">
-                <select name="plma" class="form-control event-input-item" data-placeholder="Choose a method..." required>
+                <select name="plma" class="form-control event-input-item" data-placeholder="Choose a method..." onchange="plmaSBHelper(this);" required>
                     <option value=""></option>
                     <option value="B">Bedded</option>
                     <option value="S">Dry seed</option>
@@ -242,19 +253,68 @@
             </div>
         </div>
         <!-- 6th row -->
-<!--        <div class="form-group col-sm-4">
-            <label class="control-label" for="cul_id">Crop</label>
-            <div class="input-group col-sm-12">
-                <input type="text" name="crop_name" class="form-control" value="" readonly >
-                <input type="hidden" name="crid" class="form-control event-input-item" value="" >
-            </div>
+        <div class="form-group col-sm-12" name="pl_tran_info" hidden>
+            <fieldset>
+                <legend>Transplant Information</legend>
+                <!-- 6.1th row -->
+                <div class="form-group col-sm-6">
+                    <label class="control-label" for="plmwt">Planting Material Dry Weight (kg/ha) *</label>
+                    <div class="input-group col-sm-12">
+                        <div class="col-sm-7">
+                            <input type="range" name="plmwt" step="0.1" max="10" min="1" class="form-control" value="" placeholder="Planting Material Dry Weight (kg/ha)" data-toggle="tooltip" title="Planting Material Dry Weight (kg/ha)" oninput="rangeNumInput(this)">
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="number" name="plmwt" step="1" max="999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-6">
+                    <label class="control-label" for="plenv">Temperature of transplant environment (C) *</label>
+                    <div class="input-group col-sm-12">
+                        <div class="col-sm-7">
+                            <input type="range" name="plenv" step="1" max="40" min="1" class="form-control" value="" placeholder="Temperature of transplant environment (C)" data-toggle="tooltip" title="Temperature of transplant environment (C)" oninput="rangeNumInput(this)">
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="number" name="plenv" step="1" max="999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
+                        </div>
+                    </div>
+                </div>
+                <!-- 6.2th row -->
+                <div class="form-group col-sm-4">
+                    <label class="control-label" for="page">Transplant Age (days) *</label>
+                    <div class="input-group col-sm-12">
+                        <div class="col-sm-7">
+                            <input type="range" name="page" step="1" max="50" min="1" class="form-control" value="" placeholder="Transplant Age (days)" data-toggle="tooltip" title="Transplant Age (days)" oninput="rangeNumInput(this)">
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="number" name="page" step="1" max="999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label" for="plph">Plant per hill</label>
+                    <div class="input-group col-sm-12">
+                        <div class="col-sm-7">
+                            <input type="range" name="plph" step="1" max="100" min="1" class="form-control" value="" placeholder="Plant per hill" data-toggle="tooltip" title="Plant per hill" oninput="rangeNumInput(this)">
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="number" name="plph" step="1" max="999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label" for="plspl">Initial Sprout Length (cm)</label>
+                    <div class="input-group col-sm-12">
+                        <div class="col-sm-7">
+                            <input type="range" name="plspl" step="1" max="20" min="1" class="form-control" value="" placeholder="Initial Sprout Length (cm)" data-toggle="tooltip" title="Initial Sprout Length (cm)" oninput="rangeNumInput(this)">
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="number" name="plspl" step="1" max="999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
         </div>
-        <div class="form-group has-feedback col-sm-4">
-            <label class="control-label" for="cul_id">Cultivar ID *</label>
-            <div class="input-group col-sm-12">
-                <input type="text" name="cul_id" class="form-control event-input-item" value="" required >
-            </div>
-        </div>-->
     </div>
     <p>&nbsp;</p>
 </div>
