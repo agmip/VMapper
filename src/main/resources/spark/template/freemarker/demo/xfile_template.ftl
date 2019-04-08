@@ -127,7 +127,7 @@ ${config?counter?left_pad(2)} GE              1     1     S ${(config.general.sd
 @N OPTIONS     WATER NITRO SYMBI PHOSP POTAS DISES  CHEM  TILL   CO2
 ${config?counter?left_pad(2)} OP          ${(config.options.water!"Y")?left_pad(5)} ${(config.options.nitro!"Y")?left_pad(5)}     Y     N     N     N     N     N     M
 @N METHODS     WTHER INCON LIGHT EVAPO INFIL PHOTO HYDRO NSWIT MESOM MESEV MESOL
-${config?counter?left_pad(2)} ME              M     M     E     R     N     C     G     1     G     S     2
+${config?counter?left_pad(2)} ME              M     M     E     R     N     C ${(config.methods.hydro!"R")?left_pad(5)}     1     G     S     2
 @N MANAGEMENT  PLANT IRRIG FERTI RESID HARVS
 ${config?counter?left_pad(2)} MA              R     R     R     R ${(config.management.harvs!"M")?left_pad(5)}
 @N OUTPUTS     FNAME OVVEW SUMRY FROPT GROUT CAOUT WAOUT NIOUT MIOUT DIOUT VBOSE CHOUT OPOUT

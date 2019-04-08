@@ -178,11 +178,18 @@ public class Main {
     private static void setupFields(JSONObject trt, JSONObject fieldData, ArrayList<String> fieldIdList, ArrayList fieldList) {
         String fieldId = trt.getOrBlank("field");
         if (!fieldId.isEmpty()) {
+            JSONObject data = (JSONObject) fieldData.get(fieldId);
             if (!fieldIdList.contains(fieldId)) {
                 fieldIdList.add(fieldId);
-                fieldList.add(fieldData.get(fieldId));
+                fieldList.add(data);
             }
             trt.put("flid", fieldIdList.indexOf(fieldId) + 1);
+            
+            if (!data.getOrBlank("bdht").isEmpty() ||
+                    !data.getOrBlank("bdwd").isEmpty() ||
+                    !data.getOrBlank("pmalb").isEmpty()) {
+                trt.put("hydro", "G");
+            }
         }
     }
     
@@ -203,6 +210,9 @@ public class Main {
         }
         if (!trt.getOrBlank("sdate").isEmpty()) {
             config.getAsObj("general").put("sdate", trt.get("sdate"));
+        }
+        if (!trt.getOrBlank("hydro").isEmpty()) {
+            config.getAsObj("methods").put("hydro", trt.get("hydro"));
         }
         
         int smid = configList.indexOf(config);
