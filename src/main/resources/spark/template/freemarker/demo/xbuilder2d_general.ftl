@@ -136,9 +136,18 @@
                         <!--<span class="input-group-addon glyphicon">*</span>-->
                         <select id="crid" class="form-control chosen-select-deselect exp_data" onchange="updateCulSB(this);updateExname(this);" data-placeholder="Choose a Crop..." required>
                             <option value=""></option>
+                            <#assign category = "">
                             <#list culMetaList as culMeta>
-                            <option value="${culMeta.agmip_code!}">${culMeta.name!}</option>
+                                <#if category != culMeta.category>
+                                    <#if culMeta?index != 0>
+                            </optgroup>
+                                    </#if>
+                            <optgroup label="${culMeta.category!}">
+                                </#if>
+                                <option value="${culMeta.agmip_code!}">${culMeta.name!}</option>
+                                <#assign category = culMeta.category>
                             </#list>
+                           </optgroup>
                         </select>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>

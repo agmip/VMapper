@@ -58,7 +58,10 @@ public class DataUtil {
         CUL_METADATA_LIST.sort(new Comparator<JSONObject>() {
             @Override
             public int compare(JSONObject o1, JSONObject o2) {
-                int ret = o1.getOrBlank("name").compareTo(o2.getOrBlank("name"));
+                int ret = o1.getOrBlank("category").compareTo(o2.getOrBlank("category"));
+                if (ret == 0) {
+                    ret = o1.getOrBlank("name").compareTo(o2.getOrBlank("name"));
+                }
                 return ret;
             }
         });
