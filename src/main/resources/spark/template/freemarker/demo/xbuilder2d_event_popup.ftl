@@ -53,13 +53,15 @@
                 className: 'btn-primary',
                 callback: function(){
                     $('.event-input-item').each(function () {
-                        if ($(this).val().toString().trim() !== "") {
-                            let varName = $(this).attr("name");
-                            let varValue = $(this).val();
+                        let varName = $(this).attr("name");
+                        let varValue = $(this).val();
+                        if (varValue.toString().trim() !== "") {
                             if (varName === "start") {
                                 varValue = dateUtil.toLocaleStr(varValue);
                             }
                             editEvent(varName, varValue);
+                        } else {
+                            editEvent(varName);
                         }
                     });
                 }
