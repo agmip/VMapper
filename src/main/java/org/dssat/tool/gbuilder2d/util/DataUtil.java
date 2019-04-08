@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  *
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 public class DataUtil {
     
     private static final JSONObject CROP_CODE_MAP = new JSONObject();
+    private static final ArrayList<JSONObject> CUL_METADATA_LIST = new ArrayList();
     private static final JSONObject CUL_METADATA_MAP = loadCulData();
     
     private static JSONObject loadCulData() {
@@ -52,6 +54,14 @@ public class DataUtil {
         } catch (IOException ex) {
             ex.printStackTrace(System.out);
         }
+        CUL_METADATA_LIST.addAll(ret.values());
+        CUL_METADATA_LIST.sort(new Comparator<JSONObject>() {
+            @Override
+            public int compare(JSONObject o1, JSONObject o2) {
+                int ret = o1.getOrBlank("name").compareTo(o2.getOrBlank("name"));
+                return ret;
+            }
+        });
         return ret;
     }
     
@@ -65,6 +75,10 @@ public class DataUtil {
     
     public static JSONObject getCulMetaData() {
         return CUL_METADATA_MAP;
+    }
+    
+    public static ArrayList getCulMetaDataList() {
+        return CUL_METADATA_LIST;
     }
     
     public static JSONObject getCulDataList(String crid) {

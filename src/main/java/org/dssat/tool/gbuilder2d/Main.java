@@ -63,7 +63,7 @@ public class Main {
         // Set up routes
         get("/", (Request request, Response response) -> {
             HashMap data = new HashMap();
-            data.put("culMetaList", DataUtil.getCulMetaData().values());
+            data.put("culMetaList", DataUtil.getCulMetaDataList());
             return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.XBUILDER2D));
                 });
         
@@ -77,7 +77,7 @@ public class Main {
         
         get(Path.Web.Demo.XBUILDER2D, (Request request, Response response) -> {
             HashMap data = new HashMap();
-            data.put("culMetaList", DataUtil.getCulMetaData().values());
+            data.put("culMetaList", DataUtil.getCulMetaDataList());
             return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.XBUILDER2D));
                 });
         
