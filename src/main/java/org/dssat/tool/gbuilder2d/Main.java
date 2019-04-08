@@ -297,6 +297,9 @@ public class Main {
                         }
                     }
                 });
+                if (eventType.equals("irrigation")) {
+                    processDrip(eventArr);
+                }
                 for (JSONObject event : (ArrayList<JSONObject>) eventArr) {
                     event.put(eventType.substring(0, 2) + "_name", eventName);
                 }
@@ -307,6 +310,39 @@ public class Main {
                 trt.put("sdate", ((JSONObject) eventArr.get(0)).getOrBlank("date"));
             }
             trt.put(eventType.substring(0, 2) + "id", eventIdList.indexOf(eventId) + 1);
+        }
+    }
+    
+    private static void processDrip(ArrayList<JSONObject> eventArr) {
+        boolean dripFlg = false;
+        for (JSONObject eventData : eventArr) {
+            String irop = eventData.getOrBlank("irop");
+            if (irop.equals("IR005")) {
+                dripFlg = true;
+            }
+        }
+        if (dripFlg) {
+            ArrayList<String> dripDefSet = new ArrayList();
+            for (JSONObject eventData : eventArr) {
+                String irop = eventData.getOrBlank("irop");
+                if (irop.equals("IR005")) {
+                    String dripDef = String.format("%s_%s_%s",
+                            eventData.getOrBlank("irspc"),
+                            eventData.getOrBlank("irofs"),
+                            eventData.getOrBlank("irdep"));
+                    int id = dripDefSet.indexOf(dripDef) + 1;
+                    if (id > 0) {
+                        eventData.put("irln", id);
+                    } else {
+                        dripDefSet.add(dripDef);
+                        eventData.put("irln", dripDefSet.size());
+                        eventData.put("irln_flg", "true");
+                    }
+                    
+                } else {
+                    eventData.put("irln", 0);
+                }
+            }
         }
     }
     

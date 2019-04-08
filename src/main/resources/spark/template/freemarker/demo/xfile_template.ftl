@@ -81,21 +81,26 @@ ${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['eda
 *IRRIGATION AND WATER MANAGEMENT
 </#if>
 <#list managements.irrigation as eventArr>
-@I  EFIR  IDEP  ITHR  IEPT  IOFF  IAME  IAMT IRTLN IRNAME
-${eventArr?counter?left_pad(2)}   -99   -99   -99   -99   -99   -99   -99     1 -99
-<#if eventArr[0]?? && eventArr[0].irstr??>
+@I  EFIR  IDEP  ITHR  IEPT  IOFF  IAME  IAMT IRNAME
+${eventArr?counter?left_pad(2)}   -99   -99   -99   -99   -99   -99   -99 <#if eventArr[0]??>${eventArr[0].ir_name}</#if>
+<#if eventArr[0]?? && eventArr[0].irln??>
 @I  IRLN IRSPC IROFS IRDEP
-${eventArr?counter?left_pad(2)}     1  35.6     0  35.6
-@I IDATE  IROP IRVAL IRSTR IRDUR IRINT IRNUM  IRLN
 <#list eventArr as event>
-${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['irop']!-99)?left_pad(5)} ${(event['irval']!-99)?left_pad(5)}  1:00  1380     0     1     1
+<#if event.irln_flg??>
+${eventArr?counter?left_pad(2)} ${(event['irln']!-99)?left_pad(5)} ${(event['irspc']!-99)?left_pad(5)} ${(event['irofs']!-99)?left_pad(5)} ${(event['irdep']!-99)?left_pad(5)}
+</#if>
 </#list>
+@I IDATE  IROP IRVAL IRSTR IRDUR  IRLN
 <#else>
 @I IDATE  IROP IRVAL
-<#list eventArr as event>
-${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['irop']!-99)?left_pad(5)} ${(event['irval']!-99)?left_pad(5)}
-</#list>
 </#if>
+<#list eventArr as event>
+<#if event.irrat??>
+${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['irop']!-99)?left_pad(5)} ${(event['irrat']!-99)?left_pad(5)} ${(event['irstr']!-99)?left_pad(5)} ${(event['irdur']!-99)?left_pad(5)} ${(event['irln']!-99)?left_pad(5)}
+<#else>
+${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['irop']!-99)?left_pad(5)} ${(event['irval']!-99)?left_pad(5)}
+</#if>
+</#list>
 </#list>
 <#if managements.fertilizer?size gt 0>
 

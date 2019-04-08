@@ -84,6 +84,11 @@
 //            $('[name=crop_name]').val($('#crid').find(":selected").text());
 //            $('[name=crid]').val($('#crid').val());
             $("." + promptClass + " input").val("");
+            if (itemData.event === "planting") {
+                plmaSBHelper({value:itemData.plma});
+            } else if (itemData.event === "irrigation") {
+                iropSBHelper({value:itemData.irop});
+            }
             for (let key in itemData) {
                 
                 if (key === "start") {
@@ -94,9 +99,6 @@
             }
             if (!itemData.start) {
                 $('[name=start]').val(dateUtil.toYYYYMMDDStr(new Date(defaultDate())));
-            }
-            if (itemData.event === "planting") {
-                plmaSBHelper({value:itemData.plma});
             }
             dialog.find('.max-5').on('input', function() {
                 limitLength(this, 5);
@@ -125,6 +127,18 @@
             $("[name=pl_tran_info]").fadeIn();
         } else {
             $("[name=pl_tran_info]").fadeOut();
+        }
+    }
+    
+    function iropSBHelper(target) {
+        if (target.value === "IR005") {
+            $(".irr-amt").val("");
+            $("[name=irr_amt]").fadeOut();
+            $("[name=ir_drip_info]").fadeIn();
+        } else {
+            $(".drip-rate").val("");
+            $("[name=irr_amt]").fadeIn();
+            $("[name=ir_drip_info]").fadeOut();
         }
     }
 </script>
@@ -357,21 +371,10 @@
             </div>
         </div>
         <!-- 3rd row -->
-        <div class="form-group col-sm-4">
-            <label class="control-label" for="irval">Amount of Water (mm) *</label>
-            <div class="input-group col-sm-12">
-                <div class="col-sm-7">
-                    <input type="range" name="irval" step="0.1" max="100" min="0" class="form-control" value="" placeholder="Irrigation amount, depth of water (mm)" data-toggle="tooltip" title="Irrigation amount, depth of water (mm)" oninput="rangeNumInput(this)">
-                </div>
-                <div class="col-sm-5">
-                    <input type="number" name="irval" step="0.1" max="999" min="0" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" >
-                </div>
-            </div>
-        </div>
         <div class="form-group col-sm-6">
             <label class="control-label" for="irop">Opertion *</label>
             <div class="input-group col-sm-12">
-                <select name="irop" class="form-control event-input-item" data-placeholder="Choose a fertilizer material...">
+                <select name="irop" class="form-control event-input-item" data-placeholder="Choose a fertilizer material..." onchange="iropSBHelper(this);">
                     <option value=""></option>
                     <option value="IR001">Furrow, mm</option>
                     <option value="IR002">Alternating furrows, mm</option>
@@ -388,6 +391,91 @@
                     <option value="IR999">Irrigation method unknown/not given</option>
                 </select>
             </div>
+        </div>
+        <div class="form-group col-sm-4" name="irr_amt">
+            <label class="control-label" for="irval">Amount of Water (mm) *</label>
+            <div class="input-group col-sm-12">
+                <div class="col-sm-7">
+                    <input type="range" name="irval" step="0.1" max="100" min="0" class="form-control irr-amt" value="" placeholder="Irrigation amount, depth of water (mm)" data-toggle="tooltip" title="Irrigation amount, depth of water (mm)" oninput="rangeNumInput(this)">
+                </div>
+                <div class="col-sm-5">
+                    <input type="number" name="irval" step="0.1" max="999" min="0" class="form-control event-input-item max-5 irr-amt" value="" oninput="rangeNumInput(this)" >
+                </div>
+            </div>
+        </div>
+        <!-- 4th row -->
+        <div class="form-group col-sm-12" name="ir_drip_info" hidden>
+            <fieldset>
+                <legend>Drip Emitter Information</legend>
+                <!-- 4.2th row -->
+                <div class="form-group col-sm-4">
+                    <label class="control-label" for="irrat">Drip Emitter Rate(mL/s) *</label>
+                    <div class="input-group col-sm-12">
+                        <div class="col-sm-7">
+                            <input type="range" name="irrat" step="0.001" max="1" min="0.001" class="form-control drip-rate" value="" placeholder="Drip Emitter Rate(mL/s)" data-toggle="tooltip" title="Drip Emitter Rate(mL/s)" oninput="rangeNumInput(this)">
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="number" name="irrat" step="0.1" max="999" min="0.001" class="form-control event-input-item max-5 drip-rate" value="" oninput="rangeNumInput(this)" required >
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label" for="irstr">Event Starting Time (mm:ss) *</label>
+                    <div class="input-group col-sm-12">
+                        <div class="col-sm-7">
+                            <input type="range" name="irstr" step="1" max="100" min="1" class="form-control" value="" placeholder="Event Starting Time (mm:ss)" data-toggle="tooltip" title="Event Starting Time (mm:ss)" oninput="rangeNumInput(this)">
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="number" name="irstr" step="1" max="999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label" for="plspl">Event Duration (min) *</label>
+                    <div class="input-group col-sm-12">
+                        <div class="col-sm-7">
+                            <input type="range" name="plspl" step="1" max="1440" min="1" class="form-control" value="" placeholder="Event Duration (min)" data-toggle="tooltip" title="Event Duration (min)" oninput="rangeNumInput(this)">
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="number" name="plspl" step="1" max="1440" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
+                        </div>
+                    </div>
+                </div>
+                <!-- 4.2th row -->
+                <div class="form-group col-sm-4">
+                    <label class="control-label" for="irspc">Drip Emitter Spacing (cm) *</label>
+                    <div class="input-group col-sm-12">
+                        <div class="col-sm-7">
+                            <input type="range" name="irspc" step="0.1" max="50" min="1" class="form-control" value="" placeholder="Planting Material Dry Weight (kg/ha)" data-toggle="tooltip" title="Planting Material Dry Weight (kg/ha)" oninput="rangeNumInput(this)">
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="number" name="irspc" step="1" max="999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label" for="irofs">Drip Emitter Offset (cm) *</label>
+                    <div class="input-group col-sm-12">
+                        <div class="col-sm-7">
+                            <input type="range" name="irofs" step="0.1" max="50" min="1" class="form-control" value="" placeholder="Temperature of transplant environment (C)" data-toggle="tooltip" title="Temperature of transplant environment (C)" oninput="rangeNumInput(this)">
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="number" name="irofs" step="1" max="999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label class="control-label" for="irdep">Drip Emitter Depth (cm) *</label>
+                    <div class="input-group col-sm-12">
+                        <div class="col-sm-7">
+                            <input type="range" name="irdep" step="0.1" max="100" min="1" class="form-control" value="" placeholder="Temperature of transplant environment (C)" data-toggle="tooltip" title="Temperature of transplant environment (C)" oninput="rangeNumInput(this)">
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="number" name="irdep" step="1" max="999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
         </div>
     </div>
     <p>&nbsp;</p>
