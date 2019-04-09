@@ -719,7 +719,7 @@
             <label class="control-label" for="happc">Grain Harvest (%)</label>
             <div class="input-group col-sm-12">
                 <div class="col-sm-7">
-                    <input type="range" name="happc" step="1" max="100" min="1" class="form-control" value="" placeholder="Grain Harvest (%)" data-toggle="tooltip" title="Grain harvest (%)" oninput="rangeNumInput(this)">
+                    <input type="range" name="happc" step="1" max="100" min="1" class="form-control" value="" placeholder="Product Harvest (%)" data-toggle="tooltip" title="Grain harvest (%)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
                     <input type="number" name="happc" step="1" max="100" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" >
