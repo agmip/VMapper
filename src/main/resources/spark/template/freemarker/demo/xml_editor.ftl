@@ -5,12 +5,6 @@
         
         <#include "../header.ftl">
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/handsontable-pro@latest/dist/handsontable.full.min.css">
-        <style>
-            div.sps_preview {
-                height: 40px;
-                overflow: scroll;
-            }
-        </style>
         <script>
             let data = {io:[], function:[]};
             let spreadsheets = {};
