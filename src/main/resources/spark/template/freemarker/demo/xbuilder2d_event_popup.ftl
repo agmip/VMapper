@@ -359,7 +359,7 @@
 </div>
 
 <!-- Irrigation Dialog -->
-<div class="event-input-irrigation">
+<div class="event-input-irrigation" hidden>
     <p></p>
     <div class="col-sm-12">
         <!-- 1st row -->
