@@ -4,8 +4,13 @@
     <head>
         
         <#include "../header.ftl">
-        <#include "../chosen.ftl">
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/handsontable-pro@latest/dist/handsontable.full.min.css">
+        <style>
+            div.sps_preview {
+                height: 40px;
+                overflow: scroll;
+            }
+        </style>
         <script>
             let data = {io:[], function:[]};
             let spreadsheets = {};
@@ -224,12 +229,7 @@
 
         <#include "../footer.ftl">
         <script type="text/javascript" src='/plugins/FileSaver/FileSaver.js'></script>
-        <script type="text/javascript" src="/js/util/dateUtil.js" charset="utf-8"></script>
-        <script type="text/javascript" src="/plugins/chosen/chosen.jquery.min.js" ></script>
-        <script type="text/javascript" src="/plugins/chosen/prism.js" charset="utf-8"></script>
-        <script type="text/javascript" src="/js/chosen/init.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/dataReader/BufferedFileReader.js"></script>
-        <script type="text/javascript" src="/js/bootbox/bootbox.all.min.js" charset="utf-8"></script>
         <script src="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.js"></script>
         <script type="text/javascript">
             $(document).ready(function () {
