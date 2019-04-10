@@ -169,12 +169,6 @@
             function reset() {
                 initStartYearSB();
                 chosen_init_all();
-                if (timeline) {
-                    timeline.destroy();
-                }
-                if (spreadsheet) {
-                    spreadsheet.destroy();
-                }
             }
             
             function init() {
@@ -421,7 +415,6 @@
                 for (let id in rawData.management) {
                     createManagement(id, rawData.management[id]);
                 }
-                fstTmlFlg = true;
                 
                 // Load configs
                 // TODO
