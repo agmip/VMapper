@@ -422,22 +422,17 @@
                 <div class="form-group col-sm-4">
                     <label class="control-label" for="irstr">Event Starting Time (mm:ss) *</label>
                     <div class="input-group col-sm-12">
-                        <div class="col-sm-7">
-                            <input type="range" name="irstr" step="1" max="100" min="1" class="form-control" value="" placeholder="Event Starting Time (mm:ss)" data-toggle="tooltip" title="Event Starting Time (mm:ss)" oninput="rangeNumInput(this)">
-                        </div>
-                        <div class="col-sm-5">
-                            <input type="number" name="irstr" step="1" max="999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
-                        </div>
+                        <input type="time" name="irstr" class="form-control event-input-item" value="" placeholder="Event Starting Time (mm:ss)" data-toggle="tooltip" title="Event Starting Time (mm:ss)">
                     </div>
                 </div>
                 <div class="form-group col-sm-4">
-                    <label class="control-label" for="plspl">Event Duration (min) *</label>
+                    <label class="control-label" for="irdur">Event Duration (min) *</label>
                     <div class="input-group col-sm-12">
                         <div class="col-sm-7">
-                            <input type="range" name="plspl" step="1" max="1440" min="1" class="form-control" value="" placeholder="Event Duration (min)" data-toggle="tooltip" title="Event Duration (min)" oninput="rangeNumInput(this)">
+                            <input type="range" name="irdur" step="1" max="1440" min="1" class="form-control" value="" placeholder="Event Duration (min)" data-toggle="tooltip" title="Event Duration (min)" oninput="rangeNumInput(this)">
                         </div>
                         <div class="col-sm-5">
-                            <input type="number" name="plspl" step="1" max="1440" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
+                            <input type="number" name="irdur" step="1" max="1440" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" required >
                         </div>
                     </div>
                 </div>
