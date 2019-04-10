@@ -46,6 +46,19 @@
         }
         $('#mgn_badge').html(Object.keys(managements).length);
     }
+
+    function replicateManagement(rawData) {
+        let num = getNewCollectionNum(managements);
+        let id = "mgn_" + num;
+        if (!rawData) {
+            rawData = {
+                mgn_name: managements[mgnId].mgn_name + " Copy",
+                data: JSON.parse(JSON.stringify(getEvents()))
+            }
+        }
+        createManagement(id, rawData);
+        setManagement({id:magId});
+    }
     
     function setManagement(target) {
 //        syncEventData();
@@ -284,6 +297,7 @@
     <fieldset>
         <legend>
             Management Information&nbsp;&nbsp;&nbsp;
+            <a href="#"><span id="mgn_replicate_btn" type="button" class="btn glyphicon glyphicon-duplicate" onclick="replicateManagement();"></span></a>
             <a href="#"><span id="mgn_remove_btn" type="button" class="btn glyphicon glyphicon-trash" onclick="removeManagement();"></span></a>
         </legend>
         <div class="row col-sm-12">
