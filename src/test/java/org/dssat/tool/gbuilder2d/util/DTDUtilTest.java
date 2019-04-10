@@ -1,18 +1,10 @@
 package org.dssat.tool.gbuilder2d.util;
 
-import com.sun.xml.dtdparser.DTDEventListener;
-import com.sun.xml.dtdparser.DTDHandlerBase;
-import com.sun.xml.dtdparser.DTDParser;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
