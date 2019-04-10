@@ -29,6 +29,7 @@
             mgnId = id ;
             events = rawData.data;
             description = rawData.mgn_name;
+            eventId = Number(events[events.length - 1].id) + 1;
         } else {
             let num = getNewCollectionNum(managements);
             mgnId = "mgn_" + num;
