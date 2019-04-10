@@ -35,6 +35,7 @@
     }
     
     function showEventDataDialog(itemData, noBackFlg, editFlg) {
+        let promptClass = 'event-input-' + itemData.event;
         let buttons = {
             cancel: {
                 label: "Cancel",
@@ -64,6 +65,19 @@
                             editEvent(varName);
                         }
                     });
+                    $('.event-input-global').each(function () {
+                        let varName = $(this).attr("name");
+                        let varValue = $(this).val();
+                        if (varValue.toString().trim() !== "") {
+                            if (varName === "start") {
+                                varValue = dateUtil.toLocaleStr(varValue);
+                            }
+                            editAllEvent(itemData.event, varName, varValue);
+                        } else {
+                            editAllEvent(itemData.event, varName);
+                        }
+                        $("." + promptClass + " input[name="+ varName +"]").val(varValue);
+                    });
                 }
             }
         };
@@ -73,7 +87,6 @@
         if (noBackFlg) {
             delete buttons.back;
         } 
-        let promptClass = 'event-input-' + itemData.event;
         let dialog = bootbox.dialog({
             title: "<h2>" + itemData.event + " Event Information</h2>",
             size: 'large',
@@ -81,9 +94,6 @@
             buttons: buttons
         });
         dialog.init(function(){
-//            $('[name=crop_name]').val($('#crid').find(":selected").text());
-//            $('[name=crid]').val($('#crid').val());
-            $("." + promptClass + " input").val("");
             if (itemData.event === "planting") {
                 plmaSBHelper({value:itemData.plma});
             } else if (itemData.event === "irrigation") {
@@ -100,6 +110,19 @@
             if (!itemData.start) {
                 $('[name=start]').val(dateUtil.toYYYYMMDDStr(new Date(defaultDate())));
             }
+            
+            dialog.find("input.event-input-global").each(function () {
+                let varName = $(this).attr("name");
+                let selections = eventData.get({
+                    fields: [varName],
+                    filter: function (item) {
+                        return (item.event === itemData.event);
+                    }
+                });
+                if (selections.length > 0) {
+                    $(this).val(selections[0][varName]);
+                }
+            });
             dialog.find('.max-5').on('input', function() {
                 limitLength(this, 5);
             });
@@ -336,7 +359,7 @@
 </div>
 
 <!-- Irrigation Dialog -->
-<div class="event-input-irrigation" hidden>
+<div class="event-input-irrigation">
     <p></p>
     <div class="col-sm-12">
         <!-- 1st row -->
@@ -363,10 +386,10 @@
             <label class="control-label" for="ireff">Efficiency (fraction)</label>
             <div class="input-group col-sm-12">
                 <div class="col-sm-7">
-                    <input type="range" name="ireff" step="0.05" max="1" min="0" class="form-control" value="" placeholder="Irrigation Efficiency (fraction)" data-toggle="tooltip" title="Irrigation Efficiency (fraction)" oninput="rangeNumInput(this)">
+                    <input type="range" name="ireff" step="0.05" max="1" min="0" class="form-control" placeholder="Irrigation Efficiency (fraction)" data-toggle="tooltip" title="Irrigation Efficiency (fraction)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
-                    <input type="number" name="ireff" step="0.05" max="1" min="0" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" >
+                    <input type="number" name="ireff" step="0.05" max="1" min="0" class="form-control event-input-item max-5 event-input-global" oninput="rangeNumInput(this)" >
                 </div>
             </div>
         </div>

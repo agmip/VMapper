@@ -149,6 +149,21 @@
         }
     }
 
+    function editAllEvent(eventType, name, value) {
+        let selections = eventData.get({
+            fields: ['id'],
+            filter: function (item) {
+                return (item.event === eventType);
+            }
+        });
+        if (selections.length > 0) {
+            selections.forEach(function(updData) {
+                updData[name] = value;
+            });
+            eventData.update(selections);
+        }
+    }
+
     function removeEvent() {
         eventData.remove(timeline.getSelection());
     }

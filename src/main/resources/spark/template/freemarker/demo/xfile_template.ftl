@@ -82,7 +82,7 @@ ${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['eda
 </#if>
 <#list managements.irrigation as eventArr>
 @I  EFIR  IDEP  ITHR  IEPT  IOFF  IAME  IAMT IRNAME
-${eventArr?counter?left_pad(2)}   -99   -99   -99   -99   -99   -99   -99 <#if eventArr[0]??>${eventArr[0].ir_name}</#if>
+${eventArr?counter?left_pad(2)} <#if eventArr[0]??>${(eventArr[0].ireff!-99)?left_pad(5)}</#if>   -99   -99   -99   -99   -99   -99 <#if eventArr[0]??>${eventArr[0].ir_name!-99}</#if>
 <#if eventArr[0]?? && eventArr[0].irln??>
 @I  IRLN IRSPC IROFS IRDEP
 <#list eventArr as event>
