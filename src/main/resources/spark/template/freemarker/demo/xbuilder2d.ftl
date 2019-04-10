@@ -351,7 +351,7 @@
                     let text, ext;
                     if ($("#json_swc_btn").hasClass("btn-primary")) {
                         text = getFinalJson();
-                        ext = expData.crid_dssat + ".json";
+                        ext = expData.crid_dssat + "J";
                         
                     } else {
                         text = $('#dssat_preview_text').html();
@@ -370,7 +370,7 @@
             }
             
             function openFile() {
-                $('<input type="file" accept=".json" onchange="readFile(this);">').click();
+                $('<input type="file" accept=".json, .??J" onchange="readFile(this);">').click();
             }
             
             function readFile(target) {
