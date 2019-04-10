@@ -19,66 +19,80 @@
             
             // Function table definition
             columnConfigs["function"] = [
-                        {data: 'name',type: 'text'},
-                        {data: 'language',type: 'text'},
-                        {data: 'filename',type: 'text'},
-                        {data: 'type',type: 'text',editor: 'select',
-                            selectOptions: ['internal', 'external']},
-                        {data: 'description',type: 'text'}];
+                {data: 'name',type: 'text'},
+                {data: 'language',type: 'text'},
+                {data: 'filename',type: 'text'},
+                {data: 'type',type: 'text',editor: 'select',
+                    selectOptions: ['','internal', 'external']},
+                {data: 'description',type: 'text'}];
             colHeaderConfigs["function"] = [
-                        'Name',
-                        'Language',
-                        'File Name',
-                        'Type',
-                        'Description'
-                    ];
+                'Name',
+                'Language',
+                'File Name',
+                'Type',
+                'Description'
+            ];
             
             // I/O table definition
             columnConfigs["io"] = [
-                        {data: 'iotype',type: 'text',editor: 'select',
-                            selectOptions: ['I', 'O', 'I/O']},
-                        {data: 'name',type: 'text'},
-                        {data: 'datatype',type: 'text',editor: 'select',
-                            selectOptions: ['STRING','STRINGARRAY','STRINGLIST','DATE','DATEARRAY','DATELIST','DOUBLE','DOUBLEARRAY','DOUBLELIST','INT','INTARRAY','INTLIST','BOOLEAN']},
-                        {data: 'len',type: 'text'},
-                        {data: 'description',type: 'text'},
-                        {data: 'default',type: 'text'},
-                        {data: 'max',type: 'text'},
-                        {data: 'min',type: 'text'},
-                        {data: 'inputtype',type: 'text',editor: 'select',
-                            selectOptions: ['variable', 'parameter']},
-                        {data: 'parametercategory',type: 'text',editor: 'select',
-                            selectOptions: ['constant','species','genotypic','soil','private']},
-                        {data: 'variablecategory',type: 'text',editor: 'select',
-                            selectOptions: ['state','rate','auxiliary']},
-                        {data: 'unit',type: 'text'},
-                        {data: 'uri',type: 'text'}];
+                {data: 'iotype',type: 'text',editor: 'select',
+                    selectOptions: ['','I', 'O', 'I/O']},
+                {data: 'name',type: 'text',
+                    validator: function validateId(value, callback) {
+                        var valid = true;
+                        if (value.trim() === "") {
+                            return callback(valid);
+                        }
+                        var colData = this.instance.getDataAtCol(this.col);
+                        var index = colData.indexOf(value);
+                        
+                        if (index > -1 && this.row !== index) {
+                            valid = false;
+                        }
+                        return callback(valid);
+                    }
+                },
+                {data: 'datatype',type: 'text',editor: 'select',
+                    selectOptions: ['','STRING','STRINGARRAY','STRINGLIST','DATE','DATEARRAY','DATELIST','DOUBLE','DOUBLEARRAY','DOUBLELIST','INT','INTARRAY','INTLIST','BOOLEAN']},
+                {data: 'len',type: 'text'},
+                {data: 'description',type: 'text'},
+                {data: 'default',type: 'text'},
+                {data: 'max',type: 'text'},
+                {data: 'min',type: 'text'},
+                {data: 'inputtype',type: 'text',editor: 'select',
+                    selectOptions: ['','variable', 'parameter']},
+                {data: 'parametercategory',type: 'text',editor: 'select',
+                    selectOptions: ['','constant','species','genotypic','soil','private']},
+                {data: 'variablecategory',type: 'text',editor: 'select',
+                    selectOptions: ['','state','rate','auxiliary']},
+                {data: 'unit',type: 'text'},
+                {data: 'uri',type: 'text'}];
             colHeaderConfigs["io"] = [
-                        'IO Type *',
-                        'Name *',
-                        'Data Type *',
-                        'Length * (array only)',
-                        'Description *',
-                        'Default',
-                        'Max',
-                        'Min',
-                        'Input Type *(Input only)',
-                        'Param Category',
-                        'Var Category',
-                        'Unit *',
-                        'Uri'
-                    ];
+                'IO Type *',
+                'Name *',
+                'Data Type *',
+                'Length * (array only)',
+                'Description *',
+                'Default',
+                'Max',
+                'Min',
+                'Input Type *(Input only)',
+                'Param Category',
+                'Var Category',
+                'Unit *',
+                'Uri'
+            ];
             
 //            // Output table definition
 //            columnConfigs["output"] = [
 //                        {data: 'name',type: 'text'},
 //                        {data: 'datatype',type: 'text',editor: 'select',
-//                            selectOptions: ['STRING','STRINGARRAY','STRINGLIST','DATE','DATEARRAY','DATELIST','DOUBLE','DOUBLEARRAY','DOUBLELIST','INT','INTARRAY','INTLIST','BOOLEAN']},
+//                            selectOptions: ['','STRING','STRINGARRAY','STRINGLIST','DATE','DATEARRAY','DATELIST','DOUBLE','DOUBLEARRAY','DOUBLELIST','INT','INTARRAY','INTLIST','BOOLEAN']},
 //                        {data: 'description',type: 'text'},
 //                        {data: 'max',type: 'text'},
 //                        {data: 'min',type: 'text'},
 //                        {data: 'variablecategory',type: 'text',editor: 'select',
-//                            selectOptions: ['state','rate','auxiliary']},
+//                            selectOptions: ['','state','rate','auxiliary']},
 //                        {data: 'unit',type: 'text'},
 //                        {data: 'uri',type: 'text'}];
 //            colHeaderConfigs["output"] = [
