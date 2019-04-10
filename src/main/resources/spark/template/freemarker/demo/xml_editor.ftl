@@ -49,18 +49,18 @@
                         {data: 'unit',type: 'text'},
                         {data: 'uri',type: 'text'}];
             colHeaderConfigs["io"] = [
-                        'IO Type',
-                        'Name',
-                        'Data Type',
-                        'Length',
-                        'Description',
+                        'IO Type *',
+                        'Name *',
+                        'Data Type *',
+                        'Length * (array only)',
+                        'Description *',
                         'Default',
                         'Max',
                         'Min',
-                        'Input Type',
+                        'Input Type *(Input only)',
                         'Param Category',
                         'Var Category',
-                        'Unit',
+                        'Unit *',
                         'Uri'
                     ];
             
