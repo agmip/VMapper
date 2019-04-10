@@ -87,6 +87,22 @@ public class Main {
             return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.METALIST));
                 });
         
+        get(Path.Web.Demo.XML_EDITOR, (Request request, Response response) -> {
+            HashMap data = new HashMap();
+            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.XML_EDITOR));
+                });
+        
+        post(Path.Web.Translator.XML, (Request request, Response response) -> {
+            HashMap data = new HashMap();
+            String jsonStr = request.queryParams("io");
+            JSONObject rawData = JsonUtil.parseFrom(jsonStr);
+            
+            // Handle io data
+            ArrayList<JSONObject> ioData = rawData.getObjArr();
+            data.put("io", ioData);
+            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Translator.XML));
+        });
+        
         get(Path.Web.Data.CULTIVAR, (Request request, Response response) -> {
             String crid = request.queryParams("crid");
             return DataUtil.getCulDataList(crid).toJSONString();

@@ -13,39 +13,6 @@ public class Path {
         @Getter public static final String LOGIN = "/login";
         @Getter public static final String LOGOUT = "/logout";
         @Getter public static final String UPLOAD = "/upload";
-        @Getter public static final String Worker = "/worker";
-        
-        public static class Simulation {
-            private static final String PACKAGE = "/" + Simulation.class.getSimpleName().toLowerCase();
-            @Getter public static final String AFSIRS = PACKAGE + "/afsirs";
-            @Getter public static final String AFSIRS_RESULT = PACKAGE + "/afsirs_result";
-            @Getter public static final String AFSIRS_LOAD = PACKAGE + "/afsirs_load";
-            @Getter public static final String AFSIRS_WAIT = PACKAGE + "/afsirs_wait";
-        }
-        
-        public static class WaterUse {
-            private static final String PACKAGE = "/" + WaterUse.class.getSimpleName().toLowerCase() + "/permit";
-            @Getter public static final String CREATE = PACKAGE + "/create";
-            @Getter public static final String LIST = PACKAGE + "/list";
-            @Getter public static final String SEARCH = PACKAGE + "/search";
-            @Getter public static final String FIND = PACKAGE + "/find";
-            @Getter public static final String AFSIRS = PACKAGE + "/afsirs";
-        }
-        
-        public static class DataTools {
-            private static final String PACKAGE = "/" + DataTools.class.getSimpleName().toLowerCase();
-            @Getter public static final String SOILMAP = PACKAGE + "/soilmap/";
-            @Getter public static final String WTHSHEET = PACKAGE + "/wthsheet/";
-            
-        }
-            
-        public static class SoilData {
-            private static final String PACKAGE = "/" + SoilData.class.getSimpleName().toLowerCase();
-            @Getter public static final String LIST = PACKAGE + "/list";
-            @Getter public static final String CREATE = PACKAGE + "/create";
-            @Getter public static final String FIND = PACKAGE + "/find";
-            @Getter public static final String DELETE = PACKAGE + "/delete";
-        }
         
         public static class Demo {
             private static final String PACKAGE = Demo.class.getSimpleName().toLowerCase();
@@ -55,6 +22,7 @@ public class Path {
             public static final String GBUILDER2D = PACKAGE + "/gbuilder2d";
             public static final String XBUILDER2D = PACKAGE + "/xbuilder2d";
             public static final String METALIST = PACKAGE + "/metalist";
+            public static final String XML_EDITOR = PACKAGE + "/xmleditor";
         }
         
         public static class Data {
@@ -66,13 +34,8 @@ public class Path {
             private static final String PACKAGE = Translator.class.getSimpleName().toLowerCase();
             public static final String DSSAT = PACKAGE + "/dssat";
             public static final String DSSAT_EXP = PACKAGE + "/dssat_exp";
+            public static final String XML = PACKAGE + "/xml";
         }
-        
-//        public static class Worker {
-//            private static final String PACKAGE = "/" + Worker.class.getSimpleName().toLowerCase();;
-//            @Getter public static final String LOGIN = PACKAGE + "/login";
-//            @Getter public static final String LOGOUT = PACKAGE + "/logout";
-//        }
     }
     
     public static class Template {
@@ -82,33 +45,6 @@ public class Path {
         public final static String UPLOAD = "upload.ftl";
         public static final String NOT_FOUND = "notFound.ftl";
         
-        public static class Simulation {
-            private static final String PACKAGE = Simulation.class.getSimpleName().toLowerCase();
-            public static final String AFSIRS = PACKAGE + "/afsirs.ftl";
-            public static final String AFSIRS_RESULT = PACKAGE + "/afsirs_result.ftl";
-            public static final String AFSIRS_RESULT_ASYN = PACKAGE + "/afsirs_result_asyn.ftl";
-        }
-        
-        public static class WaterUse {
-            private static final String PACKAGE = WaterUse.class.getSimpleName().toLowerCase() + "/permit";
-            public static final String CREATE = PACKAGE + "/create.ftl";
-            public static final String LIST = PACKAGE + "/list.ftl";
-            public static final String SEARCH = PACKAGE + "/search.ftl";
-            public static final String DETAIL = PACKAGE + "/detail.ftl";
-            public static final String AFSIRS = PACKAGE + "/afsirs.ftl";
-        }
-        
-        public static class DataTools {
-            private static final String PACKAGE = DataTools.class.getSimpleName().toLowerCase();
-            public static final String SOILMAP = PACKAGE + "/soilmap.ftl";
-            public static final String WTHSHEET = PACKAGE + "/wthsheet.ftl";
-        }
-        
-        public static class SoilData {
-            private static final String PACKAGE = SoilData.class.getSimpleName().toLowerCase();
-            public static final String LIST = PACKAGE + "/list.ftl";
-        }
-        
         public static class Demo {
             private static final String PACKAGE = Demo.class.getSimpleName().toLowerCase();
             public static final String IRRLIST = PACKAGE + "/irrlist.ftl";
@@ -116,11 +52,13 @@ public class Path {
             public static final String GBUILDER2D = PACKAGE + "/gbuilder2d.ftl";
             public static final String XBUILDER2D = PACKAGE + "/xbuilder2d.ftl";
             public static final String METALIST = PACKAGE + "/meta_list.ftl";
+            public static final String XML_EDITOR = PACKAGE + "/xml_editor.ftl";
         }
         
         public static class Translator {
             private static final String PACKAGE = Demo.class.getSimpleName().toLowerCase();
             public static final String DSSAT_EXP = PACKAGE + "/xfile_template.ftl";
+            public static final String XML = PACKAGE + "/xml_template.ftl";
         }
     }
     
