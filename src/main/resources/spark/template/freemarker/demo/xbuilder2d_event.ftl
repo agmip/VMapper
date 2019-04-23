@@ -29,7 +29,11 @@
             mgnId = id ;
             events = rawData.data;
             description = rawData.mgn_name;
-            eventId = Number(events[events.length - 1].id) + 1;
+            if (events.length > 0) {
+                eventId = Number(events[events.length - 1].id) + 1;
+            } else {
+                eventId = 1;
+            }
         } else {
             let num = getNewCollectionNum(managements);
             mgnId = "mgn_" + num;
@@ -54,10 +58,10 @@
             rawData = {
                 mgn_name: managements[mgnId].mgn_name + " Copy",
                 data: JSON.parse(JSON.stringify(getEvents()))
-            }
+            };
         }
         createManagement(id, rawData);
-        setManagement({id:magId});
+        $("#" + id).click();
     }
     
     function setManagement(target) {
