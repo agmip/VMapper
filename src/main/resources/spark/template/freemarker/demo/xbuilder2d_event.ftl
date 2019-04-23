@@ -193,10 +193,14 @@
         }
     }
 
-    function drag(ev) {
+    function dragStart(ev) {
         let event = {id: newId(), content: defaultContent(ev.target), event:defaultEvent(ev.target)}; 
         ev.dataTransfer.setData("text", JSON.stringify(event));
-        timeline.setSelection(event.id);
+    }
+    
+    function dragging(ev) {
+//        timeline.trigger('mouseMove', ev);
+//        console.log("moving at" + ev.pageX + ", " + ev.pageY);
     }
     
     function switchManagementViewType(target) {
@@ -327,18 +331,18 @@
     <div id="timeline_view">
         <div class="row col-sm-12">
             <div class="col-sm-8 text-left">
-                <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Planting Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Planting Event</button>
-                <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Irrigation Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Irrigation Event</button>
-                <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Fertilizer Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Fertilizer Event</button>
-                <button draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Harvest Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Harvest Event</button>
+                <button draggable="true" ondragstart="dragStart(event);" ondrag="dragging(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Planting Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Planting Event</button>
+                <button draggable="true" ondragstart="dragStart(event);" ondrag="dragging(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Irrigation Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Irrigation Event</button>
+                <button draggable="true" ondragstart="dragStart(event);" ondrag="dragging(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Fertilizer Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Fertilizer Event</button>
+                <button draggable="true" ondragstart="dragStart(event);" ondrag="dragging(event);" ondblclick="addEvent(this);" class="btn btn-primary" value="Harvest Event"><span class="glyphicon glyphicon-menu-hamburger"></span> Harvest Event</button>
 
 <!--                <div class="dropdown">
                     <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Add Event...<span class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" value="Planting Event"><a href="#"><span class="glyphicon glyphicon-menu-hamburger"></span> Planting Event</a></li>
-                        <li draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" value="Irrigation Event"><a href="#"><span class="glyphicon glyphicon-menu-hamburger"></span> Irrigation Event</a></li>
-                        <li draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" value="Fertilizer Event"><a href="#"><span class="glyphicon glyphicon-menu-hamburger"></span> Fertilizer Event</a></li>
-                        <li draggable="true" ondragstart="drag(event);" ondblclick="addEvent(this);" value="Harvest Event"><a href="#"><span class="glyphicon glyphicon-menu-hamburger"></span> Harvest Event</a></li>
+                        <li draggable="true" ondragstart="dragStart(event);" ondrag="dragging(event); ondblclick="addEvent(this);" value="Planting Event"><a href="#"><span class="glyphicon glyphicon-menu-hamburger"></span> Planting Event</a></li>
+                        <li draggable="true" ondragstart="dragStart(event);" ondrag="dragging(event); ondblclick="addEvent(this);" value="Irrigation Event"><a href="#"><span class="glyphicon glyphicon-menu-hamburger"></span> Irrigation Event</a></li>
+                        <li draggable="true" ondragstart="dragStart(event);" ondrag="dragging(event); ondblclick="addEvent(this);" value="Fertilizer Event"><a href="#"><span class="glyphicon glyphicon-menu-hamburger"></span> Fertilizer Event</a></li>
+                        <li draggable="true" ondragstart="dragStart(event);" ondrag="dragging(event); ondblclick="addEvent(this);" value="Harvest Event"><a href="#"><span class="glyphicon glyphicon-menu-hamburger"></span> Harvest Event</a></li>
                         
                     </ul>
                 </div>-->

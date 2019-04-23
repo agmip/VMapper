@@ -186,6 +186,20 @@ ul.nav-tabs button.tabaddbtns {
     color: lightgray;
 }
 
+.date-label {
+    display: none;
+    z-index: 1000;
+    position: absolute;
+    overflow: hidden;
+    border: 1px solid #CCC;
+    white-space: nowrap;
+    font-family: sans-serif;
+    background: #FFF;
+    color: #333;
+    border-radius: 5px;
+    padding: 0;
+}
+
 /* The whole thing */
 .event-menu {
     display: none;

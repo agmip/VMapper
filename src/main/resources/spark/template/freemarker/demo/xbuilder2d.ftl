@@ -47,7 +47,7 @@
                     zoomMin: 2073600000,    // minimum zoom = 1 day
                     itemsAlwaysDraggable: true,
                     groupEditable: true,
-                    showCurrentTime: true,
+                    showCurrentTime: false,
                     onAdd: function(event, callback) {
 //                        alert(event.event);
                         if (isValidId(event.id)) {
@@ -96,15 +96,20 @@
                     }
                 });
                 timeline.on("mouseMove", function (properties) {
+                    timeline.setOptions({showCurrentTime: true});
                     let date = new Date(properties.time.getFullYear(), properties.time.getMonth(), properties.time.getDate(), 0, 0, 0, 0);
 //                    if (Math.abs(timeline.getCurrentTime() - date) < (24 * 3600 * 1000)) {
 //                       return; 
 //                    }
                     timeline.setCurrentTime(date);
-                    $('.date_label').html(dateUtil.toYYYYMMDDStr(date)).finish().fadeIn(100).css({
+                    $('.date-label').html(dateUtil.toYYYYMMDDStr(date)).finish().fadeIn(100).css({
 //                        top: properties.event.pageY + "px",
                         left: properties.event.pageX + "px"
                     });
+                });
+                $('#visualization').mouseout(function (properties) {
+                   $(".date-label").hide('slow');
+                   timeline.setOptions({showCurrentTime: false});
                 });
                 timeline.on("click", function(properties) {
                     if (properties.time) {
