@@ -120,7 +120,7 @@
     }
     
     function isValidId(id) {
-        return id.startsWith("new");
+        return !isNaN(id);
     }
 
     function defaultContent(target) {
