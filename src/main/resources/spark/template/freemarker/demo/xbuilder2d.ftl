@@ -47,7 +47,7 @@
                     zoomMin: 2073600000,    // minimum zoom = 1 day
                     itemsAlwaysDraggable: true,
                     groupEditable: true,
-                    showCurrentTime: false,
+                    showCurrentTime: true,
                     onAdd: function(event, callback) {
 //                        alert(event.event);
                         if (isValidId(event.id)) {
@@ -89,27 +89,36 @@
                 });
                 
                 timeline.on("mouseDown", function (properties) {
-                    timeline.setCurrentTime(properties.time);
-    
                     // If the clicked element is not the menu
                     if (!$(properties.event.target).parents(".event-menu").length > 0) {
                         // Hide it
                         $(".event-menu").hide(100);
                     }
                 });
+                timeline.on("mouseMove", function (properties) {
+                    let date = new Date(properties.time.getFullYear(), properties.time.getMonth(), properties.time.getDate(), 0, 0, 0, 0);
+//                    if (Math.abs(timeline.getCurrentTime() - date) < (24 * 3600 * 1000)) {
+//                       return; 
+//                    }
+                    timeline.setCurrentTime(date);
+                    $('.date_label').html(dateUtil.toYYYYMMDDStr(date)).finish().fadeIn(100).css({
+//                        top: properties.event.pageY + "px",
+                        left: properties.event.pageX + "px"
+                    });
+                });
                 timeline.on("click", function(properties) {
                     if (properties.time) {
                         timeline.setCurrentTime(properties.time);
                     }
                 });
-                timeline.on("contextmenu", function(props) {
-                    props.event.preventDefault();
+                timeline.on("contextmenu", function(properties) {
+                    properties.event.preventDefault();
                     // Show contextmenu
                     $(".event-menu").finish().toggle(100).
                     // In the right position (the mouse)
                     css({
-                        top: props.event.pageY + "px",
-                        left: props.event.pageX + "px"
+                        top: properties.event.pageY + "px",
+                        left: properties.event.pageX + "px"
                     });
                 });
 
@@ -119,6 +128,7 @@
                     addEvent($(this));
                     // Hide it AFTER the action was triggered
                     $(".event-menu").hide(100);
+                    $('.date_label').hide(100);
                 });
             }
             

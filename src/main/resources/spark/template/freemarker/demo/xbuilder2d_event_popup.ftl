@@ -166,6 +166,8 @@
     }
 </script>
 
+<span class="date_label"></span>
+
 <!-- Timeline context menu Dialog -->
 <ul class='event-menu'>
     <li>Planting Event</li>
