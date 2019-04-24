@@ -633,10 +633,12 @@
                 
                 <li id="SaveTabBtn" class="tabbtns" onclick="saveFile()"><a href="#"><span class="glyphicon glyphicon-save"></span> Save</a></li>
                 <li id="OpenTabBtn" class="tabbtns" onclick="openFile()"><a href="#"><span class="glyphicon glyphicon-open"></span> Load</a></li>
+                <li id="GuideTabBtn" class="tabbtns" onclick="showGreetingPrompt()"><a href="#"><span class="glyphicon glyphicon-question-sign"></span> Guide</a></li>
             </ul>
             <div class="tab-content">
                 <div id="SiteInfo" class="tab-pane fade in active">
                     <#include "xbuilder2d_general.ftl">
+                    <#include "xbuilder2d_greeting_popup.ftl">
                 </div>
                 <div id="Field" class="tab-pane fade">
                     <#include "xbuilder2d_field.ftl">
@@ -671,6 +673,7 @@
         <script type="text/javascript">
             $(document).ready(function () {
                 init();
+                showGreetingPrompt();
             });
         </script>
     </body>
