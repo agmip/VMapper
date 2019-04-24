@@ -1,0 +1,292 @@
+@,Code_Display,Code,Description
+,CHCD,CH001,"Alachlor (Lasso), Metolachlor (Dual) [Herbicide]"
+,CHCD,CH002,Propanil [Herbicide]
+,CHCD,CH003,Trifluralin [Herbicide]
+,CHCD,CH004,Dalapon [Herbicide]
+,CHCD,CH005,MCPA [Herbicide]
+,CHCD,CH006,"2,4-D [Herbicide]"
+,CHCD,CH007,"2,4,5-T [Herbicide]"
+,CHCD,CH008,Pendimethalin [Herbicide]
+,CHCD,CH009,Atrazine [Herbicide]
+,CHCD,CH010,Diquat [Herbicide]
+,CHCD,CH011,Paraquat [Herbicide]
+,CHCD,CH021,"Carbaryl, Sevin, Septene [Insecticide]"
+,CHCD,CH022,"Malathion, Mercaptothion [Insecticide]"
+,CHCD,CH023,Naled [Insecticide]
+,CHCD,CH024,Dimethoate [Insecticide]
+,CHCD,CH025,Fention [Insecticide]
+,CHCD,CH026,"Diazinon, Basudin [Insecticide]"
+,CHCD,CH027,"Ethion, Diethion [Insecticide]"
+,CHCD,CH028,Oxydemeton-Methyl [Insecticide]
+,CHCD,CH029,Azinphos-Methyl [Insecticide]
+,CHCD,CH030,Phosphamidon [Insecticide]
+,CHCD,CH031,Mevinphosl [Insecticide]
+,CHCD,CH032,Methyl Parathion [Insecticide]
+,CHCD,CH033,Parathion [Insecticide]
+,CHCD,CH034,DDT [Insecticide]
+,CHCD,CH035,"BHC, HCH [Insecticide]"
+,CHCD,CH036,Chlordane [Insecticide]
+,CHCD,CH037,Heptachlor [Insecticide]
+,CHCD,CH038,Toxaphene [Insecticide]
+,CHCD,CH039,Aldrin [Insecticide]
+,CHCD,CH040,Dieldrin [Insecticide]
+,CHCD,CH041,"Endrin, Nendrin [Insecticide]"
+,CHCD,CH042,"Methomyl, Lannat [Insecticide]"
+,CHCD,CH043,Thiotex [Insecticide]
+,CHCD,CH044,Furadan [Insecticide]
+,CHCD,CH045,Endosulfan [Insecticide]
+,CHCD,CH051,Captan [Fungicide]
+,CHCD,CH052,Benomyl [Fungicide]
+,CHCD,CH053,Zineb [Fungicide]
+,CHCD,CH054,Maneb [Fungicide]
+,CHCD,CH055,Mancozeb [Fungicide]
+,CHCD,CH056,Tilt [Fungicide]
+,CHCD,CH057,Rhizobium (for legume crops)
+,CHCD,CH100,"Mepiquat chloride, Pix [Growth regulator]"
+,,,
+,FL_DRNTYPE,DR000,No drainage
+,FL_DRNTYPE,DR001,Ditches
+,FL_DRNTYPE,DR002,Sub-surface tiles
+,FL_DRNTYPE,DR003,Surface furrows
+,,,
+!,"ECDYL, ECRAD, ECMAX, ECMIN, ECRAI, ECCO2, ECDEW, ECWND",A,Add
+!,"ECDYL, ECRAD, ECMAX, ECMIN, ECRAI, ECCO2, ECDEW, ECWND",S,Subtract
+!,"ECDYL, ECRAD, ECMAX, ECMIN, ECRAI, ECCO2, ECDEW, ECWND",M,Multiply
+!,"ECDYL, ECRAD, ECMAX, ECMIN, ECRAI, ECCO2, ECDEW, ECWND",R,Replace
+,,,
+,FECD,FE001,Ammonium nitrate
+,FECD,FE002,Ammonium sulfate
+,FECD,FE003,Ammonium nitrate sulfate
+,FECD,FE004,Anhydrous ammonia
+,FECD,FE005,Urea
+,FECD,FE006,Diammnoium phosphate
+,FECD,FE007,Monoammonium phosphate
+,FECD,FE008,Calcium nitrate
+,FECD,FE009,Aqua ammonia
+,FECD,FE010,Urea ammonium nitrate solution
+,FECD,FE011,Calcium ammonium nitrate solution
+,FECD,FE012,Ammonium polyphosphate
+,FECD,FE013,Single super phosphate
+,FECD,FE014,Triple super phosphate
+,FECD,FE015,Liquid phosphoric acid
+,FECD,FE016,Potassium chloride
+,FECD,FE017,Potassium nitrate
+,FECD,FE018,Potassium sulfate
+,FECD,FE019,Urea super granules
+,FECD,FE020,Dolomitic limestone
+,FECD,FE021,Rock phosphate
+,FECD,FE022,Calcitic limestone
+,FECD,FE024,Rhizobium
+,FECD,FE026,Calcium hydroxide
+,FECD,FE051,Urea super granules
+,FECD,FE998,Nitrate from irrigation water (not a fertilizer product)
+,FECD,FE999,Fertilizer unknown/not given
+,,,
+,FEOCD,Mg,Magnesium
+,FEOCD,Mn,Manganese
+,FEOCD,Cd,Cadmium
+,FEOCD,Zn,Zinc
+,FEOCD,S,Sulfur
+,FEOCD,Fe,Iron
+,FEOCD,Se,Selenium
+,FEOCD,B,Boron
+,,,
+,HACOM,C,Canopy
+,HACOM,L,Leaves
+,HACOM,H,Harvest product
+,,,
+,"HARM, PLTHM",HM001,Combined
+,"HARM, PLTHM",HM002,"Hand cut, machine threshed"
+,"HARM, PLTHM",HM003,"Hand cut, hand threshed"
+,"HARM, PLTHM",HM004,"Hand picked, no further processing"
+,"HARM, PLTHM",HM005,"Hand picked, machine processing"
+,"HARM, PLTHM",HM006,Cotton stripper
+,"HARM, PLTHM",HM999,Method unknown/not given
+,,,
+,HASIZ,A,All
+,HASIZ,S,Small - less than 1/3 full size
+,HASIZ,M,Medium - from 1/3 to 2/3 full size
+,HASIZ,L,Large - greater than 2/3 full size
+,,,
+,"FEACD, OMACD, CHACD",AP001,"Broadcast, not incorporated"
+,"FEACD, OMACD, CHACD",AP002,"Broadcast, incorporated"
+,"FEACD, OMACD, CHACD",AP003,Banded on surface
+,"FEACD, OMACD, CHACD",AP004,Banded beneath surface
+,"FEACD, OMACD, CHACD",AP005,Applied in irrigation water
+,"FEACD, OMACD, CHACD",AP006,Foliar spray
+,"FEACD, OMACD, CHACD",AP007,Bottom of hole
+,"FEACD, OMACD, CHACD",AP008,On the seed
+,"FEACD, OMACD, CHACD",AP009,Injected
+,"FEACD, OMACD, CHACD",AP011,"Broadcast on flooded/saturated soil, none in soil"
+,"FEACD, OMACD, CHACD",AP012,"Broadcast on flooded/saturated soil, 15% in soil"
+,"FEACD, OMACD, CHACD",AP013,"Broadcast on flooded/saturated soil, 30% in soil"
+,"FEACD, OMACD, CHACD",AP014,"Broadcast on flooded/saturated soil, 45% in soil"
+,"FEACD, OMACD, CHACD",AP015,"Broadcast on flooded/saturated soil, 60% in soil"
+,"FEACD, OMACD, CHACD",AP016,"Broadcast on flooded/saturated soil, 75% in soil"
+,"FEACD, OMACD, CHACD",AP017,"Broadcast on flooded/saturated soil, 90% in soil"
+,"FEACD, OMACD, CHACD",AP018,"Band on saturated soil,2cm flood, 92% in soil"
+,"FEACD, OMACD, CHACD",AP019,"Deeply placed urea super granules/pellets, 95% in soil"
+,"FEACD, OMACD, CHACD",AP020,"Deeply placed urea super granules/pellets, 100% in soil"
+,"FEACD, OMACD, CHACD",AP999,Application method unknown/not given
+,,,
+,"IROP, IAME",IR001,"Furrow, mm"
+,"IROP, IAME",IR002,"Alternating furrows, mm"
+,"IROP, IAME",IR003,"Flood, mm"
+,"IROP, IAME",IR004,"Sprinkler, mm"
+,"IROP, IAME",IR005,"Drip or trickle, mm"
+,"IROP, IAME",IR006,"Flood depth, mm"
+,"IROP, IAME",IR007,"Water table depth, mm"
+,"IROP, IAME",IR008,"Percolation rate, mm day-1"
+,"IROP, IAME",IR009,"Bund height, mm"
+,"IROP, IAME",IR010,Puddling (for Rice only)
+,"IROP, IAME",IR011,"Constant flood depth, mm"
+,"IROP, IAME",IR012,"Subsurface (burried) drip, mm"
+,"IROP, IAME",IR999,Irrigation method unknown/not given
+,,,
+,IRSTG,,
+,IRSTG,,
+,IRSTG,,
+,IRSTG,,
+,,,
+,IRRIG,Y,
+,IRRIG,N,
+,IRRIG,,
+,IRRIG,U,Irrigation method unknown/not given
+,,,
+,SAMHB,SA101,
+,SAMHB,SA102,
+,SAMHB,SA103,
+,SAMHB,SA104,
+,SAMHB,SA105,
+,SAMHB,SA199,Method unknown/not given
+,,,
+,SAMPX,SA001,Olsen
+,SAMPX,SA002,Bray No. 1
+,SAMPX,SA003,Bray No. 2
+,SAMPX,SA004,"Mehlich I (double acid, 1:5)"
+,SAMPX,SA005,Anion exchange resin
+,SAMPX,SA006,Truog
+,SAMPX,SA007,"Mehlich I (double acid, 1:10)"
+,SAMPX,SA008,Colwell
+,SAMPX,SA009,Water
+,SAMPX,SA010,IFDC Pi strip
+,SAMPX,SA011,pH in Water
+,SAMPX,SA012,pH in KCl
+,SAMPX,SA013,Mehlich 3
+,SAMPX,SA014,Morgan's solution
+,SAMPX,SA015,NH4OAc
+,SAMPX,SA099,Method unknown/not given
+,,,
+,SAMKE,SA201,NH4OaAc
+,SAMKE,SA202,Mehlich
+,SAMKE,SA203,Mehlich
+,SAMKE,SA204,Mehlich
+,SAMKE,SA299,Method unknown/not given
+,,,
+,PLMA,S,Dry seed
+,PLMA,T,Transplants
+,PLMA,N,Nursery
+,PLMA,P,Pregerminated seed
+,PLMA,R,Ratoon
+,PLMA,V,Vertically planted sticks
+,PLMA,H,Horizontally planted sticks
+,PLMA,I,Inclined (45o) sticks
+,PLMA,C,Cutting
+,,,
+,PLDS,R,Rows
+,PLDS,H,Hills
+,PLDS,U,Uniform/Broadcast
+,PLDS,RB,Rows on beds
+,PLDS,N,Unknown/not given
+,,,
+,OMCD,RE001,Generic crop residue
+,OMCD,RE002,Green manure
+,OMCD,RE003,Barnyard manure
+,OMCD,RE004,Liquid manure
+,OMCD,RE005,Compost
+,OMCD,RE006,Bark
+,OMCD,RE101,Generic legume residue
+,OMCD,RE102,Cowpea residue
+,OMCD,RE103,Mucuna residue
+,OMCD,RE104,Peanut residue
+,OMCD,RE105,Pigeon Pea residue
+,OMCD,RE106,Soybean residue
+,OMCD,RE107,Alfalfa residue
+,OMCD,RE108,Chickpea forage
+,OMCD,RE109,Faba bean
+,OMCD,RE110,Pea residue
+,OMCD,RE111,Hairy vetch
+,OMCD,RE201,Generic cereal crop residue
+,OMCD,RE202,Pearl millet residue
+,OMCD,RE203,Maize residue
+,OMCD,RE204,Sorghum residue
+,OMCD,RE205,Wheat residue
+,OMCD,RE206,Barley
+,OMCD,RE207,Rice
+,OMCD,RE208,Rye
+,OMCD,RE301,Generic grass
+,OMCD,RE302,Bahiagrass
+,OMCD,RE303,Bermudagrass
+,OMCD,RE304,Switchgrass
+,OMCD,RE305,brachiaria
+,OMCD,RE306,forage grasses
+,OMCD,RE401,Bush fallow residue
+,OMCD,RE402,Sugarcane
+,OMCD,RE403,Pineapple
+,OMCD,RE999,Decomposed crop residue
+,,,
+,TIIMP,TI001,V-Ripper
+,TIIMP,TI002,Subsoiler
+,TIIMP,TI003,Moldboard plow 20 cm depth
+,TIIMP,TI004,"Chisel plow, sweeps"
+,TIIMP,TI005,"Chisel plow, straight point"
+,TIIMP,TI006,"Chisel plow, twisted shovels"
+,TIIMP,TI007,Disk plow
+,TIIMP,TI008,"Disk, 1-way"
+,TIIMP,TI009,"Disk, tandem"
+,TIIMP,TI010,"Disk, double disk"
+,TIIMP,TI011,"Cultivator, field"
+,TIIMP,TI012,"Cultivator, row"
+,TIIMP,TI013,"Cultivator, ridge till"
+,TIIMP,TI014,"Harrow, spike"
+,TIIMP,TI015,"Harrow, tine"
+,TIIMP,TI016,Lister
+,TIIMP,TI017,Bedder
+,TIIMP,TI018,Blade cultivator
+,TIIMP,TI019,"Fertilizer applicator, anhydr"
+,TIIMP,TI020,Manure injector
+,TIIMP,TI022,Mulch treader
+,TIIMP,TI023,Plank
+,TIIMP,TI024,Roller packer
+,TIIMP,TI025,"Drill, double-disk"
+,TIIMP,TI026,"Drill, deep furrow"
+,TIIMP,TI031,"Drill, no-till"
+,TIIMP,TI032,"Drill, no-till"
+,TIIMP,TI033,"Planter, row"
+,TIIMP,TI034,"Planter, no-till"
+,TIIMP,TI035,Planting stick (hand)
+,TIIMP,TI036,Matraca hand planter
+,TIIMP,TI037,Rod weeder
+,TIIMP,TI038,Rotary hoe
+,TIIMP,TI039,"Roller harrow, cultipacker"
+,TIIMP,TI041,Moldboard plow 25 cm
+,TIIMP,TI042,Moldboard plow 30 cm
+,,,
+,MLCOL,MC001,Transparent
+,MLCOL,MC002,White
+,MLCOL,MC003,Black
+,MLCOL,MC004,Brown
+,MLCOL,MC005,Gray
+,MLCOL,MC006,Light straw color
+,,,
+,"MLTP, MLTPR",MT001,Polyethylene sheet - solid
+,"MLTP, MLTPR",MT002,Polyethylene sheet - perforated
+,"MLTP, MLTPR",MT003,Landscape fabric
+,"MLTP, MLTPR",MT004,Paper
+,"MLTP, MLTPR",MT005,Grass clippings
+,"MLTP, MLTPR",MT006,Pine needles
+,"MLTP, MLTPR",MT007,Straw
+,"MLTP, MLTPR",MT008,Foil
+,"MLTP, MLTPR",MT009,Foil coated plastic
+,"MLTP, MLTPR",MT010,Photodegradable plastic
+,"MLTP, MLTPR",MT999,Not given/unknown

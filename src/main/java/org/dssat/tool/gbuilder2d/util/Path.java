@@ -66,6 +66,7 @@ public class Path {
         public final static String DATA = "Data";
         public final static String CULTIVAR = "Genotype";
         public final static String CULTIVAR_LIST = "crop_list.csv";
+        public final static String ICASA_MGN_CODE = "ICASA_management_code.csv";
         public static final int DSSAT_VERSION = 47;
         public static File getCulFile(String modelName) {
             File ret = Paths.get(DATA, CULTIVAR, getDSSATFileNameWithVer(modelName, "CUL")).toFile();
@@ -73,6 +74,10 @@ public class Path {
         }
         public static File getCulListFile() {
             File ret = Paths.get(DATA, CULTIVAR_LIST).toFile();
+            return ret;
+        }
+        public static File getICASAMgnCodeFile() {
+            File ret = Paths.get(DATA, ICASA_MGN_CODE).toFile();
             return ret;
         }
         
