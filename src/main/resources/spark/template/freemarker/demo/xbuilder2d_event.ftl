@@ -160,9 +160,12 @@
     function editEvent(name, value) {
         let selections = timeline.getSelection();
         if (selections.length > 0) {
-            let updData = {id: selections[0]};
-            updData[name] = value;
-            eventData.update(updData);
+            let tmp = eventData.get(selections[0]);
+            if (value || (tmp && tmp[name])) {
+                let updData = {id: selections[0]};
+                updData[name] = value;
+                eventData.update(updData);
+            }
         }
     }
 

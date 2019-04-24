@@ -53,7 +53,7 @@
                 label: "&nbsp;Save&nbsp;",
                 className: 'btn-primary',
                 callback: function(){
-                    $('.event-input-item').each(function () {
+                    $(this).find('.event-input-item').each(function () {
                         let varName = $(this).attr("name");
                         let varValue = $(this).val();
                         if (varValue.toString().trim() !== "") {
@@ -65,7 +65,7 @@
                             editEvent(varName);
                         }
                     });
-                    $('.event-input-global').each(function () {
+                    $(this).find('.event-input-global').each(function () {
                         let varName = $(this).attr("name");
                         let varValue = $(this).val();
                         if (varValue.toString().trim() !== "") {
