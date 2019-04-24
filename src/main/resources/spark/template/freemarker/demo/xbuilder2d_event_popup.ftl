@@ -737,7 +737,7 @@
         </div>
         <!-- 4th row -->
         <div class="form-group col-sm-6">
-            <label class="control-label" for="happc">Grain Harvest (%)</label>
+            <label class="control-label" for="happc">Product Harvest (%)</label>
             <div class="input-group col-sm-12">
                 <div class="col-sm-7">
                     <input type="range" name="happc" step="1" max="100" min="1" class="form-control" value="" placeholder="Product Harvest (%)" data-toggle="tooltip" title="Grain harvest (%)" oninput="rangeNumInput(this)">
