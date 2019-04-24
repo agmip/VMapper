@@ -15,7 +15,8 @@
             let fieldId;
             let cultivars = {};
             let eventData;        // Data container for current management data
-            let events = [];      // Array of event object for current current management data
+            let events = [];      // Array of event object for current management data
+            let subEvents = [];   // Array of event object for current type of management data
             let eventId = 1;
             let managements = {}; // Map for all management data (mgnId: mgnData)
             let mgnId;            // Current management ID
@@ -29,6 +30,141 @@
             let configs = {};
             let configData = {};
             let configId;
+            
+            const icasaCode = {
+                <#list icasaMgnCodeMap?keys as key>
+                ${key}:{
+                <#list icasaMgnCodeMap[key]?keys as code>
+                    ${code} : "${icasaMgnCodeMap[key][code]}"<#sep>,</#sep>
+                </#list>
+                }<#sep>,</#sep>
+                </#list>
+            };
+            
+            const icasaText = {
+                <#list icasaMgnCodeMap?keys as key>
+                ${key}:{
+                <#list icasaMgnCodeMap[key]?keys as code>
+                    "${icasaMgnCodeMap[key][code]}" : "${code}"<#sep>,</#sep>
+                </#list>
+                }<#sep>,</#sep>
+                </#list>
+            };
+            
+            const tableConfig = {
+                all: {
+                    columns: [
+                        {type: 'text', data: 'content'},
+                        {type: 'date', data: 'date', dateFormat: 'YYYY-MM-DD'},
+                        {type: 'text', data: 'event'}
+                    ],
+                    headers: ['Name', 'Date', 'Type']
+                },
+                planting: {
+                    columns: [
+                        {type: 'text', data: 'content'},
+                        {type: 'date', data: 'date', dateFormat: 'YYYY-MM-DD'},
+                        {type: 'date', data: 'edate', dateFormat: 'YYYY-MM-DD'},
+                        {type: 'dropdown', data: 'plma',
+                            source: [<#list icasaMgnCodeMap.plma?keys?sort as code>"${icasaMgnCodeMap.plma[code]}"<#sep>,</#sep></#list>]
+                        },
+                        {type: 'dropdown', data: 'plds',
+                            source: [<#list icasaMgnCodeMap.plds?keys?sort as code>"${icasaMgnCodeMap.plds[code]}"<#sep>,</#sep></#list>]
+                        },
+                        {type: 'numeric', data: 'plrs'},
+                        {type: 'numeric', data: 'plrd',
+                            validator: function (value, callback) {
+                                var valid = value <= 360 && value >= 0;
+                                return callback(valid);
+                            }
+                        },
+                        {type: 'numeric', data: 'pldp'},
+                        {type: 'numeric', data: 'plpop'},
+                        {type: 'numeric', data: 'plpoe'},
+                        {type: 'numeric', data: 'plmwt'},
+                        {type: 'numeric', data: 'plenv'},
+                        {type: 'numeric', data: 'page'},
+                        {type: 'numeric', data: 'plph'},
+                        {type: 'numeric', data: 'plspl'}
+                    ],
+                    headers: ['Name', 'Date', 'Emergence Date', 'Planting Method', 'Planting Distribution','Row Spacing',
+                        'Row Direction', 'Planting Depth', 'Plant Population at Seeding', 'Plant Population at Emerngence',
+                        'Planting Material Dry Weight', 'Temperature of Transplant Environment', 'Transplant Age', 'Plant per hill', 'Initial Sprout Length']
+                },
+                irrigation: {
+                    columns: [
+                        {type: 'text', data: 'content'},
+                        {type: 'date', data: 'date', dateFormat: 'YYYY-MM-DD'},
+                        {type: 'numeric', data: 'ireff',
+                            validator: function (value, callback) {
+                                var valid = value <= 1 && value >= 0;
+                                return callback(valid);
+                            }
+                        },
+                        {type: 'dropdown', data: 'irop',
+                            source: [<#list icasaMgnCodeMap.irop?keys?sort as code>"${icasaMgnCodeMap.irop[code]}"<#sep>,</#sep></#list>]
+                        },
+                        {type: 'numeric', data: 'irval'},
+                        {type: 'numeric', data: 'irrat'},
+                        {type: 'time', data: 'irstr', timeFormat: 'HH:mm', correctFormat: true},
+                        {type: 'numeric', data: 'irdur'},
+                        {type: 'numeric', data: 'irspc'},
+                        {type: 'numeric', data: 'irofs'},
+                        {type: 'numeric', data: 'irdep'}
+                    ],
+                    headers: ['Name', 'Date', 'Efficiency', 'Operation', 'Amount of  Water','Drip Emitter Rate',
+                        'Event Starting Time', 'Event Duration', 'Drip Emitter Spacing', 'Drip Emitter Offset', 'Drip Emitter Depth']
+                },
+                fertilizer: {
+                    columns: [
+                        {type: 'text', data: 'content'},
+                        {type: 'date', data: 'date', dateFormat: 'YYYY-MM-DD'},
+                        {type: 'dropdown', data: 'fecd_text',
+                            source: [<#list icasaMgnCodeMap.fecd?keys?sort as code>"${icasaMgnCodeMap.fecd[code]}"<#sep>,</#sep></#list>]
+                        },
+                        {type: 'dropdown', data: 'feacd_text',
+                            source: [<#list icasaMgnCodeMap.feacd?keys?sort as code>"${icasaMgnCodeMap.feacd[code]}"<#sep>,</#sep></#list>]
+                        },
+                        {type: 'numeric', data: 'fedep'},
+                        {type: 'numeric', data: 'feamn'},
+                        {type: 'numeric', data: 'feamp'},
+                        {type: 'numeric', data: 'feamk'},
+                        {type: 'numeric', data: 'feamc'},
+                        {type: 'numeric', data: 'feamo'},
+                        {type: 'dropdown', data: 'feocd_text',
+                            source: [<#list icasaMgnCodeMap.feocd?keys?sort as code>"${icasaMgnCodeMap.feocd[code]}"<#sep>,</#sep></#list>]
+                        }
+                    ],
+                    headers: ['Name', 'Date','Fertilizer Material', 'Fertilizer Applications', 'Depth', 'Nitrogen', 'Phosphorus', 'Potassium', 'Calcium',
+                        'Other - amount', 'Other - name']
+                },
+                harvest: {
+                    columns: [
+                        {type: 'text', data: 'content'},
+                        {type: 'date', data: 'date', dateFormat: 'YYYY-MM-DD'},
+                        {type: 'text', data: 'hastg'},
+                        {type: 'dropdown', data: 'hacom',
+                            source: [<#list icasaMgnCodeMap.hacom?keys?sort as code>"${icasaMgnCodeMap.hacom[code]}"<#sep>,</#sep></#list>]
+                        },
+                        {type: 'dropdown', data: 'hasiz',
+                            source: [<#list icasaMgnCodeMap.hasiz?keys?sort as code>"${icasaMgnCodeMap.hasiz[code]}"<#sep>,</#sep></#list>]
+                        },
+                        {type: 'numeric', data: 'happc',
+                            validator: function (value, callback) {
+                                var valid = value <= 100 && value >= 0;
+                                return callback(valid);
+                            }
+                        },
+                        {type: 'numeric', data: 'habpc',
+                            validator: function (value, callback) {
+                                var valid = value <= 100 && value >= 0;
+                                return callback(valid);
+                            }
+                        }
+                    ],
+                    headers: ['Name', 'Date', 'Stage', 'Component', 'Size Group', 'Product Harvest Percentage', 'Byproduct Takeoff Percentage']
+                }
+            };
             
             function initTimeline() {
                 // DOM element where the Timeline will be attached
@@ -137,27 +273,20 @@
                 });
             }
             
-            function initSpreadsheet() {
+            function initSpreadsheet(eventType) {
+                if (!eventType) {
+                    eventType = $('#sps_tabs').children('.active').children('a').text().trim().toLowerCase();
+                }
+                if (spreadsheet) {
+                    spreadsheet.destroy();
+                }
                 events = getEvents();
+                subEvents = getSubEvents(eventType);
                 spsContainer = document.querySelector('#visualization2');
                 spsOptions = {
                     licenseKey: 'non-commercial-and-evaluation',
-                    data: events,
-                    columns: [
-                        {
-                            data: 'content',
-                            type: 'text'
-                        },
-                        {
-                            data: 'date',
-                            type: 'date',
-                            dateFormat: 'YYYY-MM-DD'
-                        },
-                        {
-                            data: 'event',
-                            type: 'text'
-                        }
-                    ],
+                    data: subEvents,
+                    columns: tableConfig[eventType].columns,
                     stretchH: 'all',
         //                    width: 500,
                     autoWrapRow: true,
@@ -167,11 +296,13 @@
                     manualRowResize: true,
                     manualColumnResize: true,
                     rowHeaders: true,
-                    colHeaders: [
-                        'Name',
-                        'Date',
-                        'Type'
-                    ],
+                    colHeaders: tableConfig[eventType].headers,
+//                    headerTooltips: true,
+//                    afterChange: function(changes, src) {
+//                        if(changes){
+//                            
+//                        }
+//                    },
                     manualRowMove: true,
                     manualColumnMove: true,
                     contextMenu: true,
@@ -239,12 +370,12 @@
                         fstTmlFlg = false;
                         initTimeline();
                         initSpreadsheet();
-                        if (events.length !== 0) {
+                        if (eventData.length !== 0) {
                             timeline.fit();
                         }
                     } else {
                         timeline.setItems(eventData);
-                        if (events.length === 0) {
+                        if (eventData.length === 0) {
                             let startYear = $('#start_year').val();
                             if (startYear && !isNaN(startYear)) {
                                 timeline.setWindow(new Date(startYear, 0, 1, 0, 0, 0, 0), new Date(startYear, 11, 31, 0, 0, 0, 0));
@@ -252,7 +383,7 @@
                         } else {
                             timeline.fit();
                         }
-                        syncDataToSps();
+                        initSpreadsheet();
                     }
                 });
                 $('.nav-tabs #EventTab').on('hide.bs.tab', function(){

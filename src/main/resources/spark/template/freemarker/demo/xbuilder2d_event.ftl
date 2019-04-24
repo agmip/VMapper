@@ -41,6 +41,7 @@
             events = [];
             eventId = 1;
         }
+        subEvents = [];
         managements[mgnId] = createMgnData(description, events);
         eventData = managements[mgnId].tmlData;
         $('#mgn_list').append('<li><a data-toggle="tab" href="#Event" id="' + mgnId + '" onclick="setManagement(this);">' + description + '</a></li>');
@@ -243,7 +244,7 @@
                 if (showBtn.attr("id") === "timeline_swc_btn") {
                     syncDataToTml();
                 } else {
-                    syncDataToSps();
+                    initSpreadsheet();
                 }
                 if (!mgnId) {
                     return;
@@ -261,12 +262,101 @@
         return arr;
     }
     
-    function syncDataToSps() {
-        events = getEvents();
-        spreadsheet.loadData(events);
+    function getSubEvents(eventType) {
+        let arr;
+        if (eventType && eventType !== "all") {
+            arr = eventData.get({
+                filter: function (item) {
+                    return (item.event === eventType);
+                }
+            });
+        } else {
+            events = getEvents();
+            return events;
+        }
+        arr.forEach(function (data) {
+            data.date = dateUtil.toYYYYMMDDStr(data.start);
+            icasaToText(data);
+        });
+        return arr;
     }
     
+    function mergeSubEvents() {
+        if (subEvents.length > 0) {
+            let eventType = $('#sps_tabs').children('.active').children('a').text().trim().toLowerCase();
+            
+            if (eventType === "all") {
+                return;
+            }
+            
+            let delIdx = [];
+            for (let i in events) {
+                let flg = true;
+                for (let j in subEvents) {
+                    if (events[i].event !== eventType || subEvents[j].id === events[i].id) {
+                        flg = false;
+                        break;
+                    }
+                }
+                if (flg) {
+                    delIdx.push(i);
+                }
+            }
+            for (let i in delIdx) {
+                events.splice(delIdx[i], 1);
+            }
+            
+            subEvents.forEach(function (data) {
+                icasaToCode(data);
+                if (!data.event) {
+                    data.event = eventType;
+                }
+                let updIdx;
+                for (let i in events) {
+                    if (data.id === events[i].id) {
+                        updIdx = i;
+                        break;
+                    }
+                }
+                if (updIdx) {
+                    events[updIdx] = data;
+                } else {
+                    events.push(data);
+                }
+            });
+            
+            subEvents = [];
+        }
+    }
+    
+    function icasaToText(item) {
+        for (let key in item) {
+            if (icasaCode[key]) {
+                item[key + "_text"] = icasaCode[key][item[key]];
+            }
+        }
+    }
+    
+    function icasaToCode(item) {
+        for (let key in item) {
+            if (key.endsWith("_text")) {
+                let codeKey = key.replace("_text", "");
+                let text = item[key];
+                if (icasaText[codeKey]) {
+                    item[codeKey] = icasaText[codeKey][text];
+                    delete item[key];
+                }
+            }
+        }
+    }
+
+    function syncDataToSps(eventType) {
+        syncDataToTml();
+        initSpreadsheet(eventType);
+    }
+
     function syncDataToTml() {
+        mergeSubEvents();
         let x = -1, y = 0;
         for (let i = 0; i < events.length; i++) {
             if (!events[i].event || events[i].event.trim() === "" ||
@@ -361,12 +451,12 @@
         <div id="visualization" class="col-sm-12"></div>
     </div>
     <div id="spreadsheet_view" class="col-sm-12" hidden>
-        <ul class="nav nav-pills">
-            <li class="active"><a data-toggle="pill" href="#All">&nbsp;&nbsp;&nbsp;All&nbsp;&nbsp;&nbsp;</a></li>
-            <li><a data-toggle="pill" href="#Planting" onclick="alert('under construction...');">Planting</a></li>
-            <li><a data-toggle="pill" href="#Irrigation" onclick="alert('under construction...');">Irrigation</a></li>
-            <li><a data-toggle="pill" href="#Fertilizer" onclick="alert('under construction...');">Fertilizer</a></li>
-            <li><a data-toggle="pill" href="#Harvest" onclick="alert('under construction...');">Harvest</a></li>
+        <ul class="nav nav-pills" id="sps_tabs">
+            <li class="active"><a data-toggle="pill" href="#All" onclick="syncDataToSps('all');">&nbsp;&nbsp;&nbsp;All&nbsp;&nbsp;&nbsp;</a></li>
+            <li><a data-toggle="pill" href="#Planting" onclick="syncDataToSps('planting');">Planting</a></li>
+            <li><a data-toggle="pill" href="#Irrigation" onclick="syncDataToSps('irrigation');">Irrigation</a></li>
+            <li><a data-toggle="pill" href="#Fertilizer" onclick="syncDataToSps('fertilizer');">Fertilizer</a></li>
+            <li><a data-toggle="pill" href="#Harvest" onclick="syncDataToSps('harvest');">Harvest</a></li>
         </ul>
         <div id="visualization2" class="col-sm-12"></div>
     </div>
