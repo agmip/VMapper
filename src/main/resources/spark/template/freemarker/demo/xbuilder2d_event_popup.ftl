@@ -530,10 +530,10 @@
             <label class="control-label" for="fedep">Depth (cm)</label>
             <div class="input-group col-sm-12">
                 <div class="col-sm-7">
-                    <input type="range" name="fedep" step="1" max="300" min="1" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInput(this)">
+                    <input type="range" name="fedep" step="1" max="300" min="0" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInput(this)">
                 </div>
                 <div class="col-sm-5">
-                    <input type="number" name="fedep" step="1" max="999" min="1" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" >
+                    <input type="number" name="fedep" step="1" max="999" min="0" class="form-control event-input-item max-5" value="" oninput="rangeNumInput(this)" >
                 </div>
             </div>
         </div>
