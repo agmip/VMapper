@@ -497,11 +497,20 @@
                     let text, ext;
                     if ($("#json_swc_btn").hasClass("btn-primary")) {
                         text = getFinalJson();
-                        ext = expData.crid_dssat + "J";
+                        if (expData.crid_dssat) {
+                            ext = expData.crid_dssat + "J";
+                        } else {
+                            ext = "XXJ";
+                        }
+                        
                         
                     } else {
                         text = $('#dssat_preview_text').html();
-                        ext = expData.crid_dssat + "X";
+                        if (expData.crid_dssat) {
+                            ext = expData.crid_dssat + "X";
+                        } else {
+                            ext = "XXX";
+                        }
                         if (text === "Loading...") {
                             bootbox.alert({
                                 message: "Please wait for preview content shown up...",
