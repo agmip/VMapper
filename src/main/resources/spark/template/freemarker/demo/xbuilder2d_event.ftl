@@ -289,11 +289,15 @@
                 return;
             }
             
+            // remove deleted events
             let delIdx = [];
             for (let i in events) {
+                if (events[i].event !== eventType) {
+                    continue;
+                }
                 let flg = true;
                 for (let j in subEvents) {
-                    if (events[i].event !== eventType || subEvents[j].id === events[i].id) {
+                    if (subEvents[j].id && subEvents[j].id === events[i].id) {
                         flg = false;
                         break;
                     }
@@ -306,17 +310,22 @@
                 events.splice(delIdx[i], 1);
             }
             
+            // add new created events
             subEvents.forEach(function (data) {
                 icasaToCode(data);
                 if (!data.event) {
                     data.event = eventType;
                 }
                 let updIdx;
-                for (let i in events) {
-                    if (data.id === events[i].id) {
-                        updIdx = i;
-                        break;
+                if (data.id) {
+                    for (let i in events) {
+                        if (data.id === events[i].id) {
+                            updIdx = i;
+                            break;
+                        }
                     }
+                } else {
+                    data.id = newId();
                 }
                 if (updIdx) {
                     events[updIdx] = data;
@@ -325,6 +334,7 @@
                 }
             });
             
+            // clear subEvent list
             subEvents = [];
         }
     }
@@ -392,6 +402,9 @@
         });
         eventData.remove(delIds);
         eventData.update(events);
+        if (eventData.length !== 0) {
+            timeline.fit();
+        }
     }
 </script>
 <div class="subcontainer">
