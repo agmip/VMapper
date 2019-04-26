@@ -65,10 +65,10 @@
                         {type: 'text', data: 'content'},
                         {type: 'date', data: 'date', dateFormat: 'YYYY-MM-DD'},
                         {type: 'date', data: 'edate', dateFormat: 'YYYY-MM-DD'},
-                        {type: 'dropdown', data: 'plma',
+                        {type: 'dropdown', data: 'plma_text',
                             source: [<#list icasaMgnCodeMap.plma?keys?sort as code>"${icasaMgnCodeMap.plma[code]}"<#sep>,</#sep></#list>]
                         },
-                        {type: 'dropdown', data: 'plds',
+                        {type: 'dropdown', data: 'plds_text',
                             source: [<#list icasaMgnCodeMap.plds?keys?sort as code>"${icasaMgnCodeMap.plds[code]}"<#sep>,</#sep></#list>]
                         },
                         {type: 'numeric', data: 'plrs'},
@@ -101,7 +101,7 @@
                                 return callback(valid);
                             }
                         },
-                        {type: 'dropdown', data: 'irop',
+                        {type: 'dropdown', data: 'irop_text',
                             source: [<#list icasaMgnCodeMap.irop?keys?sort as code>"${icasaMgnCodeMap.irop[code]}"<#sep>,</#sep></#list>]
                         },
                         {type: 'numeric', data: 'irval'},
@@ -143,10 +143,10 @@
                         {type: 'text', data: 'content'},
                         {type: 'date', data: 'date', dateFormat: 'YYYY-MM-DD'},
                         {type: 'text', data: 'hastg'},
-                        {type: 'dropdown', data: 'hacom',
+                        {type: 'dropdown', data: 'hacom_text',
                             source: [<#list icasaMgnCodeMap.hacom?keys?sort as code>"${icasaMgnCodeMap.hacom[code]}"<#sep>,</#sep></#list>]
                         },
-                        {type: 'dropdown', data: 'hasiz',
+                        {type: 'dropdown', data: 'hasiz_text',
                             source: [<#list icasaMgnCodeMap.hasiz?keys?sort as code>"${icasaMgnCodeMap.hasiz[code]}"<#sep>,</#sep></#list>]
                         },
                         {type: 'numeric', data: 'happc',
