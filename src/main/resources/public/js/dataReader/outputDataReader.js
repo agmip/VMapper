@@ -712,7 +712,7 @@ function getSoilStructure(data) {
             }
             soilProfile["totRows"] = totRows;
             soilProfile["totCols"] = totCols;
-            soilProfile["bedRows"] = bedRows;
+            soilProfile["bedRows"] = bedRows - 1;
             soilProfile["bedCols"] = bedCols;
         }
     }
