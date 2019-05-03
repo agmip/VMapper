@@ -79,10 +79,18 @@
                     soilProfile = tmp;
                 } else if (rawData[0].startsWith("*INFO DETAIL FILE")) {
                     let tmp = readInfoOut(rawData);
-                    soilProfile["LL"] = tmp["data"]["LL"];
-                    soilProfile["DUL"] = tmp["data"]["DUL"];
-                    soilProfile["SAT"] = tmp["data"]["SAT"];
-                    soilProfile["DS"] = tmp["data"]["DS"];
+                    if (tmp["data"]["LL"]) {
+                       soilProfile["LL"] = tmp["data"]["LL"];
+                    }
+                    if (tmp["data"]["DUL"]) {
+                        soilProfile["DUL"] = tmp["data"]["DUL"];
+                    }
+                    if (tmp["data"]["SAT"]) {
+                        soilProfile["SAT"] = tmp["data"]["SAT"];
+                    }
+                    if (tmp["data"]["DS"]) {
+                        soilProfile["DS"] = tmp["data"]["DS"];
+                    }
                     soilProfile["units"] = tmp["unit"];
                 } else if (rawData[0].startsWith("!,Subdaily Observation Data for 2D")) {
                     obvData = readSubDailyObv(rawData);
