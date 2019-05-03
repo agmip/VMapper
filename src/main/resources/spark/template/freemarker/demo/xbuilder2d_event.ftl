@@ -367,23 +367,10 @@
 
     function syncDataToTml() {
         mergeSubEvents();
-        let x = -1, y = 0;
+        clearNullElements(events, ["event", "content", "date"]);
         for (let i = 0; i < events.length; i++) {
-            if (!events[i].event || events[i].event.trim() === "" ||
-                    !events[i].content || events[i].content.trim() === "" ||
-                    !events[i].date || events[i].date.trim() === "") {
-                y++;
-            } else  {
-                if (y > 0) {
-                    events.splice(x + 1, y);
-                    i -= y;
-                    y = 0;
-                }
-                x = i;
-                events[i].start = dateUtil.toLocaleStr(events[i].date);
-            }
+            events[i].start = dateUtil.toLocaleStr(events[i].date);
         }
-        events.splice(x + 1, y);
         for (let i = 0; i < events.length; i++) {
             if (!events[i].id) {
                 events[i].id = newId();
@@ -405,6 +392,30 @@
         if (eventData.length !== 0) {
             timeline.fit();
         }
+    }
+    
+    function clearNullElements(array, ids) {
+        let x = -1, y = 0;
+        let flg;
+        for (let i = 0; i < array.length; i++) {
+            flg = true;
+            for (let j = 0; j < ids.length; j++) {
+                if (!array[i][ids[j]] || array[i][ids[j]].toString().trim() === "") {
+                    y++;
+                    flg = false;
+                    break;
+                }
+            }
+            if (flg) {
+                if (y > 0) {
+                    array.splice(x + 1, y);
+                    i -= y;
+                    y = 0;
+                }
+                x = i;
+            }
+        }
+        array.splice(x + 1, y);
     }
 </script>
 <div class="subcontainer">
