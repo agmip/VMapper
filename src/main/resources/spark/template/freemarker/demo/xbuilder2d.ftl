@@ -362,6 +362,7 @@
                 $('.nav-tabs #FieldTab').on('shown.bs.tab', function(){
                     $("#field_create").parent().removeClass("active");
                     $("#" + fieldId).parent().addClass("active");
+                    chosen_init("2d_flg");
                 });
                 $('.nav-tabs #EventTab').on('shown.bs.tab', function(){
                     $("#mgn_create").parent().removeClass("active");

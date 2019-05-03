@@ -25,6 +25,7 @@
         $('#soil_id').val("");
         $('#wst_id').val("");
         $('#fl_name').val(description);
+        $('#2d_flg').val("N");
         $('#bdht').val("").trigger("input");
         $('#bdwd').val("").trigger("input");
         $('#pmalb').val("").trigger("input");
@@ -44,6 +45,21 @@
         $('#bdht').val(fieldData['bdht']).trigger("input");
         $('#bdwd').val(fieldData['bdwd']).trigger("input");
         $('#pmalb').val(fieldData['pmalb']).trigger("input");
+        if (fieldData['pmalb']) {
+            if (fieldData['bdht']) {
+                $('#2d_flg').val("BBP").trigger("change");
+            } else if (fieldData['bdwd']) {
+                $('#2d_flg').val("FPP").trigger("change");
+            } else {
+                $('#2d_flg').val("FFP").trigger("change");
+            }
+        } else {
+            if (fieldData['bdht'] || fieldData['bdwd']) {
+                $('#2d_flg').val("BNP").trigger("change");
+            } else {
+                $('#2d_flg').val("N").trigger("change");
+            }
+        }
     }
     
     function removeField(id) {
@@ -77,6 +93,35 @@
             $('[name=' + target.name + ']').val(target.value);
         }
         
+    }
+    
+    function update2DFlg(flg) {
+        if (flg === "N") {
+            $("#bdwd").val("").trigger("input").trigger("change");
+            $("#bdht").val("").trigger("input").trigger("change");
+            $("#pmalb").val("").trigger("input").trigger("change");
+            $(".2d-input").hide();
+        } else if (flg === "BBP") {
+            $(".2d-input").show();
+            $("#bdwd_label").show();
+            $("#bdwd_label2").hide();
+        } else if (flg === "BNP") {
+            $(".2d-input").show();
+            $("#pmalb").val("").trigger("input").trigger("change");
+            $("#pmalb_input").hide();
+        } else if (flg === "FFP") {
+            $(".2d-input").show();
+            $("#bdwd").val("").trigger("input").trigger("change");
+            $("#bdwd_input").hide();
+            $("#bdht").val("").trigger("input").trigger("change");
+            $("#bdht_input").hide();
+        } else if (flg === "FPP") {
+            $(".2d-input").show();
+            $("#bdht").val("").trigger("input").trigger("change");
+            $("#bdht_input").hide();
+            $("#bdwd_label").hide();
+            $("#bdwd_label2").show();
+        }
     }
 </script>
 <div class="subcontainer">
@@ -118,40 +163,57 @@
             </div>
         </div>
         <div class="row col-sm-12">
-            <div class="form-group has-feedback col-sm-3">
-                <label class="control-label" for="bdwd">Soil Bed Width (cm)</label>
-                <div class="input-group col-sm-12">
-                    <div class="col-sm-7">
-                        <input type="range" name="bdwd" step="1" max="300" min="1" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInputId(this)">
-                    </div>
-                    <div class="col-sm-5">
-                        <input type="number" name="bdwd" id="bdwd" step="1" max="999" min="1" class="form-control field_data max-5" value="" oninput="rangeNumInputId(this)" >
-                    </div>
-                </div>
-            </div>
-            <div class="form-group has-feedback col-sm-3">
-                <label class="control-label" for="bdht">Soil Bed Height (cm)</label>
-                <div class="input-group col-sm-12">
-                    <div class="col-sm-7">
-                        <input type="range" name="bdht" step="1" max="100" min="1" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInputId(this)">
-                    </div>
-                    <div class="col-sm-5">
-                        <input type="number" name="bdht" id="bdht" step="1" max="999" min="1" class="form-control field_data max-5" value="" oninput="rangeNumInputId(this)" >
+            <fieldset class="col-sm-4">
+                <legend>
+                    2D Model features&nbsp;&nbsp;&nbsp;
+                </legend>
+                <div class="form-group has-feedback col-sm-12">
+                    <label class="control-label" for="2d_flg">Use case selection</label>
+                    <div class="input-group col-sm-12">
+                        <select id="2d_flg" class="form-control chosen-select-deselect" onchange="update2DFlg(this.value);" data-placeholder="Choose a use case..." required>
+                            <option value="N" selected>Not used</option>
+                            <option value="BBP">Bed and furrow, bed covered with plastic mulch</option>
+                            <option value="BNP">Bed and furrow, bed not covered with plastic mulch</option>
+                            <option value="FFP">Flat surface, fully covered with plastic mulch</option>
+                            <option value="FPP">Flat surface, partially covered with plastic mulch</option>
+                        </select>
                     </div>
                 </div>
-            </div>
-            <div class="form-group has-feedback col-sm-3">
-                <label class="control-label" for="pmalb">Albedo of plastic mulch</label>
-                <div class="input-group col-sm-12">
-                    <div class="col-sm-7">
-                        <input type="range" name="pmalb" step="0.01" max="1" min="0.01" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInputId(this)">
-                    </div>
-                    <div class="col-sm-5">
-                        <input type="number" name="pmalb" id="pmalb" step="0.1" max="1" min="0.01" class="form-control field_data max-5" value="" oninput="rangeNumInputId(this)" >
+                <div class="form-group has-feedback col-sm-12 2d-input" id="bdwd_input" hidden>
+                    <label class="control-label" id="bdwd_label" for="bdwd">Soil Bed Width (cm)</label>
+                    <label class="control-label" id="bdwd_label2" for="bdwd" hidden>Plastic Mulch Width (cm)</label>
+                    <div class="input-group col-sm-12">
+                        <div class="col-sm-7">
+                            <input type="range" name="bdwd" step="1" max="300" min="1" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInputId(this)">
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="number" name="bdwd" id="bdwd" step="1" max="999" min="0" class="form-control field_data max-5" value="" oninput="rangeNumInputId(this)" >
+                        </div>
                     </div>
                 </div>
-            </div>
+                <div class="form-group has-feedback col-sm-12 2d-input" id="bdht_input" hidden>
+                    <label class="control-label" for="bdht">Soil Bed Height (cm)</label>
+                    <div class="input-group col-sm-12">
+                        <div class="col-sm-7">
+                            <input type="range" name="bdht" step="1" max="100" min="1" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInputId(this)">
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="number" name="bdht" id="bdht" step="1" max="999" min="0" class="form-control field_data max-5" value="" oninput="rangeNumInputId(this)" >
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group has-feedback col-sm-12 2d-input" id="pmalb_input" hidden>
+                    <label class="control-label" for="pmalb">Albedo of plastic mulch</label>
+                    <div class="input-group col-sm-12">
+                        <div class="col-sm-7">
+                            <input type="range" name="pmalb" step="0.01" max="1" min="0.01" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInputId(this)">
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="number" name="pmalb" id="pmalb" step="0.1" max="1" min="0.01" class="form-control field_data max-5" value="" oninput="rangeNumInputId(this)" >
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
         </div>
-        
     </fieldset>
 </div>
