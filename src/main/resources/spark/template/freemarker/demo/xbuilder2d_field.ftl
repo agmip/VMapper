@@ -1,5 +1,6 @@
 <script>
     function createField(id, rawData) {
+        syncICData();
         let num;
         let description;
         if (id) {
@@ -10,25 +11,28 @@
             num = getNewCollectionNum(fields);
             fieldId = "field_" + num;
             description = "New Field " + (num + 1);
-            fields[fieldId] = {fl_name: description};
+            fields[fieldId] = {fl_name: description, initial_conditions: {soilLayer:[]}};
         }
         let id_field = null;
         if (expData["exname"]) {
             id_field = expData["exname"].substring(0,4) + (num + 1).toString().padStart(4, "0");
         }
         fieldData = fields[fieldId];
+        if (!fieldData.initial_conditions) {
+            fieldData.initial_conditions = {soilLayer:[]};
+        } else if (!fieldData.initial_conditions.soilLayer) {
+            fieldData.initial_conditions.soilLayer = [];
+        }
+        icLayers = fieldData.initial_conditions.soilLayer;
         $('#field_list').append('<li><a data-toggle="tab" href="#Field" id="' + fieldId + '" onclick="setField(this);">' + description + '</a></li>');
         if (!id && id_field) {
             fieldData["id_field"] = id_field;
         }
+        $('.field-data').val("").trigger("input");
+        $('.ic-data').val("").trigger("input");
         $('#id_field').val(fieldData.id_field);
-        $('#soil_id').val("");
-        $('#wst_id').val("");
         $('#fl_name').val(description);
         $('#2d_flg').val("N");
-        $('#bdht').val("").trigger("input");
-        $('#bdwd').val("").trigger("input");
-        $('#pmalb').val("").trigger("input");
         for (let i in trtData) {
             $('#tr_field_' + trtData[i].trtno).append('<option value="' + fieldId + '">' + description + '</option>');
         }
@@ -36,15 +40,16 @@
     }
     
     function setField(target) {
+        syncICData();
         fieldData = fields[target.id];
         fieldId = target.id;
-        $('#id_field').val(fieldData['id_field']);
-        $('#fl_name').val(fieldData['fl_name']);
-        $('#soil_id').val(fieldData['soil_id']);
-        $('#wst_id').val(fieldData['wst_id']);
-        $('#bdht').val(fieldData['bdht']).trigger("input");
-        $('#bdwd').val(fieldData['bdwd']).trigger("input");
-        $('#pmalb').val(fieldData['pmalb']).trigger("input");
+        icLayers = fieldData.initial_conditions.soilLayer;
+        $('.field-data').each(function() {
+            $(this).val(fieldData[$(this).attr("id")]).trigger("input");
+        });
+        $('.ic-data').each(function() {
+            $(this).val(fieldData.initial_conditions[$(this).attr("id")]).trigger("input");
+        });
         if (fieldData['pmalb']) {
             if (fieldData['bdht']) {
                 $('#2d_flg').val("BBP").trigger("change");
@@ -152,7 +157,32 @@
             initSpreadsheet("ic", document.querySelector("#ic_sps_view"));
         } else {
             chosen_init("icpcr");
+            syncICData();
         }
+    }
+    
+    function syncICData() {
+//        let icData = fieldData["initial_conditions"];
+//        if (!icData) {
+//            icData = {};
+//            fieldData["initial_conditions"] = icData;
+//        }
+        clearNullElements(icLayers, ["icbl"]);
+//        if (icLayers && icLayer.length > 0) {
+//            let layers = icData["soilLayer"];
+//            let addons = [];
+//            let addFlg = false;
+//            for (let i = 0; i < icLayer.length; i++) {
+//                for (let j = 0; j < layers.length; j++) {
+//                    if (layers[j].icbl === icLayer[j].icbl) {
+//                        layers[j] = icLayer[i];
+//                        break;
+//                    }
+//                }
+//            }
+//        } else {
+//            delete idData["soilLayer"];
+//        }
     }
 </script>
 <div class="subcontainer">
@@ -206,7 +236,7 @@
                     <div class="form-group col-sm-4">
                         <label class="control-label" for="icdat">Measurement Date</label>
                         <div class="input-group col-sm-12">
-                            <input type="date" id="icdat" name="icdat" class="form-control ic_data" value="">
+                            <input type="date" id="icdat" name="icdat" class="form-control ic-data" value="">
                         </div>
                     </div>
                     <div class="form-group col-sm-4">
@@ -216,7 +246,7 @@
                                 <input type="range" name="icwt" step="1" max="200" min="0" class="form-control" value="" placeholder="Initial water table depth (cm)" data-toggle="tooltip" title="Initial water table depth (cm)" oninput="rangeNumInputSync(this)">
                             </div>
                             <div class="col-sm-5">
-                                <input type="number" name="icwt" id="icwt" step="1" max="999" min="0" class="form-control ic_data max-5" value="" oninput="rangeNumInputSync(this)" >
+                                <input type="number" name="icwt" id="icwt" step="1" max="999" min="0" class="form-control ic-data max-5" value="" oninput="rangeNumInputSync(this)" >
                             </div>
                         </div>
                     </div>
@@ -229,7 +259,7 @@
                         <div class="form-group col-sm-4">
                             <label class="control-label" for="icpcr">Previous Crop</label>
                             <div class="input-group col-sm-12">
-                                <select id="icpcr" class="form-control chosen-select-deselect ic_data" data-placeholder="Choose a Crop...">
+                                <select id="icpcr" class="form-control chosen-select-deselect ic-data" data-placeholder="Choose a Crop...">
                                     <option value=""></option>
                                     <#assign category = "">
                                     <#list culMetaList as culMeta>
@@ -253,7 +283,7 @@
                                     <input type="range" name="icrt" step="1" max="300" min="0" class="form-control" value="" placeholder="Root weight from previous crop (kg/ha)" data-toggle="tooltip" title="Root weight from previous crop (kg/ha)" oninput="rangeNumInputSync(this)">
                                 </div>
                                 <div class="col-sm-5">
-                                    <input type="number" name="icrt" id="icrt" step="1" max="999" min="0" class="form-control ic_data max-5" value="" oninput="rangeNumInputSync(this)" >
+                                    <input type="number" name="icrt" id="icrt" step="1" max="999" min="0" class="form-control ic-data max-5" value="" oninput="rangeNumInputSync(this)" >
                                 </div>
                             </div>
                         </div>
@@ -264,7 +294,7 @@
                                     <input type="range" name="icnd" step="1" max="300" min="0" class="form-control" value="" placeholder="Nodule weight from previous crop (kg/ha)" data-toggle="tooltip" title="Nodule weight from previous crop (kg/ha)" oninput="rangeNumInputSync(this)">
                                 </div>
                                 <div class="col-sm-5">
-                                    <input type="number" name="icnd" id="icnd" step="1" max="999" min="0" class="form-control ic_data max-5" value="" oninput="rangeNumInputSync(this)" >
+                                    <input type="number" name="icnd" id="icnd" step="1" max="999" min="0" class="form-control ic-data max-5" value="" oninput="rangeNumInputSync(this)" >
                                 </div>
                             </div>
                         </div>
@@ -277,7 +307,7 @@
                                     <input type="range" name="icrag" step="1" max="300" min="0" class="form-control" value="" placeholder="Residue above-ground weight, dry weight basis (kg/ha)" data-toggle="tooltip" title="Residue above-ground weight, dry weight basis (kg/ha)" oninput="rangeNumInputSync(this)">
                                 </div>
                                 <div class="col-sm-5">
-                                    <input type="number" name="icrag" id="icrag" step="1" max="999" min="0" class="form-control ic_data max-5" value="" oninput="rangeNumInputSync(this)" >
+                                    <input type="number" name="icrag" id="icrag" step="1" max="999" min="0" class="form-control ic-data max-5" value="" oninput="rangeNumInputSync(this)" >
                                 </div>
                             </div>
                         </div>
@@ -288,7 +318,7 @@
                                     <input type="range" name="icrn" step="1" max="100" min="0" class="form-control" value="" placeholder="Residue, above-ground, nitrogen concentration (%)" data-toggle="tooltip" title="Residue, above-ground, nitrogen concentration (%)" oninput="rangeNumInputSync(this)">
                                 </div>
                                 <div class="col-sm-5">
-                                    <input type="number" name="icrn" id="icrn" step="1" max="100" min="0" class="form-control ic_data max-5" value="" oninput="rangeNumInputSync(this)" >
+                                    <input type="number" name="icrn" id="icrn" step="1" max="100" min="0" class="form-control ic-data max-5" value="" oninput="rangeNumInputSync(this)" >
                                 </div>
                             </div>
                         </div>
@@ -299,7 +329,7 @@
                                     <input type="range" name="icrp" step="1" max="100" min="0" class="form-control" value="" placeholder="Residue, above-ground, phosphorus concentration (%)" data-toggle="tooltip" title="Residue, above-ground, phosphorus concentration (%)" oninput="rangeNumInputSync(this)">
                                 </div>
                                 <div class="col-sm-5">
-                                    <input type="number" name="icrp" id="icrp" step="1" max="100" min="0" class="form-control ic_data max-5" value="" oninput="rangeNumInputSync(this)" >
+                                    <input type="number" name="icrp" id="icrp" step="1" max="100" min="0" class="form-control ic-data max-5" value="" oninput="rangeNumInputSync(this)" >
                                 </div>
                             </div>
                         </div>
@@ -312,7 +342,7 @@
                                     <input type="range" name="icrip" step="1" max="100" min="0" class="form-control" value="" placeholder="Residue incorporation percentage (%)" data-toggle="tooltip" title="Residue incorporation percentage (%)" oninput="rangeNumInputSync(this)">
                                 </div>
                                 <div class="col-sm-5">
-                                    <input type="number" name="icrip" id="icrip" step="1" max="100" min="0" class="form-control ic_data max-5" value="" oninput="rangeNumInputSync(this)" >
+                                    <input type="number" name="icrip" id="icrip" step="1" max="100" min="0" class="form-control ic-data max-5" value="" oninput="rangeNumInputSync(this)" >
                                 </div>
                             </div>
                         </div>
@@ -323,7 +353,7 @@
                                     <input type="range" name="icrdp" step="1" max="200" min="0" class="form-control" value="" placeholder="Residue incorporation depth (cm)" data-toggle="tooltip" title="Residue incorporation depth (cm)" oninput="rangeNumInputSync(this)">
                                 </div>
                                 <div class="col-sm-5">
-                                    <input type="number" name="icrdp" id="icrdp" step="1" max="999" min="0" class="form-control ic_data max-5" value="" oninput="rangeNumInputSync(this)" >
+                                    <input type="number" name="icrdp" id="icrdp" step="1" max="999" min="0" class="form-control ic-data max-5" value="" oninput="rangeNumInputSync(this)" >
                                 </div>
                             </div>
                         </div>
@@ -336,7 +366,7 @@
                                     <input type="range" name="icrzc" step="1" max="200" min="0" class="form-control" value="" placeholder="Rhizobia number (count)" data-toggle="tooltip" title="Rhizobia number (count)" oninput="rangeNumInputSync(this)">
                                 </div>
                                 <div class="col-sm-5">
-                                    <input type="number" name="icrzc" id="icrzc" step="1" max="999" min="0" class="form-control ic_data max-5" value="" oninput="rangeNumInputSync(this)" >
+                                    <input type="number" name="icrzc" id="icrzc" step="1" max="999" min="0" class="form-control ic-data max-5" value="" oninput="rangeNumInputSync(this)" >
                                 </div>
                             </div>
                         </div>
@@ -347,7 +377,7 @@
                                     <input type="range" name="icrze" step="0.1" max="1" min="0" class="form-control" value="" placeholder="Rhizobia effectiveness on 0-1 scale" data-toggle="tooltip" title="Rhizobia effectiveness on 0-1 scale" oninput="rangeNumInputSync(this)">
                                 </div>
                                 <div class="col-sm-5">
-                                    <input type="number" name="icrze" id="icrze" step="0.01" max="1" min="0" class="form-control ic_data max-5" value="" oninput="rangeNumInputSync(this)" >
+                                    <input type="number" name="icrze" id="icrze" step="0.01" max="1" min="0" class="form-control ic-data max-5" value="" oninput="rangeNumInputSync(this)" >
                                 </div>
                             </div>
                         </div>

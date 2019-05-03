@@ -348,6 +348,9 @@
                         }
                     }
                 });
+                $('.ic-data').on('change', function() {
+                    saveData(fieldData.initial_conditions, this.id, this.value);
+                });
                 $('.max-2').on('input', function() {
                     limitLength(this, 2);
                 });
@@ -381,6 +384,9 @@
                     $("#" + fieldId).parent().addClass("active");
                     chosen_init("2d_flg");
                     undateICView();
+                });
+                $('.nav-tabs #FieldTab').on('hide.bs.tab', function(){
+                    syncICData();
                 });
                 $('.nav-tabs #EventTab').on('shown.bs.tab', function(){
                     $("#mgn_create").parent().removeClass("active");
