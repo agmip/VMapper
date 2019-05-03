@@ -13,6 +13,8 @@
             let fields = {};
             let fieldData = {};
             let fieldId;
+            let icSpreadsheet;
+            let icLayers = [];
             let cultivars = {};
             let eventData;        // Data container for current management data
             let events = [];      // Array of event object for current management data
@@ -25,8 +27,6 @@
             let tmlContainer;
             let fstTmlFlg = true;
             let spreadsheet;
-            let spsContainer;
-            let spsOptions;
             let configs = {};
             let configData = {};
             let configId;
@@ -163,6 +163,15 @@
                         }
                     ],
                     headers: ['Name', 'Date', 'Stage', 'Component', 'Size Group', 'Product Harvest Percentage', 'Byproduct Takeoff Percentage']
+                },
+                ic: {
+                    columns: [
+                        {type: 'numeric', data: 'icbl'},
+                        {type: 'numeric', data: 'ich2o'},
+                        {type: 'numeric', data: 'icnh4'},
+                        {type: 'numeric', data: 'icno3'},
+                    ],
+                    headers: ['Depth, base of layer<br>( cm )', 'Volumetric Water<br>( cm3/cm3 )', 'Ammonium (NH4)<br>( g[N]/Mg[Soil] )', 'Nitrate (NO3)<br>( g[N]/Mg[Soil] )']
                 }
             };
             
@@ -273,19 +282,27 @@
                 });
             }
             
-            function initSpreadsheet(eventType) {
+            function initSpreadsheet(eventType, spsContainer) {
                 if (!eventType) {
                     eventType = $('#sps_tabs').children('.active').children('a').text().trim().toLowerCase();
+                }
+                if (!spsContainer) {
+                    spsContainer = document.querySelector('#visualization2');
                 }
                 if (spreadsheet) {
                     spreadsheet.destroy();
                 }
-                events = getEvents();
-                subEvents = getSubEvents(eventType);
-                spsContainer = document.querySelector('#visualization2');
-                spsOptions = {
+                let data;
+                if (eventType === "ic") {
+                    data = icLayers;
+                } else {
+                    events = getEvents();
+                    subEvents = getSubEvents(eventType);
+                    data = subEvents;
+                }
+                let spsOptions = {
                     licenseKey: 'non-commercial-and-evaluation',
-                    data: subEvents,
+                    data: data,
                     columns: tableConfig[eventType].columns,
                     stretchH: 'all',
         //                    width: 500,
@@ -362,7 +379,7 @@
                 $('.nav-tabs #FieldTab').on('shown.bs.tab', function(){
                     $("#field_create").parent().removeClass("active");
                     $("#" + fieldId).parent().addClass("active");
-                    chosen_init("2d_flg");
+                    undateICView();
                 });
                 $('.nav-tabs #EventTab').on('shown.bs.tab', function(){
                     $("#mgn_create").parent().removeClass("active");
