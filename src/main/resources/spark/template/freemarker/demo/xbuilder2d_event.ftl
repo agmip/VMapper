@@ -418,7 +418,7 @@
             <div class="form-group has-feedback col-sm-4">
                 <label class="control-label" for="mgn_name">Management Name *</label>
                 <div class="input-group col-sm-12">
-                    <input type="text" id="mgn_name" name="mgn_name" class="form-control mgn_data" value="Default" required >
+                    <input type="text" id="mgn_name" name="mgn_name" class="form-control mgn-data" value="Default" required >
                     <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                 </div>
             </div>

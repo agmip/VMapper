@@ -336,10 +336,10 @@
             
             function init() {
                 reset();
-                $('.exp_data').on('change', function() {
+                $('.exp-data').on('change', function() {
                     saveData(expData, this.id, this.value);
                 });
-                $('.field_data').on('change', function() {
+                $('.field-data').on('change', function() {
                     saveData(fieldData, this.id, this.value);
                     if (this.id === "fl_name") {
                         $('#' + fieldId).html(this.value);
@@ -363,7 +363,7 @@
                 $('.max-10').on('input', function() {
                     limitLength(this, 10);
                 });
-                $('.mgn_data').on('change', function() {
+                $('.mgn-data').on('change', function() {
                     saveData(managements[mgnId], this.id, this.value);
                     if (this.id === "mgn_name") {
                         $('#' + mgnId).html(this.value);
@@ -565,7 +565,7 @@
                 
                 // Load meta data
                 expData = rawData.experiment;
-                $('.exp_data').each(function() {
+                $('.exp-data').each(function() {
                     $(this).val(expData[$(this).attr("id")]);
                 });
                 updateExname();

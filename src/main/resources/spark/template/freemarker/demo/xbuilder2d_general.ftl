@@ -101,7 +101,7 @@
             <label class="control-label" for="local_name">Experiment Name *</label>
             <div class="input-group col-sm-12">
                 <!--<span class="input-group-addon glyphicon">*</span>-->
-                <input type="text" id="local_name" name="local_name" class="form-control exp_data" placeholder="Locally used name for experiment" data-toggle="tooltip" title="Locally used name for experiment" required>
+                <input type="text" id="local_name" name="local_name" class="form-control exp-data" placeholder="Locally used name for experiment" data-toggle="tooltip" title="Locally used name for experiment" required>
                 <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
             </div>
         </div>
@@ -110,21 +110,21 @@
                 <div class="form-group has-feedback col-sm-6">
                     <label class="control-label" for="institute">Institute Code *</label>
                     <div class="input-group">
-                        <input type="text" id="institute" name="institute" class="form-control exp_data max-2" onchange="updateExname(this);" placeholder="Institute code" data-toggle="tooltip" title="Institute indentifier code" required>
+                        <input type="text" id="institute" name="institute" class="form-control exp-data max-2" onchange="updateExname(this);" placeholder="Institute code" data-toggle="tooltip" title="Institute indentifier code" required>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
                 </div>
                 <div class="form-group has-feedback col-sm-6">
                     <label class="control-label" for="in">Site Code *</label>
                     <div class="input-group">
-                        <input type="text" id="site" name="site" class="form-control exp_data max-2" onchange="updateExname(this);" placeholder="Site code" data-toggle="tooltip" title="Site indentifier code" required>
+                        <input type="text" id="site" name="site" class="form-control exp-data max-2" onchange="updateExname(this);" placeholder="Site code" data-toggle="tooltip" title="Site indentifier code" required>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
                 </div>
                 <div class="form-group has-feedback col-sm-6">
                     <label class="control-label" for="start_year">Year *</label>
                     <div class="input-group col-sm-12">
-                        <select id="start_year" name="start_year" class="form-control chosen-select-deselect exp_data" onchange="updateExname(this);" placeholder="Choose start year..." data-toggle="tooltip" title="The start year of experiment" required>
+                        <select id="start_year" name="start_year" class="form-control chosen-select-deselect exp-data" onchange="updateExname(this);" placeholder="Choose start year..." data-toggle="tooltip" title="The start year of experiment" required>
                             <option value=""></option>
                         </select>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
@@ -134,7 +134,7 @@
                     <label class="control-label" for="exp_no">Crop *</label>
                     <div class="input-group col-sm-12">
                         <!--<span class="input-group-addon glyphicon">*</span>-->
-                        <select id="crid" class="form-control chosen-select-deselect exp_data" onchange="updateCulSB(this);updateExname(this);" data-placeholder="Choose a Crop..." required>
+                        <select id="crid" class="form-control chosen-select-deselect exp-data" onchange="updateCulSB(this);updateExname(this);" data-placeholder="Choose a Crop..." required>
                             <option value=""></option>
                             <#assign category = "">
                             <#list culMetaList as culMeta>
@@ -155,7 +155,7 @@
                 <div class="form-group has-feedback col-sm-6">
                     <label class="control-label" for="exp_no">Experiment No. *</label>
                     <div class="input-group">
-                        <input type="text" id="exp_no" name="exp_no" class="form-control exp_data max-2" onchange="updateExname(this);" placeholder="Experiment no." data-toggle="tooltip" title="The index number of experiment" required>
+                        <input type="text" id="exp_no" name="exp_no" class="form-control exp-data max-2" onchange="updateExname(this);" placeholder="Experiment no." data-toggle="tooltip" title="The index number of experiment" required>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
                 </div>
@@ -163,7 +163,7 @@
                     <label class="control-label">Experiment File Name:</label>
                     <div class="">
                         <p id="exname_label" class="form-control-static">????????.??X</p>
-                        <input type="hidden" id="exname" class="exp_data" value="">
+                        <input type="hidden" id="exname" class="exp-data" value="">
                     </div>
                 </div>
             </fieldset>
@@ -171,15 +171,15 @@
                 <legend>General Information</legend>
                 <div class="form-group">
                     <label class="control-label" for="people">People</label>
-                    <textarea rows="2" id="people" name="people" class="form-control exp_data" placeholder="Locally used name for experiment" data-toggle="tooltip" title="Locally used name for experiment"></textarea>
+                    <textarea rows="2" id="people" name="people" class="form-control exp-data" placeholder="Locally used name for experiment" data-toggle="tooltip" title="Locally used name for experiment"></textarea>
                 </div>
                 <div class="form-group">
                     <label class="control-label" for="address">Address</label>
-                    <textarea rows="2" id="address" name="address" class="form-control exp_data" placeholder="Locally used name for experiment" data-toggle="tooltip" title="Locally used name for experiment"></textarea>
+                    <textarea rows="2" id="address" name="address" class="form-control exp-data" placeholder="Locally used name for experiment" data-toggle="tooltip" title="Locally used name for experiment"></textarea>
                 </div>
                 <div class="form-group">                    
                     <label class="control-label" for="site_name">Site</label>
-                    <textarea rows="2" id="site_name" name="site_name" class="form-control exp_data" placeholder="Locally used name for experiment" data-toggle="tooltip" title="Locally used name for experiment"></textarea>
+                    <textarea rows="2" id="site_name" name="site_name" class="form-control exp-data" placeholder="Locally used name for experiment" data-toggle="tooltip" title="Locally used name for experiment"></textarea>
                 </div>
             </fieldset>
 
