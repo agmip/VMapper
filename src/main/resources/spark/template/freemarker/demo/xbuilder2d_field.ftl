@@ -162,27 +162,16 @@
     }
     
     function syncICData() {
-//        let icData = fieldData["initial_conditions"];
-//        if (!icData) {
-//            icData = {};
-//            fieldData["initial_conditions"] = icData;
-//        }
         clearNullElements(icLayers, ["icbl"]);
-//        if (icLayers && icLayer.length > 0) {
-//            let layers = icData["soilLayer"];
-//            let addons = [];
-//            let addFlg = false;
-//            for (let i = 0; i < icLayer.length; i++) {
-//                for (let j = 0; j < layers.length; j++) {
-//                    if (layers[j].icbl === icLayer[j].icbl) {
-//                        layers[j] = icLayer[i];
-//                        break;
-//                    }
-//                }
-//            }
-//        } else {
-//            delete idData["soilLayer"];
-//        }
+    }
+    
+    function updatePCR(crid) {
+        crid = convertCropCode(crid);
+        if (crid !== "??") {
+            fieldData.initial_conditions.icpcr_dssat = crid;
+        } else {
+            delete fieldData.initial_conditions.icpcr_dssat;
+        }
     }
 </script>
 <div class="subcontainer">
@@ -259,7 +248,7 @@
                         <div class="form-group col-sm-4">
                             <label class="control-label" for="icpcr">Previous Crop</label>
                             <div class="input-group col-sm-12">
-                                <select id="icpcr" class="form-control chosen-select-deselect ic-data" data-placeholder="Choose a Crop...">
+                                <select id="icpcr" class="form-control chosen-select-deselect ic-data" onchange="updatePCR(this.value);" data-placeholder="Choose a Crop...">
                                     <option value=""></option>
                                     <#assign category = "">
                                     <#list culMetaList as culMeta>

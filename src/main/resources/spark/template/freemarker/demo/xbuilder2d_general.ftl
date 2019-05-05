@@ -37,15 +37,7 @@
         let crid;
         if (target && target.id === "crid") {
             crid = $('#crid').val();
-            if (crid === "") {
-                crid = "??";
-            <#list culMetaList as culMeta>
-            } else if (crid === "${culMeta.agmip_code!}") {
-                crid = "${culMeta.dssat_code!}";
-            </#list>
-            } else {
-                crid = "??";
-            }
+            crid = convertCropCode(crid);
             if (crid !== "??") {
                 expData.crid_dssat = crid;
             } else {
@@ -91,6 +83,20 @@
                 }
             );
         }
+    }
+    
+    function convertCropCode(agmipCode) {
+        let dssatCode;
+        if (agmipCode === "") {
+                dssatCode = "??";
+      //<#list culMetaList as culMeta>
+        } else if (agmipCode === "${culMeta.agmip_code!}") {
+            dssatCode = "${culMeta.dssat_code!}";
+      //!</#list>
+        } else {
+            dssatCode = "??";
+        }
+        return dssatCode;
     }
 </script>
 
