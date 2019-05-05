@@ -56,16 +56,19 @@ ${field?counter?left_pad(2)}            -99             -99       -99           
 <#-- tier 3 -->
 <#list fields as field>
 ${field?counter?left_pad(2)} ${(field['bdwd']!-99)?left_pad(5)} ${(field['bdht']!-99)?left_pad(5)} ${(field['pmalb']!-99)?left_pad(5)}
-</#list> 
-<#-- 
+</#list>
+<#if icDatas?size gt 0>
 
 *INITIAL CONDITIONS
+</#if>
+<#list icDatas as icData>
 @C   PCR ICDAT  ICRT  ICND  ICRN  ICRE  ICWD ICRES ICREN ICREP ICRIP ICRID ICNAME
- 1   -99 18079   -99   -99   -99   -99   -99   -99   -99   -99   -99   -99 -99
+${icData?counter?left_pad(2)} ${(icData['icpcr_dssat']!-99)?left_pad(5)} ${(icData['icdat']!-99)?left_pad(5)} ${(icData['icrt']!-99)?left_pad(5)} ${(icData['icnd']!-99)?left_pad(5)} ${(icData['icrzc']!-99)?left_pad(5)} ${(icData['icrze']!-99)?left_pad(5)} ${(icData['icwt']!-99)?left_pad(5)} ${(icData['icrag']!-99)?left_pad(5)} ${(icData['icrn']!-99)?left_pad(5)} ${(icData['icrp']!-99)?left_pad(5)} ${(icData['icrip']!-99)?left_pad(5)} ${(icData['icrdp']!-99)?left_pad(5)} ${icData['ic_name']!}
 @C  ICBL  SH2O  SNH4  SNO3
- 1    10   -99   0.7    56
- 1    20   -99     0    93
--->
+<#list icData.soilLayer as layer>
+${icData?counter?left_pad(2)} ${(layer['icbl']!-99)?left_pad(5)} ${(layer['ich2o']!-99)?left_pad(5)} ${(layer['icnh4']!-99)?left_pad(5)} ${(layer['icno3']!-99)?left_pad(5)}
+</#list>
+</#list>
 <#if managements.planting?size gt 0>
 
 *PLANTING DETAILS

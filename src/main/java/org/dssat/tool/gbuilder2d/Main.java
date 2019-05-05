@@ -127,6 +127,8 @@ public class Main {
             JSONObject fieldData = rawData.getAsObj("field");
             ArrayList<String> fieldIdList = new ArrayList();
             ArrayList fieldList = new ArrayList();
+            HashMap<String, Integer> icDataIdMap = new HashMap();
+            ArrayList icDataList = new ArrayList();
             JSONObject mgnData = rawData.getAsObj("management");
             HashMap<String, ArrayList<String>> mgnIdList = new HashMap();
             mgnIdList.put("planting",  new ArrayList());
@@ -146,7 +148,7 @@ public class Main {
                 setupCultivars(trt, culData, culIdList, culList);
                 
                 // Handle field data
-                setupFields(trt, fieldData, fieldIdList, fieldList);
+                setupFields(trt, fieldData, fieldIdList, fieldList, icDataIdMap, icDataList);
                 
                 // Handle management event data
                 setupEvents(trt, mgnData, mgnIdList, mgnList);
@@ -158,6 +160,7 @@ public class Main {
             data.put("expData", expData);
             data.put("cultivars", culList);
             data.put("fields", fieldList);
+            data.put("icDatas", icDataList);
             data.put("managements", mgnList);
             data.put("treatments", treatments);
             data.put("configs", configList);
@@ -193,16 +196,28 @@ public class Main {
         }
     }
     
-    private static void setupFields(JSONObject trt, JSONObject fieldData, ArrayList<String> fieldIdList, ArrayList fieldList) {
+    private static void setupFields(JSONObject trt, JSONObject fieldData, ArrayList<String> fieldIdList, ArrayList fieldList, HashMap<String, Integer> icDataIdMap, ArrayList icDataList) {
         String fieldId = trt.getOrBlank("field");
         if (!fieldId.isEmpty()) {
             JSONObject data = (JSONObject) fieldData.get(fieldId);
+            JSONObject icData = data.getAsObj("initial_conditions");
             if (!fieldIdList.contains(fieldId)) {
                 fieldIdList.add(fieldId);
                 fieldList.add(data);
+                if (!icData.isEmpty()) {
+                    if (!icDataList.contains(icData)) {
+                        icDataList.add(icData);
+                        icData.put("icdat", toYYDDDStr(icData.getOrBlank("icdat")));
+                        icData.put("ic_name", data.getOrBlank("fl_name"));
+                        icDataIdMap.put(fieldId, icDataList.indexOf(icData));
+                    }
+                } else {
+                    icDataIdMap.put(fieldId, -1);
+                }
             }
             trt.put("flid", fieldIdList.indexOf(fieldId) + 1);
-            
+            trt.put("icid", icDataIdMap.get(fieldId) + 1);
+
             if (!data.getOrBlank("bdht").isEmpty() ||
                     !data.getOrBlank("bdwd").isEmpty() ||
                     !data.getOrBlank("pmalb").isEmpty()) {
@@ -365,6 +380,9 @@ public class Main {
     }
     
     private static String toYYDDDStr(String dateUTCStr) {
+        if (dateUTCStr == null || dateUTCStr.trim().isEmpty()) {
+            return null;
+        }
         LocalDate localDate = LocalDate.parse(dateUTCStr, DateTimeFormatter.ISO_DATE);
         return String.format("%02d%03d", localDate.getYear() % 100, localDate.getDayOfYear());
     }
