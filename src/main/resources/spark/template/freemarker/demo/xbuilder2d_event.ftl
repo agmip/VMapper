@@ -416,6 +416,14 @@
             }
         }
         array.splice(x + 1, y);
+        
+        for (let i = 0; i < array.length; i++) {
+            for (let key in array[i]) {
+                if (!array[i][key] || array[i][key] === "") {
+                    delete array[i][key];
+                }
+            }
+        }
     }
 </script>
 <div class="subcontainer">
