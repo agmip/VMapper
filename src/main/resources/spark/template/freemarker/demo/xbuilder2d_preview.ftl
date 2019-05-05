@@ -36,7 +36,7 @@
                 "<hr></div><div><h3>Treatment List</h3>" +
                 JSON.stringify(trtData) +
                 "<hr></div><div><h3>Field List</h3>" +
-                JSON.stringify(fields) +
+                JSON.stringify(getFields()) +
                 "<hr></div><div><h3>Management List</h3>" +
                 JSON.stringify(getManagements()) +
                 "<hr></div><div><h3>Cultivar List</h3>" +
@@ -52,11 +52,29 @@
         let ret = {
             experiment : expData,
             cultivar : cultivars,
-            field : fields,
+            field : getFields(),
             management : getManagements(),
             treatment : trtData,
             version : "0.0.1"
         };
+        return ret;
+    }
+    
+    function getFields() {
+        let ret = {};
+        for (let id in fields) {
+            if (Object.keys(fields[id].initial_conditions).length > 1 ||
+                    fields[id].initial_conditions.soilLayer.length > 0) {
+                ret[id] = fields[id];
+            } else {
+                ret[id] = {};
+                for (let key in fields[id]) {
+                    if (key !== "initial_conditions") {
+                        ret[id][key] = fields[id][key];
+                    }
+                }
+            }
+        }
         return ret;
     }
     
