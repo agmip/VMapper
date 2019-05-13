@@ -51,7 +51,7 @@
         <dependency>
             <groupId>org.agmip.translators</groupId>
             <artifactId>translator-dssat</artifactId>
-            <version>1.2.21</version>
+            <version>1.2.20</version>
         </dependency>
 <!--        <dependency>
             <groupId>org.mindrot</groupId>

@@ -209,7 +209,7 @@
                         <#list soils as soilFile>
                         <optgroup label="${soilFile.sl_notes!} - ${soilFile.file_name!}">
                         <#list soilFile.soils as soil>
-                            <option value="${soil.soil_id!}">${soil.soil_name!"?Unknown name"} - ${soil.soil_id!}</option>
+                            <option value="${soil.soil_id!}">${soil.soil_name!"Unknown name"} - ${soil.soil_id!}</option>
                         </#list>
                         </optgroup>
                         </#list>
