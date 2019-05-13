@@ -2,12 +2,22 @@ package org.dssat.tool.gbuilder2d.util;
 
 import au.com.bytecode.opencsv.CSVReader;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import org.agmip.translators.dssat.DssatSoilInput;
+import static org.dssat.tool.gbuilder2d.util.JsonUtil.parseFrom;
+import static org.dssat.tool.gbuilder2d.util.Path.Folder.getSoilListDir;
+import static org.dssat.tool.gbuilder2d.util.Path.Folder.getSoilListFile;
+import static org.dssat.tool.gbuilder2d.util.Path.Folder.getWthListDir;
+import static org.dssat.tool.gbuilder2d.util.Path.Folder.getWthListFile;
 
 /**
  *
@@ -18,6 +28,8 @@ public class DataUtil {
     private static final JSONObject CROP_CODE_MAP = new JSONObject();
     private static final ArrayList<JSONObject> CUL_METADATA_LIST = new ArrayList();
     private static final JSONObject CUL_METADATA_MAP = loadCulData();
+    private static final ArrayList<JSONObject> SOILDATA_LIST = getSoilDataList(getSoilListDir(), getSoilListFile());
+    private static final ArrayList<JSONObject> WTHDATA_LIST = getWthDataList(getWthListDir(), getWthListFile());
     private static final JSONObject ICASA_MGN_CODE_MAP = loadICASAMgnCode();
     
     private static final String ICASA_MGN_CODE_HEADER_VAR_CODE = "code_display";
@@ -252,5 +264,148 @@ public class DataUtil {
     
     public static JSONObject getICASAMgnCodeMap() {
         return ICASA_MGN_CODE_MAP;
+    }
+    
+    public static ArrayList<JSONObject> getSoilDataList() {
+        return SOILDATA_LIST;
+    }
+    
+    private static ArrayList<JSONObject> getSoilDataList(File dir, File cacheFile) {
+        ArrayList<JSONObject> ret = new ArrayList();
+        if (dir.isDirectory() && dir.exists()) {
+            
+            // Read Soil Data from given directory
+            DssatSoilInput soilDataReader = new DssatSoilInput();
+            
+            for (File file : dir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.toUpperCase().endsWith(".SOL");
+                }
+            })) {
+                JSONObject profile = new JSONObject(soilDataReader.readFile(file.getPath()));
+                JSONArray soils = profile.getObjArr("soils");
+                for (Object item : soils) {
+                    JSONObject soil = (JSONObject) item;
+                    String name = soil.getOrBlank("soil_name");
+                    if (name.matches("\\d\\s+.+")) {
+                        System.out.println("[warn] Incorrect data format detected in " + file.getName() + " for " + soil.getOrBlank("soil_id"));
+                        soil.put("soil_name", name.substring(1).trim());
+                        soil.put("sldp", soil.getOrBlank("sldp") + name.substring(0, 1));
+                    }
+                }
+                profile.put("soils", soils);
+                for (Object item : soils) {
+                    JSONObject soil = (JSONObject) item;
+                    String notes = soil.getOrBlank("sl_notes");
+                    if (!notes.isEmpty()) {
+                        profile.put("sl_notes", notes);
+                        break;
+                    }
+                }
+                profile.put("file_name", file.getName());
+                ret.add(profile);
+            }
+            
+            // Save Loaded data into cache file for future usage
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(cacheFile, false))) {
+                JSONArray arr = new JSONArray();
+                arr.addAll(ret);
+                bw.write(arr.toJSONString());
+                bw.flush();
+            } catch (IOException ex) {
+                ex.printStackTrace(System.err);
+            }
+            
+        } else if (cacheFile.exists()) {
+            ret = parseFrom(cacheFile).getObjArr();
+        }
+        
+        return ret;
+    }
+    
+    public static ArrayList<JSONObject> getWthDataList() {
+        return WTHDATA_LIST;
+    }
+    
+    private static ArrayList<JSONObject> getWthDataList(File dir, File cacheFile) {
+        ArrayList<JSONObject> ret = new ArrayList();
+        HashMap<String, JSONObject> wthMap = new HashMap();
+        if (dir.isDirectory() && dir.exists()) {
+            
+            // Read Soil Data from given directory
+            for (File file : dir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.toUpperCase().endsWith(".WTH");
+                }
+            })) {
+                JSONObject profile = readWthFile(file);
+                String wstId = profile.getOrBlank("wst_id");
+                if (wthMap.containsKey(wstId)) {
+                    if (!wthMap.get(wstId).getOrBlank("wst_notes").equals(profile.getOrBlank("wst_notes"))) {
+                        System.out.println("[warn] Inconsistent wst_notes detected in " + file.getName());
+                    }
+                    ((ArrayList) wthMap.get(wstId).get("wst_years")).addAll(profile.getArr("wst_years"));
+                } else {
+                    ret.add(profile);
+                    wthMap.put(wstId, profile);
+                }
+                
+            }
+            
+            // Save Loaded data into cache file for future usage
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(cacheFile, false))) {
+                JSONArray arr = new JSONArray();
+                arr.addAll(ret);
+                bw.write(arr.toJSONString());
+                bw.flush();
+            } catch (IOException ex) {
+                ex.printStackTrace(System.err);
+            }
+            
+        } else if (cacheFile.exists()) {
+            ret = parseFrom(cacheFile).getObjArr();
+        }
+        
+        return ret;
+    }
+    
+    private static JSONObject readWthFile(File wthFile) {
+        JSONObject ret = new JSONObject();
+        String name = wthFile.getName().toUpperCase();
+        if (name.length() == 12) {
+            ret.put("wst_id", name.substring(0, 4));
+            String yearStr = name.substring(4, 6);
+            String durStr = name.substring(6, 8);
+            int year = Integer.parseInt(yearStr);
+            int dur = Integer.parseInt(durStr);
+            ArrayList<String> years = new ArrayList();
+            String yearPre = "19";
+            if (year < 50) {
+                yearPre = "20";
+            }
+            for (int i = 0; i < dur; i++) {
+                years.add(String.format("%1$s%2$02d", yearPre, year + i));
+            }
+            ret.put("wst_years", years);
+        } else if (name.length() == 8) {
+            ret.put("wst_id", name.substring(0, 4));
+            System.out.println("[warn] Detect weather file with short name as " + wthFile.getName());
+        }
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(wthFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.startsWith("*")) {
+                    ret.put("wst_notes", line.replaceFirst("\\*[Ww][Ee][Aa][Tt][Hh][Ee][Rr]\\s*([Dd][Aa][Tt][Aa]\\s*)*:?", "").trim());
+                    break;
+                }
+                
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace(System.err);
+        }
+        return ret;
     }
 }

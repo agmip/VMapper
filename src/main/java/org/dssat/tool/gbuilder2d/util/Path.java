@@ -64,6 +64,10 @@ public class Path {
     
     public static class Folder {
         public final static String DATA = "Data";
+        public final static String DATA_SOIL = "C:\\DSSAT47\\Soil";
+        public final static String DATA_WTH = "C:\\DSSAT47\\Weather";
+        public final static String SOIL_LIST = "soil_list.json";
+        public final static String WTH_LIST = "wth_list.json";
         public final static String CULTIVAR = "Genotype";
         public final static String CULTIVAR_LIST = "crop_list.csv";
         public final static String ICASA_MGN_CODE = "ICASA_management_code.csv";
@@ -74,6 +78,22 @@ public class Path {
         }
         public static File getCulListFile() {
             File ret = Paths.get(DATA, CULTIVAR_LIST).toFile();
+            return ret;
+        }
+        public static File getSoilListDir() {
+            File ret = Paths.get(DATA_SOIL).toFile();
+            return ret;
+        }
+        public static File getSoilListFile() {
+            File ret = Paths.get(DATA, SOIL_LIST).toFile();
+            return ret;
+        }
+        public static File getWthListDir() {
+            File ret = Paths.get(DATA_WTH).toFile();
+            return ret;
+        }
+        public static File getWthListFile() {
+            File ret = Paths.get(DATA, WTH_LIST).toFile();
             return ret;
         }
         public static File getICASAMgnCodeFile() {

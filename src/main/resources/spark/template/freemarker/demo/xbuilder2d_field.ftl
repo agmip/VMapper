@@ -173,6 +173,10 @@
             delete fieldData.initial_conditions.icpcr_dssat;
         }
     }
+    
+    function updateSoilProfile(soilId) {
+        
+    }
 </script>
 <div class="subcontainer">
     <fieldset>
@@ -197,18 +201,30 @@
             </div>
         </div>
         <div class="row col-sm-12">
-            <div class="form-group has-feedback col-sm-4">
-                <label class="control-label" for="soil_id">Soil ID</label>
+            <div class="form-group col-sm-4">
+                <label class="control-label" for="soil_id">Soil Profile</label>
                 <div class="input-group col-sm-12">
-                    <input type="text" id="soil_id" name="soil_id" class="form-control field-data max-10" value="" placeholder="Soil identifier" data-toggle="tooltip" title="Unique soil identifier linking from SOIL_PROFILES">
-                    <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
+                    <select id="soil_id" name="soil_id" class="form-control field-data" onchange="updateSoilProfile(this.value);" data-placeholder="Choose a Soil Profile...">
+                        <option value=""></option>
+                        <#list soils as soilFile>
+                        <optgroup label="${soilFile.sl_notes!} - ${soilFile.file_name!}">
+                        <#list soilFile.soils as soil>
+                            <option value="${soil.soil_id!}">${soil.soil_name!"?Unknown name"} - ${soil.soil_id!}</option>
+                        </#list>
+                        </optgroup>
+                        </#list>
+                    </select>
                 </div>
             </div>
-            <div class="form-group has-feedback col-sm-4">
-                <label class="control-label" for="wst_id">Weather Station ID</label>
+            <div class="form-group col-sm-4">
+                <label class="control-label" for="wst_id">Weather Station</label>
                 <div class="input-group col-sm-12">
-                    <input type="text" id="wst_id" name="wst_id" class="form-control field-data max-4" value="" placeholder="Weather station identifier" data-toggle="tooltip" title="Weather station identifier to link to site information">
-                    <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
+                    <select id="wst_id" name="wst_id" class="form-control field-data" data-placeholder="Choose a Weather Station...">
+                        <option value=""></option>
+                        <#list weathers as wth>
+                        <option value="${wth.wst_id!}">${wth.wst_notes!"?Unknown name"} - ${wth.wst_id!} (${wth.wst_years?first} - ${wth.wst_years?last})</option>
+                        </#list>
+                    </select>
                 </div>
             </div>
         </div>

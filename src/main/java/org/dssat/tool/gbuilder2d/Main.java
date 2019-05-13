@@ -64,6 +64,8 @@ public class Main {
         get("/", (Request request, Response response) -> {
             HashMap data = new HashMap();
             data.put("culMetaList", DataUtil.getCulMetaDataList());
+            data.put("soils", DataUtil.getSoilDataList());
+            data.put("weathers", DataUtil.getWthDataList());
             data.put("icasaMgnCodeMap", DataUtil.getICASAMgnCodeMap());
             return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.XBUILDER2D));
                 });

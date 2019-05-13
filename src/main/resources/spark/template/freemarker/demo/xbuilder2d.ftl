@@ -382,6 +382,8 @@
                 $('.nav-tabs #FieldTab').on('shown.bs.tab', function(){
                     $("#field_create").parent().removeClass("active");
                     $("#" + fieldId).parent().addClass("active");
+                    chosen_init("soil_id");
+                    chosen_init("wst_id");
                     chosen_init("2d_flg");
                     undateICView();
                 });
