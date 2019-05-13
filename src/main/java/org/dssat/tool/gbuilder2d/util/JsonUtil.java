@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.logging.Level;
 import org.json.simple.parser.JSONParser;
@@ -34,6 +35,10 @@ public class JsonUtil {
     
     public static JSONObject parseFrom(File jsonFile) {
         try (FileReader fr = new FileReader(jsonFile)) {
+            Object tmp = PARSER.parse(fr);
+            if (tmp instanceof org.json.simple.JSONArray) {
+                return parseFrom(((org.json.simple.JSONArray) tmp).toJSONString());
+            }
             return new JSONObject((Map) PARSER.parse(fr));
         } catch (FileNotFoundException ex) {
             java.util.logging.Logger.getLogger(JsonUtil.class.getName()).log(Level.SEVERE, null, ex);
