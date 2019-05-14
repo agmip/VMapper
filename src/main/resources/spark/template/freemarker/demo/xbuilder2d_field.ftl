@@ -212,7 +212,7 @@
             <div class="form-group col-sm-4">
                 <label class="control-label" for="soil_id">Soil Profile</label>
                 <div class="input-group col-sm-12">
-                    <select id="soil_id" name="soil_id" class="form-control field-data" onchange="updateSoilProfile(this.value);" data-placeholder="Choose a Soil Profile...">
+                    <select id="soil_id" name="soil_id" class="form-control chosen-select-deselect field-data" onchange="updateSoilProfile(this.value);" data-placeholder="Choose a Soil Profile...">
                         <option value=""></option>
                         <#list soils as soilFile>
                         <optgroup label="${soilFile.sl_notes!} - ${soilFile.file_name!}">
@@ -227,7 +227,7 @@
             <div class="form-group col-sm-4">
                 <label class="control-label" for="wst_id">Weather Station</label>
                 <div class="input-group col-sm-12">
-                    <select id="wst_id" name="wst_id" class="form-control field-data" data-placeholder="Choose a Weather Station...">
+                    <select id="wst_id" name="wst_id" class="form-control chosen-select-deselect field-data" data-placeholder="Choose a Weather Station...">
                         <option value=""></option>
                         <#list weathers as wth>
                         <option value="${wth.wst_id!}">${wth.wst_notes!"?Unknown name"} - ${wth.wst_id!} (${wth.wst_years?first} - ${wth.wst_years?last})</option>
