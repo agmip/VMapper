@@ -293,6 +293,9 @@ public class DataUtil {
                         soil.put("soil_name", name.substring(1).trim());
                         soil.put("sldp", soil.getOrBlank("sldp") + name.substring(0, 1));
                     }
+                    if (soil.getObjArr("soilLayer").isEmpty()) {
+                        System.out.println("[warn] Empty layer data detected in " + file.getName() + " for " + soil.getOrBlank("soil_id"));
+                    }
                 }
                 profile.put("soils", soils);
                 for (Object item : soils) {

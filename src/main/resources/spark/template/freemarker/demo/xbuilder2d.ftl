@@ -7,7 +7,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" />
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/handsontable-pro@latest/dist/handsontable.full.min.css">
-        
+
         <script>
             let expData = {};
             let fields = {};
@@ -30,7 +30,15 @@
             let configs = {};
             let configData = {};
             let configId;
-            
+
+            const soilInfoMap = {
+                <#list soils as soilFile>
+                <#list soilFile.soils as soil>
+                '${soil.soil_id!}' : {sllb : [<#if soil.soilLayer??><#list soil.soilLayer as layer>${layer.sllb}<#sep>,</#sep></#list></#if>]},
+                </#list>
+                </#list>
+            };
+
             const icasaCode = {
                 <#list icasaMgnCodeMap?keys as key>
                 ${key}:{
@@ -40,7 +48,7 @@
                 }<#sep>,</#sep>
                 </#list>
             };
-            
+
             const icasaText = {
                 <#list icasaMgnCodeMap?keys as key>
                 ${key}:{
@@ -50,7 +58,7 @@
                 }<#sep>,</#sep>
                 </#list>
             };
-            
+
             const tableConfig = {
                 all: {
                     columns: [
@@ -174,7 +182,7 @@
                     headers: ['Depth, base of layer<br>( cm )', 'Volumetric Water<br>( cm3/cm3 )', 'Ammonium (NH4)<br>( g[N]/Mg[Soil] )', 'Nitrate (NO3)<br>( g[N]/Mg[Soil] )']
                 }
             };
-            
+
             function initTimeline() {
                 // DOM element where the Timeline will be attached
                 tmlContainer = document.getElementById('visualization');
@@ -208,7 +216,7 @@
                         alert('dropped object with content: "' + objectData.content + '" to event: "' + event.content + '"');
                     }
                 };
-                
+
                 let startYear = $('#start_year').val();
                 if (startYear && !isNaN(startYear)) {
                     tmlOptions.start = new Date(startYear, 0, 1, 0, 0, 0, 0);
@@ -232,7 +240,7 @@
                         }
                     }
                 });
-                
+
                 timeline.on("mouseDown", function (properties) {
                     // If the clicked element is not the menu
                     if (!$(properties.event.target).parents(".event-menu").length > 0) {
@@ -293,12 +301,16 @@
                     spreadsheet.destroy();
                 }
                 let data;
+                let minRows = 10;
                 if (eventType === "ic") {
                     data = icLayers;
                 } else {
                     events = getEvents();
                     subEvents = getSubEvents(eventType);
                     data = subEvents;
+                }
+                if (eventType === "ic" && icLayers.length > 0 && $("#soil_id").val() !== "") {
+                    minRows = icLayers.length;
                 }
                 let spsOptions = {
                     licenseKey: 'non-commercial-and-evaluation',
@@ -308,7 +320,7 @@
         //                    width: 500,
                     autoWrapRow: true,
         //                    height: 450,
-                    minRows: 10,
+                    minRows: minRows,
                     maxRows: 365 * 30,
                     manualRowResize: true,
                     manualColumnResize: true,

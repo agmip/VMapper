@@ -67,6 +67,7 @@
                     fields[id].initial_conditions.soilLayer.length > 0) {
                 ret[id] = fields[id];
             } else {
+                // remove empty ic input
                 ret[id] = {};
                 for (let key in fields[id]) {
                     if (key !== "initial_conditions") {

@@ -175,7 +175,15 @@
     }
     
     function updateSoilProfile(soilId) {
-        
+        if (soilInfoMap[soilId]) {
+            // Clear current ic layers
+            icLayers.length = 0;
+            // Load layer
+            for (let i in soilInfoMap[soilId]["sllb"]) {
+                icLayers.push({icbl: soilInfoMap[soilId]["sllb"][i]});
+            }
+            undateICView();
+        }
     }
 </script>
 <div class="subcontainer">
