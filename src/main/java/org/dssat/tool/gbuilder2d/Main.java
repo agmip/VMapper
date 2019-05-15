@@ -16,6 +16,9 @@ import org.dssat.tool.gbuilder2d.util.DataUtil;
 import org.dssat.tool.gbuilder2d.util.JSONObject;
 import org.dssat.tool.gbuilder2d.util.JsonUtil;
 import org.dssat.tool.gbuilder2d.util.Path;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.util.thread.ThreadPool;
 import org.slf4j.LoggerFactory;
 import spark.ModelAndView;
 import spark.Request;
@@ -25,6 +28,9 @@ import static spark.Spark.get;
 import static spark.Spark.port;
 import static spark.Spark.post;
 import static spark.Spark.staticFiles;
+import spark.embeddedserver.EmbeddedServers;
+import spark.embeddedserver.jetty.EmbeddedJettyFactory;
+import spark.embeddedserver.jetty.JettyServerFactory;
 import spark.template.freemarker.FreeMarkerEngine;
 
 /**
@@ -41,6 +47,37 @@ public class Main {
     
     public static void main(String[] args) {
         // Configure Spark
+        EmbeddedServers.add(EmbeddedServers.Identifiers.JETTY, new EmbeddedJettyFactory(new JettyServerFactory() {
+            @Override
+            public Server create(int maxThreads, int minThreads, int threadTimeoutMillis) {
+                Server server;
+
+                if (maxThreads > 0) {
+                    int max = maxThreads;
+                    int min = (minThreads > 0) ? minThreads : 8;
+                    int idleTimeout = (threadTimeoutMillis > 0) ? threadTimeoutMillis : 60000;
+
+                    server = new Server(new QueuedThreadPool(max, min, idleTimeout));
+                } else {
+                    server = new Server();
+                }
+                server.setAttribute("org.eclipse.jetty.server.Request.maxFormContentSize", 1024 * 1024);
+
+                return server;
+            }
+
+            @Override
+            public Server create(ThreadPool threadPool) {
+                Server server = threadPool != null ? new Server(threadPool) : new Server();
+                server.setAttribute("org.eclipse.jetty.server.Request.maxFormContentSize", 1024 * 1024);
+                return server;
+            }
+        }));
+//                (maxThreads, minThreads, threadTimeoutMillis) -> {
+//            Server server = new Server();
+//            server.setAttribute("org.eclipse.jetty.server.Request.maxFormContentSize", 1024 * 1024);
+//            return server;
+//        }));
         LOG.setLevel(Level.INFO);
 
         String portStr = System.getenv("PORT");
