@@ -6,12 +6,13 @@ function readXFileData(rawData, fileName) {
     let trtData = [];
     let trtDataRaw = [];
     let culDataRaw = {};
+    let icDataRaw = {};
     let mgnDataLinkRaw = {
         planting : {},
         irrigation : {},
         fertilizer : {},
         harvest : {}
-    }
+    };
     let mgnDataRaw = {};
     let mgnDataIdRaw = {};
     let irrProfileRaw = {};
@@ -99,6 +100,20 @@ function readXFileData(rawData, fileName) {
                 }
             }
             // Initial Condition Section
+            else if (titleLine.startsWith("INITIAL CONDITIONS")) {
+                let tmpData = readICLine(line, headerLine);
+                if (headerLine.startsWith("C   PCR ICDAT")) {
+                    icDataRaw[tmpData.id] = tmpData;
+                    if (!tmpData.name) {
+                        tmpData.name = "IC" + tmpData.id;
+                    }
+                    delete tmpData.id;
+                    tmpData.soilLayer = [];
+                } else if (headerLine.startsWith("C  ICBL  SH2O")) {
+                    icDataRaw[tmpData.id].soilLayer.push(tmpData);
+                    delete tmpData.id;
+                }
+            }
             // Planting Section
             else if (titleLine.startsWith("PLANTING")) {
                 cacheMgnData(readPlantingLine(line), mgnDataLinkRaw, mgnDataRaw, "planting");
@@ -154,11 +169,58 @@ function readXFileData(rawData, fileName) {
     for (let i in trtDataRaw) {
         let tmpData = {
             trtno : trtDataRaw[i].trtno,
-            trt_name : trtDataRaw[i].trt_name,
-            field : "field_" + trtDataRaw[i].fl
+            trt_name : trtDataRaw[i].trt_name
         };
         
         if (trtDataRaw[i].ge && trtDataRaw[i].ge !== "0") {
+            tmpData.cul_id = culDataRaw[trtDataRaw[i].ge].cul_id;
+            tmpData.cul_name = culDataRaw[trtDataRaw[i].ge].cul_name;
+        }
+        
+        if (trtDataRaw[i].fl && trtDataRaw[i].fl !== "0") {
+            tmpData.field = "field_" + trtDataRaw[i].fl;
+        }
+        
+        if (trtDataRaw[i].ic && trtDataRaw[i].ic !== "0") {
+            if (!tmpData.field) {
+                // new field ID
+                let cnt = Object.keys(fldData).length;
+                let newId = "field_" + cnt;
+                while (fldData[newId]) {
+                    cnt++;
+                    newId = "field_" + cnt;
+                }
+                fldData[newId] = {fl_name : icDataRaw[trtDataRaw[i].ic].name};
+            }
+            if (!fldData[tmpData.field].initial_conditions) {
+                fldData[tmpData.field].initial_conditions = icDataRaw[trtDataRaw[i].ic];
+            } else {
+                let newFlg = true;
+                for (let key in fldData) {
+                    if (fldData[key].initial_conditions === icDataRaw[trtDataRaw[i].ic]) {
+                        tmpData.field = key;
+                        newFlg = false;
+                        break;
+                    }
+                }
+                if (newFlg) {
+                    // new field ID
+                    let cnt = Object.keys(fldData).length;
+                    let newId = "field_" + cnt;
+                    while (fldData[newId]) {
+                        cnt++;
+                        newId = "field_" + cnt;
+                    }
+                    let dataCopy = {};
+                    // dulicate the current field
+                    for (let key in fldData[tmpData.field]) {
+                        dataCopy[key] = fldData[tmpData.field][key];
+                    }
+                    dataCopy.initial_conditions = icDataRaw[trtDataRaw[i].ic];
+                    fldData[newId] = dataCopy;
+                    tmpData.field = newId;
+                }
+            }
             tmpData.cul_id = culDataRaw[trtDataRaw[i].ge].cul_id;
             tmpData.cul_name = culDataRaw[trtDataRaw[i].ge].cul_name;
         }
@@ -169,7 +231,7 @@ function readXFileData(rawData, fileName) {
                 tmpData.management = [];
             }
             if (!tmpData.management.includes(mgnId)) {
-                tmpData.management.push(mgnId)
+                tmpData.management.push(mgnId);
             }
         }
         
@@ -179,7 +241,7 @@ function readXFileData(rawData, fileName) {
                 tmpData.management = [];
             }
             if (!tmpData.management.includes(mgnId)) {
-                tmpData.management.push(mgnId)
+                tmpData.management.push(mgnId);
             }
         }
         
@@ -292,6 +354,39 @@ function readCultivarLine(line) {
             delete tmpData[key];
         }
     }
+    return tmpData;
+}
+
+function readICLine(line, headerLine) {
+    let formats = {};
+    let tmpData = {};
+    if (headerLine.startsWith("C   PCR ICDAT")) {
+        formats = {
+            "id" :  2,
+            "icpcr_dssat" :  6,
+            "icdat" :  6,
+            "icrt" :  6,
+            "icnd" :  6,
+            "icrzc" :  6,
+            "icrze" :  6,
+            "icwt" :  6,
+            "icrag" :  6,
+            "icrn" :  6,
+            "icrp" :  6,
+            "icrip" :  6,
+            "icrdp" :  6,
+            "name" : line.length
+        };
+    } else if (headerLine.startsWith("C  ICBL  SH2O")) {
+        formats = {
+            "id" :  2,
+            "icbl" :  6,
+            "ich2o" :  6,
+            "icnh4" :  6,
+            "icno3" :  6
+        };
+    }
+    readLine(tmpData, line, formats);
     return tmpData;
 }
 

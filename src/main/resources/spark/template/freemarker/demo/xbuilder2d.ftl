@@ -590,15 +590,53 @@
                 let data = readXFileData(rawData, file.name);
                 data.experiment.crid = convertCropCode2(data.experiment.crid_dssat);
                 
+                for (let id in data.field) {
+                    if (data.field[id].initial_conditions) {
+                        let ic = data.field[id].initial_conditions;
+                        if (!ic.icpcr && ic.icpcr_dssat) {
+                            ic.icpcr = convertCropCode2(ic.icpcr_dssat);
+                        }
+                        if (ic.icdat) {
+                            ic.icdat = dateUtil.toYYYYMMDDStr(ic.icdat);
+                        }
+                    }
+                    if (data.field[id].soil_id) {
+                        if ($("#soil_id").find("option[value='" + data.field[id].soil_id + "']").length === 0) {
+                            let customizedGroup = $("#soil_id").find("optgroup[label='Customized']");
+                            if (customizedGroup.length === 0) {
+                                customizedGroup = $('<optgroup label="Customized"></>');
+                                $("#soil_id").append(customizedGroup);
+                            } else {
+                                customizedGroup = result[0];
+                            }
+                            customizedGroup.append("<option value='" + data.field[id].soil_id + "'>Customized Data - " + data.field[id].soil_id + "</option>");
+                        }
+                    }
+                    if (data.field[id].wst_id) {
+                        if ($("#wst_id").find("option[value='" + data.field[id].wst_id + "']").length === 0) {
+                            let customizedGroup = $("#wst_id").find("optgroup[label='Customized']");
+                            if (customizedGroup.length === 0) {
+                                customizedGroup = $('<optgroup label="Customized"></>');
+                                $("#wst_id").append(customizedGroup);
+                            } else {
+                                customizedGroup = result[0];
+                            }
+                            customizedGroup.append("<option value='" + data.field[id].wst_id + "'>Customized Data - " + data.field[id].wst_id + "</option>");
+                        }
+                    }
+                    
+                }
+
                 for (let id in data.management) {
                     if (data.management[id].data) {
-                        for (let j in data.management[id].data) {
-                            if (data.management[id].data[j].date) {
-                                data.management[id].data[j].date = dateUtil.toYYYYMMDDStr(data.management[id].data[j].date);
-                                data.management[id].data[j].start = dateUtil.toLocaleDate(data.management[id].data[j].date, data.management[id].data[j].irstr);
+                        let mgn = data.management[id].data;
+                        for (let j in mgn.data) {
+                            if (mgn[j].date) {
+                                mgn[j].date = dateUtil.toYYYYMMDDStr(mgn[j].date);
+                                mgn[j].start = dateUtil.toLocaleDate(mgn[j].date, mgn[j].irstr);
                             }
-                            if (data.management[id].data[j].edate) {
-                                data.management[id].data[j].edate = dateUtil.toYYYYMMDDStr(data.management[id].data[j].edate);
+                            if (mgn[j].edate) {
+                                mgn[j].edate = dateUtil.toYYYYMMDDStr(mgn[j].edate);
                             }
                         }
                     }
