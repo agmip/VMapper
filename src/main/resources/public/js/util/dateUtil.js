@@ -11,16 +11,30 @@ dateUtil.toYYYYMMDDStr = function (date) {
             year = tmp[2];
             month = tmp[0];
             day = tmp [1];
-        } else if (date.match(/\/\d{4}\d{1,2}\/\d{1,2}/)) {
+        } else if (date.match(/\d{4}\/\d{1,2}\/\d{1,2}/)) {
             let tmp = date.split("/");
             year = tmp[0];
             month = tmp[1];
             day = tmp [2];
         } else if (date.match(/\d{4}-\d{1,2}-\d{1,2}/)) {
-            let tmp = date.split("/");
+            let tmp = date.split("-");
             year = tmp[0];
             month = tmp[1];
             day = tmp [2];
+        } else if (date.match(/\d{5}/)) {
+            year = date.substring(0, 2);
+            if (Number(year) > 50) {
+                year = "19" + year;
+            } else {
+                year = "20" + year;
+            }
+            let doy = date.substring(2);
+            let tmp = Date.UTC(year, 0, 0, 0, 0, 0, 0);
+            let dayMilli = 1000 * 60 * 60 * 24;
+            doy = Number(doy);
+            tmp = new Date(tmp + doy * dayMilli);
+            month = (tmp.getMonth() + 1).toString();
+            day = tmp.getDate().toString();
         } else {
             return date;
         }
@@ -49,9 +63,9 @@ dateUtil.toLocaleStr = function (date) {
     if (typeof date === "string" || date instanceof String) {
         let UTCDate;
         if (date.match(/\d{4}-\d{2}-\d{2}/)) {
-        } else if (date.match(/\d{4}-\d{2}-\d{2}/) ||
-                date.match(/\d{1,2}\/\d{1,2}\/\d{4}/) ||
-                date.match(/\/\d{4}\d{1,2}\/\d{1,2}/)) {
+        } else if (date.match(/\d{1,2}\/\d{1,2}\/\d{4}/) ||
+                date.match(/\d{4}\/\d{1,2}\/\d{1,2}/) ||
+                date.match(/\d{5}/)) {
             date = dateUtil.toYYYYMMDDStr(date);
         } else {
             return date;
