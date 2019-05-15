@@ -629,14 +629,13 @@
 
                 for (let id in data.management) {
                     if (data.management[id].data) {
-                        let mgn = data.management[id].data;
-                        for (let j in mgn.data) {
-                            if (mgn[j].date) {
-                                mgn[j].date = dateUtil.toYYYYMMDDStr(mgn[j].date);
-                                mgn[j].start = dateUtil.toLocaleDate(mgn[j].date, mgn[j].irstr);
+                        for (let j in data.management[id].data) {
+                            if (data.management[id].data[j].date) {
+                                data.management[id].data[j].date = dateUtil.toYYYYMMDDStr(data.management[id].data[j].date);
+                                data.management[id].data[j].start = dateUtil.toLocaleDate(data.management[id].data[j].date, data.management[id].data[j].irstr);
                             }
-                            if (mgn[j].edate) {
-                                mgn[j].edate = dateUtil.toYYYYMMDDStr(mgn[j].edate);
+                            if (data.management[id].data[j].edate) {
+                                data.management[id].data[j].edate = dateUtil.toYYYYMMDDStr(data.management[id].data[j].edate);
                             }
                         }
                     }
