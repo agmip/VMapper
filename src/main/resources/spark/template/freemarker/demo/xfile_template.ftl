@@ -76,7 +76,7 @@ ${icData?counter?left_pad(2)} ${(layer['icbl']!-99)?left_pad(5)} ${(layer['ich2o
 </#if>
 <#list managements.planting as eventArr>
 <#list eventArr as event>
-${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['edate']!-99)?left_pad(5)} ${(event['plpop']!-99)?left_pad(5)} ${(event['plpoe']!-99)?left_pad(5)} ${(event['plma']!-99)?left_pad(5)} ${(event['plds']!-99)?left_pad(5)} ${(event['plrs']!-99)?left_pad(5)} ${(event['plrd']!-99)?left_pad(5)} ${(event['pldp']!-99)?left_pad(5)} ${(event['plmwt']!-99)?left_pad(5)} ${(event['page']!-99)?left_pad(5)} ${(event['plenv']!-99)?left_pad(5)} ${(event['plph']!-99)?left_pad(5)} ${(event['plspl']!-99)?left_pad(5)}                        ${event['pl_name']!}
+${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['edate']!-99)?left_pad(5)} ${(event['plpop']!-99)?left_pad(5)} ${(event['plpoe']!-99)?left_pad(5)} ${(event['plma']!-99)?left_pad(5)} ${(event['plds']!-99)?left_pad(5)} ${(event['plrs']!-99)?left_pad(5)} ${(event['plrd']!-99)?left_pad(5)} ${(event['pldp']!-99)?left_pad(5)} ${(event['plmwt']!-99)?left_pad(5)} ${(event['page']!-99)?left_pad(5)} ${(event['plenv']!-99)?left_pad(5)} ${(event['plph']!-99)?left_pad(5)} ${(event['plspl']!-99)?left_pad(5)}                        ${event['pl_name']!}--${event.mgn_name!}
 </#list>
 </#list>
 <#if managements.irrigation?size gt 0>
@@ -85,7 +85,7 @@ ${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['eda
 </#if>
 <#list managements.irrigation as eventArr>
 @I  EFIR  IDEP  ITHR  IEPT  IOFF  IAME  IAMT IRNAME
-${eventArr?counter?left_pad(2)} <#if eventArr[0]??>${(eventArr[0].ireff!-99)?left_pad(5)}</#if>   -99   -99   -99   -99   -99   -99 <#if eventArr[0]??>${eventArr[0].ir_name!-99}</#if>
+${eventArr?counter?left_pad(2)} <#if eventArr[0]??>${(eventArr[0].ireff!-99)?left_pad(5)}</#if>   -99   -99   -99   -99   -99   -99 <#if eventArr[0]??>${eventArr[0].ir_name!-99}--${eventArr[0].mgn_name!}</#if>
 <#if eventArr[0]?? && eventArr[0].irln??>
 @I  IRLN IRSPC IROFS IRDEP
 <#list eventArr as event>
@@ -112,7 +112,7 @@ ${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['iro
 </#if>
 <#list managements.fertilizer as eventArr>
 <#list eventArr as event>
-${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['fecd']!-99)?left_pad(5)} ${(event['feacd']!-99)?left_pad(5)} ${(event['fedep']!-99)?left_pad(5)} ${(event['feamn']!0)?left_pad(5)} ${(event['feamp']!0)?left_pad(5)} ${(event['feamk']!0)?left_pad(5)} ${(event['feamc']!0)?left_pad(5)} ${(event['feamo']!0)?left_pad(5)} ${(event['feocd']!0-99)?left_pad(5)} ${event['fe_name']!}
+${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['fecd']!-99)?left_pad(5)} ${(event['feacd']!-99)?left_pad(5)} ${(event['fedep']!-99)?left_pad(5)} ${(event['feamn']!0)?left_pad(5)} ${(event['feamp']!0)?left_pad(5)} ${(event['feamk']!0)?left_pad(5)} ${(event['feamc']!0)?left_pad(5)} ${(event['feamo']!0)?left_pad(5)} ${(event['feocd']!0-99)?left_pad(5)} ${event['fe_name']!}--${event.mgn_name!}
 </#list>
 </#list>
  <#if managements.harvest?size gt 0>
@@ -122,7 +122,7 @@ ${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['fec
 </#if>
 <#list managements.harvest as eventArr>
 <#list eventArr as event>
-${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['hastg']!-99)?left_pad(5)} ${(event['hacom']!-99)?left_pad(5)} ${(event['hasiz']!-99)?left_pad(5)} ${(event['happc']!-99)?left_pad(5)} ${(event['habpc']!-99)?left_pad(5)} ${event['ha_name']!}
+${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['hastg']!-99)?left_pad(5)} ${(event['hacom']!-99)?left_pad(5)} ${(event['hasiz']!-99)?left_pad(5)} ${(event['happc']!-99)?left_pad(5)} ${(event['habpc']!-99)?left_pad(5)} ${event['ha_name']!}--${event.mgn_name!}
 </#list>
 </#list>
 <#if configs?size gt 0>

@@ -336,7 +336,8 @@ public class Main {
                     processDrip(eventArr);
                 }
                 for (JSONObject event : (ArrayList<JSONObject>) eventArr) {
-                    event.put(eventType.substring(0, 2) + "_name", eventName);
+                    event.put(eventType.substring(0, 2) + "_name", event.get("content"));
+                    event.put("mgn_name", eventName);
                 }
             } else {
                 eventArr = eventList.get(eventIdList.indexOf(eventId));

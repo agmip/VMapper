@@ -67,7 +67,7 @@ function readFileToBufferedArray(file, progressCallBack, resultHandleCallBack, f
                 let blob = file.slice(start, Math.min(stop, file.size));
                 reader.readAsBinaryString(blob);
             } else {
-                resultHandleCallBack(result);
+                resultHandleCallBack(result, file);
             }
         }
     };
