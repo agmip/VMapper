@@ -71,7 +71,7 @@
         getCulData(target.value);
     }
     
-    function getCulData(crid) {
+    function getCulData(crid, customizedData) {
         if (crid === "") {
             cultivars = {};
         } else {
@@ -82,6 +82,11 @@
                         let sb = $('#tr_cul_' + trtData[i].trtno);
                         for (let culId in cultivars) {
                             sb.append($('<option value="' + culId + '"></option>').append(cultivars[culId].cul_name));
+                        }
+                    }
+                    if (customizedData) {
+                        for (let key in customizedData) {
+                            cultivars[key] = customizedData[key];
                         }
                     }
                 }

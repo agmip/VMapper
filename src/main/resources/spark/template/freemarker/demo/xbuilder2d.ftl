@@ -604,7 +604,8 @@
                     }
                 }
                 loadData(data);
-                getCulData(data.experiment.crid);
+                let cumstomizedCulData = cultivars;
+                getCulData(data.experiment.crid, cumstomizedCulData);
             }
             
             function readJFile(rawData, file) {
