@@ -55,11 +55,15 @@ dateUtil.toYYYYMMDDStr = function (date) {
     return year + "-" + month + "-" + day;
 };
 
-dateUtil.toLocaleStr = function (date) {
+dateUtil.toLocaleDate = function (date, time) {
     if (!date) {
-        return "";
+        return date;
     }
     let localeDate;
+    let tmp = [];
+    if (time) {
+        tmp = time.split(":");
+    }
     if (typeof date === "string" || date instanceof String) {
         let UTCDate;
         if (date.match(/\d{4}-\d{2}-\d{2}/)) {
@@ -71,10 +75,21 @@ dateUtil.toLocaleStr = function (date) {
             return date;
         }
         UTCDate = new Date(date);
-        localeDate = new Date(UTCDate.getUTCFullYear(), UTCDate.getUTCMonth(), UTCDate.getUTCDate(), 0, 0, 0, 0);
+        if (tmp && tmp.length === 2) {
+            localeDate = new Date(UTCDate.getUTCFullYear(), UTCDate.getUTCMonth(), UTCDate.getUTCDate(), Number(tmp[0]), Number(tmp[1]), 0, 0);
+        } else {
+            localeDate = new Date(UTCDate.getUTCFullYear(), UTCDate.getUTCMonth(), UTCDate.getUTCDate(), 0, 0, 0, 0);
+        }
+        return localeDate;
     } else {
+        return date;
+    }
+}
+
+dateUtil.toLocaleStr = function (date, time) {
+    if (!date) {
         return "";
     }
-    
+    let localeDate = toLocaleDate(date, time);
     return localeDate.toLocaleDateString();
 };

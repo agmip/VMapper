@@ -369,7 +369,7 @@
         mergeSubEvents();
         clearNullElements(events, ["event", "content", "date"]);
         for (let i = 0; i < events.length; i++) {
-            events[i].start = dateUtil.toLocaleStr(events[i].date);
+            events[i].start = dateUtil.toLocaleDate(events[i].date, events[i].irstr);
         }
         for (let i = 0; i < events.length; i++) {
             if (!events[i].id) {
