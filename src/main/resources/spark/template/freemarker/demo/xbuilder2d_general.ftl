@@ -68,10 +68,14 @@
             $('#tr_cul_' + trtData[i].trtno + " option").remove("[value!='']");
             $('#tr_cul_' + trtData[i].trtno).trigger("change");
         }
-        if (target.value === "") {
+        getCulData(target.value);
+    }
+    
+    function getCulData(crid) {
+        if (crid === "") {
             cultivars = {};
         } else {
-            $.get("/data/cultivar?crid=" + target.value,
+            $.get("/data/cultivar?crid=" + crid,
                 function (culJsonStr) {
                     cultivars = JSON.parse(culJsonStr);
                     for (let i in trtData) {
@@ -97,6 +101,20 @@
             dssatCode = "??";
         }
         return dssatCode;
+    }
+    
+    function convertCropCode2(dssatCode) {
+        let agmipCode;
+        if (dssatCode === "") {
+                agmipCode = "";
+      //<#list culMetaList as culMeta>
+        } else if (dssatCode === "${culMeta.dssat_code!}") {
+            agmipCode = "${culMeta.agmip_code!}";
+      //!</#list>
+        } else {
+            agmipCode = "";
+        }
+        return agmipCode;
     }
 </script>
 

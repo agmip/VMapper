@@ -564,7 +564,7 @@
             }
             
             function openFile() {
-                $('<input type="file" accept=".json, .??J" onchange="readFile(this);">').click();
+                $('<input type="file" accept=".json, .??J, .??X" onchange="readFile(this);">').click();
             }
             
             function readFile(target) {
@@ -573,7 +573,12 @@
                     return;
                 }
                 for (let i=0; i<files.length; i++) {
-                    readFileToBufferedArray(files[i], updateProgress, loadData);
+                    if (files[i].name.toUpperCase().endsWith("X")) {
+                        readFileToBufferedArray(files[i], updateProgress, readXFile);
+                    } else {
+                        readFileToBufferedArray(files[i], updateProgress, readJFile);
+                    }
+                    
                 }
             }
             
@@ -581,8 +586,33 @@
                 // TODO
             }
             
+            function readXFile (rawData, file) {
+                let data = readXFileData(rawData, file.name);
+                data.experiment.crid = convertCropCode2(data.experiment.crid_dssat);
+                
+                for (let id in data.management) {
+                    if (data.management[id].data) {
+                        for (let j in data.management[id].data) {
+                            if (data.management[id].data[j].date) {
+                                data.management[id].data[j].date = dateUtil.toYYYYMMDDStr(data.management[id].data[j].date);
+                                data.management[id].data[j].start = dateUtil.toLocaleDate(data.management[id].data[j].date, data.management[id].data[j].irstr);
+                            }
+                            if (data.management[id].data[j].edate) {
+                                data.management[id].data[j].edate = dateUtil.toYYYYMMDDStr(data.management[id].data[j].edate);
+                            }
+                        }
+                    }
+                }
+                loadData(data);
+                getCulData(data.experiment.crid);
+            }
+            
+            function readJFile(rawData, file) {
+                let data = JSON.parse(rawData);
+                loadData(data);
+            }
+            
             function loadData(rawData) {
-                rawData = JSON.parse(rawData);
                 
                 // Load meta data
                 expData = rawData.experiment;
@@ -716,6 +746,7 @@
         <script type="text/javascript" src="/plugins/chosen/prism.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/chosen/init.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/dataReader/BufferedFileReader.js"></script>
+        <script type="text/javascript" src="/js/dataReader/DssatXFileReader.js"></script>
         <script type="text/javascript" src="/js/bootbox/bootbox.all.min.js" charset="utf-8"></script>
         <script src="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.js"></script>
         <script type="text/javascript">
