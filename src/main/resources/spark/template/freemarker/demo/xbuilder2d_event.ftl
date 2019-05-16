@@ -430,14 +430,18 @@
     <fieldset>
         <legend>
             Management Information&nbsp;&nbsp;&nbsp;
-            <a href="#"><span id="mgn_replicate_btn" type="button" class="btn glyphicon glyphicon-duplicate" onclick="replicateManagement();"></span></a>
-            <a href="#"><span id="mgn_remove_btn" type="button" class="btn glyphicon glyphicon-trash" onclick="removeManagement();"></span></a>
+            <a href="#" data-toggle="tooltip" title="Duplicate the current field record...">
+                <span id="mgn_replicate_btn" type="button" class="btn glyphicon glyphicon-duplicate" onclick="replicateManagement();"></span>
+            </a>
+            <a href="#" data-toggle="tooltip" title="Remove the current management record...">
+                <span id="mgn_remove_btn" type="button" class="btn glyphicon glyphicon-trash" onclick="removeManagement();"></span>
+            </a>
         </legend>
         <div class="row col-sm-12">
             <div class="form-group has-feedback col-sm-4">
                 <label class="control-label" for="mgn_name">Management Name *</label>
                 <div class="input-group col-sm-12">
-                    <input type="text" id="mgn_name" name="mgn_name" class="form-control mgn-data" value="Default" required >
+                    <input type="text" id="mgn_name" name="mgn_name" class="form-control mgn-data" value="Default" data-toggle="tooltip" title="Locally used name for management group" required >
                     <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                 </div>
             </div>

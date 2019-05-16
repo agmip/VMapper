@@ -190,7 +190,9 @@
     <fieldset>
         <legend>
             Field Information&nbsp;&nbsp;&nbsp;
-            <a href="#"><span id="field_remove_btn" type="button" class="btn glyphicon glyphicon-trash" onclick="removeField();"></span></a>
+            <a href="#" data-toggle="tooltip" title="Remove the current field record...">
+                <span id="field_remove_btn" type="button" class="btn glyphicon glyphicon-trash" onclick="removeField();"></span>
+            </a>
         </legend>
         <div class="row col-sm-12">
             <div class="form-group has-feedback col-sm-4">
