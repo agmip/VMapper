@@ -28,11 +28,8 @@ dateUtil.toYYYYMMDDStr = function (date) {
             } else {
                 year = "20" + year;
             }
-            let doy = date.substring(2);
-            let tmp = Date.UTC(year, 0, 0, 0, 0, 0, 0);
-            let dayMilli = 1000 * 60 * 60 * 24;
-            doy = Number(doy);
-            tmp = new Date(tmp + doy * dayMilli);
+            let doy = Number(date.substring(2));
+            let tmp = new Date(year, 0, doy);
             month = (tmp.getMonth() + 1).toString();
             day = tmp.getDate().toString();
         } else {
