@@ -40,7 +40,7 @@
                 "<hr></div><div><h3>Management List</h3>" +
                 JSON.stringify(getManagements()) +
                 "<hr></div><div><h3>Cultivar List</h3>" +
-                JSON.stringify(cultivars) +
+                JSON.stringify(getCultivars()) +
                 "<hr></div>");
     }
     
@@ -51,12 +51,22 @@
     function getFinalData() {
         let ret = {
             experiment : expData,
-            cultivar : cultivars,
+            cultivar : getCultivars(),
             field : getFields(),
             management : getManagements(),
             treatment : trtData,
             version : "0.0.1"
         };
+        return ret;
+    }
+    
+    function getCultivars() {
+        let ret = {};
+        for (let i in trtData) {
+            if (trtData[i].cul_id && !ret[trtData[i].cul_id]) {
+                ret[trtData[i].cul_id] = cultivars[trtData[i].cul_id];
+            }
+        }
         return ret;
     }
     
