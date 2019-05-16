@@ -543,7 +543,7 @@ function readLine(ret, line, formats, defVal) {
             if (checkValidValue(tmp)) {
                 ret[key] = tmp;
             } else {
-                if (!defVal) {
+                if (defVal) {
                     ret[key] = defVal;
                 }
             }
