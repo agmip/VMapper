@@ -41,7 +41,7 @@ ${cultivar?counter?left_pad(2)}${(expData['crid']!-99)?left_pad(3)} ${(cultivar[
 </#if>
 <#-- tier 1 -->
 <#list fields as field>
-${field?counter?left_pad(2)} ${(field['id_field']!-99)?right_pad(8)} ${(field['wst_id']!-99)?right_pad(8)}   -99   -99 -99     -99   -99 -99   -99    -99  ${(field['soil_id']!-99)?right_pad(10)} ${field['fl_name']!}
+${field?counter?left_pad(2)} ${(field['id_field']!-99)?right_pad(8)} <#if field.wst_id_suff??>${(field['wst_id']!)?right_pad(4)}${(field['wst_id_suff']!)?right_pad(4)}<#else>${(field['wst_id']!-99)?right_pad(8)}</#if>   -99   -99 -99     -99   -99 -99   -99    -99  ${(field['soil_id']!-99)?right_pad(10)} ${field['fl_name']!}
 </#list>
 <#if fields?size gt 0>
 @L ...........XCRD ...........YCRD .....ELEV .............AREA .SLEN .FLWR .SLAS FLHST FHDUR
