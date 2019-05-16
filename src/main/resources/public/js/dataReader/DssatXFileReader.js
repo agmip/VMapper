@@ -225,26 +225,11 @@ function readXFileData(rawData, fileName) {
             tmpData.cul_name = culDataRaw[trtDataRaw[i].ge].cul_name;
         }
         
-        if (trtDataRaw[i].pl && trtDataRaw[i].pl !== "0") {
-            let mgnId = mgnDataIdRaw[mgnDataLinkRaw.planting[trtDataRaw[i].pl]];
-            if (!tmpData.management) {
-                tmpData.management = [];
-            }
-            if (!tmpData.management.includes(mgnId)) {
-                tmpData.management.push(mgnId);
-            }
-        }
-        
-        if (trtDataRaw[i].fe && trtDataRaw[i].fe !== "0") {
-            let mgnId = mgnDataIdRaw[mgnDataLinkRaw.fertilizer[trtDataRaw[i].fe]];
-            if (!tmpData.management) {
-                tmpData.management = [];
-            }
-            if (!tmpData.management.includes(mgnId)) {
-                tmpData.management.push(mgnId);
-            }
-        }
-        
+        buildDataLink(tmpData, trtDataRaw[i].pl, mgnDataIdRaw, mgnDataLinkRaw.planting);
+        buildDataLink(tmpData, trtDataRaw[i].ir, mgnDataIdRaw, mgnDataLinkRaw.irrigation);
+        buildDataLink(tmpData, trtDataRaw[i].fe, mgnDataIdRaw, mgnDataLinkRaw.fertilizer);       
+        buildDataLink(tmpData, trtDataRaw[i].ha, mgnDataIdRaw, mgnDataLinkRaw.harvest);
+
         trtData.push(tmpData);
     }
     
@@ -263,6 +248,18 @@ function readXFileData(rawData, fileName) {
         treatment : trtData,
         version : version
     };
+}
+
+function buildDataLink(trtData, eventIdx, mgnDataIdRaw, mgnDataLinkRaw) {
+    if (eventIdx && eventIdx !== "0") {
+        let mgnId = mgnDataIdRaw[mgnDataLinkRaw[eventIdx]];
+        if (!trtData.management) {
+            trtData.management = [];
+        }
+        if (!trtData.management.includes(mgnId)) {
+            trtData.management.push(mgnId);
+        }
+    }
 }
 
 function readTreatmentLine(line) {
