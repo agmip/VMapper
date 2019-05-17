@@ -302,8 +302,8 @@ function readFieldLine(line, headerLine) {
         formats = {
             "id" :  2,
             "id_field" : 9,
-            "wst_id" : 5,
-            "wst_id_suff" : 4, // ignore start year and duration
+            "wst_id" : 9,
+//            "wst_id_suff" : 4, // ignore start year and duration
             "flsl" : 6,
             "flob" : 6,
             "fl_drntype" : 6,

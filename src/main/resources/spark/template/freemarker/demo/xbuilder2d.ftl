@@ -53,6 +53,17 @@
                 }<#sep>,</#sep>
                 </#list>
             ];
+            
+            const wstInfoMap = {
+                <#list weathers as wth>
+                '${wth.wst_id!}' : {
+                    wst_notes : "${wth.wst_notes!'Unknown name'}",
+                    first_year : ${wth.wst_years?first},
+                    last_year : ${wth.wst_years?last}
+                }<#sep>,</#sep>
+                </#list>
+            };
+            let wstInfoUserMap = {};
 
             const icasaCode = {
                 <#list icasaMgnCodeMap?keys as key>
@@ -361,6 +372,9 @@
                 if (Object.keys(soilInfoUserMap).length === 0) {
                     initSoilProfileSB(soilFileInfoList);
                 }
+                if (Object.keys(wstInfoUserMap).length === 0) {
+                    initWstSB(wstInfoMap);
+                }
                 chosen_init_all();
             }
             
@@ -599,8 +613,8 @@
                         loadedFiles.push(files[i].name);
                         readFileToBufferedArray(files[i], updateProgress, readSoilFile);
                     } else if (files[i].name.toUpperCase().endsWith("WTH")) {
-                        readFileToBufferedArray(files[i], updateProgress, readWthFile);
                         loadedFiles.push(files[i].name);
+                        readTargetedLine(files[i], updateProgress, readWthFile, undefined, "*");
                     } else if (files[i].name.toUpperCase().endsWith("J") || 
                             files[i].name.toUpperCase().endsWith("JSON")) {
                         loadedFiles.push(files[i].name);
@@ -655,6 +669,41 @@
                         }
                     }
                     if (data.field[id].wst_id) {
+                        let fileName = data.field[id].wst_id + ".WTH";
+                        let wstId = data.field[id].wst_id;
+                        let year;
+                        let dur;
+                        if (wstId.length > 4) {
+                            if (wstId.endsWith("01")) {
+                                wstId = wstId.substring(0, 4);
+                                dur = 1;
+                            } else {
+                                dur = Number(wstId.substring(6, 8));
+                            }
+                            year = Number(wstId.substring(4, 6));
+                            if (year < 50) {
+                                year = 2000 + year;
+                            } else {
+                                year = 1900 + year;
+                            }
+                        }
+                        if (!wstInfoMap[wstId]) {
+                            if (wstInfoUserMap[wstId]) {
+                                if (year && wstInfoUserMap[wstId].first_year > year) {
+                                    wstInfoUserMap[wstId].first_year = year;
+                                }
+                                if (year && dur && wstInfoUserMap[wstId].last_year < year + dur - 1) {
+                                    wstInfoUserMap[wstId].last_year = year + dur - 1;
+                                }
+                            } else {
+                                wstInfoUserMap[wstId] = {
+                                    wst_notes : "Unknow data",
+                                    first_year : year,
+                                    last_year : year + dur - 1
+                                };
+                            }
+                            updateWstSB(wstInfoUserMap, fileName);
+                        }
                         if ($("#wst_id").find("option[value='" + data.field[id].wst_id + "']").length === 0) {
                             let customizedGroup = $("#wst_id").find("optgroup[label='Customized']");
                             if (customizedGroup.length === 0) {

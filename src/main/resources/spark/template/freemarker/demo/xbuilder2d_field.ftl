@@ -167,11 +167,21 @@
         $("#soil_id").trigger("change");
     }
     
+    function initWstSB(wstFiles) {
+        $("#wst_id").html("");
+        $("#wst_id").append("<option value=''></option>");
+        for (let id in wstFiles) {
+            $("#wst_id").append("<option value='" + id + "'>" + wstFiles[id].wst_notes + " - " + id + "( " + wstFiles[id].first_year + "-" + wstFiles[id].last_year + ")</option>");
+        }
+        chosen_init("wst_id");
+        $("#wst_id").trigger("change");
+    }
+    
     function browseLocalFile(btnId) {
         if (btnId === "soil_browse_btn") {
             $('<input type="file" accept=".SOL" onchange="readFile(this);">').click();
         } else if (btnId === "wst_browse_btn") {
-            $('<input type="file" accept=".WTH" onchange="readWthFileDir(this);" multiple>').click();
+            $('<input type="file" accept=".WTH" onchange="readFile(this);" multiple>').click();
         }
     }
     
@@ -203,8 +213,56 @@
         $("#soil_remove_btn").parent().show();
     }
     
-    function readWthFileDir(target) {
+    function readWthFile(fstLine, file) {
+        let wstId = file.name.toUpperCase().replace(".WTH", "");
+        let year;
+        let dur;
+        if (wstId.length > 4) {
+            if (wstId.endsWith("01")) {
+                wstId = wstId.substring(0, 4);
+                dur = 1;
+            } else {
+                dur = Number(wstId.substring(6, 8));
+            }
+            year = Number(wstId.substring(4, 6));
+            if (year < 50) {
+                year = 2000 + year;
+            } else {
+                year = 1900 + year;
+            }
+        }
         
+        let notes = fstLine.replace(/\*[Ww][Ee][Aa][Tt][Hh][Ee][Rr]\s*([Dd][Aa][Tt][Aa]\s*)*:?/, "").trim();
+        if (notes === "") {
+            notes = "Unknown name";
+        }
+        
+        if (wstInfoUserMap[wstId]) {
+            if (year && wstInfoUserMap[wstId].first_year > year) {
+                wstInfoUserMap[wstId].first_year = year;
+            }
+            if (year && dur && wstInfoUserMap[wstId].last_year < year + dur - 1) {
+                wstInfoUserMap[wstId].last_year = year + dur - 1;
+            }
+        } else {
+            wstInfoUserMap[wstId] = {
+                wst_notes : notes,
+                first_year : year,
+                last_year : year + dur - 1
+            };
+        }
+        updateWstSB(wstInfoUserMap, file.name);
+    }
+    
+    function updateWstSB(data, fileName) {
+        if ($("#wst_file_name").html() === "") {
+            $("#wst_file_name").append(fileName);
+        } else {
+            $("#wst_file_name").append(", " + fileName);
+        }
+        initWstSB(data);
+        $("#wst_file_name").show();
+        $("#wst_remove_btn").parent().show();
     }
     
     function removeLoadedData(btnId) {
@@ -214,6 +272,10 @@
             initSoilProfileSB(soilFileInfoList);
             soilInfoUserMap = {};
         } else if (btnId === "wst_remove_btn") {
+            $("#wst_file_name").html("").hide();
+            $("#wst_remove_btn").parent().hide();
+            initWstSB(wstInfoMap);
+            wstInfoUserMap = {};
         }
     }
     
@@ -301,13 +363,17 @@
                 </div>
             </div>
             <div class="form-group col-sm-4">
-                <label class="control-label" for="wst_id">Weather Station</label>
+                <label class="control-label" for="wst_id">Weather Station&nbsp;&nbsp;&nbsp;
+                    <a href="#" data-toggle="tooltip" title="Browse local file system to load customized weather station data...">
+                        <span id="wst_browse_btn" type="button" class="btn glyphicon glyphicon-open-file" onclick="browseLocalFile(this.id);"></span>
+                    </a>
+                    <a href="#" data-toggle="tooltip" title="Remvove loaded data" hidden>
+                        <span id="wst_remove_btn" type="button" class="btn glyphicon glyphicon-remove" onclick="removeLoadedData(this.id);"></span>
+                    </a>
+                    <label id="wst_file_name" hidden></label>
+                </label>
                 <div class="input-group col-sm-12">
                     <select id="wst_id" name="wst_id" class="form-control chosen-select-deselect field-data" data-placeholder="Choose a Weather Station...">
-                        <option value=""></option>
-                        <#list weathers as wth>
-                        <option value="${wth.wst_id!}">${wth.wst_notes!"?Unknown name"} - ${wth.wst_id!} (${wth.wst_years?first} - ${wth.wst_years?last})</option>
-                        </#list>
                     </select>
                 </div>
             </div>
