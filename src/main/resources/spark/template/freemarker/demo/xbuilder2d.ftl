@@ -64,6 +64,25 @@
                 </#list>
             };
             let wstInfoUserMap = {};
+            
+            const culInfoMap = {
+                <#list culMetaList as culMeta>
+                "${culMeta.agmip_code!}" : {
+                    crop_name : "${culMeta.name!}",
+                    crid_dssat : "${culMeta.dssat_code!}",
+                    category : "${culMeta.category!}",
+                    cultivars : {
+                        <#list culMeta.cultivars?keys?sort as culId>
+                        "${culId!}" : {
+                            cul_name : "${culMeta.cultivars[culId].cul_name!}",
+                            cul_id : "${culId!}"
+                        }<#sep>,</#sep>
+                        </#list>
+                    }
+                }<#sep>,</#sep>
+                </#list>
+            };
+                
 
             const icasaCode = {
                 <#list icasaMgnCodeMap?keys as key>
@@ -369,6 +388,7 @@
             
             function reset() {
                 initStartYearSB();
+                initCropSB();
                 if (Object.keys(soilInfoUserMap).length === 0) {
                     initSoilProfileSB(soilFileInfoList);
                 }

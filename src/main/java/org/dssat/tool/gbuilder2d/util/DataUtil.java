@@ -83,6 +83,18 @@ public class DataUtil {
                 return ret;
             }
         });
+        for (Object cridObj : ret.keySet()) {
+            String crid = cridObj.toString();
+            JSONObject culData;
+            if (isFallow(crid)) {
+                culData = new JSONObject();
+            } else {
+                JSONObject meta = ret.getAsObj(crid);
+                File culFile = Path.Folder.getCulFile(meta.getOrBlank("model"));
+                culData = getCulDataList(culFile);
+            }
+            ret.getAsObj(crid).put("cultivars", culData);
+        }
         return ret;
     }
     

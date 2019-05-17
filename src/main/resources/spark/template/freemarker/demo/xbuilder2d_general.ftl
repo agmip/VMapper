@@ -63,6 +63,21 @@
         $('#exname_label').html(exname + "." + crid + "X");
     }
     
+    function initCropSB() {
+        let cropSB = $("#crid");
+        cropSB.append('<option value=""></option>');
+        let category = "";
+        for (let crid in culInfoMap) {
+            let optgroup;
+            if (!optgroup || culInfoMap[crid].category !== category) {
+                optgroup = $('<optgroup label="' + culInfoMap[crid].category + '"></optgroup>');
+                cropSB.append(optgroup);
+            }
+            optgroup.append('<option value="' + crid + '">' + culInfoMap[crid].crop_name + '</option>');
+            category = culInfoMap[crid].category;
+        }
+    }
+    
     function updateCulSB(target) {
         for (let i in trtData) {
             $('#tr_cul_' + trtData[i].trtno + " option").remove("[value!='']");
@@ -72,28 +87,32 @@
     }
     
     function getCulData(crid, customizedData) {
-        if (crid === "") {
+        if (crid === "" || !culInfoMap[crid]) {
             cultivars = {};
         } else {
-            $.get("/data/cultivar?crid=" + crid,
-                function (culJsonStr) {
-                    cultivars = JSON.parse(culJsonStr);
-                    for (let i in trtData) {
-                        let sb = $('#tr_cul_' + trtData[i].trtno);
-                        for (let culId in cultivars) {
-                            sb.append($('<option value="' + culId + '"></option>').append(cultivars[culId].cul_name));
-                        }
-                    }
-                    if (customizedData) {
-                        for (let key in customizedData) {
-                            cultivars[key] = customizedData[key];
-                        }
-                    }
-                    for (let trtid in trtData) {
-                        chosen_init("tr_cul_" +  + trtData[trtid].trtno);
-                    }
+            cultivars = {};
+            for (let id in culInfoMap[crid].cultivars) {
+                cultivars[id] = culInfoMap[crid].cultivars[id];
+            }
+//            $.get("/data/cultivar?crid=" + crid,
+//                function (culJsonStr) {
+//                    cultivars = JSON.parse(culJsonStr);
+            for (let i in trtData) {
+                let sb = $('#tr_cul_' + trtData[i].trtno);
+                for (let culId in cultivars) {
+                    sb.append($('<option value="' + culId + '"></option>').append(cultivars[culId].cul_name));
                 }
-            );
+            }
+            if (customizedData) {
+                for (let key in customizedData) {
+                    cultivars[key] = customizedData[key];
+                }
+            }
+            for (let trtid in trtData) {
+                chosen_init("tr_cul_" +  + trtData[trtid].trtno);
+            }
+//                }
+//            );
         }
     }
     
@@ -167,19 +186,6 @@
                     <div class="input-group col-sm-12">
                         <!--<span class="input-group-addon glyphicon">*</span>-->
                         <select id="crid" class="form-control chosen-select-deselect exp-data" onchange="updateCulSB(this);updateExname(this);" data-placeholder="Choose a Crop..." required>
-                            <option value=""></option>
-                            <#assign category = "">
-                            <#list culMetaList as culMeta>
-                                <#if category != culMeta.category>
-                                    <#if culMeta?index != 0>
-                            </optgroup>
-                                    </#if>
-                            <optgroup label="${culMeta.category!}">
-                                </#if>
-                                <option value="${culMeta.agmip_code!}">${culMeta.name!}</option>
-                                <#assign category = culMeta.category>
-                            </#list>
-                           </optgroup>
                         </select>
                         <!--<span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>-->
                     </div>
