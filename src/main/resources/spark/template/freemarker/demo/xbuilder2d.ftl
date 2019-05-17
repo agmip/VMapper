@@ -38,6 +38,21 @@
                 </#list>
                 </#list>
             };
+            let soilInfoUserMap = {};
+            
+            const soilFileInfoList = [
+                <#list soils as soilFile>
+                {
+                    sl_notes : '${soilFile.sl_notes!}',
+                    file_name : '${soilFile.file_name!}',
+                    soils : [
+                        <#list soilFile.soils as soil>
+                        {soil_id : '${soil.soil_id!}', soil_name : '${soil.soil_name!}'}<#sep>,</#sep>
+                        </#list>
+                    ]
+                }<#sep>,</#sep>
+                </#list>
+            ];
 
             const icasaCode = {
                 <#list icasaMgnCodeMap?keys as key>
@@ -341,8 +356,11 @@
                 spreadsheet = new Handsontable(spsContainer, spsOptions);
             }
             
-            function reset() {
+            function reset(customizedDataFlg) {
                 initStartYearSB();
+                if (!customizedDataFlg) {
+                    initSoilProfileSB(soilFileInfoList);
+                }
                 chosen_init_all();
             }
             
@@ -575,7 +593,12 @@
                 for (let i=0; i<files.length; i++) {
                     if (files[i].name.toUpperCase().endsWith("X")) {
                         readFileToBufferedArray(files[i], updateProgress, readXFile);
-                    } else {
+                    } else if (files[i].name.toUpperCase().endsWith("SOL")) {
+                        readFileToBufferedArray(files[i], updateProgress, readSoilFile);
+                    } else if (files[i].name.toUpperCase().endsWith("WTH")) {
+                        readFileToBufferedArray(files[i], updateProgress, readWthFile);
+                    } else if (files[i].name.toUpperCase().endsWith("J") || 
+                            files[i].name.toUpperCase().endsWith("JSON")) {
                         readFileToBufferedArray(files[i], updateProgress, readJFile);
                     }
                     
@@ -587,6 +610,7 @@
             }
             
             function readXFile (rawData, file) {
+                let customizedDataFlg = false;
                 let data = readXFileData(rawData, file.name);
                 data.experiment.crid = convertCropCode2(data.experiment.crid_dssat);
                 
@@ -601,18 +625,28 @@
                         }
                     }
                     if (data.field[id].soil_id) {
-                        if ($("#soil_id").find("option[value='" + data.field[id].soil_id + "']").length === 0) {
-                            let customizedGroup = $("#soil_id").find("optgroup[label='Customized']");
-                            if (customizedGroup.length === 0) {
-                                customizedGroup = $('<optgroup label="Customized"></>');
-                                $("#soil_id").append(customizedGroup);
-                            } else {
-                                customizedGroup = result[0];
+                        if (!soilInfoMap[data.field[id].soil_id]) {
+                            customizedDataFlg = true;
+                            let soilFile = {
+                                sl_notes : "Unknown data",
+                                file_name : "??.SOL",
+                                soils:[{
+                                        soil_id : data.field[id].soil_id,
+                                        soil_name : "Unknown name",
+                                        soilLayer: []
+                                    }]
+                            };
+                            
+                            if (data.field[id].initial_conditions && data.field[id].initial_conditions.soilLayer) {
+                                for (let j in data.field[id].initial_conditions.soilLayer) {
+                                    soilFile.soils[0].soilLayer.push({sllb: data.field[id].initial_conditions.soilLayer[j].icbl});
+                                }
                             }
-                            customizedGroup.append("<option value='" + data.field[id].soil_id + "'>Customized Data - " + data.field[id].soil_id + "</option>");
+                            updateSoilProfileSB(soilFile);
                         }
                     }
                     if (data.field[id].wst_id) {
+                        customizedDataFlg = true;
                         if ($("#wst_id").find("option[value='" + data.field[id].wst_id + "']").length === 0) {
                             let customizedGroup = $("#wst_id").find("optgroup[label='Customized']");
                             if (customizedGroup.length === 0) {
@@ -640,7 +674,7 @@
                         }
                     }
                 }
-                loadData(data);
+                loadData(data, customizedDataFlg);
                 let cumstomizedCulData = cultivars;
                 getCulData(data.experiment.crid, cumstomizedCulData);
             }
@@ -650,7 +684,7 @@
                 loadData(data);
             }
             
-            function loadData(rawData) {
+            function loadData(rawData, customizedDataFlg) {
                 
                 // Load meta data
                 expData = rawData.experiment;
@@ -692,7 +726,7 @@
                     addTrt(Number(id) + 1, rawData.treatment[id]);
                 }
                 
-                reset();
+                reset(customizedDataFlg);
                 $("#SiteInfoTab a").click();
             }
         </script>
@@ -785,6 +819,7 @@
         <script type="text/javascript" src="/js/chosen/init.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/dataReader/BufferedFileReader.js"></script>
         <script type="text/javascript" src="/js/dataReader/DssatXFileReader.js"></script>
+        <script type="text/javascript" src="/js/dataReader/DssatSoilReader.js"></script>
         <script type="text/javascript" src="/js/bootbox/bootbox.all.min.js" charset="utf-8"></script>
         <script src="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.js"></script>
         <script type="text/javascript">

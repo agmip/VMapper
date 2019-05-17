@@ -152,6 +152,70 @@
         });
     }
     
+    function initSoilProfileSB(soilFiles) {
+        $("#soil_id").html("");
+        $("#soil_id").append("<option value=''></option>");
+        for (let i in soilFiles) {
+            let groupName = soilFiles[i].sl_notes + ' - ' + soilFiles[i].file_name;
+            let optgroup = $('<optgroup label="' + groupName + '"></>');
+            for (let j in soilFiles[i].soils) {
+                optgroup.append("<option value='" + soilFiles[i].soils[j].soil_id + "'>" + soilFiles[i].soils[j].soil_name + " - " + soilFiles[i].soils[j].soil_id + "</option>");
+            }
+            $("#soil_id").append(optgroup);
+        }
+        chosen_init("soil_id");
+        $("#soil_id").trigger("change");
+    }
+    
+    function browseLocalFile(btnId) {
+        if (btnId === "soil_browse_btn") {
+            $('<input type="file" accept=".SOL" onchange="readFile(this);">').click();
+        } else if (btnId === "wst_browse_btn") {
+            $('<input type="file" accept=".WTH" onchange="readWthFileDir(this);" multiple>').click();
+        }
+    }
+    
+    function readSoilFile(rawData, file) {
+        let data = readSoilFileData(rawData, file.name);
+        updateSoilProfileSB(data);
+    }
+    
+    function updateSoilProfileSB(data) {
+        if (!data.soils || data.soils.length === 0) {
+            bootbox.alert({
+                message: "No soil data has been found.",
+                backdrop: true
+            });
+            return;
+        }
+        initSoilProfileSB([data]);
+        
+        // register layer infomation
+        soilInfoUserMap = {};
+        for (let i in data.soils) {
+            let profile = {sllb: []};
+            soilInfoUserMap[data.soils[i].soil_id] = profile;
+            for (let j in data.soils[i].soilLayer) {
+                profile.sllb.push(data.soils[i].soilLayer[j].sllb);
+            }
+        }
+        $("#soil_file_name").html(data.file_name).show();
+        $("#soil_remove_btn").parent().show();
+    }
+    
+    function readWthFileDir(target) {
+        
+    }
+    
+    function removeLoadedData(btnId) {
+        if (btnId === "soil_remove_btn") {
+            $("#soil_file_name").html("").hide();
+            $("#" + btnId).parent().hide();
+            initSoilProfileSB(soilFileInfoList);
+        } else if (btnId === "wst_remove_btn") {
+        }
+    }
+    
     function undateICView() {
         if ($("#ic_profile_swc_btn").hasClass("btn-primary")) {
             initSpreadsheet("ic", document.querySelector("#ic_sps_view"));
@@ -175,12 +239,21 @@
     }
     
     function updateSoilProfile(soilId) {
-        if (soilInfoMap[soilId]) {
+        let searchMap;
+        if (Object.keys(soilInfoUserMap).length  > 0) {
+            searchMap = soilInfoUserMap;
+        } else {
+            searchMap = soilInfoMap;
+        }
+        if (!soilId) {
+            icLayers.length = 0;
+            undateICView();
+        } else if (searchMap[soilId]) {
             // Clear current ic layers
             icLayers.length = 0;
             // Load layer
-            for (let i in soilInfoMap[soilId]["sllb"]) {
-                icLayers.push({icbl: soilInfoMap[soilId]["sllb"][i]});
+            for (let i in searchMap[soilId]["sllb"]) {
+                icLayers.push({icbl: searchMap[soilId]["sllb"][i]});
             }
             undateICView();
         }
@@ -212,17 +285,17 @@
         </div>
         <div class="row col-sm-12">
             <div class="form-group col-sm-4">
-                <label class="control-label" for="soil_id">Soil Profile</label>
+                <label class="control-label" for="soil_id">Soil Profile&nbsp;&nbsp;&nbsp;
+                    <a href="#" data-toggle="tooltip" title="Browse local file system to load customized soil profile data...">
+                        <span id="soil_browse_btn" type="button" class="btn glyphicon glyphicon-open-file" onclick="browseLocalFile(this.id);"></span>
+                    </a>
+                    <a href="#" data-toggle="tooltip" title="Remvove loaded data" hidden>
+                        <span id="soil_remove_btn" type="button" class="btn glyphicon glyphicon-remove" onclick="removeLoadedData(this.id);"></span>
+                    </a>
+                    <label id="soil_file_name" hidden></label>
+                </label>
                 <div class="input-group col-sm-12">
                     <select id="soil_id" name="soil_id" class="form-control chosen-select-deselect field-data" onchange="updateSoilProfile(this.value);" data-placeholder="Choose a Soil Profile...">
-                        <option value=""></option>
-                        <#list soils as soilFile>
-                        <optgroup label="${soilFile.sl_notes!} - ${soilFile.file_name!}">
-                        <#list soilFile.soils as soil>
-                            <option value="${soil.soil_id!}">${soil.soil_name!"Unknown name"} - ${soil.soil_id!}</option>
-                        </#list>
-                        </optgroup>
-                        </#list>
                     </select>
                 </div>
             </div>
