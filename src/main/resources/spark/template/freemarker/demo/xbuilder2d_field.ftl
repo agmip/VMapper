@@ -177,10 +177,6 @@
     
     function readSoilFile(rawData, file) {
         let data = readSoilFileData(rawData, file.name);
-        updateSoilProfileSB(data);
-    }
-    
-    function updateSoilProfileSB(data) {
         if (!data.soils || data.soils.length === 0) {
             bootbox.alert({
                 message: "No soil data has been found.",
@@ -188,6 +184,10 @@
             });
             return;
         }
+        updateSoilProfileSB(data);
+    }
+    
+    function updateSoilProfileSB(data) {
         initSoilProfileSB([data]);
         
         // register layer infomation
@@ -212,6 +212,7 @@
             $("#soil_file_name").html("").hide();
             $("#" + btnId).parent().hide();
             initSoilProfileSB(soilFileInfoList);
+            soilInfoUserMap = {};
         } else if (btnId === "wst_remove_btn") {
         }
     }

@@ -356,9 +356,9 @@
                 spreadsheet = new Handsontable(spsContainer, spsOptions);
             }
             
-            function reset(customizedDataFlg) {
+            function reset() {
                 initStartYearSB();
-                if (!customizedDataFlg) {
+                if (Object.keys(soilInfoUserMap).length === 0) {
                     initSoilProfileSB(soilFileInfoList);
                 }
                 chosen_init_all();
@@ -610,9 +610,14 @@
             }
             
             function readXFile (rawData, file) {
-                let customizedDataFlg = false;
                 let data = readXFileData(rawData, file.name);
                 data.experiment.crid = convertCropCode2(data.experiment.crid_dssat);
+                let soilFile = {
+                    sl_notes : "Unknown data",
+                    file_name : "??.SOL",
+                    soils:[]
+                };
+                let soilMap = {};
                 
                 for (let id in data.field) {
                     if (data.field[id].initial_conditions) {
@@ -625,28 +630,21 @@
                         }
                     }
                     if (data.field[id].soil_id) {
-                        if (!soilInfoMap[data.field[id].soil_id]) {
-                            customizedDataFlg = true;
-                            let soilFile = {
-                                sl_notes : "Unknown data",
-                                file_name : "??.SOL",
-                                soils:[{
-                                        soil_id : data.field[id].soil_id,
-                                        soil_name : "Unknown name",
-                                        soilLayer: []
-                                    }]
-                            };
-                            
+                        if (!soilInfoMap[data.field[id].soil_id] && !soilMap[data.field[id].soil_id]) {
+                            soilFile.soils.push({
+                                soil_id : data.field[id].soil_id,
+                                soil_name : "Unknown name",
+                                soilLayer: []
+                            });
+                            soilMap[data.field[id].soil_id] = true;
                             if (data.field[id].initial_conditions && data.field[id].initial_conditions.soilLayer) {
                                 for (let j in data.field[id].initial_conditions.soilLayer) {
                                     soilFile.soils[0].soilLayer.push({sllb: data.field[id].initial_conditions.soilLayer[j].icbl});
                                 }
                             }
-                            updateSoilProfileSB(soilFile);
                         }
                     }
                     if (data.field[id].wst_id) {
-                        customizedDataFlg = true;
                         if ($("#wst_id").find("option[value='" + data.field[id].wst_id + "']").length === 0) {
                             let customizedGroup = $("#wst_id").find("optgroup[label='Customized']");
                             if (customizedGroup.length === 0) {
@@ -659,6 +657,9 @@
                         }
                     }
                     
+                }
+                if (soilFile.soils.length > 0) {
+                    updateSoilProfileSB(soilFile);
                 }
 
                 for (let id in data.management) {
@@ -674,7 +675,7 @@
                         }
                     }
                 }
-                loadData(data, customizedDataFlg);
+                loadData(data);
                 let cumstomizedCulData = cultivars;
                 getCulData(data.experiment.crid, cumstomizedCulData);
             }
@@ -684,7 +685,7 @@
                 loadData(data);
             }
             
-            function loadData(rawData, customizedDataFlg) {
+            function loadData(rawData, ) {
                 
                 // Load meta data
                 expData = rawData.experiment;
@@ -726,7 +727,7 @@
                     addTrt(Number(id) + 1, rawData.treatment[id]);
                 }
                 
-                reset(customizedDataFlg);
+                reset();
                 $("#SiteInfoTab a").click();
             }
         </script>
