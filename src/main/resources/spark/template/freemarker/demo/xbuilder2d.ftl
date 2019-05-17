@@ -704,18 +704,7 @@
                             }
                             updateWstSB(wstInfoUserMap, fileName);
                         }
-                        if ($("#wst_id").find("option[value='" + data.field[id].wst_id + "']").length === 0) {
-                            let customizedGroup = $("#wst_id").find("optgroup[label='Customized']");
-                            if (customizedGroup.length === 0) {
-                                customizedGroup = $('<optgroup label="Customized"></>');
-                                $("#wst_id").append(customizedGroup);
-                            } else {
-                                customizedGroup = result[0];
-                            }
-                            customizedGroup.append("<option value='" + data.field[id].wst_id + "'>Customized Data - " + data.field[id].wst_id + "</option>");
-                        }
                     }
-                    
                 }
                 if (soilFile.soils.length > 0) {
                     updateSoilProfileSB(soilFile);
