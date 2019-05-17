@@ -401,7 +401,10 @@ public class DataUtil {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.startsWith("*")) {
-                    ret.put("wst_notes", line.replaceFirst("\\*[Ww][Ee][Aa][Tt][Hh][Ee][Rr]\\s*([Dd][Aa][Tt][Aa]\\s*)*:?", "").trim());
+                    String notes = line.replaceFirst("\\*[Ww][Ee][Aa][Tt][Hh][Ee][Rr]\\s*([Dd][Aa][Tt][Aa]\\s*)*:?", "").trim();
+                    if (!notes.isEmpty()) {
+                        ret.put("wst_notes", notes);
+                    }
                     break;
                 }
                 
