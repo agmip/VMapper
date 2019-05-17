@@ -62,11 +62,10 @@ public class JSONObject extends org.json.simple.JSONObject {
     }
 
     public JSONObject getAsObj(String key) {
-        if (this.containsKey(key)) {
-            return (JSONObject) this.get(key);
-        } else {
-            return new JSONObject();
+        if (!this.containsKey(key)) {
+            this.put(key, new JSONObject());
         }
+        return (JSONObject) this.get(key);
     }
 
     public Double getAsDouble(String key) {
