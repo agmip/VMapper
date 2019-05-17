@@ -122,9 +122,7 @@
             if (target.name !== "cul") {
                 $("#" + target.id.replace("tr_", "").replace(/_\d+/, "") + "_create").click();
             } else {
-                // TODO create customized cultivar
-                chosen_init(target.id);
-                alert("This function will be done later...");
+                showCultivarCreateDialog();
             }
         } else {
             let trtid = Number(target.id.replace(/tr_\w+_/, "")) - 1;
@@ -142,6 +140,63 @@
             }
             
         }
+    }
+    
+    function showCultivarCreateDialog(msg) {
+        let crid = $("#crid").val();
+        if (!crid || crid === "") {
+            bootbox.alert({backdrop: true, message: "Please select crop type under General section first."});
+            return;
+        }
+        let dialogConfig = {
+            title: "<h2>Please input your cultivar information:</h2>",
+            size: 'large',
+            message: $(".cultivar-input").html(),
+            buttons: {
+                cancel: {
+                    label: "Cancel",
+                    className: 'btn-default',
+                    callback: function () {}
+                },
+                ok: {
+                    label: "&nbsp;Save&nbsp;",
+                    className: 'btn-primary',
+                    callback: function(){
+                        let culId = $(this).find("[name='cul_id']").val();
+                        let culName = $(this).find("[name='cul_name']").val();
+                        if (!culId || culId === "" || culId.length > 6) {
+                            msg = "Please input cultivar ID with up to 6 digit code.";
+                        } else if (cultivars[culId]) {
+                            msg = culId + " has been used. Please provide a different cultivar ID.";
+                        } else {
+                            msg = "";
+                        }
+                        if (!culName || culName === "") {
+                            msg = msg + "<br>Please input cultivar name for reference.";
+                        }
+                        if (msg === "") {
+                            let customizedData= {
+                                cul_id : culId,
+                                cul_name : culName,
+                                crid : crid
+                            }
+                            for (let i in trtData) {
+                                let sb = $('#tr_cul_' + trtData[i].trtno);
+                                sb.append($('<option value="' + culId + '"></option>').append(culName));
+                                chosen_init("tr_cul_" +  + trtData[trtid].trtno);
+                            }
+                            cultivars[culId] = customizedData;
+                        } else {
+                            showCultivarCreateDialog(msg);
+                        }
+                    }
+                }
+            }
+        };
+        if (msg) {
+            dialogConfig.message = '<p><span><mark class="bg-warning">' + msg + '</mark></span></p><br>' + dialogConfig.message;
+        }
+        bootbox.dialog(dialogConfig);
     }
 </script>
 <div class="subcontainer">
@@ -204,4 +259,23 @@
             </tbody>
         </table>
     </fieldset>
+</div>
+<div class="cultivar-input" hidden>
+    <p></p>
+    <div class="col-sm-12">
+        <!-- 1st row -->
+        <div class="form-group col-sm-12">
+            <label class="control-label">Cultivar ID</label>
+            <div class="input-group col-sm-12">
+                <input type="text" name="cul_id" class="form-control cultivar-input-item" value="" >
+            </div>
+        </div>
+        <!-- 2nd row -->
+        <div class="form-group col-sm-12">
+            <label class="control-label">Cultivar Name</label>
+            <div class="input-group col-sm-12">
+                <input type="text" name="cul_name" class="form-control cultivar-input-item" value="New Cultivar" >
+            </div>
+        </div>
+    </div>
 </div>
