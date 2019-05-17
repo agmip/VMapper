@@ -122,7 +122,7 @@
             if (target.name !== "cul") {
                 $("#" + target.id.replace("tr_", "").replace(/_\d+/, "") + "_create").click();
             } else {
-                showCultivarCreateDialog();
+                showCultivarCreateDialog(target.id);
             }
         } else {
             let trtid = Number(target.id.replace(/tr_\w+_/, "")) - 1;
@@ -142,7 +142,7 @@
         }
     }
     
-    function showCultivarCreateDialog(msg) {
+    function showCultivarCreateDialog(sbid, msg) {
         let crid = $("#crid").val();
         if (!crid || crid === "") {
             bootbox.alert({backdrop: true, message: "Please select crop type under General section first."});
@@ -156,7 +156,11 @@
                 cancel: {
                     label: "Cancel",
                     className: 'btn-default',
-                    callback: function () {}
+                    callback: function () {
+                        let trtno = Number(sbid.replace("tr_cul_", ""));
+                        $("#" + sbid).val(trtData[trtno].cul_id);
+                        chosen_init(sbid);  
+                    }
                 },
                 ok: {
                     label: "&nbsp;Save&nbsp;",
@@ -183,11 +187,12 @@
                             for (let i in trtData) {
                                 let sb = $('#tr_cul_' + trtData[i].trtno);
                                 sb.append($('<option value="' + culId + '"></option>').append(culName));
-                                chosen_init("tr_cul_" +  + trtData[trtid].trtno);
+                                $("#" + sbid).val(culId).trigger("change");
+                                chosen_init("tr_cul_" + trtData[i].trtno);
                             }
                             cultivars[culId] = customizedData;
                         } else {
-                            showCultivarCreateDialog(msg);
+                            showCultivarCreateDialog(sbid, msg);
                         }
                     }
                 }
