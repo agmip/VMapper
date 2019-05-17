@@ -590,18 +590,28 @@
                 if (files.length < 1) {
                     return;
                 }
+                let loadedFiles = [];
                 for (let i=0; i<files.length; i++) {
                     if (files[i].name.toUpperCase().endsWith("X")) {
+                        loadedFiles.push(files[i].name);
                         readFileToBufferedArray(files[i], updateProgress, readXFile);
                     } else if (files[i].name.toUpperCase().endsWith("SOL")) {
+                        loadedFiles.push(files[i].name);
                         readFileToBufferedArray(files[i], updateProgress, readSoilFile);
                     } else if (files[i].name.toUpperCase().endsWith("WTH")) {
                         readFileToBufferedArray(files[i], updateProgress, readWthFile);
+                        loadedFiles.push(files[i].name);
                     } else if (files[i].name.toUpperCase().endsWith("J") || 
                             files[i].name.toUpperCase().endsWith("JSON")) {
+                        loadedFiles.push(files[i].name);
                         readFileToBufferedArray(files[i], updateProgress, readJFile);
                     }
-                    
+                }
+                if (loadedFiles.length > 0) {
+                    bootbox.alert({
+                        message: "Load data from " + JSON.stringify(loadedFiles),
+                        backdrop: true
+                    });
                 }
             }
             
