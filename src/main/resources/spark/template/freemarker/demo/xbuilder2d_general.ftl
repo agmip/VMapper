@@ -89,6 +89,9 @@
                             cultivars[key] = customizedData[key];
                         }
                     }
+                    for (let trtid in trtData) {
+                        chosen_init("tr_cul_" +  + trtData[trtid].trtno);
+                    }
                 }
             );
         }
