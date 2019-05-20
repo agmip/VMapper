@@ -242,6 +242,7 @@
         hideDiv.fadeOut("fast",function() {
             showDiv.fadeIn("fast", function() {
                 if (showBtn.attr("id") === "timeline_swc_btn") {
+                    mergeSubEvents();
                     syncDataToTml();
                 } else {
                     initSpreadsheet();
@@ -361,12 +362,12 @@
     }
 
     function syncDataToSps(eventType) {
+        mergeSubEvents();
         syncDataToTml();
         initSpreadsheet(eventType);
     }
 
     function syncDataToTml() {
-        mergeSubEvents();
         clearNullElements(events, ["event", "content", "date"]);
         for (let i = 0; i < events.length; i++) {
             events[i].start = dateUtil.toLocaleDate(events[i].date, events[i].irstr);
