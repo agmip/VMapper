@@ -75,6 +75,6 @@
     }
     
     function loadSimpleTemplate() {
-        loadData('{"experiment":{"local_name":"Simple simulation with single treatment"},"cultivar":{},"field":{"field_0":{"fl_name":"Default"}},"management":{"mgn_0":{"mgn_name":"Default","data":[]}},"treatment":[{"trtno":1,"management":["mgn_0"],"field":"field_0"}],"version":"0.0.1"}');
+        loadData(JSON.parse('{"experiment":{"local_name":"Simple simulation with single treatment"},"cultivar":{},"field":{"field_0":{"fl_name":"Default"}},"management":{"mgn_0":{"mgn_name":"Default","data":[]}},"treatment":[{"trtno":1,"management":["mgn_0"],"field":"field_0"}],"version":"0.0.1"}'));
     }
 </script>
