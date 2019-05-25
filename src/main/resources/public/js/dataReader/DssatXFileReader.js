@@ -69,7 +69,11 @@ function readXFileData(rawData, fileName) {
             } else if (headerLine.startsWith("SITE")) {
                 expData["site_name"] = line.trim();
             } else if (headerLine.startsWith("NOTES")) {
-                expData["exp_narr"] += line.trim() + "\r\n";
+                if (expData["exp_narr"]) {
+                    expData["exp_narr"] += line.trim() + "\r\n";
+                } else {
+                    expData["exp_narr"] = line.trim() + "\r\n";
+                }
             }
             // TREATMENTS Section
             else if (titleLine.startsWith("TREATMENTS")) {

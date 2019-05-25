@@ -694,17 +694,18 @@
                         let year;
                         let dur;
                         if (wstId.length > 4) {
-                            if (wstId.endsWith("01")) {
-                                wstId = wstId.substring(0, 4);
-                                dur = 1;
-                            } else {
-                                dur = Number(wstId.substring(6, 8));
-                            }
                             year = Number(wstId.substring(4, 6));
                             if (year < 50) {
                                 year = 2000 + year;
                             } else {
                                 year = 1900 + year;
+                            }
+                            if (wstId.endsWith("01")) {
+                                wstId = wstId.substring(0, 4);
+                                data.field[id].wst_id = wstId;
+                                dur = 1;
+                            } else {
+                                dur = Number(wstId.substring(6, 8));
                             }
                         }
                         if (!wstInfoMap[wstId]) {
