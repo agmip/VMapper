@@ -3,6 +3,7 @@ package org.agmip.tools.unithelper;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import org.json.simple.JSONObject;
+import ucar.units.BaseUnit;
 import ucar.units.ConversionException;
 import ucar.units.NoSuchUnitException;
 import ucar.units.PrefixDBException;
@@ -174,7 +175,7 @@ public class UnitConverter {
         try {
             Unit unit = PARSER.parse(removeComment(unitStr));
             String ret = unit.toString();
-            if (ret.equals(unitStr)) {
+            if (unit instanceof BaseUnit) {
                 ret = unit.getName();
             }
             return ret;
