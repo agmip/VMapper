@@ -2,8 +2,6 @@ package org.agmip.tools.unithelper;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.json.simple.JSONObject;
 import ucar.units.ConversionException;
 import ucar.units.NoSuchUnitException;
@@ -90,9 +88,12 @@ public class UnitConverter {
             ret.put("status", "0");
             ret.put("message", "successful");
         } catch (SpecificationException | UnitDBException | PrefixDBException | UnitSystemException | ConversionException ex) {
-            Logger.getLogger(UnitConverter.class.getName()).log(Level.SEVERE, null, ex);
             ret.put("status", "1");
             ret.put("message", ex.getMessage());
+        } catch (Exception ex) {
+//            Logger.getLogger(UnitConverter.class.getName()).log(Level.SEVERE, null, ex);
+            ret.put("status", "1");
+            ret.put("message", "undefined unit");
         }
 //        catch (SpecificationException ex) {
 //            Logger.getLogger(UnitConverter.class.getName()).log(Level.SEVERE, null, ex);
@@ -119,9 +120,12 @@ public class UnitConverter {
             ret.put("status", "0");
             ret.put("message", "successful");
         } catch (SpecificationException | UnitDBException | PrefixDBException | UnitSystemException | ConversionException ex) {
-            Logger.getLogger(UnitConverter.class.getName()).log(Level.SEVERE, null, ex);
             ret.put("status", "1");
             ret.put("message", ex.getMessage());
+        } catch (Exception ex) {
+//            Logger.getLogger(UnitConverter.class.getName()).log(Level.SEVERE, null, ex);
+            ret.put("status", "1");
+            ret.put("message", "undefined unit");
         }
 //        catch (SpecificationException ex) {
 //            Logger.getLogger(UnitConverter.class.getName()).log(Level.SEVERE, null, ex);
@@ -161,7 +165,7 @@ public class UnitConverter {
     public static boolean isValid(String unitStr) {
         try {
             return PARSER.parse(removeComment(unitStr)) != null;
-        } catch (PrefixDBException | SpecificationException | UnitDBException | UnitSystemException ex) {
+        } catch (Exception ex) {
             return false;
         }
     }
@@ -174,7 +178,7 @@ public class UnitConverter {
                 ret = unit.getName();
             }
             return ret;
-        } catch (PrefixDBException | SpecificationException | UnitDBException | UnitSystemException ex) {
+        } catch (Exception ex) {
             return "";
         }
     }
