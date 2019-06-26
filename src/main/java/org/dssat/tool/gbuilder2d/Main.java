@@ -16,6 +16,7 @@ import org.dssat.tool.gbuilder2d.util.DataUtil;
 import org.dssat.tool.gbuilder2d.util.JSONObject;
 import org.dssat.tool.gbuilder2d.util.JsonUtil;
 import org.dssat.tool.gbuilder2d.util.Path;
+import org.dssat.tool.gbuilder2d.util.UnitUtil;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
@@ -41,9 +42,6 @@ public class Main {
     
     private static final int DEF_PORT = 8081;
     public static final Logger LOG = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-
-    public Main() {
-    }
     
     public static void main(String[] args) {
         // Configure Spark
@@ -113,6 +111,22 @@ public class Main {
         
         get(Path.Web.Demo.GBUILDER2D, (Request request, Response response) -> {
             return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.Demo.GBUILDER2D));
+                });
+        
+        get(Path.Web.Demo.UNIT_MASTER, (Request request, Response response) -> {
+            return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.Demo.UNIT_MASTER));
+                });
+        
+        get(Path.Web.Data.UNIT_LOOKUP, (Request request, Response response) -> {
+            String unit = request.queryParams("unit");
+            return UnitUtil.getUnitInfo(unit).toJSONString();
+                });
+        
+        get(Path.Web.Data.UNIT_CONVERT, (Request request, Response response) -> {
+            String unitFrom = request.queryParams("unit_from");
+            String unitTo = request.queryParams("unit_to");
+            String valueFrom = request.queryParams("value_from");
+            return UnitUtil.convertUnit(unitFrom, unitTo, valueFrom).toJSONString();
                 });
         
         get(Path.Web.Demo.XBUILDER2D, (Request request, Response response) -> {

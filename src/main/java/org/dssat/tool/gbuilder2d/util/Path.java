@@ -23,11 +23,14 @@ public class Path {
             public static final String XBUILDER2D = PACKAGE + "/xbuilder2d";
             public static final String METALIST = PACKAGE + "/metalist";
             public static final String XML_EDITOR = PACKAGE + "/xmleditor";
+            public static final String UNIT_MASTER = PACKAGE + "/unit";
         }
         
         public static class Data {
             private static final String PACKAGE = Data.class.getSimpleName().toLowerCase();
             public static final String CULTIVAR = PACKAGE + "/cultivar";
+            public static final String UNIT_LOOKUP = PACKAGE + "/unit/lookup";
+            public static final String UNIT_CONVERT = PACKAGE + "/unit/convert";
         }
         
         public static class Translator {
@@ -53,6 +56,7 @@ public class Path {
             public static final String XBUILDER2D = PACKAGE + "/xbuilder2d.ftl";
             public static final String METALIST = PACKAGE + "/meta_list.ftl";
             public static final String XML_EDITOR = PACKAGE + "/xml_editor.ftl";
+            public static final String UNIT_MASTER = PACKAGE + "/unit_master.ftl";
         }
         
         public static class Translator {
