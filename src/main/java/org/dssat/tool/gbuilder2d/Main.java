@@ -114,12 +114,19 @@ public class Main {
                 });
         
         get(Path.Web.Demo.UNIT_MASTER, (Request request, Response response) -> {
-            return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.Demo.UNIT_MASTER));
+            HashMap data = new HashMap();
+            data.put("baseUnits", UnitUtil.listBaseUnit());
+            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.UNIT_MASTER));
                 });
         
         get(Path.Web.Data.UNIT_LOOKUP, (Request request, Response response) -> {
             String unit = request.queryParams("unit");
-            return UnitUtil.getUnitInfo(unit).toJSONString();
+            String type = request.queryParams("type");
+            if (type != null && unit == null) {
+                return UnitUtil.getUnitInfoByType(type).toJSONString();
+            } else {
+                return UnitUtil.getUnitInfo(unit).toJSONString();
+            }
                 });
         
         get(Path.Web.Data.UNIT_CONVERT, (Request request, Response response) -> {

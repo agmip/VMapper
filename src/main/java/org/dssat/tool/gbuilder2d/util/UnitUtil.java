@@ -18,8 +18,18 @@ public class UnitUtil {
         return ret;
     }
     
+    public static JSONArray getUnitInfoByType(String unitType) {
+        JSONArray ret = new JSONArray();
+        ret.addAll(UnitConverter.listUnitJsonArray(unitType));
+        return ret;
+    }
+    
     public static JSONObject convertUnit(String unitFrom, String unitTo, String valueFrom) {
         JSONObject ret = new JSONObject(UnitConverter.convertToJsonObj(unitFrom, unitTo, valueFrom));
         return ret;
+    }
+    
+    public static JSONObject listBaseUnit() {
+        return new JSONObject(UnitConverter.getBaseUnitMap());
     }
 }

@@ -2,9 +2,11 @@ package org.agmip.tools.unithelper;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Iterator;
+import static org.agmip.tools.unithelper.UnitConverter.UNIT_TYPE.values;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import ucar.units.BaseUnit;
 import ucar.units.ConversionException;
@@ -29,12 +31,56 @@ import ucar.units.UnknownUnit;
  * @author Meng Zhang
  */
 public class UnitConverter {
+    
+    public static enum UNIT_TYPE {
+        ELECTRIC_CURRENT ("I"),
+        LIMINOUS_INTENSITY ("J"),
+        TEMPERATURE ("T"),
+        MASS ("M"),
+        LENGTH ("L"),
+        AMOUNT_OF_SUBSTANCE ("N"),
+        TIME ("t"),
+        RADIAN ("Plane Angle"),
+        STERADIAN ("Solid Angle"),
+        UNKNOWN ("X");
+        
+        private final String code;
+        UNIT_TYPE(String code) {
+            this.code = code;
+        }
+        
+        public String getCode() {
+            return this.code;
+        }
+        
+        public static UNIT_TYPE codeOf(String code) {
+            if (code == null) {
+                return UNKNOWN;
+            }
+            for (UNIT_TYPE type : values()) {
+                if (type.getCode().equals(code)) {
+                    return type;
+                }
+            }
+            return UNKNOWN;
+        }
+    }
 
-//    private static UnitDB DB = UnitDBManager.instance();
     private static final HashMap<String, String> AGMIP_UNIT = new HashMap();
+    private static final UnitDB DB = initDB();
     private static final UnitFormat PARSER = init();
+    private static final HashMap<String, String> BASE_UNIT_MAP = initBaseUnitMap();
 
     private UnitConverter() {
+    }
+    
+    private static UnitDB initDB() {
+        try {
+            return UnitDBManager.instance();
+        } catch (UnitDBException ex) {
+            System.err.println(ex.getMessage());
+            return null;
+        }
     }
     
     private static UnitFormat init() {
@@ -46,15 +92,26 @@ public class UnitConverter {
         AGMIP_UNIT.put("unitless", "1");
         AGMIP_UNIT.put("ratio", "1");
         try {
-            UnitDB db = UnitDBManager.instance();
             for (String key : AGMIP_UNIT.keySet()) {
-                db.addAlias(key, AGMIP_UNIT.get(key));
+                DB.addAlias(key, AGMIP_UNIT.get(key));
             }
         } catch (UnitDBException | NoSuchUnitException | NameException ex) {
-            Logger.getLogger(UnitConverter.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println(ex.getMessage());
         }
         
         return UnitFormatManager.instance();
+    }
+    
+    public static HashMap<String, String> initBaseUnitMap() {
+        HashMap<String, String> ret = new HashMap();
+        for (UNIT_TYPE type : UNIT_TYPE.values()) {
+            ret.put(type.getCode(), type.toString());
+        }
+        return ret;
+    }
+    
+    public static HashMap<String, String> getBaseUnitMap() {
+        return BASE_UNIT_MAP;
     }
 
     public static BigDecimal convert(String fromUnit, String toUnit, String val) throws UnitParseException, SpecificationException, NoSuchUnitException, UnitDBException, PrefixDBException, UnitSystemException, ConversionException {
@@ -213,5 +270,53 @@ public class UnitConverter {
         } catch (Exception ex) {
             return "";
         }
+    }
+    
+    public static ArrayList<Unit> listUnit(String unitTypeCode) {
+        return listUnit(UNIT_TYPE.codeOf(unitTypeCode));
+    }
+    
+    public static ArrayList<Unit> listUnit(UNIT_TYPE type) {
+        
+        Iterator it = DB.getIterator();
+        ArrayList<Unit> ret = new ArrayList();
+        while(it.hasNext()) {
+            Unit unit = (Unit) it.next();
+            if (unit.getDerivedUnit().getQuantityDimension().toString().equals(type.getCode())) {
+                ret.add(unit);
+            }
+        }
+        return ret;
+    }
+    
+    public static JSONArray listUnitJsonArray(String unitTypeCode) {
+        return listUnitJsonArray(UNIT_TYPE.codeOf(unitTypeCode));
+    }
+    
+    public static JSONArray listUnitJsonArray(UNIT_TYPE type) {
+        JSONArray ret = new JSONArray();
+        for (Unit unit : listUnit(type)) {
+            JSONObject data = new JSONObject();
+            data.put("name", unit.getName());
+            data.put("type", type.toString());
+            data.put("type_code", type.getCode());
+            data.put("expression", unit.getCanonicalString());
+            if (unit.getSymbol() == null) {
+                data.put("symbol", unit.getName().replaceAll("\\s", "_"));
+            } else {
+                data.put("symbol", unit.getSymbol());
+            }
+            ret.add(data);
+        }
+        
+        return ret;
+    }
+    
+    public static String listUnitJsonStr(String unitTypeCode) {
+        return listUnitJsonStr(UNIT_TYPE.codeOf(unitTypeCode));
+    }
+    
+    public static String listUnitJsonStr(UNIT_TYPE type) {
+        return listUnitJsonArray(type).toJSONString();
     }
 }
