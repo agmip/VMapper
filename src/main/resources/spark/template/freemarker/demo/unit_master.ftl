@@ -6,15 +6,15 @@
         <#include "../chosen.ftl">
         
         <script>
-            function lookupUnit(unit) {
+            function lookupUnit(output, unit) {
                 if (!unit) {
-                    $("#unit_desc").text("");
+                    $("#" + output).text("");
                 } else {
-                    $("#unit_desc").text("Looking for " + unit + " ...");
+                    $("#" + output).text("Looking for " + unit + " ...");
                     $.get("/data/unit/lookup?unit=" + unit,
                         function (jsonStr) {
                             var unitInfo = JSON.parse(jsonStr);
-                            $('#unit_desc').html(unitInfo.message);
+                            $('#'+ output).html(unitInfo.message);
                         }
                     );
                 }
@@ -52,9 +52,18 @@
                             sb.append(option);
                         }
                         chosen_init("unit_sublist");
-                        lookupUnit();
+                        lookupUnit("unit_desc_lookup");
+                        showSymbol();
                     }
                 );
+            }
+            
+            function showSymbol(symbol) {
+                if (symbol) {
+                    $("#unit_symbol").text(symbol);
+                } else {
+                    $("#unit_symbol").text("");
+                }
             }
             
             
@@ -80,14 +89,14 @@
                         <h3>Unit Validation</h3>
                         <label class="control-label" for="unit">Unit Expression:</label>
                         <div class="input-group col-sm-12">
-                            <input type="text" id="unit" class="form-control" value="" placeholder="Unit text expression" data-toggle="tooltip" title="Unit text expression" oninput="lookupUnit(this.value);">
+                            <input type="text" id="unit" class="form-control" value="" placeholder="Unit text expression" data-toggle="tooltip" title="Unit text expression" oninput="lookupUnit('unit_desc_validate', this.value);">
                         </div>
                     </div>
                     <div class="col-sm-6">
                         <h3>Unit Lookup</h3>
                         <label class="control-label" for="unit">Unit Primary Category:</label>
                         <div class="input-group col-sm-12">
-                            <select id="unit_type" class="form-control chosen-select-deselect exp-data" onchange="updateUnitType(this.value);" data-placeholder="Choose a Unit Type..." required>
+                            <select id="unit_type" class="form-control chosen-select-deselect exp-data" onchange="updateUnitType(this.value);" data-placeholder="Choose a Unit Type...unit_desc_validate" required>
                                 <option value=""></option>
                                 <#list baseUnits?keys as code>
                                 <option value="${code!}">${baseUnits[code]!}</option>
@@ -96,15 +105,24 @@
                         </div>
                         <label class="control-label" for="unit">Unit Sublist:</label>
                         <div class="input-group col-sm-12">
-                            <select id="unit_sublist" class="form-control chosen-select-deselect exp-data" onchange="lookupUnit(this.value);" data-placeholder="Choose a Unit Type..." required>
+                            <select id="unit_sublist" class="form-control chosen-select-deselect exp-data" onchange="lookupUnit('unit_desc_lookup', this.value);showSymbol(this.value)" data-placeholder="Choose a Unit Type..." required>
                             </select>
                         </div>
                     </div>
                     <div class="col-sm-12">
                         <hr>
-                        <h3>Validation/Lookup Result</h3>
-                        <label class="control-label" for="unit">Unit Standard Expression:</label>
-                        <div id="unit_desc" class="input-group col-sm-12"></div>
+                        <div class="col-sm-6">
+                            <h3>Validation Result</h3>
+                            <label class="control-label" for="unit">Unit Standard Expression:</label>
+                            <div id="unit_desc_validate" class="input-group col-sm-12"></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <h3>Lookup Result</h3>
+                            <label class="control-label" for="unit">Unit Standard Expression:</label>
+                            <div id="unit_desc_lookup" class="input-group col-sm-12"></div>
+                            <label class="control-label" for="unit">Unit Symbol:</label>
+                            <div id="unit_symbol" class="input-group col-sm-12"></div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-sm-5">
