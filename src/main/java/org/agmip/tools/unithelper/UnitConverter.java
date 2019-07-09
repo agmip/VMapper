@@ -12,7 +12,11 @@ import ucar.units.BaseUnit;
 import ucar.units.ConversionException;
 import ucar.units.NameException;
 import ucar.units.NoSuchUnitException;
+import ucar.units.PrefixDB;
+import ucar.units.PrefixDBAccessException;
 import ucar.units.PrefixDBException;
+import ucar.units.PrefixDBManager;
+import ucar.units.PrefixName;
 import ucar.units.SpecificationException;
 import ucar.units.Unit;
 import ucar.units.UnitDB;
@@ -67,39 +71,53 @@ public class UnitConverter {
     }
 
     private static final HashMap<String, String> AGMIP_UNIT = new HashMap();
+    private static final UnitFormat PARSER = initParser();
     private static final UnitDB DB = initDB();
-    private static final UnitFormat PARSER = init();
+    private static final PrefixDB PREFIX_DB = initPrefixDB();
     private static final HashMap<String, String> BASE_UNIT_MAP = initBaseUnitMap();
+    private static final JSONArray PREFIX_LIST = initPrefixInfo();
+    private static final String PREFIX_LIST_JSON = PREFIX_LIST.toJSONString();
+    private static final String[] SPLITTER = {"/", "\\.", "\\*"};
+    private static final String[] ICASA_SPECIAL = {"100g"};
 
     private UnitConverter() {
     }
     
     private static UnitDB initDB() {
         try {
-            return UnitDBManager.instance();
+            UnitDB DB_ret = UnitDBManager.instance();
+            AGMIP_UNIT.put("number", "count");
+            AGMIP_UNIT.put("dap", "day");
+            AGMIP_UNIT.put("doy", "day");
+            AGMIP_UNIT.put("decimal_degree", "degree");
+            AGMIP_UNIT.put("fraction", "1");
+            AGMIP_UNIT.put("unitless", "1");
+            AGMIP_UNIT.put("ratio", "1");
+            try {
+                for (String key : AGMIP_UNIT.keySet()) {
+                    DB_ret.addAlias(key, AGMIP_UNIT.get(key));
+                }
+            } catch (UnitDBException | NoSuchUnitException | NameException ex) {
+                System.err.println(ex.getMessage());
+            }
+            return DB_ret;
         } catch (UnitDBException ex) {
             System.err.println(ex.getMessage());
             return null;
         }
     }
     
-    private static UnitFormat init() {
-        AGMIP_UNIT.put("number", "count");
-        AGMIP_UNIT.put("dap", "day");
-        AGMIP_UNIT.put("doy", "day");
-        AGMIP_UNIT.put("decimal_degree", "degree");
-        AGMIP_UNIT.put("fraction", "1");
-        AGMIP_UNIT.put("unitless", "1");
-        AGMIP_UNIT.put("ratio", "1");
-        try {
-            for (String key : AGMIP_UNIT.keySet()) {
-                DB.addAlias(key, AGMIP_UNIT.get(key));
-            }
-        } catch (UnitDBException | NoSuchUnitException | NameException ex) {
-            System.err.println(ex.getMessage());
-        }
-        
+    private static UnitFormat initParser() {
         return UnitFormatManager.instance();
+    }
+    
+    private static PrefixDB initPrefixDB() {
+        try {
+            return PrefixDBManager.instance();
+        } catch (PrefixDBException ex) {
+            System.err.println(ex.getMessage());
+            return null;
+        }
     }
     
     public static HashMap<String, String> initBaseUnitMap() {
@@ -123,8 +141,8 @@ public class UnitConverter {
     }
 
     public static BigDecimal convert(String fromUnit, String toUnit, BigDecimal val) throws UnitParseException, SpecificationException, NoSuchUnitException, UnitDBException, PrefixDBException, UnitSystemException, ConversionException {
-        Unit from = PARSER.parse(removeComment(fromUnit));
-        Unit to = PARSER.parse(removeComment(toUnit));
+        Unit from = PARSER.parse(preParsing(fromUnit));
+        Unit to = PARSER.parse(preParsing(toUnit));
         BigDecimal ret = new BigDecimal(from.convertTo(val.doubleValue(), to));
         int scale = ret.scale() + val.precision() - ret.precision();
         ret = ret.setScale(scale + 1, RoundingMode.HALF_UP);
@@ -142,8 +160,8 @@ public class UnitConverter {
     }
 
     public static BigDecimal convert(String fromUnit, String toUnit, BigDecimal val, int scale) throws UnitParseException, SpecificationException, NoSuchUnitException, UnitDBException, PrefixDBException, UnitSystemException, ConversionException {
-        Unit from = PARSER.parse(removeComment(fromUnit));
-        Unit to = PARSER.parse(removeComment(toUnit));
+        Unit from = PARSER.parse(preParsing(fromUnit));
+        Unit to = PARSER.parse(preParsing(toUnit));
         return new BigDecimal(from.convertTo(val.doubleValue(), to)).setScale(scale, RoundingMode.HALF_UP);
     }
 
@@ -236,20 +254,42 @@ public class UnitConverter {
         return convertToJsonObj(fromUnit, toUnit, val, scale).toJSONString();
     }
 
-    protected static String removeComment(String unit) {
-        return unit.replaceAll("[\\./]?\\[\\S*\\]\\^?-?\\d*", "").replaceAll("\\s", "");
+    protected static String preParsing(String unit) {
+        String ret = unit.replaceAll("\\[[^\\]]*\\]", "").replaceAll("\\s", "");
+        // Remove extra splitter used by comment expression
+        for (String s1 : SPLITTER) {
+            for (String s2 : SPLITTER) {
+                ret = ret.replaceAll(s1 + "\\^?-?\\d*" + s2, s2);
+            }
+        }
+        // Add ( ) for ICASA special unit expression
+        for (String s : ICASA_SPECIAL) {
+            ret = ret.replaceAll(s, "(" + s  + ")");
+        }
+        //Remove splitter in the end of expression
+        for (String s : SPLITTER) {
+            if (ret.endsWith(s)) {
+                ret = ret.substring(0, ret.length() - 1);
+            }
+        }
+        
+        return ret;
     }
+
+//    protected static String removeComment(String unit) {
+//        return unit.replaceAll("[\\./]?\\[\\S*\\]\\^?-?\\d*", "").replaceAll("\\s", "");
+//    }
 
     public static boolean isValid(String unitStr) {
         try {
-            return PARSER.parse(removeComment(unitStr)) != null;
+            return PARSER.parse(preParsing(unitStr)) != null;
         } catch (Exception ex) {
             return false;
         }
     }
 
     public static String getDescp(String unitStr) {
-        String unitStrNoComment = removeComment(unitStr);
+        String unitStrNoComment = preParsing(unitStr);
         if (AGMIP_UNIT.containsKey(unitStrNoComment)) {
             String agmipRet = AGMIP_UNIT.get(unitStrNoComment);
             if (agmipRet.equals("1")) {
@@ -261,11 +301,33 @@ public class UnitConverter {
             String ret = unit.toString();
             if (unit instanceof UnknownUnit) {
                 ret = "";
+            } else if (unit.isDimensionless() && ret.isEmpty()){
+                ret = "1.0";
             } else if (unit instanceof BaseUnit) {
                 ret = unit.getName();
             } else if (unit.getDerivedUnit() instanceof UnknownUnit) {
                 ret = "";
             }
+            return ret;
+        } catch (Exception ex) {
+            return "";
+        }
+    }
+
+    public static String getCategory(String unitStr) {
+        String unitStrNoComment = preParsing(unitStr);
+        if (AGMIP_UNIT.containsKey(unitStrNoComment)) {
+            String agmipRet = AGMIP_UNIT.get(unitStrNoComment);
+            if (agmipRet.equals("1")) {
+                return "unitless";
+            }
+        }
+        try {
+            Unit unit = PARSER.parse(unitStrNoComment);
+            if (unit.isDimensionless()) {
+                return "unitless";
+            }
+            String ret = unit.getDerivedUnit().getQuantityDimension().toString();
             return ret;
         } catch (Exception ex) {
             return "";
@@ -318,5 +380,31 @@ public class UnitConverter {
     
     public static String listUnitJsonStr(UNIT_TYPE type) {
         return listUnitJsonArray(type).toJSONString();
+    }
+    
+    private static JSONArray initPrefixInfo() {
+        JSONArray ret = new JSONArray();
+        Iterator it = PREFIX_DB.iterator();
+        while (it.hasNext()) {
+            JSONObject prefixInfo = new JSONObject();
+            PrefixName name = (PrefixName) it.next();
+            prefixInfo.put("name", name.getID());
+            prefixInfo.put("value", Double.toString(name.getValue()));
+            try {
+                prefixInfo.put("symbol", PREFIX_DB.getPrefixByValue(name.getValue()).toString());
+            } catch (PrefixDBAccessException ex) {
+                System.err.println(ex.getMessage());
+            }
+            ret.add(prefixInfo);
+        }
+        return ret;
+    }
+    
+    public static JSONArray listPrefix() {
+        return PREFIX_LIST;
+    }
+    
+    public static String listPrefixJsonStr() {
+        return PREFIX_LIST_JSON;
     }
 }
