@@ -116,6 +116,7 @@ public class Main {
         get(Path.Web.Demo.UNIT_MASTER, (Request request, Response response) -> {
             HashMap data = new HashMap();
             data.put("baseUnits", UnitUtil.listBaseUnit());
+            data.put("prefixes", UnitUtil.listPrefix());
             return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.UNIT_MASTER));
                 });
         

@@ -9,12 +9,21 @@
             function lookupUnit(output, unit) {
                 if (!unit) {
                     $("#" + output).text("");
+                    if (output.endsWith("validate")) {
+                        $("#unit_category").text("");
+                    }
                 } else {
                     $("#" + output).text("Looking for " + unit + " ...");
+                    if (output.endsWith("validate")) {
+                        $("#unit_category").text("");
+                    }
                     $.get("/data/unit/lookup?unit=" + unit,
                         function (jsonStr) {
                             var unitInfo = JSON.parse(jsonStr);
                             $('#'+ output).html(unitInfo.message);
+                            if (output.endsWith("validate")) {
+                                $("#unit_category").text(unitInfo.category);
+                            }
                         }
                     );
                 }
@@ -66,6 +75,22 @@
                 }
             }
             
+            function updatePrefix(symbol) {
+                if (!symbol) {
+                    $("#prefix_desc").text("");
+                    $("#prefix_symbol").text("");
+                } else {
+                    $("#prefix_symbol").text(symbol);
+                    let value;
+                    <#list prefixes as prefix>
+                    if (symbol === "${prefix.symbol}") {
+                        value = '${prefix.value!"undefined"}';
+                    } else 
+                    </#list>
+                    { value = "undefined"; }
+                    $("#prefix_desc").text(value);
+                }
+            }
             
         </script>
     </head>
@@ -84,19 +109,19 @@
             </p>
             <hr>
             <div class="row">
-                <div class="col-sm-7">
-                    <div class="col-sm-6">
+                <div class="col-sm-8">
+                    <div class="col-sm-4">
                         <h3>Unit Validation</h3>
                         <label class="control-label" for="unit">Unit Expression:</label>
                         <div class="input-group col-sm-12">
                             <input type="text" id="unit" class="form-control" value="" placeholder="Unit text expression" data-toggle="tooltip" title="Unit text expression" oninput="lookupUnit('unit_desc_validate', this.value);">
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
                         <h3>Unit Lookup</h3>
                         <label class="control-label" for="unit">Unit Primary Category:</label>
                         <div class="input-group col-sm-12">
-                            <select id="unit_type" class="form-control chosen-select-deselect exp-data" onchange="updateUnitType(this.value);" data-placeholder="Choose a Unit Type...unit_desc_validate" required>
+                            <select id="unit_type" class="form-control chosen-select-deselect exp-data" onchange="updateUnitType(this.value);" data-placeholder="Choose a Unit Type..." required>
                                 <option value=""></option>
                                 <#list baseUnits?keys as code>
                                 <option value="${code!}">${baseUnits[code]!}</option>
@@ -109,23 +134,44 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-sm-4">
+                        <h3>Prefix Lookup</h3>
+                        <label class="control-label" for="unit">Prefix list:</label>
+                        <div class="input-group col-sm-12">
+                            <select id="unit_type" class="form-control chosen-select-deselect exp-data" onchange="updatePrefix(this.value);" data-placeholder="Choose a Prefix..." required>
+                                <option value=""></option>
+                                <#list prefixes as prefix>
+                                <option value="${prefix.symbol!}">${prefix.name!} - ${prefix.value!"N/a"}</option>
+                                </#list>
+                            </select>
+                        </div>
+                    </div>
                     <div class="col-sm-12">
                         <hr>
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                             <h3>Validation Result</h3>
                             <label class="control-label" for="unit">Unit Standard Expression:</label>
                             <div id="unit_desc_validate" class="input-group col-sm-12"></div>
+                            <label class="control-label" for="unit">Unit Symbol:</label>
+                            <div id="unit_category" class="input-group col-sm-12"></div>
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                             <h3>Lookup Result</h3>
                             <label class="control-label" for="unit">Unit Standard Expression:</label>
                             <div id="unit_desc_lookup" class="input-group col-sm-12"></div>
                             <label class="control-label" for="unit">Unit Symbol:</label>
                             <div id="unit_symbol" class="input-group col-sm-12"></div>
                         </div>
+                        <div class="col-sm-4">
+                            <h3>Lookup Result</h3>
+                            <label class="control-label" for="unit">Prefix Standard Expression:</label>
+                            <div id="prefix_desc" class="input-group col-sm-12"></div>
+                            <label class="control-label" for="unit">Prefix Symbol:</label>
+                            <div id="prefix_symbol" class="input-group col-sm-12"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-sm-4">
                     <h3>Unit Convert</h3>
                     <div class="col-sm-6">
                     <label class="control-label" for="unit_from">Unit From:</label>

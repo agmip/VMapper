@@ -14,7 +14,12 @@ public class UnitUtil {
         if (desc == null || desc.isEmpty()) {
             desc = "undefined unit expression";
         }
+        String category = UnitConverter.getCategory(unit);
+        if (category == null || category.isEmpty()) {
+            category = "unknown category";
+        }
         ret.put("message", desc);
+        ret.put("category", category);
         return ret;
     }
     
@@ -31,5 +36,11 @@ public class UnitUtil {
     
     public static JSONObject listBaseUnit() {
         return new JSONObject(UnitConverter.getBaseUnitMap());
+    }
+    
+    public static JSONArray listPrefix() {
+        JSONArray ret = new JSONArray();
+        ret.putAll(UnitConverter.listPrefix());
+        return ret;
     }
 }
