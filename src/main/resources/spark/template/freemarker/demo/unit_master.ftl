@@ -152,7 +152,7 @@
                             <h3>Validation Result</h3>
                             <label class="control-label" for="unit">Unit Standard Expression:</label>
                             <div id="unit_desc_validate" class="input-group col-sm-12"></div>
-                            <label class="control-label" for="unit">Unit Symbol:</label>
+                            <label class="control-label" for="unit">Unit Category Code:</label>
                             <div id="unit_category" class="input-group col-sm-12"></div>
                         </div>
                         <div class="col-sm-4">
