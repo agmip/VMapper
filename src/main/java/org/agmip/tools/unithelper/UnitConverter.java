@@ -111,15 +111,6 @@ public class UnitConverter {
         return UnitFormatManager.instance();
     }
     
-    private static PrefixDB initPrefixDB() {
-        try {
-            return PrefixDBManager.instance();
-        } catch (PrefixDBException ex) {
-            System.err.println(ex.getMessage());
-            return null;
-        }
-    }
-    
     public static HashMap<String, String> initBaseUnitMap() {
         HashMap<String, String> ret = new HashMap();
         for (UNIT_TYPE type : UNIT_TYPE.values()) {
@@ -324,10 +315,10 @@ public class UnitConverter {
         }
         try {
             Unit unit = PARSER.parse(unitStrNoComment);
-            if (unit.isDimensionless()) {
+            String ret = unit.getDerivedUnit().getQuantityDimension().toString();
+            if ((ret == null || ret.isEmpty()) && unit.isDimensionless()) {
                 return "unitless";
             }
-            String ret = unit.getDerivedUnit().getQuantityDimension().toString();
             return ret;
         } catch (Exception ex) {
             return "";
@@ -380,6 +371,15 @@ public class UnitConverter {
     
     public static String listUnitJsonStr(UNIT_TYPE type) {
         return listUnitJsonArray(type).toJSONString();
+    }
+    
+    private static PrefixDB initPrefixDB() {
+        try {
+            return PrefixDBManager.instance();
+        } catch (PrefixDBException ex) {
+            System.err.println(ex.getMessage());
+            return null;
+        }
     }
     
     private static JSONArray initPrefixInfo() {
