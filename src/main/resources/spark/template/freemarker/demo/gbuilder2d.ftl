@@ -31,12 +31,12 @@
                 document.getElementById("plot_content").hidden = true;
                 resetDate();
                 for (let i=0; i<files.length; i++) {
-                    if (files[i].name === "CellDetailN.OUT") {
+                    if (files[i].name.match(/CellDetailN.*\.OUT/)) {
                         readFileToBufferedArray(files[i], updateProgress, handleRawData);
                         return;
                     }
                 }
-                alert('Does not find CellDetailN.OUT in the selected folder!');
+                alert('Does not find CellDetailN_*.OUT in the selected folder!');
             }
             
             function handleRawData(rawData) {
