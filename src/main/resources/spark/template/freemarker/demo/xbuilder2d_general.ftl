@@ -67,8 +67,8 @@
         let cropSB = $("#crid");
         cropSB.append('<option value=""></option>');
         let category = "";
+        let optgroup;
         for (let crid in culInfoMap) {
-            let optgroup;
             if (!optgroup || culInfoMap[crid].category !== category) {
                 optgroup = $('<optgroup label="' + culInfoMap[crid].category + '"></optgroup>');
                 cropSB.append(optgroup);
@@ -182,7 +182,7 @@
                     </div>
                 </div>
                 <div class="form-group has-feedback col-sm-6">
-                    <label class="control-label" for="exp_no">Crop *</label>
+                    <label class="control-label" for="crid">Crop *</label>
                     <div class="input-group col-sm-12">
                         <!--<span class="input-group-addon glyphicon">*</span>-->
                         <select id="crid" class="form-control chosen-select-deselect exp-data" onchange="updateCulSB(this);updateExname(this);" data-placeholder="Choose a Crop..." required>
