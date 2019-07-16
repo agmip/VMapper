@@ -87,6 +87,6 @@ dateUtil.toLocaleStr = function (date, time) {
     if (!date) {
         return "";
     }
-    let localeDate = toLocaleDate(date, time);
+    let localeDate = dateUtil.toLocaleDate(date, time);
     return localeDate.toLocaleDateString();
 };
