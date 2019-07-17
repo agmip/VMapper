@@ -74,7 +74,8 @@ public class Path {
         public final static String WTH_LIST = "wth_list.json";
         public final static String CULTIVAR = "Genotype";
         public final static String CULTIVAR_LIST = "crop_list.csv";
-        public final static String ICASA_MGN_CODE = "ICASA_management_code.csv";
+        public final static String ICASA_DIR = "ICASA";
+        public final static String ICASA_MGN_CODE = "management_code.csv";
         public static final int DSSAT_VERSION = 47;
         public static File getCulFile(String modelName) {
             File ret = Paths.get(DATA, CULTIVAR, getDSSATFileNameWithVer(modelName, "CUL")).toFile();
@@ -100,8 +101,14 @@ public class Path {
             File ret = Paths.get(DATA, WTH_LIST).toFile();
             return ret;
         }
+        
+        public static File getICASAFile(String sheetName) {
+            File ret = Paths.get(DATA, ICASA_DIR, sheetName + ".csv").toFile();
+            return ret;
+        }
+        
         public static File getICASAMgnCodeFile() {
-            File ret = Paths.get(DATA, ICASA_MGN_CODE).toFile();
+            File ret = Paths.get(DATA, ICASA_DIR, ICASA_MGN_CODE).toFile();
             return ret;
         }
         
