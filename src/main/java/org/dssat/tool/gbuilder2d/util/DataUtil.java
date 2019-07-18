@@ -254,6 +254,9 @@ public class DataUtil {
             while ((nextLine = reader.readNext()) != null) {
                 if (nextLine[0].startsWith("!") || nextLine.length <= minLength) {
                 } else if (!nextLine[varNameIdx].trim().isEmpty()) {
+                    if (nextLine[varNameIdx].equalsIgnoreCase("EC???")) {
+                        nextLine[varNameIdx] = "ECDYL, ECRAD, ECMAX, ECMIN, ECRAI, ECCO2, ECDEW, ECWND";
+                    }
                     String[] varNames = nextLine[varNameIdx].split("\\s*,\\s*");
                     if (varNames.length == 0) {
                         throw new IOException("Incorrect variable name [" + nextLine[varNameIdx] + "] used in ICASA management code defination file!");
