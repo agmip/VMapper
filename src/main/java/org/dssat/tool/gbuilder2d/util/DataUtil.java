@@ -229,25 +229,30 @@ public class DataUtil {
     private static JSONObject loadICASAMgnCode() {
         JSONObject ret = new JSONObject();
         File file = Path.Folder.getICASAMgnCodeFile();
+        if (!file.exists()) {
+            ICASAUtil.syncICASA();
+        }
 
         try (CSVReader reader = new CSVReader(new BufferedReader(new FileReader(file)), ',')) {
             int varNameIdx = -1;
             int codeIdx = -1;
             int textIdx = -1;
-            String[] nextLine;
+            String[] nextLine = reader.readNext();
+            if (nextLine!= null) {
+                ArrayList<String> titles = new ArrayList();
+                for (String title : nextLine) {
+                    titles.add(title.toLowerCase());
+                }
+                varNameIdx = titles.indexOf(ICASA_MGN_CODE_HEADER_VAR_CODE);
+                codeIdx = titles.indexOf(ICASA_MGN_CODE_HEADER_VAR_CODE_VAL);
+                textIdx = titles.indexOf(ICASA_MGN_CODE_HEADER_VAR_TEXT_VAL);
+                if (varNameIdx < 0 || codeIdx < 0 || textIdx < 0) {
+                    throw new IOException("Missing required column in ICASA management code defination file!");
+                }
+            }
+            int minLength = Math.min(Math.min(varNameIdx, codeIdx), textIdx);
             while ((nextLine = reader.readNext()) != null) {
-                if (nextLine[0].startsWith("!")) {
-                } else if (nextLine[0].startsWith("@")) {
-                    ArrayList<String> titles = new ArrayList();
-                    for (int i = 0; i < nextLine.length; i++) {
-                        titles.add(nextLine[i].toLowerCase());
-                    }
-                    varNameIdx = titles.indexOf(ICASA_MGN_CODE_HEADER_VAR_CODE);
-                    codeIdx = titles.indexOf(ICASA_MGN_CODE_HEADER_VAR_CODE_VAL);
-                    textIdx = titles.indexOf(ICASA_MGN_CODE_HEADER_VAR_TEXT_VAL);
-                    if (varNameIdx < 0 || codeIdx < 0 || textIdx < 0) {
-                        throw new IOException("Missing required column in ICASA management code defination file!");
-                    }
+                if (nextLine[0].startsWith("!") || nextLine.length <= minLength) {
                 } else if (!nextLine[varNameIdx].trim().isEmpty()) {
                     String[] varNames = nextLine[varNameIdx].split("\\s*,\\s*");
                     if (varNames.length == 0) {
@@ -266,7 +271,6 @@ public class DataUtil {
                         codeDef.put(nextLine[codeIdx].trim(), nextLine[textIdx]);
                     }
                 }
-                
             }
         } catch (IOException ex) {
             ex.printStackTrace(System.out);

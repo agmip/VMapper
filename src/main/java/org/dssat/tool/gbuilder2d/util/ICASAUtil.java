@@ -34,9 +34,19 @@ public class ICASAUtil {
                 try (CSVWriter writer = new CSVWriter(new FileWriter(Path.Folder.getICASAFile(sheet.getSheetName())), ',')) {
                     if(sheet.getPhysicalNumberOfRows() > 0) {
                         int lastRowNum = sheet.getLastRowNum();
+                        int lastColNum = 0;
                         for(int j = 0; j <= lastRowNum; j++) {
                             Row row = sheet.getRow(j);
-                            writer.writeNext(getCSVLine(row));
+                            if (row != null) {
+                                int cellNum = row.getLastCellNum();
+                                if (lastColNum < cellNum) {
+                                    lastColNum = cellNum;
+                                }
+                            }
+                        }
+                        for(int j = 0; j <= lastRowNum; j++) {
+                            Row row = sheet.getRow(j);
+                            writer.writeNext(getCSVLine(row, lastColNum));
                         }
                         writer.flush();
                     }
@@ -52,10 +62,16 @@ public class ICASAUtil {
     }
     
     private static String[] getCSVLine(Row row) {
-        
         if(row != null) {
-            int lastCellNum = row.getLastCellNum();
-                if (lastCellNum > 0) {
+            return getCSVLine(row, row.getLastCellNum());
+        } else {
+            return getCSVLine(row, 0);
+        }
+    }
+    
+    private static String[] getCSVLine(Row row, int lastCellNum) {
+        if(row != null) {
+            if (lastCellNum > 0) {
                 String[] csvLine = new String[lastCellNum];
                 for (int i = 0; i < lastCellNum; i++) {
                     Cell cell = row.getCell(i);
