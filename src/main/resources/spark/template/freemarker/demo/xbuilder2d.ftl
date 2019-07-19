@@ -821,6 +821,7 @@
                     <ul class="dropdown-menu" id="field_list">
                         <li><a data-toggle="tab" href="#Field" class="create-link" id="field_create" onclick="createField();">Create new...</a></li>
                     </ul>
+                </li>
                 <li id="EventTab" class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         <span class="glyphicon glyphicon-calendar"></span>
