@@ -24,6 +24,7 @@ public class Path {
             public static final String METALIST = PACKAGE + "/metalist";
             public static final String XML_EDITOR = PACKAGE + "/xmleditor";
             public static final String UNIT_MASTER = PACKAGE + "/unit";
+            public static final String DATA_FACTORY = PACKAGE + "/data_factory";
         }
         
         public static class Data {
@@ -57,6 +58,7 @@ public class Path {
             public static final String METALIST = PACKAGE + "/meta_list.ftl";
             public static final String XML_EDITOR = PACKAGE + "/xml_editor.ftl";
             public static final String UNIT_MASTER = PACKAGE + "/unit_master.ftl";
+            public static final String DATA_FACTORY = PACKAGE + "/data_factory.ftl";
         }
         
         public static class Translator {
@@ -76,6 +78,8 @@ public class Path {
         public final static String CULTIVAR_LIST = "crop_list.csv";
         public final static String ICASA_DIR = "ICASA";
         public final static String ICASA_MGN_CODE = "Management_codes.csv";
+        public final static String ICASA_MGN_VAR = "Management_info.csv";
+        public final static String ICASA_OBV_VAR = "Measured_data.csv";
         public static final int DSSAT_VERSION = 47;
         public static File getCulFile(String modelName) {
             File ret = Paths.get(DATA, CULTIVAR, getDSSATFileNameWithVer(modelName, "CUL")).toFile();
@@ -109,6 +113,16 @@ public class Path {
         
         public static File getICASAMgnCodeFile() {
             File ret = Paths.get(DATA, ICASA_DIR, ICASA_MGN_CODE).toFile();
+            return ret;
+        }
+        
+        public static File getICASAMgnVarFile() {
+            File ret = Paths.get(DATA, ICASA_DIR, ICASA_MGN_VAR).toFile();
+            return ret;
+        }
+        
+        public static File getICASAObvVarFile() {
+            File ret = Paths.get(DATA, ICASA_DIR, ICASA_OBV_VAR).toFile();
             return ret;
         }
         

@@ -31,10 +31,19 @@ public class DataUtil {
     private static final ArrayList<JSONObject> SOILDATA_LIST = getSoilDataList(getSoilListDir(), getSoilListFile());
     private static final ArrayList<JSONObject> WTHDATA_LIST = getWthDataList(getWthListDir(), getWthListFile());
     private static final JSONObject ICASA_MGN_CODE_MAP = loadICASAMgnCode();
+    private static final JSONObject ICASA_MGN_VAR_MAP = loadICASAMgnVarCode();
+//    private static final JSONObject ICASA_OBV_VAR_MAP = loadICASAObvVarCode();
     
     private static final String ICASA_MGN_CODE_HEADER_VAR_CODE = "code_display";
     private static final String ICASA_MGN_CODE_HEADER_VAR_CODE_VAL = "code";
     private static final String ICASA_MGN_CODE_HEADER_VAR_TEXT_VAL = "description";
+    private static final String ICASA_MGN_VAR_HEADER_VAR_CODE = "code_display";
+    private static final String ICASA_MGN_VAR_HEADER_VAR_DESC = "description";
+    private static final String ICASA_MGN_VAR_HEADER_VAR_UNIT = "unit_or_type";
+    private static final String ICASA_MGN_VAR_HEADER_VAR_DATASET = "dataset";
+    private static final String ICASA_MGN_VAR_HEADER_VAR_SUBSET = "subset";
+    private static final String ICASA_MGN_VAR_HEADER_VAR_GROUP = "group";
+    private static final String ICASA_MGN_VAR_HEADER_VAR_RATING = "agmip_data_entry";
     
     private static JSONObject loadCulData() {
         
@@ -281,8 +290,72 @@ public class DataUtil {
         return ret;
     }
     
+    public static JSONObject loadICASAMgnVarCode() {
+        JSONObject ret = new JSONObject();
+        File file = Path.Folder.getICASAMgnVarFile();
+        if (!file.exists()) {
+            ICASAUtil.syncICASA();
+        }
+
+        try (CSVReader reader = new CSVReader(new BufferedReader(new FileReader(file)), ',')) {
+            String[] headers = {
+                ICASA_MGN_VAR_HEADER_VAR_CODE,
+                ICASA_MGN_VAR_HEADER_VAR_DESC,
+                ICASA_MGN_VAR_HEADER_VAR_UNIT,
+                ICASA_MGN_VAR_HEADER_VAR_DATASET,
+                ICASA_MGN_VAR_HEADER_VAR_SUBSET,
+                ICASA_MGN_VAR_HEADER_VAR_GROUP,
+                ICASA_MGN_VAR_HEADER_VAR_RATING};
+            int[] attrIdx = new int[headers.length];
+            for (int i = 0; i < attrIdx.length; i++) {
+                attrIdx[i] = -1;
+            }
+            int minLength = headers.length;
+            String[] nextLine = reader.readNext();
+            if (nextLine!= null) {
+                ArrayList<String> titles = new ArrayList();
+                for (String title : nextLine) {
+                    titles.add(title.toLowerCase());
+                }
+                for (int i = 0; i < attrIdx.length; i++) {
+                    attrIdx[i] = titles.indexOf(headers[i]);
+                    minLength = Math.min(minLength, attrIdx[i]);
+                }
+                if (minLength < 0) {
+                    throw new IOException("Missing required column in ICASA management variable defination file!");
+                }
+            }
+            while ((nextLine = reader.readNext()) != null) {
+                if (nextLine[0].startsWith("!") || nextLine.length <= minLength) {
+                } else if (!nextLine[attrIdx[0]].trim().isEmpty()) {
+                    JSONObject varDef = new JSONObject();
+                    for (int i = 0; i < attrIdx.length; i++) {
+                        varDef.put(headers[i], nextLine[attrIdx[i]]);
+                    }
+                    try {
+                        if (Integer.parseInt(varDef.get(ICASA_MGN_VAR_HEADER_VAR_RATING).toString()) < 0) {
+                            continue;
+                        }
+                    } catch (NumberFormatException ex) {}
+                    if (ret.containsKey(nextLine[attrIdx[0]])) {
+                        System.out.println("Detect repeated var id: " + nextLine[attrIdx[0]]);
+                    } else {
+                        ret.put(nextLine[attrIdx[0]], varDef);
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace(System.out);
+        }
+        return ret;
+    }
+    
     public static JSONObject getICASAMgnCodeMap() {
         return ICASA_MGN_CODE_MAP;
+    }
+    
+    public static JSONObject getICASAMgnVarMap() {
+        return ICASA_MGN_VAR_MAP;
     }
     
     public static ArrayList<JSONObject> getSoilDataList() {

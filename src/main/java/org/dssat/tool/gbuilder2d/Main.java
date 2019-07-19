@@ -155,6 +155,12 @@ public class Main {
             return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.XML_EDITOR));
                 });
         
+        get(Path.Web.Demo.DATA_FACTORY, (Request request, Response response) -> {
+            HashMap data = new HashMap();
+            data.put("icasaMgnVarMap", DataUtil.getICASAMgnVarMap());
+            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.DATA_FACTORY));
+                });
+        
         post(Path.Web.Translator.XML, (Request request, Response response) -> {
             HashMap data = new HashMap();
             String jsonStr = request.queryParams("io");
