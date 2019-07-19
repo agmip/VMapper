@@ -402,19 +402,9 @@
             <div class="input-group col-sm-12">
                 <select name="irop" class="form-control event-input-item" data-placeholder="Choose a fertilizer material..." onchange="iropSBHelper(this);">
                     <option value=""></option>
-                    <option value="IR001">Furrow, mm</option>
-                    <option value="IR002">Alternating furrows, mm</option>
-                    <option value="IR003">Flood, mm</option>
-                    <option value="IR004">Sprinkler, mm</option>
-                    <option value="IR005">Drip or trickle, mm</option>
-                    <option value="IR006">Flood depth, mm</option>
-                    <option value="IR007">Water table depth, mm</option>
-                    <option value="IR008">Percolation rate, mm day-1</option>
-                    <option value="IR009">Bund height, mm</option>
-                    <option value="IR010">Puddling (for Rice only)</option>
-                    <option value="IR011">Constant flood depth, mm</option>
-                    <option value="IR012">Subsurface (burried) drip, mm</option>
-                    <option value="IR999">Irrigation method unknown/not given</option>
+                    <#list icasaMgnCodeMap.irop?keys?sort as code>
+                    <option value="${code}">${icasaMgnCodeMap.irop[code]}</option>
+                    </#list>
                 </select>
             </div>
         </div>
