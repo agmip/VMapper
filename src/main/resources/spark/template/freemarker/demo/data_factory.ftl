@@ -29,11 +29,23 @@
                 }
             };
             
+            function getFileName(fileFullName) {
+                if (!fileFullName) {
+                    return fileFullName;
+                }
+                let lastDot = fileFullName.lastIndexOf(".");
+                if (lastDot < 0) {
+                    return fileFullName;
+                } else {
+                    return fileFullName.substring(0, lastDot);
+                }
+            }
+            
             function readSpreadSheet(target) {
                 let files = target.files;
                 let f = files[0];
                 if (!fileName) {
-                    fileName = f.name;
+                    fileName = getFileName(f.name);
                 }
                 let reader = new FileReader();
                 reader.onload = function(e) {
@@ -323,27 +335,34 @@
             }
             
             function openExpDataFolderFile() {
-                alert("functionality under construction...");
+                alertBox("Functionality under construction...");
             }
             
             function saveExpDataFile() {
-                alert("functionality under construction...");
+                alertBox("Functionality under construction...");
             }
             
             function saveAcebFile() {
-                alert("functionality under construction...");
+                alertBox("Functionality under construction...");
             }
             
             function openTemplateFile() {
-                $('<input type="file" accept=".json,.sidecar2" onchange="readSpreadSheet(this);">').click();
-            }
-            
-            function openTemplateFile() {
-                alert("functionality under construction...");
+                alertBox("Functionality under construction...");
+//                $('<input type="file" accept=".json,.sidecar2" onchange="readSpreadSheet(this);">').click();
             }
             
             function saveTemplateFile() {
-                alert("functionality under construction...");
+                let text = JSON.stringify(templates, 2, 2);
+                let ext = "sidecar2";
+                let blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+                saveAs(blob, fileName + "." + ext);
+            }
+            
+            function alertBox(msg) {
+                bootbox.alert({
+                    message: msg,
+                    backdrop: true
+                });
             }
         </script>
     </head>
@@ -464,6 +483,7 @@
         </div>
 
         <#include "../footer.ftl">
+        <script type="text/javascript" src='/plugins/FileSaver/FileSaver.js'></script>
         <script src="http://oss.sheetjs.com/js-xlsx/shim.js"></script>
         <script src="http://oss.sheetjs.com/js-xlsx/xlsx.full.min.js"></script>
         <script type="text/javascript" src="/plugins/filestyle/bootstrap-filestyle.min.js"></script>
