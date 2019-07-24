@@ -356,7 +356,7 @@
         <div class="container-fluid">
             <div class="">
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" disabled>
                         Experiment Data <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu">
@@ -367,7 +367,7 @@
                     </ul>
                 </div>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" disabled>
                         Template <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu">
@@ -478,6 +478,7 @@
             $(document).ready(function () {
                 initIcasaLookupSB();
                 chosen_init_all();
+                $("button").prop("disabled", false);
             });
         </script>
     </body>
