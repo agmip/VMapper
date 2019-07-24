@@ -169,7 +169,7 @@
             //                    },
                                 callback: function(key, selection, clickEvent) {
                                     setTimeout(function() {
-                                        alert('Hello world!');
+                                        alertBox("Functionality under construction...");
                                     }, 0); // Fire alert after menu close (with timeout)
                                 }
                             },
@@ -201,7 +201,7 @@
             //                    },
                                 callback: function(key, selection, clickEvent) {
                                     setTimeout(function() {
-                                        alert('Hello world!');
+                                        alertBox("Functionality under construction...");
                                     }, 0); // Fire alert after menu close (with timeout)
                                 }
                             },
