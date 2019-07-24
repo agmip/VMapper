@@ -9,6 +9,8 @@
             let wbObj;
             let spsContainer;
             let spreadsheet;
+            let curSheetName;
+            let templates = {};
             let fileName;
             let icasaVarMap = {
                 "management" : {
@@ -62,23 +64,25 @@
                 workbook.SheetNames.forEach(function(sheetName) {
                     var roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1});
                     if (roa.length) {
-                        let data = [];
-                        let headers;
                         if (roa.length > 0) {
-                            headers = roa[0];
+                            // store sheet data
+                            let headers = roa[0];
                             roa.shift();
                             result[sheetName] = {};
-                            data = roa;
-//                            for (let i = 0; i < roa.length; i++) {
-//                                let row = {};
-//                                Object.assign(row, roa[i]);
-//                                data.push(row);
-////                                for (let j = 0; j < headers.length; j++) {
-////                                    row[j] = roa[j];
-////                                }
-//                            }
                             result[sheetName].header = headers;
-                            result[sheetName].data = data;
+                            result[sheetName].data = roa;
+                            
+                            // init template structure
+                            if (!templates[sheetName]) {
+                                templates[sheetName] = {};
+                                templates[sheetName].headers = [];
+                                for (let i = 0; i < headers.length; i++) {
+                                    templates[sheetName].headers.push({header: headers[i]});
+                                }
+                            } else {
+                                // Load existing template definition and do unit convertion
+                                // TODO
+                            }
                         }
                     }
                 });
@@ -100,6 +104,7 @@
             
             function setSpreadsheet(target) {
                 $("#sheet_name_selected").text(" <" + target.id + ">");
+                curSheetName = target.id;
                 initSpreadsheet(target.id);
             }
             
@@ -166,7 +171,12 @@
                                 callback: function(key, selection, clickEvent) {
                                     setTimeout(function() {
                                         let data = {};
-                                        data.header = spreadsheet.getColHeader(selection[0].start.col);
+                                        data.colIdx = selection[0].start.col;
+                                        data.header = spreadsheet.getColHeader(data.colIdx);
+                                        let colDef = templates[curSheetName].headers[data.colIdx];
+                                        data.code_display = colDef.icasa_var;
+                                        data.icasa_unit = colDef.icasa_unit;
+                                        data.source_unit = colDef.source_unit;
                                         showColDefineDialog(data);
                                     }, 0); // Fire alert after menu close (with timeout)
                                 }
@@ -224,31 +234,17 @@
                         label: "&nbsp;Save&nbsp;",
                         className: 'btn-primary',
                         callback: function(){
-//                            $(this).find('.col-def-input-item').each(function () {
-//                                let varName = $(this).attr("name");
-//                                let varValue = $(this).val();
-//                                if (varValue.toString().trim() !== "") {
-//                                    if (varName === "start") {
-//                                        varValue = dateUtil.toLocaleStr(varValue);
-//                                    }
-//                                    editEvent(varName, varValue);
-//                                } else {
-//                                    editEvent(varName);
-//                                }
-//                            });
-//                            $(this).find('.event-input-global').each(function () {
-//                                let varName = $(this).attr("name");
-//                                let varValue = $(this).val();
-//                                if (varValue.toString().trim() !== "") {
-//                                    if (varName === "start") {
-//                                        varValue = dateUtil.toLocaleStr(varValue);
-//                                    }
-//                                    editAllEvent(itemData.event, varName, varValue);
-//                                } else {
-//                                    editAllEvent(itemData.event, varName);
-//                                }
-//                                $("." + promptClass + " input[name="+ varName +"]").val(varValue);
-//                            });
+                            if (!itemData.err_msg) {
+                                let colDef = templates[curSheetName].headers[itemData.colIdx];
+                                colDef.icasa_var = $(this).find("[name='code_display']").val();
+                                colDef.icasa_unit = $(this).find("[name='icasa_unit']").val();
+                                colDef.source_unit = $(this).find("[name='source_unit']").val();
+                            } else {
+                                itemData.icasa_var = $(this).find("[name='code_display']").val();
+                                itemData.icasa_unit = $(this).find("[name='icasa_unit']").val();
+                                itemData.source_unit = $(this).find("[name='source_unit']").val();
+                                showColDefineDialog(itemData, noBackFlg, editFlg);
+                            }
                         }
                     }
                 };
@@ -259,16 +255,20 @@
 //                    delete buttons.back;
 //                } 
                 let dialog = bootbox.dialog({
-                    title: "<h2>" + itemData.event + " Column Definition</h2>",
+                    title: "<h2>Column Definition</h2>",
                     size: 'large',
                     message: $("#col_define_popup").html(),
                     buttons: buttons
                 });
                 dialog.on("shown.bs.modal", function() {
-                    dialog.find("input.col-def-input-item").each(function () {
+                    if (itemData.err_msg) {
+                        dialog.find("[name='dialog_msg']").text(itemData.err_msg);
+                    }
+                    dialog.find(".col-def-input-item").each(function () {
                         $(this).val(itemData[$(this).attr("name")]);
                     });
                     dialog.find("[name='code_display']").each(function () {
+                        
                         chosen_init_name($(this), "chosen-select-deselect");
                         $(this).on("change", function () {
                             var unit = icasaVarMap.management[$(this).val()].unit_or_type;
@@ -283,14 +283,20 @@
                                     var result = JSON.parse(jsonStr);
                                     if (result.status !== "0") {
                                         dialog.find("[name='unit_validate_result']").html("Not compatiable unit");
+                                        itemData.err_msg = "Please fix source unit expression";
                                     } else {
                                         dialog.find("[name='unit_validate_result']").html("");
+                                        delete itemData.err_msg;
                                     }
                                 }
                             );
                         });
                     });
                 });
+            }
+            
+            function convertUnit() {
+                // TODO
             }
             
             function initIcasaLookupSB() {
@@ -401,7 +407,7 @@
         </div>
         <!-- popup page for define column -->
         <div id="col_define_popup" hidden>
-            <p></p>
+            <p name="dialog_msg"></p>
             <div class="col-sm-12">
                 <!-- 1st row -->
                 <div class="form-group col-sm-12">
@@ -414,7 +420,7 @@
                 <div class="form-group col-sm-12">
                     <label class="control-label">ICASA Variable</label>
                     <div class="input-group col-sm-12">
-                        <select name="code_display" class="form-control event-input-item" data-placeholder="Choose a variable..." onchange="codeDisplaySBHelper(this);">
+                        <select name="code_display" class="form-control col-def-input-item" data-placeholder="Choose a variable...">
                         </select>
                     </div>
                 </div>
