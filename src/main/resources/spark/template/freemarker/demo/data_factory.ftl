@@ -9,6 +9,7 @@
             let wbObj;
             let spsContainer;
             let spreadsheet;
+            let fileName;
             let icasaVarMap = {
                 "management" : {
                     <#list icasaMgnVarMap?values?sort_by("code_display")?sort_by("group")?sort_by("subset")?sort_by("dataset") as var>
@@ -26,10 +27,12 @@
                 }
             };
             
-            function readSpreadSheet() {
-//                $("#sheet_spreadsheet_content").html("Loading...");
-                let files = document.getElementById('sps_file').files;
+            function readSpreadSheet(target) {
+                let files = target.files;
                 let f = files[0];
+                if (!fileName) {
+                    fileName = f.name;
+                }
                 let reader = new FileReader();
                 reader.onload = function(e) {
                     let data = e.target.result;
@@ -96,7 +99,7 @@
             }
             
             function setSpreadsheet(target) {
-                $("#sheet_name_selected").html("-" + target.id);
+                $("#sheet_name_selected").text(" <" + target.id + ">");
                 initSpreadsheet(target.id);
             }
             
@@ -309,8 +312,32 @@
                 }
             }
             
-            function codeDisplaySBHelper(target) {
-                
+            function openExpDataFile() {
+                $('<input type="file" accept=".xlsx,.xls" onchange="readSpreadSheet(this);">').click();
+            }
+            
+            function openExpDataFolderFile() {
+                alert("functionality under construction...");
+            }
+            
+            function saveExpDataFile() {
+                alert("functionality under construction...");
+            }
+            
+            function saveAcebFile() {
+                alert("functionality under construction...");
+            }
+            
+            function openTemplateFile() {
+                $('<input type="file" accept=".json,.sidecar2" onchange="readSpreadSheet(this);">').click();
+            }
+            
+            function openTemplateFile() {
+                alert("functionality under construction...");
+            }
+            
+            function saveTemplateFile() {
+                alert("functionality under construction...");
             }
         </script>
     </head>
@@ -321,7 +348,31 @@
 
         <div class="container"></div>
         <div class="container-fluid">
-            <input type="file" id="sps_file" value="" accept=".xlsx,.xls" onchange="readSpreadSheet();"/>
+            <div class="">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                        Experiment Data <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li onclick="openExpDataFile()"><a href="#"><span class="glyphicon glyphicon-open"></span> Load file</a></li>
+                        <li onclick="openExpDataFolderFile()"><a href="#"><span class="glyphicon glyphicon-open"></span> Load folder</a></li>
+                        <li onclick="saveExpDataFile()"><a href="#"><span class="glyphicon glyphicon-save"></span> Save</a></li>
+                        <li onclick="saveAcebFile()"><a href="#"><span class="glyphicon glyphicon-export"></span> To Aceb</a></li>
+                    </ul>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                        Template <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li onclick="openTemplateFile()"><a href="#"><span class="glyphicon glyphicon-open"></span> Load Existed Template</a></li>
+                        <li onclick="saveTemplateFile()"><a href="#"><span class="glyphicon glyphicon-save"></span> Save Template</a></li>
+                    </ul>
+                </div>
+<!--                <button type="button" class="btn btn-primary" onclick="openFile()"><span class="glyphicon glyphicon-open"></span> Load</button>
+                <button type="button" class="btn btn-primary" onclick="saveFile()"><span class="glyphicon glyphicon-save"></span> Save</button>-->
+            </div>
+            <br/>
             <ul class="nav nav-tabs">
                 <li class="active dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Spreadsheet
