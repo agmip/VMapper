@@ -409,6 +409,7 @@
                 </li>
                 <li><a data-toggle="tab" href="#csv_tab">CSV</a></li>
                 <li><a data-toggle="tab" href="#json_tab">JSON</a></li>
+                <li id="templateTab"><a data-toggle="tab" href="#template_tab">Template</a></li>
             </ul>
             <div class="tab-content">
                 <div id="spreadshet_tab" class="tab-pane fade in active">
@@ -421,6 +422,9 @@
                 </div>
                 <div id="json_tab" class="tab-pane fade">
                     <textarea class="form-control" rows="30" id="sheet_json_content" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
+                </div>
+                <div id="template_tab" class="tab-pane fade">
+                    <textarea class="form-control" rows="30" id="template_json_content" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
                 </div>
             </div>
         </div>
@@ -498,6 +502,9 @@
             $(document).ready(function () {
                 initIcasaLookupSB();
                 chosen_init_all();
+                $('.nav-tabs #templateTab').on('shown.bs.tab', function(){
+                    $("#template_json_content").html(JSON.stringify(templates, 2, 2));
+                });
                 $("button").prop("disabled", false);
             });
         </script>
