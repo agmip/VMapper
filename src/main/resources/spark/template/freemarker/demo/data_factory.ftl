@@ -243,6 +243,7 @@
 
             function showColDefineDialog(itemData, noBackFlg, editFlg) {
 //                let promptClass = 'event-input-' + itemData.event;
+                let curVarType;
                 let buttons = {
                     cancel: {
                         label: "Cancel",
@@ -293,9 +294,39 @@
                     dialog.find(".col-def-input-item").each(function () {
                         $(this).val(itemData[$(this).attr("name")]);
                     });
-                    dialog.find("[name='code_display']").each(function () {
+                    dialog.find("[name='icasa_info']").each(function () {
+                        $(this).on("icasa_shown", function() {
+                            chosen_init_name($(this).find("[name='code_display']"), "chosen-select-deselect");
+                        });
+                    });
+                    dialog.find("[name='var_type']").each(function () {
+                        chosen_init_name($(this), "chosen-select");
+                        $(this).on("change", function () {
+                            let type = $(this).val();
+                            if (curVarType) {
+                                dialog.find("[name=" + curVarType + "]").fadeOut("fast", function () {
+                                    curVarType = type + "_info";
+                                    dialog.find("[name=" + curVarType + "]").fadeIn().trigger("icasa_shown");
+                                });
+                            } else {
+                                curVarType = type + "_info";
+                                dialog.find("[name=" + curVarType + "]").fadeIn().trigger("icasa_shown");
+                            }
+                        });
                         
-                        chosen_init_name($(this), "chosen-select-deselect");
+                        let type = "icasa";
+                        if (itemData.code_display) {
+                            if (icasaVarMap.management[itemData.code_display] || icasaVarMap.observation[itemData.code_display]) {
+                                type = "icasa";
+                            } else if (itemData.reference) {
+                                type = "reference";
+                            } else {
+                                type = "customized";
+                            }
+                        }
+                        $(this).val(type).trigger("change");
+                    });
+                    dialog.find("[name='code_display']").each(function () {
                         $(this).on("change", function () {
                             var unit = icasaVarMap.management[$(this).val()].unit_or_type;
                             dialog.find("[name='icasa_unit']").val(unit);
@@ -454,55 +485,56 @@
             <p name="dialog_msg"></p>
             <div class="col-sm-12">
                 <!-- 1st row -->
-                <div class="form-group col-sm-12">
+                <div class="form-group col-sm-6">
                     <label class="control-label">Column Header</label>
                     <div class="input-group col-sm-12">
                         <input type="text" name="header" class="form-control col-def-input-item" value="" readonly>
                     </div>
                 </div>
-                <!-- 2nd row -->
-                <div class="form-group col-sm-12">
-                    <label class="control-label">ICASA Variable</label>
+                <div class="form-group col-sm-6">
+                    <label class="control-label">Variable Type</label>
                     <div class="input-group col-sm-12">
-                        <select name="code_display" class="form-control col-def-input-item" data-placeholder="Choose a variable...">
+                        <select name="var_type" class="form-control" data-placeholder="Choose a variable type...">
+                            <option value="icasa" selected>ICASA variable</option>
+                            <option value="customized">Customized variable</option>
+                            <option value="reference">Reference variable</option>
                         </select>
                     </div>
                 </div>
-                <!-- 3rd row -->
-                <div class="form-group col-sm-4">
-                    <label class="control-label">ICASA Unit</label>
-                    <div class="input-group col-sm-12">
-                        <input type="text" name="icasa_unit" class="form-control col-def-input-item" value="" readonly>
-                    </div>
-                </div>
-                <div class="form-group col-sm-4">
-                    <label class="control-label">Original Unit</label>
-                    <div class="input-group col-sm-12">
-                        <input type="text" name="source_unit" class="form-control col-def-input-item" value="">
-                    </div>
-                </div>
-                <div class="form-group col-sm-4">
-                    <label class="control-label"></label>
-                    <div class="input-group col-sm-12" name="unit_validate_result"></div>
-                </div>
-                <!-- 3rd row -->
-<!--                <div class="form-group col-sm-4">
-                    <label class="control-label" for="cul_id">ICASA Format</label>
-                    <div class="input-group col-sm-12">
-                        <input type="date" name="start" class="form-control col-def-input-item" value="">
-                    </div>
-                </div>
-                <div class="form-group col-sm-4">
-                    <label class="control-label" for="fedep">Original Format</label>
-                    <div class="input-group col-sm-12">
-                        <div class="col-sm-7">
-                            <input type="range" name="fedep" step="1" max="300" min="0" class="form-control" value="" placeholder="Fertilizer applied depth (cm)" data-toggle="tooltip" title="Fertilizer applied depth (cm)" oninput="rangeNumInput(this)">
-                        </div>
-                        <div class="col-sm-5">
-                            <input type="number" name="fedep" step="1" max="999" min="0" class="form-control col-def-input-item max-5" value="" oninput="rangeNumInput(this)" >
+                <!-- ICASA Management Variable Info -->
+                <div name="icasa_info" hidden>
+                    <!-- 2nd row -->
+                    <div class="form-group col-sm-12">
+                        <label class="control-label">ICASA Variable</label>
+                        <div class="input-group col-sm-12">
+                            <select name="code_display" class="form-control col-def-input-item" data-placeholder="Choose a variable...">
+                            </select>
                         </div>
                     </div>
-                </div>-->
+                    <!-- 3rd row -->
+                    <div class="form-group col-sm-4">
+                        <label class="control-label">ICASA Unit</label>
+                        <div class="input-group col-sm-12">
+                            <input type="text" name="icasa_unit" class="form-control col-def-input-item" value="" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label class="control-label">Original Unit</label>
+                        <div class="input-group col-sm-12">
+                            <input type="text" name="source_unit" class="form-control col-def-input-item" value="">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label class="control-label"></label>
+                        <div class="input-group col-sm-12" name="unit_validate_result"></div>
+                    </div>
+                </div>
+                <div name="customized_info" hidden>
+                    customized under construction...
+                </div>
+                <div name="reference_info" hidden>
+                    reference under construction...
+                </div>
             </div>
             <p>&nbsp;</p>
         </div>
