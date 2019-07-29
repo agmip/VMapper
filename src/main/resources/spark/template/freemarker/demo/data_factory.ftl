@@ -26,6 +26,20 @@
                         category : "${var.dataset} / ${var.subset} / ${var.group}"
                     }<#sep>,</#sep>
                     </#list>    
+                },
+                "observation" : {
+                    <#list icasaObvVarMap?values?sort_by("code_display")?sort_by("group")?sort_by("subset")?sort_by("dataset") as var>
+                    "${var.code_display}" : {
+                        code_display : "${var.code_display}",
+                        description : "${var.description}",
+                        unit_or_type : "${var.unit_or_type}",
+                        dataset : "${var.dataset}",
+                        subset : "${var.subset}",
+                        group : "${var.group}",
+                        agmip_data_entry : "${var.agmip_data_entry}",
+                        category : "${var.dataset} / ${var.subset} / ${var.group}"
+                    }<#sep>,</#sep>
+                    </#list>   
                 }
             };
             
@@ -327,6 +341,13 @@
 //                    }
 //                    mgnOptgroup.append('<option value="' + varName + '">' + mgnVarMap[varName].category + " : " + mgnVarMap[varName].description + ' - ' + varName + ' (' + mgnVarMap[varName].unit_or_type +  ')</option>');
                     mgnOptgroup.append('<option value="' + varName + '">' + mgnVarMap[varName].description + ' - ' + varName + ' (' + mgnVarMap[varName].unit_or_type +  ')</option>');
+                }
+                
+                let obvOptgroup = $('<optgroup label="Observation variable"></optgroup>');
+                varSB.append(obvOptgroup);
+                let obvVarMap = icasaVarMap.observation;
+                for (let varName in obvVarMap) {
+                    obvOptgroup.append('<option value="' + varName + '">' + obvVarMap[varName].description + ' - ' + varName + ' (' + obvVarMap[varName].unit_or_type +  ')</option>');
                 }
             }
             

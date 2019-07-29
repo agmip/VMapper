@@ -158,6 +158,7 @@ public class Main {
         get(Path.Web.Demo.DATA_FACTORY, (Request request, Response response) -> {
             HashMap data = new HashMap();
             data.put("icasaMgnVarMap", DataUtil.getICASAMgnVarMap());
+            data.put("icasaObvVarMap", DataUtil.getICASAObvVarMap());
             return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.DATA_FACTORY));
                 });
         
