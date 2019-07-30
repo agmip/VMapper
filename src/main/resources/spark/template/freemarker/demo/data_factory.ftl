@@ -200,9 +200,10 @@
                                         data.colIdx = selection[0].start.col;
                                         data.header = spreadsheet.getColHeader(data.colIdx);
                                         let colDef = templates[curSheetName].headers[data.colIdx];
-                                        data.code_display = colDef.icasa_var;
+                                        data.code_display = colDef.code_display;
                                         data.icasa_unit = colDef.icasa_unit;
                                         data.source_unit = colDef.source_unit;
+                                        data.description = colDef.description;
                                         showColDefineDialog(data);
                                     }, 0); // Fire alert after menu close (with timeout)
                                 }
@@ -241,9 +242,22 @@
                 spreadsheet = new Handsontable(spsContainer, spsOptions);
             }
 
-            function showColDefineDialog(itemData, noBackFlg, editFlg) {
+            function showColDefineDialog(itemData, type) {
 //                let promptClass = 'event-input-' + itemData.event;
                 let curVarType;
+                if (!type) {
+                    if (itemData.code_display) {
+                        if (icasaVarMap.management[itemData.code_display] || icasaVarMap.observation[itemData.code_display]) {
+                            type = "icasa";
+                        } else if (itemData.reference) {
+                            type = "reference";
+                        } else {
+                            type = "customized";
+                        }
+                    } else {
+                        type = "icasa";
+                    }
+                }
                 let buttons = {
                     cancel: {
                         label: "Cancel",
@@ -261,16 +275,19 @@
                         label: "&nbsp;Save&nbsp;",
                         className: 'btn-primary',
                         callback: function(){
+                            let subDiv = $(this).find("[name=" + curVarType + "]");
                             if (!itemData.err_msg) {
                                 let colDef = templates[curSheetName].headers[itemData.colIdx];
-                                colDef.icasa_var = $(this).find("[name='code_display']").val();
-                                colDef.icasa_unit = $(this).find("[name='icasa_unit']").val();
-                                colDef.source_unit = $(this).find("[name='source_unit']").val();
+                                colDef.code_display = subDiv.find("[name='code_display']").val();
+                                colDef.icasa_unit = subDiv.find("[name='icasa_unit']").val();
+                                colDef.source_unit = subDiv.find("[name='source_unit']").val();
+                                colDef.description = subDiv.find("[name='description']").val();
                             } else {
-                                itemData.icasa_var = $(this).find("[name='code_display']").val();
-                                itemData.icasa_unit = $(this).find("[name='icasa_unit']").val();
-                                itemData.source_unit = $(this).find("[name='source_unit']").val();
-                                showColDefineDialog(itemData, noBackFlg, editFlg);
+                                itemData.code_display = subDiv.find("[name='code_display']").val();
+                                itemData.icasa_unit = subDiv.find("[name='icasa_unit']").val();
+                                itemData.source_unit = subDiv.find("[name='source_unit']").val();
+                                itemData.description = subDiv.find("[name='description']").val();
+                                showColDefineDialog(itemData, type);
                             }
                         }
                     }
@@ -291,18 +308,63 @@
                     if (itemData.err_msg) {
                         dialog.find("[name='dialog_msg']").text(itemData.err_msg);
                     }
-                    dialog.find(".col-def-input-item").each(function () {
+                    dialog.find("[name=header]").each(function () {
+                        $(this).val(itemData[$(this).attr("name")]);
+                    });
+                    dialog.find("[name=" + type + "_info]").find(".col-def-input-item").each(function () {
                         $(this).val(itemData[$(this).attr("name")]);
                     });
                     dialog.find("[name='icasa_info']").each(function () {
-                        $(this).on("icasa_shown", function() {
-                            chosen_init_name($(this).find("[name='code_display']"), "chosen-select-deselect");
+                        let subDiv = $(this);
+                        subDiv.on("icasa_shown", function() {
+                            chosen_init_name(subDiv.find("[name='code_display']"), "chosen-select-deselect");
+                        });
+                        subDiv.find("[name='code_display']").each(function () {
+                            $(this).on("change", function () {
+                                var unit = icasaVarMap.management[$(this).val()].unit_or_type;
+                                subDiv.find("[name='icasa_unit']").val(unit);
+                                subDiv.find("[name='source_unit']").val(unit);
+                            });
+                        });
+                        subDiv.find("[name='source_unit']").each(function () {
+                            $(this).on("input", function () {
+                                $.get("/data/unit/convert?unit_to=" + subDiv.find("[name='icasa_unit']").val() + "&unit_from="+ $(this).val() + "&value_from=1",
+                                    function (jsonStr) {
+                                        var result = JSON.parse(jsonStr);
+                                        if (result.status !== "0") {
+                                            subDiv.find("[name='unit_validate_result']").html("Not compatiable unit");
+                                            itemData.err_msg = "Please fix source unit expression";
+                                        } else {
+                                            subDiv.find("[name='unit_validate_result']").html("");
+                                            delete itemData.err_msg;
+                                        }
+                                    }
+                                );
+                            });
+                        });
+                    });
+                    dialog.find("[name='customized_info']").each(function () {
+                        let subDiv = $(this);
+                        subDiv.find("[name='source_unit']").each(function () {
+                            $(this).on("input", function () {
+                                $.get("/data/unit/lookup?unit=" + $(this).val(),
+                                    function (jsonStr) {
+                                        var unitInfo = JSON.parse(jsonStr);
+                                        if (unitInfo.message === "undefined unit expression") {
+                                            subDiv.find("[name='unit_validate_result']").html("Not compatiable unit");
+                                            itemData.err_msg = "Please fix source unit expression";
+                                        } else {
+                                            subDiv.find("[name='unit_validate_result']").html("");
+                                            delete itemData.err_msg;
+                                        }
+                                    }
+                                );
+                            });
                         });
                     });
                     dialog.find("[name='var_type']").each(function () {
-                        chosen_init_name($(this), "chosen-select");
                         $(this).on("change", function () {
-                            let type = $(this).val();
+                            type = $(this).val();
                             if (curVarType) {
                                 dialog.find("[name=" + curVarType + "]").fadeOut("fast", function () {
                                     curVarType = type + "_info";
@@ -313,41 +375,9 @@
                                 dialog.find("[name=" + curVarType + "]").fadeIn().trigger("icasa_shown");
                             }
                         });
-                        
-                        let type = "icasa";
-                        if (itemData.code_display) {
-                            if (icasaVarMap.management[itemData.code_display] || icasaVarMap.observation[itemData.code_display]) {
-                                type = "icasa";
-                            } else if (itemData.reference) {
-                                type = "reference";
-                            } else {
-                                type = "customized";
-                            }
-                        }
-                        $(this).val(type).trigger("change");
-                    });
-                    dialog.find("[name='code_display']").each(function () {
-                        $(this).on("change", function () {
-                            var unit = icasaVarMap.management[$(this).val()].unit_or_type;
-                            dialog.find("[name='icasa_unit']").val(unit);
-                            dialog.find("[name='source_unit']").val(unit);
-                        });
-                    });
-                    dialog.find("[name='source_unit']").each(function () {
-                        $(this).on("input", function () {
-                            $.get("/data/unit/convert?unit_to=" + dialog.find("[name='icasa_unit']").val() + "&unit_from="+ $(this).val() + "&value_from=1",
-                                function (jsonStr) {
-                                    var result = JSON.parse(jsonStr);
-                                    if (result.status !== "0") {
-                                        dialog.find("[name='unit_validate_result']").html("Not compatiable unit");
-                                        itemData.err_msg = "Please fix source unit expression";
-                                    } else {
-                                        dialog.find("[name='unit_validate_result']").html("");
-                                        delete itemData.err_msg;
-                                    }
-                                }
-                            );
-                        });
+                        $(this).val(type);
+                        chosen_init_name($(this), "chosen-select");
+                        $(this).trigger("change");
                     });
                 });
             }
@@ -357,7 +387,7 @@
             }
             
             function initIcasaLookupSB() {
-                let varSB = $("[name='code_display']");
+                let varSB = $("[name='icasa_info']").find("[name='code_display']");
                 varSB.append('<option value=""></option>');
                 let mgnOptgroup = $('<optgroup label="Managament variable"></optgroup>');
                 varSB.append(mgnOptgroup);
@@ -495,7 +525,8 @@
                     <label class="control-label">Variable Type</label>
                     <div class="input-group col-sm-12">
                         <select name="var_type" class="form-control" data-placeholder="Choose a variable type...">
-                            <option value="icasa" selected>ICASA variable</option>
+                            <option value=""></option>
+                            <option value="icasa">ICASA variable</option>
                             <option value="customized">Customized variable</option>
                             <option value="reference">Reference variable</option>
                         </select>
@@ -530,7 +561,31 @@
                     </div>
                 </div>
                 <div name="customized_info" hidden>
-                    customized under construction...
+                    <!-- 2nd row -->
+                    <div class="form-group col-sm-12">
+                        <label class="control-label">Variable Code</label>
+                        <div class="input-group col-sm-12">
+                            <input type="text" name="code_display" class="form-control col-def-input-item" value="">
+                        </div>
+                    </div>
+                    <!-- 3rd row -->
+                    <div class="form-group col-sm-12">
+                        <label class="control-label">Description</label>
+                        <div class="input-group col-sm-12">
+                            <input type="text" name="description" class="form-control col-def-input-item" value="">
+                        </div>
+                    </div>
+                    <!-- 4th row -->
+                    <div class="form-group col-sm-12">
+                        <label class="control-label">Unit</label>
+                        <div class="input-group col-sm-12">
+                            <input type="text" name="source_unit" class="form-control col-def-input-item" value="">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12">
+                        <label class="control-label"></label>
+                        <div class="input-group col-sm-12" name="unit_validate_result"></div>
+                    </div>
                 </div>
                 <div name="reference_info" hidden>
                     reference under construction...
