@@ -200,10 +200,9 @@
                                         data.colIdx = selection[0].start.col;
                                         data.header = spreadsheet.getColHeader(data.colIdx);
                                         let colDef = templates[curSheetName].headers[data.colIdx];
-                                        data.code_display = colDef.code_display;
-                                        data.icasa_unit = colDef.icasa_unit;
-                                        data.source_unit = colDef.source_unit;
-                                        data.description = colDef.description;
+                                        for (let key in colDef) {
+                                            data[key] = colDef[key];
+                                        }
                                         showColDefineDialog(data);
                                     }, 0); // Fire alert after menu close (with timeout)
                                 }
@@ -278,15 +277,17 @@
                             let subDiv = $(this).find("[name=" + curVarType + "]");
                             if (!itemData.err_msg) {
                                 let colDef = templates[curSheetName].headers[itemData.colIdx];
-                                colDef.code_display = subDiv.find("[name='code_display']").val();
-                                colDef.icasa_unit = subDiv.find("[name='icasa_unit']").val();
-                                colDef.source_unit = subDiv.find("[name='source_unit']").val();
-                                colDef.description = subDiv.find("[name='description']").val();
+                                subDiv.find("input:text, input:radio, select").each(function () {
+                                    if ($(this).val()) {
+                                        colDef[$(this).attr("name")] = $(this).val();
+                                    }
+                                });
                             } else {
-                                itemData.code_display = subDiv.find("[name='code_display']").val();
-                                itemData.icasa_unit = subDiv.find("[name='icasa_unit']").val();
-                                itemData.source_unit = subDiv.find("[name='source_unit']").val();
-                                itemData.description = subDiv.find("[name='description']").val();
+                                subDiv.find("input:text, input:radio, select").each(function () {
+                                    if ($(this).val()) {
+                                        itemData[$(this).attr("name")] = $(this).val();
+                                    }
+                                });
                                 showColDefineDialog(itemData, type);
                             }
                         }
@@ -297,7 +298,7 @@
 //                }
 //                if (noBackFlg) {
 //                    delete buttons.back;
-//                } 
+//                }
                 let dialog = bootbox.dialog({
                     title: "<h2>Column Definition</h2>",
                     size: 'large',
@@ -316,14 +317,19 @@
                     });
                     dialog.find("[name='icasa_info']").each(function () {
                         let subDiv = $(this);
-                        subDiv.on("icasa_shown", function() {
+                        subDiv.on("type_shown", function() {
                             chosen_init_name(subDiv.find("[name='code_display']"), "chosen-select-deselect");
                         });
                         subDiv.find("[name='code_display']").each(function () {
                             $(this).on("change", function () {
                                 var unit = icasaVarMap.management[$(this).val()].unit_or_type;
                                 subDiv.find("[name='icasa_unit']").val(unit);
-                                subDiv.find("[name='source_unit']").val(unit);
+                                let sourceUnit = subDiv.find("[name='source_unit']");
+                                if (sourceUnit.val() === "") {
+                                    sourceUnit.val(unit);
+                                } else {
+                                    sourceUnit.trigger("input");
+                                }
                             });
                         });
                         subDiv.find("[name='source_unit']").each(function () {
@@ -345,6 +351,9 @@
                     });
                     dialog.find("[name='customized_info']").each(function () {
                         let subDiv = $(this);
+                        subDiv.on("type_shown", function() {
+                            chosen_init_name(subDiv.find("[name='category']"), "chosen-select-deselect");
+                        });
                         subDiv.find("[name='source_unit']").each(function () {
                             $(this).on("input", function () {
                                 $.get("/data/unit/lookup?unit=" + $(this).val(),
@@ -368,11 +377,11 @@
                             if (curVarType) {
                                 dialog.find("[name=" + curVarType + "]").fadeOut("fast", function () {
                                     curVarType = type + "_info";
-                                    dialog.find("[name=" + curVarType + "]").fadeIn().trigger("icasa_shown");
+                                    dialog.find("[name=" + curVarType + "]").fadeIn().trigger("type_shown");
                                 });
                             } else {
                                 curVarType = type + "_info";
-                                dialog.find("[name=" + curVarType + "]").fadeIn().trigger("icasa_shown");
+                                dialog.find("[name=" + curVarType + "]").fadeIn().trigger("type_shown");
                             }
                         });
                         $(this).val(type);
@@ -562,6 +571,23 @@
                 </div>
                 <div name="customized_info" hidden>
                     <!-- 2nd row -->
+                    <div class="form-group col-sm-12">
+                        <label class="control-label">Variable Category</label>
+                        <div class="input-group col-sm-12">
+                            <select name="category" class="form-control col-def-input-item" data-placeholder="Choose a variable type...">
+                                <option value=""></option>
+                                <option value="1011">Experiment Meta Data</option>
+                                <option value="2011">Experiment Management Data</option>
+                                <option value="2099">Experiment Management Event Data</option>
+                                <option value="2502">Experiment Observation Summary Data</option>
+                                <option value="2511">Experiment Observation Time-Series Data</option>
+                                <option value="4051">Soil Profile Data</option>
+                                <option value="4052">Soil Layer Data</option>
+                                <option value="5041">Weather Station Profie Data</option>
+                                <option value="5052">Weather Station Daily Data</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="form-group col-sm-12">
                         <label class="control-label">Variable Code</label>
                         <div class="input-group col-sm-12">
