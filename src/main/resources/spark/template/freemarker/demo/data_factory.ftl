@@ -519,6 +519,38 @@
                 </div>
             </div>
         </div>
+        <!-- popup page for define sheet -->
+        <div id="col_define_popup" hidden>
+            <p name="dialog_msg"></p>
+            <div class="col-sm-12">
+                <!-- 1st row -->
+                <div class="form-group col-sm-6">
+                    <label class="control-label">Header Row #</label>
+                    <div class="input-group col-sm-12">
+                        <input type="number" step="1" min="1" name="header_row_num" class="form-control col-def-input-item" value="1">
+                    </div>
+                </div>
+                <div class="form-group col-sm-6">
+                    <label class="control-label">Unit Row #</label>
+                    <div class="input-group col-sm-12">
+                        <input type="number" step="1" min="1" name="header_row_num" class="form-control col-def-input-item" value="">
+                    </div>
+                </div>
+                <div class="form-group col-sm-6">
+                    <label class="control-label">Description Row #</label>
+                    <div class="input-group col-sm-12">
+                        <input type="number" step="1" min="1" name="header_row_num" class="form-control col-def-input-item" value="">
+                    </div>
+                </div>
+                <div class="form-group col-sm-6">
+                    <label class="control-label">Data Start from Row #</label>
+                    <div class="input-group col-sm-12">
+                        <input type="number" step="1" min="1" name="header_row_num" class="form-control col-def-input-item" value="2">
+                    </div>
+                </div>
+            </div>
+            <p>&nbsp;</p>
+        </div>
         <!-- popup page for define column -->
         <div id="col_define_popup" hidden>
             <p name="dialog_msg"></p>
