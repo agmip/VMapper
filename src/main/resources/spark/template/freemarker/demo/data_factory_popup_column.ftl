@@ -1,68 +1,4 @@
 <script>
-    function showSheetDefDialog(itemData, type) {
-        let curVarType;
-        if (!type) {
-            if (itemData.code_display) {
-                if (icasaVarMap.management[itemData.code_display] || icasaVarMap.observation[itemData.code_display]) {
-                    type = "icasa";
-                } else if (itemData.reference) {
-                    type = "reference";
-                } else {
-                    type = "customized";
-                }
-            } else {
-                type = "icasa";
-            }
-        }
-        let buttons = {
-            cancel: {
-                label: "Cancel",
-                className: 'btn-default',
-                callback: function() {}
-            },
-//                    back: {
-//                        label: "&nbsp;Back&nbsp;",
-//                        className: 'btn-default',
-//                        callback: function(){
-//                            showEventTypePrompt(itemData.id, itemData.event);
-//                        }
-//                    },
-            ok: {
-                label: "&nbsp;Save&nbsp;",
-                className: 'btn-primary',
-                callback: function(){
-                    let subDiv = $(this).find("[name=" + curVarType + "]");
-                    if (!itemData.err_msg) {
-                        let colDef = templates[curSheetName].headers[itemData.colIdx];
-                        subDiv.find(".col-def-input-item").each(function () {
-                            if ($(this).val()) {
-                                colDef[$(this).attr("name")] = $(this).val();
-                            }
-                        });
-                    } else {
-                        subDiv.find(".col-def-input-item").each(function () {
-                            if ($(this).val()) {
-                                itemData[$(this).attr("name")] = $(this).val();
-                            }
-                        });
-                        showColDefineDialog(itemData, type);
-                    }
-                }
-            }
-        };
-//                if (editFlg) {
-//                    delete buttons.cancel.callback;
-//                }
-//                if (noBackFlg) {
-//                    delete buttons.back;
-//                }
-        let dialog = bootbox.dialog({
-            title: "<h2>Column Definition</h2>",
-            size: 'large',
-            message: $("#col_define_popup").html(),
-            buttons: buttons
-        });
-    }
     function showColDefineDialog(itemData, type) {
 //                let promptClass = 'event-input-' + itemData.event;
         let curVarType;
@@ -251,39 +187,6 @@
         }
     }
 </script>
-
-<!-- popup page for define sheet -->
-<div id="col_define_popup" hidden>
-    <p name="dialog_msg"></p>
-    <div class="col-sm-12">
-        <!-- 1st row -->
-        <div class="form-group col-sm-6">
-            <label class="control-label">Header Row #</label>
-            <div class="input-group col-sm-12">
-                <input type="number" step="1" min="1" name="header_row_num" class="form-control col-def-input-item" value="1">
-            </div>
-        </div>
-        <div class="form-group col-sm-6">
-            <label class="control-label">Unit Row #</label>
-            <div class="input-group col-sm-12">
-                <input type="number" step="1" min="1" name="header_row_num" class="form-control col-def-input-item" value="">
-            </div>
-        </div>
-        <div class="form-group col-sm-6">
-            <label class="control-label">Description Row #</label>
-            <div class="input-group col-sm-12">
-                <input type="number" step="1" min="1" name="header_row_num" class="form-control col-def-input-item" value="">
-            </div>
-        </div>
-        <div class="form-group col-sm-6">
-            <label class="control-label">Data Start from Row #</label>
-            <div class="input-group col-sm-12">
-                <input type="number" step="1" min="1" name="header_row_num" class="form-control col-def-input-item" value="2">
-            </div>
-        </div>
-    </div>
-    <p>&nbsp;</p>
-</div>
 <!-- popup page for define column -->
 <div id="col_define_popup" hidden>
     <p name="dialog_msg"></p>

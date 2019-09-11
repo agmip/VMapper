@@ -345,7 +345,8 @@
             </div>
         </div>
 
-        <#include "data_factory_popup.ftl">
+        <#include "data_factory_popup_sheet.ftl">
+        <#include "data_factory_popup_column.ftl">
         <#include "../footer.ftl">
         <script type="text/javascript" src='/plugins/FileSaver/FileSaver.js'></script>
         <script src="http://oss.sheetjs.com/js-xlsx/shim.js"></script>
