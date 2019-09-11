@@ -11,6 +11,7 @@
             let spreadsheet;
             let curSheetName;
             let templates = {};
+            let sheets = {header_row:1, data_start_row:2};
             let fileName;
             let icasaVarMap = {
                 "management" : {
@@ -66,17 +67,20 @@
                     let data = e.target.result;
 //                    data = new Uint8Array(data);
                     let workbook = XLSX.read(data, {type: 'binary'});
-                    
-                    $("#sheet_csv_content").html(to_csv(workbook));
-                    $("#sheet_json_content").html(to_json(workbook));
-                    
-                    wbObj = to_object(workbook);
-                    $('#sheet_tab_list').empty();
-                    for (let sheetName in wbObj) {
-                        $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + sheetName + '" onclick="setSpreadsheet(this);">' + sheetName + '</a></li>');
-                    }
-//                    $("#sheet_spreadsheet_content").html("");
-                    $('#sheet_tab_list').find("a").first().click();
+
+                    showSheetDefDialog(workbook, function (ret) {
+                        sheets = ret;
+                        $("#sheet_csv_content").html(to_csv(workbook));
+                        $("#sheet_json_content").html(to_json(workbook));
+
+                        wbObj = to_object(workbook);
+                        $('#sheet_tab_list').empty();
+                        for (let sheetName in templates) {
+                            $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + sheetName + '" onclick="setSpreadsheet(this);">' + sheetName + '</a></li>');
+                        }
+    //                    $("#sheet_spreadsheet_content").html("");
+                        $('#sheet_tab_list').find("a").first().click();
+                    });
                 };
                 reader.readAsBinaryString(f);
             }
@@ -92,7 +96,7 @@
                     if (roa.length) {
                         if (roa.length > 0) {
                             // store sheet data
-                            let headers = roa[0];
+                            let headers = roa[sheets.header_row - 1];
                             roa.shift();
                             result[sheetName] = {};
                             result[sheetName].header = headers;
