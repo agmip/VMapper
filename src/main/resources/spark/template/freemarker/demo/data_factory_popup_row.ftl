@@ -12,7 +12,9 @@
                 callback: function(){
                     let ret = {};
                     $(this).find("[type='number']").each(function () {
-                        ret[$(this).attr("name")] = $(this).val();
+                        if ($(this).val()) {
+                            ret[$(this).attr("name")] = $(this).val();
+                        }
                     });
                     callback(ret);
                 }
@@ -47,7 +49,7 @@
         <div class="form-group col-sm-3">
             <label class="control-label">Description Row #</label>
             <div class="input-group col-sm-12">
-                <input type="number" step="1" min="1" name="desp_row" class="form-control col-def-input-item" value="">
+                <input type="number" step="1" min="1" name="desc_row" class="form-control col-def-input-item" value="">
             </div>
         </div>
         <div class="form-group col-sm-3">

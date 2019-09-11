@@ -11,6 +11,8 @@
                 } else {
                     type = "customized";
                 }
+            } else if (itemData.description) {
+                type = "customized";
             } else {
                 type = "icasa";
             }

@@ -97,17 +97,49 @@
                         if (roa.length > 0) {
                             // store sheet data
                             let headers = roa[sheets.header_row - 1];
-                            roa.shift();
                             result[sheetName] = {};
                             result[sheetName].header = headers;
-                            result[sheetName].data = roa;
+                            result[sheetName].data = roa.slice(sheets.data_start_row - 1);
                             
                             // init template structure
                             if (!templates[sheetName]) {
                                 templates[sheetName] = {};
                                 templates[sheetName].headers = [];
                                 for (let i = 0; i < headers.length; i++) {
-                                    templates[sheetName].headers.push({header: headers[i]});
+                                    let headerDef = {header: headers[i]};
+                                    if (sheets.unit_row) {
+                                        headerDef.source_unit = roa[sheets.unit_row - 1][i];
+                                    }
+                                    if (sheets.desc_row) {
+                                        headerDef.description = roa[sheets.desc_row - 1][i];
+                                    }
+                                    if (icasaVarMap.management[String(headerDef.header).toUpperCase()] ||
+                                            icasaVarMap.observation[String(headerDef.header).toUpperCase()]) {
+                                        headerDef.code_display = String(headerDef.header).toUpperCase();
+                                    } else if (icasaVarMap.management[headerDef.header] ||
+                                            icasaVarMap.observation[headerDef.header]) {
+                                        headerDef.code_display = headerDef.header;
+                                    }
+                                    if (headerDef.code_display) {
+                                        if (icasaVarMap.management[headerDef.code_display]) {
+                                            headerDef.icasa_unit = icasaVarMap.management[headerDef.code_display].unit_or_type;
+                                        } else {
+                                            headerDef.icasa_unit = icasaVarMap.observation[headerDef.code_display].unit_or_type;
+                                        }
+                                        if (headerDef.source_unit && headerDef.source_unit !== headerDef.icasa_unit) {
+                                            $.get(encodeURI("/data/unit/convert?unit_to=" + headerDef.source_unit + "&unit_from="+ headerDef.icasa_unit + "&value_from=1"),
+                                                function (jsonStr) {
+                                                    var result = JSON.parse(jsonStr);
+                                                    if (result.status !== "0") {
+                                                        headerDef.source_unit = headerDef.icasa_unit; // TODO this should change to give warning message
+                                                    }
+                                                }
+                                            );
+                                        } else if (!headerDef.source_unit) {
+                                            headerDef.source_unit = headerDef.icasa_unit;
+                                        }
+                                    }
+                                    templates[sheetName].headers.push(headerDef);
                                 }
                             } else {
                                 // Load existing template definition and do unit convertion
