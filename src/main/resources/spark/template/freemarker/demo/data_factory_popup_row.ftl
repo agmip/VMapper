@@ -1,5 +1,5 @@
 <script>
-    function showSheetDefDialog(itemData, callback) {
+    function showSheetDefDialog(workbook, callback, errMsg) {
         let buttons = {
             cancel: {
                 label: "Cancel",
@@ -16,7 +16,11 @@
                             ret[$(this).attr("name")] = $(this).val();
                         }
                     });
-                    callback(ret);
+                    if (!ret.data_start_row || !ret.header_row) {
+                        showSheetDefDialog(workbook, callback, "[warning] Please provide header row number and data start row number.");
+                    } else {
+                        callback(ret);
+                    }
                 }
             }
         };
@@ -25,6 +29,11 @@
             size: 'large',
             message: $("#sheet_define_popup").html(),
             buttons: buttons
+        });
+        dialog.on("shown.bs.modal", function() {
+            if (errMsg) {
+                dialog.find("[name='dialog_msg']").text(errMsg);
+            }
         });
     }
 </script>
