@@ -307,9 +307,9 @@
             
             function saveTemplateFile() {
                 let text = toSC2Json();
-                let ext = "sidecar2";
+                let ext = "-sc2.json";
                 let blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-                saveAs(blob, fileName + "." + ext);
+                saveAs(blob, fileName + ext);
             }
             
             function toSC2Json(compressFlg) {
@@ -341,23 +341,7 @@
                                     "content-type" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                                     // file_url : ""
                                 },
-                                sheets : [
-    //                                {
-    //                                    sheet_name : "",
-    //                                    data_start_row: 2,
-    //                                    mappings : [
-    //                                        {
-    //                                            icasa : "plta",
-    //                                            column_index : 14,
-    //                                            column_header : "plta",
-    //                                            unit : "m^2"
-    //                                        },
-    //                                        {
-    //                                            
-    //                                        }
-    //                                    ]
-    //                                }
-                                ]
+                                sheets : []
                             }
                         }
                     ],
