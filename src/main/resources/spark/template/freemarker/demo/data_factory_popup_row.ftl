@@ -1,5 +1,43 @@
 <script>
     function showSheetDefDialog(workbook, callback, errMsg) {
+        let sheets = {};
+        workbook.SheetNames.forEach(function(sheetName) {
+            sheets[sheetName] = {};
+            sheets[sheetName].sheet_name = sheetName;
+            var roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1});
+            if(roa.length){
+                for (let i in roa) {
+                    if (!roa[i].length || roa[i].length === 0) {
+                        continue;
+                    }
+                    let fstCell = String(roa[i][0]);
+                    if (fstCell.startsWith("!")) {
+                        if (!sheets[sheetName].unit_row && fstCell.toLowerCase().includes("unit")) {
+                            sheets[sheetName].unit_row = Number(i) + 1;
+                        } else if (!sheets[sheetName].desc_row && 
+                                (fstCell.toLowerCase().includes("definition") || 
+                                fstCell.toLowerCase().includes("description"))) {
+                            sheets[sheetName].desc_row = Number(i) + 1;
+                        }
+                    } else if (fstCell.startsWith("#") || fstCell.startsWith("%")) {
+                        if (!sheets[sheetName].header_row) {
+                            sheets[sheetName].header_row = Number(i) + 1;
+                        }
+                    } else if (sheets[sheetName].header_row && !sheets[sheetName].data_start_row) {
+                        sheets[sheetName].data_start_row = Number(i) + 1;
+                    }
+                    if (Object.keys(sheets[sheetName]).length >= 5) {
+                        break;
+                    }
+                }
+            }
+            if (!sheets[sheetName].header_row) {
+                sheets[sheetName].header_row = 1;
+            }
+            if (!sheets[sheetName].data_start_row) {
+                sheets[sheetName].data_start_row = 2;
+            }
+        });
         let buttons = {
             cancel: {
                 label: "Cancel",
@@ -10,21 +48,15 @@
                 label: "Confirm",
                 className: 'btn-primary',
                 callback: function(){
-                    let userDef = {};
-                    $(this).find("[type='number']").each(function () {
-                        if ($(this).val()) {
-                            userDef[$(this).attr("name")] = $(this).val();
+                    let errFlg = false;
+                    for (sheetName in sheets) {
+                        if (!sheets[sheetName].data_start_row || !sheets[sheetName].header_row) {
+                            errFlg = true;
                         }
-                    });
-                    if (!userDef.data_start_row || !userDef.header_row) {
+                    }
+                    if (errFlg) {
                         showSheetDefDialog(workbook, callback, "[warning] Please provide header row number and data start row number.");
                     } else {
-                        let sheets = {};
-                        workbook.SheetNames.forEach(function(sheetName) {
-                            sheets[sheetName] = {};
-                            Object.assign(sheets[sheetName], userDef);
-                            sheets[sheetName].sheet_name = sheetName;
-                        });
                         callback(sheets);
                     }
                 }
@@ -40,6 +72,38 @@
             if (errMsg) {
                 dialog.find("[name='dialog_msg']").text(errMsg);
             }
+            let data = [];
+            for (sheetName in sheets) {
+                data.push(sheets[sheetName]);
+            }
+            let spsOptions = {
+                    licenseKey: 'non-commercial-and-evaluation',
+                    data: data,
+                    columns: [
+                        {type: 'text', data : "sheet_name", readOnly: true},
+                        {type: 'numeric', data : "header_row"},
+                        {type: 'numeric', data : "data_start_row"},
+                        {type: 'numeric', data : "unit_row"},
+                        {type: 'numeric', data : "desc_row"}
+                    ],
+                    stretchH: 'all',
+                    autoWrapRow: true,
+                    height: 300,
+                    minRows: 1,
+                    maxRows: 365 * 30,
+                    manualRowResize: false,
+                    manualColumnResize: false,
+                    rowHeaders: false,
+                    colHeaders: ["Sheet", "Header Row #", "Data start Row #", "Unit Row #", "Description Row #"],
+                    manualRowMove: false,
+                    manualColumnMove: false,
+                    filters: true,
+                    dropdownMenu: true,
+                    contextMenu: false
+                };
+                $(this).find("[name='rowDefSheet']").each(function () {
+                    $(this).handsontable(spsOptions);
+                });
         });
     }
 </script>
@@ -49,29 +113,8 @@
     <p name="dialog_msg"></p>
     <div class="col-sm-12">
         <!-- 1st row -->
-        <div class="form-group col-sm-3">
-            <label class="control-label">Header Row #</label>
-            <div class="input-group col-sm-12">
-                <input type="number" step="1" min="1" name="header_row" class="form-control col-def-input-item" value="1">
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="control-label">Unit Row #</label>
-            <div class="input-group col-sm-12">
-                <input type="number" step="1" min="1" name="unit_row" class="form-control col-def-input-item" value="">
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="control-label">Description Row #</label>
-            <div class="input-group col-sm-12">
-                <input type="number" step="1" min="1" name="desc_row" class="form-control col-def-input-item" value="">
-            </div>
-        </div>
-        <div class="form-group col-sm-3">
-            <label class="control-label">Data Start from Row #</label>
-            <div class="input-group col-sm-12">
-                <input type="number" step="1" min="1" name="data_start_row" class="form-control col-def-input-item" value="2">
-            </div>
+        <div class="form-group col-sm-12">
+            <div name="rowDefSheet"></div>
         </div>
     </div>
     <p>&nbsp;</p>
