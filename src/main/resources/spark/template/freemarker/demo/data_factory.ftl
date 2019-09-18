@@ -11,8 +11,8 @@
             let spreadsheet;
             let curSheetName;
             let templates = {};
-            let sheets = {header_row:1, data_start_row:2};
             let fileName;
+            let userVarMap = {};
             let icasaVarMap = {
                 "management" : {
                     <#list icasaMgnVarMap?values?sort_by("code_display")?sort_by("group")?sort_by("subset")?sort_by("dataset") as var>
@@ -62,6 +62,7 @@
                 if (!fileName) {
                     fileName = getFileName(f.name);
                 }
+                userVarMap = {};
                 let reader = new FileReader();
                 reader.onload = function(e) {
                     let data = e.target.result;
@@ -69,7 +70,7 @@
                     let workbook = XLSX.read(data, {type: 'binary'});
 
                     showSheetDefDialog(workbook, function (ret) {
-                        sheets = ret;
+                        templates = ret;
                         $("#sheet_csv_content").html(to_csv(workbook));
                         $("#sheet_json_content").html(to_json(workbook));
 
@@ -93,53 +94,57 @@
                 var result = {};
                 workbook.SheetNames.forEach(function(sheetName) {
                     var roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1});
+                    let sheetDef = templates[sheetName];
                     if (roa.length) {
                         if (roa.length > 0) {
                             // store sheet data
-                            let headers = roa[sheets.header_row - 1];
+                            let headers = roa[sheetDef.header_row - 1];
                             result[sheetName] = {};
                             result[sheetName].header = headers;
-                            result[sheetName].data = roa.slice(sheets.data_start_row - 1);
+                            result[sheetName].data = roa.slice(sheetDef.data_start_row - 1);
                             
                             // init template structure
-                            if (!templates[sheetName]) {
-                                templates[sheetName] = {};
-                                templates[sheetName].headers = [];
+                            if (!sheetDef.mappings) {    
+                                sheetDef.mappings = [];
                                 for (let i = 0; i < headers.length; i++) {
-                                    let headerDef = {header: headers[i]};
-                                    if (sheets.unit_row) {
-                                        headerDef.source_unit = roa[sheets.unit_row - 1][i];
+                                    let headerDef = {
+                                        column_header : headers[i],
+                                        column_index : i + 1
+                                    };
+                                    if (sheetDef.unit_row) {
+                                        headerDef.unit = roa[sheetDef.unit_row - 1][i];
                                     }
-                                    if (sheets.desc_row) {
-                                        headerDef.description = roa[sheets.desc_row - 1][i];
+                                    if (sheetDef.desc_row) {
+                                        headerDef.description = roa[sheetDef.desc_row - 1][i];
                                     }
-                                    if (icasaVarMap.management[String(headerDef.header).toUpperCase()] ||
-                                            icasaVarMap.observation[String(headerDef.header).toUpperCase()]) {
-                                        headerDef.code_display = String(headerDef.header).toUpperCase();
-                                    } else if (icasaVarMap.management[headerDef.header] ||
-                                            icasaVarMap.observation[headerDef.header]) {
-                                        headerDef.code_display = headerDef.header;
+                                    if (icasaVarMap.management[String(headerDef.column_header).toUpperCase()] ||
+                                            icasaVarMap.observation[String(headerDef.column_header).toUpperCase()]) {
+                                        headerDef.icasa = String(headerDef.column_header).toUpperCase();
+                                    } else if (icasaVarMap.management[headerDef.column_header] ||
+                                            icasaVarMap.observation[headerDef.column_header]) {
+                                        headerDef.icasa = headerDef.column_header;
                                     }
-                                    if (headerDef.code_display) {
-                                        if (icasaVarMap.management[headerDef.code_display]) {
-                                            headerDef.icasa_unit = icasaVarMap.management[headerDef.code_display].unit_or_type;
+                                    if (headerDef.icasa) {
+                                        let icasa_unit;
+                                        if (icasaVarMap.management[headerDef.icasa]) {
+                                            icasa_unit = icasaVarMap.management[headerDef.icasa].unit_or_type;
                                         } else {
-                                            headerDef.icasa_unit = icasaVarMap.observation[headerDef.code_display].unit_or_type;
+                                            icasa_unit = icasaVarMap.observation[headerDef.icasa].unit_or_type;
                                         }
-                                        if (headerDef.source_unit && headerDef.source_unit !== headerDef.icasa_unit) {
-                                            $.get(encodeURI("/data/unit/convert?unit_to=" + headerDef.source_unit + "&unit_from="+ headerDef.icasa_unit + "&value_from=1"),
+                                        if (headerDef.unit && headerDef.unit !== icasa_unit) {
+                                            $.get(encodeURI("/data/unit/convert?unit_to=" + icasa_unit + "&unit_from="+ headerDef.unit + "&value_from=1"),
                                                 function (jsonStr) {
                                                     var result = JSON.parse(jsonStr);
                                                     if (result.status !== "0") {
-                                                        headerDef.source_unit = headerDef.icasa_unit; // TODO this should change to give warning message
+                                                        headerDef.unit = icasa_unit; // TODO this should change to give warning message
                                                     }
                                                 }
                                             );
-                                        } else if (!headerDef.source_unit) {
-                                            headerDef.source_unit = headerDef.icasa_unit;
+                                        } else if (!headerDef.unit) {
+                                            headerDef.unit = icasa_unit;
                                         }
                                     }
-                                    templates[sheetName].headers.push(headerDef);
+                                    sheetDef.mappings.push(headerDef);
                                 }
                             } else {
                                 // Load existing template definition and do unit convertion
@@ -233,12 +238,10 @@
                                 callback: function(key, selection, clickEvent) {
                                     setTimeout(function() {
                                         let data = {};
-                                        data.colIdx = selection[0].start.col;
-                                        data.header = spreadsheet.getColHeader(data.colIdx);
-                                        let colDef = templates[curSheetName].headers[data.colIdx];
-                                        for (let key in colDef) {
-                                            data[key] = colDef[key];
-                                        }
+                                        let colIdx = selection[0].start.col;
+//                                        data.column_header = spreadsheet.getColHeader(data.colIdx);
+                                        let colDef = templates[curSheetName].mappings[colIdx];
+                                        Object.assign(data, colDef);
                                         showColDefineDialog(data);
                                     }, 0); // Fire alert after menu close (with timeout)
                                 }
@@ -304,10 +307,73 @@
             }
             
             function saveTemplateFile() {
-                let text = JSON.stringify(templates, 2, 2);
+                let text = toSC2Json();
                 let ext = "sidecar2";
                 let blob = new Blob([text], {type: "text/plain;charset=utf-8"});
                 saveAs(blob, fileName + "." + ext);
+            }
+            
+            function toSC2Json(compressFlg) {
+                if (compressFlg) {
+                    return JSON.stringify(toSC2Obj());
+                } else {
+                    return JSON.stringify(toSC2Obj(), 2, 2);
+                }
+            }
+            
+            function toSC2Obj() {
+                let sc2Obj = {
+                    mapping_info : {
+                        mapping_author : "data factory (http://dssat2d-plot.herokuapp.com/demo/data_factory)"
+//                        source_url: ""
+                    },
+                    dataset_metadata : {},
+                    agmip_translation_mappings : [
+                        {
+                            relations : [],
+                            //Grab the primary keys from here if EXNAME is not defined
+                            primary_ex_sheet : {
+    //                            file : "",
+    //                            sheet : "" 
+                            },
+                            file : {
+                                file_metadata : {
+                                    file_name : fileName,
+                                    "content-type" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                    // file_url : ""
+                                },
+                                sheets : [
+    //                                {
+    //                                    sheet_name : "",
+    //                                    data_start_row: 2,
+    //                                    mappings : [
+    //                                        {
+    //                                            icasa : "plta",
+    //                                            column_index : 14,
+    //                                            column_header : "plta",
+    //                                            unit : "m^2"
+    //                                        },
+    //                                        {
+    //                                            
+    //                                        }
+    //                                    ]
+    //                                }
+                                ]
+                            }
+                        }
+                    ],
+                    xrefs : [
+//                        {
+//                          xref_provider : "gardian",
+//                          xref_url : "https://gardian.bigdata.cgiar.org/dataset.php?id=5cd88b72317da7f1ae0cf390#!/"
+//                        }
+                    ]
+                };
+                
+                for (sheetName in templates) {
+                    sc2Obj.agmip_translation_mappings[0].file.sheets.push(templates[sheetName]);
+                }
+                return sc2Obj;
             }
             
             function alertBox(msg) {
@@ -400,7 +466,7 @@
                 initIcasaLookupSB();
                 chosen_init_all();
                 $('.nav-tabs #templateTab').on('shown.bs.tab', function(){
-                    $("#template_json_content").html(JSON.stringify(templates, 2, 2));
+                    $("#template_json_content").html(toSC2Json());
                 });
                 $("button").prop("disabled", false);
             });

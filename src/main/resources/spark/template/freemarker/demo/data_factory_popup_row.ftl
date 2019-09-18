@@ -10,16 +10,22 @@
                 label: "Confirm",
                 className: 'btn-primary',
                 callback: function(){
-                    let ret = {};
+                    let userDef = {};
                     $(this).find("[type='number']").each(function () {
                         if ($(this).val()) {
-                            ret[$(this).attr("name")] = $(this).val();
+                            userDef[$(this).attr("name")] = $(this).val();
                         }
                     });
-                    if (!ret.data_start_row || !ret.header_row) {
+                    if (!userDef.data_start_row || !userDef.header_row) {
                         showSheetDefDialog(workbook, callback, "[warning] Please provide header row number and data start row number.");
                     } else {
-                        callback(ret);
+                        let sheets = {};
+                        workbook.SheetNames.forEach(function(sheetName) {
+                            sheets[sheetName] = {};
+                            Object.assign(sheets[sheetName], userDef);
+                            sheets[sheetName].sheet_name = sheetName;
+                        });
+                        callback(sheets);
                     }
                 }
             }

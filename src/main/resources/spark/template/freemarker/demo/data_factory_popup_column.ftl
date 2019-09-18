@@ -3,8 +3,8 @@
 //                let promptClass = 'event-input-' + itemData.event;
         let curVarType;
         if (!type) {
-            if (itemData.code_display) {
-                if (icasaVarMap.management[itemData.code_display] || icasaVarMap.observation[itemData.code_display]) {
+            if (itemData.icasa) {
+                if (icasaVarMap.management[itemData.icasa] || icasaVarMap.observation[itemData.icasa]) {
                     type = "icasa";
                 } else if (itemData.reference) {
                     type = "reference";
@@ -36,7 +36,7 @@
                 callback: function(){
                     let subDiv = $(this).find("[name=" + curVarType + "]");
                     if (!itemData.err_msg) {
-                        let colDef = templates[curSheetName].headers[itemData.colIdx];
+                        let colDef = templates[curSheetName].mappings[itemData.column_index - 1];
                         subDiv.find(".col-def-input-item").each(function () {
                             if ($(this).val()) {
                                 colDef[$(this).attr("name")] = $(this).val();
@@ -69,7 +69,7 @@
             if (itemData.err_msg) {
                 dialog.find("[name='dialog_msg']").text(itemData.err_msg);
             }
-            dialog.find("[name=header]").each(function () {
+            dialog.find("[name=column_header]").each(function () {
                 $(this).val(itemData[$(this).attr("name")]);
             });
             dialog.find("[name=" + type + "_info]").find(".col-def-input-item").each(function () {
@@ -78,21 +78,9 @@
             dialog.find("[name='icasa_info']").each(function () {
                 let subDiv = $(this);
                 subDiv.on("type_shown", function() {
-                    chosen_init_name(subDiv.find("[name='code_display']"), "chosen-select-deselect");
+                    chosen_init_name(subDiv.find("[name='icasa']"), "chosen-select-deselect");
                 });
-                subDiv.find("[name='code_display']").each(function () {
-                    $(this).on("change", function () {
-                        var unit = icasaVarMap.management[$(this).val()].unit_or_type;
-                        subDiv.find("[name='icasa_unit']").val(unit);
-                        let sourceUnit = subDiv.find("[name='source_unit']");
-                        if (sourceUnit.val() === "") {
-                            sourceUnit.val(unit);
-                        } else {
-                            sourceUnit.trigger("input");
-                        }
-                    });
-                });
-                subDiv.find("[name='source_unit']").each(function () {
+                subDiv.find("[name='unit']").each(function () {
                     $(this).on("input", function () {
                         $.get(encodeURI("/data/unit/convert?unit_to=" + subDiv.find("[name='icasa_unit']").val() + "&unit_from="+ $(this).val() + "&value_from=1"),
                             function (jsonStr) {
@@ -108,13 +96,26 @@
                         );
                     });
                 });
+                subDiv.find("[name='icasa']").each(function () {
+                    $(this).on("change", function () {
+                        var unit = icasaVarMap.management[$(this).val()].unit_or_type;
+                        subDiv.find("[name='icasa_unit']").val(unit);
+                        let sourceUnit = subDiv.find("[name='unit']");
+                        if (sourceUnit.val() === "") {
+                            sourceUnit.val(unit);
+                        } else {
+                            sourceUnit.trigger("input");
+                        }
+                    });
+                    $(this).trigger("change");
+                });
             });
             dialog.find("[name='customized_info']").each(function () {
                 let subDiv = $(this);
                 subDiv.on("type_shown", function() {
                     chosen_init_name(subDiv.find("[name='category']"), "chosen-select-deselect");
                 });
-                subDiv.find("[name='code_display']").each(function () {
+                subDiv.find("[name='icasa']").each(function () {
                     $(this).on("input", function () {
                         // TODO
 //                                if (userVarMap[$(this).val()]) {
@@ -126,7 +127,7 @@
 //                                }
                     });
                 });
-                subDiv.find("[name='source_unit']").each(function () {
+                subDiv.find("[name='unit']").each(function () {
                     $(this).on("input", function () {
                         $.get(encodeURI("/data/unit/lookup?unit=" + $(this).val()),
                             function (jsonStr) {
@@ -164,7 +165,7 @@
     }
 
     function initIcasaLookupSB() {
-        let varSB = $("[name='icasa_info']").find("[name='code_display']");
+        let varSB = $("[name='icasa_info']").find("[name='icasa']");
         varSB.append('<option value=""></option>');
         let mgnOptgroup = $('<optgroup label="Managament variable"></optgroup>');
         varSB.append(mgnOptgroup);
@@ -197,7 +198,7 @@
         <div class="form-group col-sm-6">
             <label class="control-label">Column Header</label>
             <div class="input-group col-sm-12">
-                <input type="text" name="header" class="form-control col-def-input-item" value="" readonly>
+                <input type="text" name="column_header" class="form-control col-def-input-item" value="" readonly>
             </div>
         </div>
         <div class="form-group col-sm-6">
@@ -217,7 +218,7 @@
             <div class="form-group col-sm-12">
                 <label class="control-label">ICASA Variable</label>
                 <div class="input-group col-sm-12">
-                    <select name="code_display" class="form-control col-def-input-item" data-placeholder="Choose a variable...">
+                    <select name="icasa" class="form-control col-def-input-item" data-placeholder="Choose a variable...">
                     </select>
                 </div>
             </div>
@@ -225,13 +226,13 @@
             <div class="form-group col-sm-4">
                 <label class="control-label">ICASA Unit</label>
                 <div class="input-group col-sm-12">
-                    <input type="text" name="icasa_unit" class="form-control col-def-input-item" value="" readonly>
+                    <input type="text" name="icasa_unit" class="form-control" value="" readonly>
                 </div>
             </div>
             <div class="form-group col-sm-4">
                 <label class="control-label">Original Unit</label>
                 <div class="input-group col-sm-12">
-                    <input type="text" name="source_unit" class="form-control col-def-input-item" value="">
+                    <input type="text" name="unit" class="form-control col-def-input-item" value="">
                 </div>
             </div>
             <div class="form-group col-sm-4">
@@ -261,7 +262,7 @@
             <div class="form-group col-sm-12">
                 <label class="control-label">Variable Code</label>
                 <div class="input-group col-sm-12">
-                    <input type="text" name="code_display" class="form-control col-def-input-item" value="">
+                    <input type="text" name="icasa" class="form-control col-def-input-item" value="">
                 </div>
             </div>
             <!-- 3rd row -->
@@ -275,7 +276,7 @@
             <div class="form-group col-sm-12">
                 <label class="control-label">Unit</label>
                 <div class="input-group col-sm-12">
-                    <input type="text" name="source_unit" class="form-control col-def-input-item" value="">
+                    <input type="text" name="unit" class="form-control col-def-input-item" value="">
                 </div>
             </div>
             <div class="form-group col-sm-12">
