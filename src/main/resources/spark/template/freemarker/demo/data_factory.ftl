@@ -72,7 +72,7 @@
                     showSheetDefDialog(workbook, function (ret) {
                         templates = ret;
                         $("#sheet_csv_content").html(to_csv(workbook));
-                        $("#sheet_json_content").html(to_json(workbook));
+//                        $("#sheet_json_content").html(to_json(workbook));
 
                         wbObj = to_object(workbook);
                         $('#sheet_tab_list').empty();
@@ -172,7 +172,6 @@
             function setSpreadsheet(target) {
                 $("#sheet_name_selected").text(" <" + target.id + ">");
                 curSheetName = target.id;
-                initSpreadsheet(target.id);
             }
             
             function initSpreadsheet(sheetName, spsContainer) {
@@ -417,7 +416,7 @@
             </div>
             <br/>
             <ul class="nav nav-tabs">
-                <li class="active dropdown">
+                <li id="sheetTab" class="active dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Spreadsheet
                         <span id="sheet_name_selected"></span>
                         <span class="caret"></span>
@@ -426,8 +425,8 @@
                     </ul>
                 </li>
                 <li><a data-toggle="tab" href="#csv_tab">CSV</a></li>
-                <li><a data-toggle="tab" href="#json_tab">JSON</a></li>
-                <li id="templateTab"><a data-toggle="tab" href="#template_tab">Template</a></li>
+                <li id="mappingTab"><a data-toggle="tab" href="#mapping_tab">Mappings Preview</a></li>
+                <li id="SC2Tab"><a data-toggle="tab" href="#sc2_tab">SC2 Preview</a></li>
             </ul>
             <div class="tab-content">
                 <div id="spreadshet_tab" class="tab-pane fade in active">
@@ -438,11 +437,11 @@
                 <div id="csv_tab" class="tab-pane fade">
                     <textarea class="form-control" rows="30" id="sheet_csv_content" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
                 </div>
-                <div id="json_tab" class="tab-pane fade">
-                    <textarea class="form-control" rows="30" id="sheet_json_content" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
+                <div id="mapping_tab" class="tab-pane fade">
+                    <textarea class="form-control" rows="30" id="mapping_json_content" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
                 </div>
-                <div id="template_tab" class="tab-pane fade">
-                    <textarea class="form-control" rows="30" id="template_json_content" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
+                <div id="sc2_tab" class="tab-pane fade">
+                    <textarea class="form-control" rows="30" id="sc2_json_content" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
                 </div>
             </div>
         </div>
@@ -465,8 +464,14 @@
             $(document).ready(function () {
                 initIcasaLookupSB();
                 chosen_init_all();
-                $('.nav-tabs #templateTab').on('shown.bs.tab', function(){
-                    $("#template_json_content").html(toSC2Json());
+                $('.nav-tabs #sheetTab').on('shown.bs.tab', function(){
+                    initSpreadsheet(curSheetName);
+                });
+                $('.nav-tabs #mappingTab').on('shown.bs.tab', function(){
+                    $("#mapping_json_content").html(JSON.stringify(templates, 2, 2));
+                });
+                $('.nav-tabs #SC2Tab').on('shown.bs.tab', function(){
+                    $("#sc2_json_content").html(toSC2Json());
                 });
                 $("button").prop("disabled", false);
             });
