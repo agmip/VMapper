@@ -98,13 +98,15 @@
                 });
                 subDiv.find("[name='icasa']").each(function () {
                     $(this).on("change", function () {
-                        var unit = icasaVarMap.management[$(this).val()].unit_or_type;
-                        subDiv.find("[name='icasa_unit']").val(unit);
-                        let sourceUnit = subDiv.find("[name='unit']");
-                        if (sourceUnit.val() === "") {
-                            sourceUnit.val(unit);
-                        } else {
-                            sourceUnit.trigger("input");
+                        if (icasaVarMap.management[$(this).val()]) {
+                            var unit = icasaVarMap.management[$(this).val()].unit_or_type;
+                            subDiv.find("[name='icasa_unit']").val(unit);
+                            let sourceUnit = subDiv.find("[name='unit']");
+                            if (sourceUnit.val() === "") {
+                                sourceUnit.val(unit);
+                            } else {
+                                sourceUnit.trigger("input");
+                            }
                         }
                     });
                     $(this).trigger("change");
