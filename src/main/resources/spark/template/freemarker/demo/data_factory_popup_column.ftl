@@ -4,7 +4,7 @@
         let curVarType;
         if (!type) {
             if (itemData.icasa) {
-                if (icasaVarMap.management[itemData.icasa] || icasaVarMap.observation[itemData.icasa]) {
+                if (icasaVarMap.getDefinition(itemData.icasa)) {
                     type = "icasa";
                 } else if (itemData.reference) {
                     type = "reference";
@@ -81,32 +81,35 @@
                     chosen_init_name(subDiv.find("[name='icasa']"), "chosen-select-deselect");
                 });
                 subDiv.find("[name='unit']").each(function () {
+                    
+                        
                     $(this).on("input", function () {
-                        $.get(encodeURI("/data/unit/convert?unit_to=" + subDiv.find("[name='icasa_unit']").val() + "&unit_from="+ $(this).val() + "&value_from=1"),
-                            function (jsonStr) {
-                                var result = JSON.parse(jsonStr);
-                                if (result.status !== "0") {
-                                    subDiv.find("[name='unit_validate_result']").html("Not compatiable unit");
-                                    itemData.err_msg = "Please fix source unit expression";
-                                } else {
-                                    subDiv.find("[name='unit_validate_result']").html("");
-                                    delete itemData.err_msg;
+                        if ($(this).val() === "" && subDiv.find("[name='icasa_unit']").val() !== "") {
+                            subDiv.find("[name='unit_validate_result']").html("Require unit expression");
+                            itemData.err_msg = "Please provide your unit expression";
+                        } else {
+                            $.get(encodeURI("/data/unit/convert?unit_to=" + subDiv.find("[name='icasa_unit']").val() + "&unit_from="+ $(this).val() + "&value_from=1"),
+                                function (jsonStr) {
+                                    var result = JSON.parse(jsonStr);
+                                    if (result.status !== "0") {
+                                        subDiv.find("[name='unit_validate_result']").html("Not compatiable unit");
+                                        itemData.err_msg = "Please fix source unit expression";
+                                    } else {
+                                        subDiv.find("[name='unit_validate_result']").html("");
+                                        delete itemData.err_msg;
+                                    }
                                 }
-                            }
-                        );
+                            );
+                        }
                     });
                 });
                 subDiv.find("[name='icasa']").each(function () {
                     $(this).on("change", function () {
-                        if (icasaVarMap.management[$(this).val()]) {
-                            var unit = icasaVarMap.management[$(this).val()].unit_or_type;
+                        let unit = icasaVarMap.getUnit($(this).val());
+                        if (unit) {
                             subDiv.find("[name='icasa_unit']").val(unit);
                             let sourceUnit = subDiv.find("[name='unit']");
-                            if (sourceUnit.val() === "") {
-//                                sourceUnit.val(unit);
-                            } else {
-                                sourceUnit.trigger("input");
-                            }
+                            sourceUnit.trigger("input");
                         }
                     });
                     $(this).trigger("change");

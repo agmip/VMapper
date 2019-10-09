@@ -26,7 +26,7 @@
                         agmip_data_entry : "${var.agmip_data_entry}",
                         category : "${var.dataset} / ${var.subset} / ${var.group}"
                     }<#sep>,</#sep>
-                    </#list>    
+                    </#list>
                 },
                 "observation" : {
                     <#list icasaObvVarMap?values?sort_by("code_display")?sort_by("group")?sort_by("subset")?sort_by("dataset") as var>
@@ -40,7 +40,33 @@
                         agmip_data_entry : "${var.agmip_data_entry}",
                         category : "${var.dataset} / ${var.subset} / ${var.group}"
                     }<#sep>,</#sep>
-                    </#list>   
+                    </#list>
+                },
+                "getPrimaryGroup" : function(varName) {
+                    if (this.management[varName]) {
+                        return this.management;
+                    } else if (this.observation[varName]) {
+                        return this.observation;
+                    } else {
+                        return null;
+                    }
+                },
+                "getDefinition" : function(varName) {
+                    let group = this.getPrimaryGroup(varName);
+                    if (group) {
+                        return group[varName];
+                    } else {
+                        return null;
+                    }
+                    
+                },
+                "getUnit" : function(varName) {
+                    let group = this.getPrimaryGroup(varName);
+                    if (group) {
+                        return group[varName].unit_or_type;
+                    } else {
+                        return null;
+                    }
                 }
             };
             
@@ -117,20 +143,14 @@
                                     if (sheetDef.desc_row) {
                                         headerDef.description = roa[sheetDef.desc_row - 1][i];
                                     }
-                                    if (icasaVarMap.management[String(headerDef.column_header).toUpperCase()] ||
-                                            icasaVarMap.observation[String(headerDef.column_header).toUpperCase()]) {
-                                        headerDef.icasa = String(headerDef.column_header).toUpperCase();
-                                    } else if (icasaVarMap.management[headerDef.column_header] ||
-                                            icasaVarMap.observation[headerDef.column_header]) {
+                                    let headerName = String(headerDef.column_header).toUpperCase();
+                                    if (icasaVarMap.getDefinition(headerName)) {
+                                        headerDef.icasa = headerName;
+                                    } else if (icasaVarMap.getDefinition(headerDef.column_header)) {
                                         headerDef.icasa = headerDef.column_header;
                                     }
                                     if (headerDef.icasa) {
-                                        let icasa_unit;
-                                        if (icasaVarMap.management[headerDef.icasa]) {
-                                            icasa_unit = icasaVarMap.management[headerDef.icasa].unit_or_type;
-                                        } else {
-                                            icasa_unit = icasaVarMap.observation[headerDef.icasa].unit_or_type;
-                                        }
+                                        let icasa_unit = icasaVarMap.getUnit(headerDef.icasa);
                                         if (headerDef.unit && headerDef.unit !== icasa_unit) {
                                             $.get(encodeURI("/data/unit/convert?unit_to=" + icasa_unit + "&unit_from="+ headerDef.unit + "&value_from=1"),
                                                 function (jsonStr) {
