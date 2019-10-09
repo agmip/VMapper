@@ -119,6 +119,9 @@
             function to_object(workbook) {
                 var result = {};
                 workbook.SheetNames.forEach(function(sheetName) {
+                    if (!templates[sheetName]) {
+                        return;
+                    }
                     var roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1});
                     let sheetDef = templates[sheetName];
                     if (roa.length) {

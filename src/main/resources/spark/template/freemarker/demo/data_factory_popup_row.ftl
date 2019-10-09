@@ -4,6 +4,7 @@
         workbook.SheetNames.forEach(function(sheetName) {
             sheets[sheetName] = {};
             sheets[sheetName].sheet_name = sheetName;
+            sheets[sheetName].included_flg = true;
             var roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1});
             if(roa.length){
                 for (let i in roa) {
@@ -26,7 +27,7 @@
                     } else if (sheets[sheetName].header_row && !sheets[sheetName].data_start_row) {
                         sheets[sheetName].data_start_row = Number(i) + 1;
                     }
-                    if (Object.keys(sheets[sheetName]).length >= 5) {
+                    if (Object.keys(sheets[sheetName]).length >= 6) {
                         break;
                     }
                 }
@@ -48,14 +49,23 @@
                 label: "Confirm",
                 className: 'btn-primary',
                 callback: function(){
-                    let errFlg = false;
+                    let idxErrFlg = false;
+                    let includedCnt = 0;
                     for (sheetName in sheets) {
                         if (!sheets[sheetName].data_start_row || !sheets[sheetName].header_row) {
-                            errFlg = true;
+                            idxErrFlg = true;
+                        }
+                        if (sheets[sheetName].included_flg) {
+                            includedCnt++;
+                            delete sheets[sheetName].included_flg;
+                        } else {
+                            delete sheets[sheetName];
                         }
                     }
-                    if (errFlg) {
+                    if (idxErrFlg) {
                         showSheetDefDialog(workbook, callback, "[warning] Please provide header row number and data start row number.");
+                    } else if (includedCnt === 0) {
+                        showSheetDefDialog(workbook, callback, "[warning] Please select at least one sheet for reading in.");
                     } else {
                         callback(sheets);
                     }
@@ -84,7 +94,8 @@
                         {type: 'numeric', data : "header_row"},
                         {type: 'numeric', data : "data_start_row"},
                         {type: 'numeric', data : "unit_row"},
-                        {type: 'numeric', data : "desc_row"}
+                        {type: 'numeric', data : "desc_row"},
+                        {type: 'checkbox', data : "included_flg"}
                     ],
                     stretchH: 'all',
                     autoWrapRow: true,
@@ -94,7 +105,7 @@
                     manualRowResize: false,
                     manualColumnResize: false,
                     rowHeaders: false,
-                    colHeaders: ["Sheet", "Header Row #", "Data start Row #", "Unit Row #", "Description Row #"],
+                    colHeaders: ["Sheet", "Header Row #", "Data start Row #", "Unit Row #", "Description Row #", "Included"],
                     manualRowMove: false,
                     manualColumnMove: false,
                     filters: true,
