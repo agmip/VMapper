@@ -103,7 +103,7 @@
                             subDiv.find("[name='icasa_unit']").val(unit);
                             let sourceUnit = subDiv.find("[name='unit']");
                             if (sourceUnit.val() === "") {
-                                sourceUnit.val(unit);
+//                                sourceUnit.val(unit);
                             } else {
                                 sourceUnit.trigger("input");
                             }
