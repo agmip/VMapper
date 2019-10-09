@@ -169,7 +169,7 @@
     function initIcasaLookupSB() {
         let varSB = $("[name='icasa_info']").find("[name='icasa']");
         varSB.append('<option value=""></option>');
-        let mgnOptgroup = $('<optgroup label="Managament variable"></optgroup>');
+        let mgnOptgroup = $('<optgroup label="Management variable"></optgroup>');
         varSB.append(mgnOptgroup);
 //                let category = "";
 //                let optgroup;
