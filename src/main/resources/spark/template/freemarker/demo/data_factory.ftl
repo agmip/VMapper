@@ -255,7 +255,8 @@
                                 disabled: function () {
                                     // disable the option when the multiple columns were selected
                                     let range = this.getSelectedLast();
-                                    return range[1] !== range[3];
+                                    let selection = this.getSelected();
+                                    return range[1] !== range[3] || selection.length !== 1;
                                 },
                                 callback: function(key, selection, clickEvent) {
                                     setTimeout(function() {
