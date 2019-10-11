@@ -206,10 +206,18 @@
                 }
                 let minRows = 10;
                 let data = wbObj[sheetName].data;
-                let headers = wbObj[sheetName].header;
+                let mappings = templates[sheetName].mappings;
                 let columns = [];
-                for (let i in headers) {
-                    columns.push({type: 'text', id : headers[i]});
+                for (let i in mappings) {
+                    if (mappings[i].unit === "date") {
+                        columns.push({type: 'date', id : mappings[i]});
+                    } else if (mappings[i].unit === "text" || mappings[i].unit === "code") {
+                        columns.push({type: 'text', id : mappings[i]});
+                    } else if (mappings[i].unit !== ""){
+                        columns.push({type: 'numeric', id : mappings[i]});
+                    } else {
+                        columns.push({type: 'text', id : mappings[i]});
+                    }
                 }
                 
                 let spsOptions = {
@@ -225,7 +233,15 @@
                     manualRowResize: true,
                     manualColumnResize: true,
                     rowHeaders: true,
-                    colHeaders: headers,
+                    colHeaders: function (col) {
+                        var txt = '<input type="checkbox" name="' + sheetName + '_' + col + '"';
+                        if (mappings[col].ignored_flg) {
+                            txt += 'onchange=toggleIgnoreColumn(' + col + ');> ' + mappings[col].column_header
+                        } else {
+                            txt += 'checked onchange=toggleIgnoreColumn(' + col + ');> ' + mappings[col].column_header
+                        }
+                        return txt;
+                    },
 //                    headerTooltips: true,
 //                    afterChange: function(changes, src) {
 //                        if(changes){
@@ -269,15 +285,53 @@
                                     }, 0); // Fire alert after menu close (with timeout)
                                 }
                             },
-                            "remove_column":{
-                                name: "Remove Column",
-            //                    hidden: function () { // `hidden` can be a boolean or a function
-            //                        // Hide the option when the first column was clicked
-            //                        return this.getSelectedLast()[1] == 0; // `this` === hot3
-            //                    },
+                            "ignore_column":{
+                                name: "Ignore Column",
+                                hidden: function () { // `hidden` can be a boolean or a function
+                                    // Hide the option when it is ignored
+                                    let selection = this.getSelected();
+                                    for (let i in selection) {
+                                        for (let j = selection[i][1]; j <= selection[i][3]; j++) {
+                                            if ($("[name='" + curSheetName + "_" + j + "']").last().prop("checked")) {
+                                                return false;
+                                            }
+                                        }
+                                    }
+                                    return true;
+                                },
                                 callback: function(key, selection, clickEvent) {
                                     setTimeout(function() {
-                                        alertBox("Functionality under construction...");
+                                        for (let i in selection) {
+                                            for (let j = selection[i].start.col; j <= selection[i].end.col; j++) {
+                                                let cb = $("[name='" + curSheetName + "_" + j + "']").last();
+                                                cb.prop("checked", false).trigger("change");
+                                            }
+                                        }
+                                    }, 0); // Fire alert after menu close (with timeout)
+                                }
+                            },
+                            "include_column":{
+                                name: "Include Column",
+                                hidden: function () { // `hidden` can be a boolean or a function
+                                    // Hide the option when it is ignored
+                                    let selection = this.getSelected();
+                                    for (let i in selection) {
+                                        for (let j = selection[i][1]; j <= selection[i][3]; j++) {
+                                            if (!$("[name='" + curSheetName + "_" + j + "']").last().prop("checked")) {
+                                                return false;
+                                            }
+                                        }
+                                    }
+                                    return true;
+                                },
+                                callback: function(key, selection, clickEvent) {
+                                    setTimeout(function() {
+                                        for (let i in selection) {
+                                            for (let j = selection[i].start.col; j <= selection[i].end.col; j++) {
+                                                let cb = $("[name='" + curSheetName + "_" + j + "']").last();
+                                                cb.prop("checked", true).trigger("change");
+                                            }
+                                        }
                                     }, 0); // Fire alert after menu close (with timeout)
                                 }
                             },
@@ -303,6 +357,13 @@
                 spreadsheet = new Handsontable(spsContainer, spsOptions);
             }
 
+            function toggleIgnoreColumn(colIdx) {
+                if ($("[name='" + curSheetName + "_" + colIdx + "']").last().prop("checked")) {
+                    delete templates[curSheetName].mappings[colIdx].ignored_flg;
+                } else {
+                    templates[curSheetName].mappings[colIdx].ignored_flg = true;
+                }
+            }
             
             function convertUnit() {
                 // TODO
@@ -377,8 +438,15 @@
                     ]
                 };
                 
-                for (sheetName in templates) {
-                    sc2Obj.agmip_translation_mappings[0].file.sheets.push(templates[sheetName]);
+                for (let sheetName in templates) {
+                    let tmp = Object.assign({}, templates[sheetName]);
+                    tmp.mappings = [];
+                    for (let i in templates[sheetName].mappings) {
+                        if (!templates[sheetName].mappings[i].ignored_flg) {
+                            tmp.mappings.push(templates[sheetName].mappings[i]);
+                        }
+                    }
+                    sc2Obj.agmip_translation_mappings[0].file.sheets.push(tmp);
                 }
                 return sc2Obj;
             }
