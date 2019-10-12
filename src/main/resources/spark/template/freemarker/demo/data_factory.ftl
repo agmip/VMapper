@@ -238,9 +238,14 @@
                     colHeaders: function (col) {
                         var txt = '<input type="checkbox" name="' + sheetName + '_' + col + '"';
                         if (mappings[col].ignored_flg) {
-                            txt += 'onchange=toggleIgnoreColumn(' + col + ');> ' + mappings[col].column_header
+                            txt += 'onchange=toggleIgnoreColumn(' + col + ');> ';
                         } else {
-                            txt += 'checked onchange=toggleIgnoreColumn(' + col + ');> ' + mappings[col].column_header
+                            txt += 'checked onchange=toggleIgnoreColumn(' + col + ');> ';
+                        }
+                        if (mappings[col].column_header) {
+                            txt += mappings[col].column_header;
+                        } else {
+                            txt += "N/a_" + col;
                         }
                         return txt;
                     },
