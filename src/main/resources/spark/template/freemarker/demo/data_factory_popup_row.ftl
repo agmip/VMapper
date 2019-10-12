@@ -36,7 +36,7 @@
                 sheets[sheetName].header_row = 1;
             }
             if (!sheets[sheetName].data_start_row) {
-                sheets[sheetName].data_start_row = 2;
+                sheets[sheetName].data_start_row = sheets[sheetName].header_row + 1;
             }
         });
         let buttons = {
