@@ -1,5 +1,5 @@
 <script>
-    function showSheetDefDialog(workbook, callback, errMsg) {
+    function showSheetDefDialog(callback, errMsg) {
         let sheets = {};
         workbook.SheetNames.forEach(function(sheetName) {
             sheets[sheetName] = {};
@@ -63,9 +63,9 @@
                         }
                     }
                     if (idxErrFlg) {
-                        showSheetDefDialog(workbook, callback, "[warning] Please provide header row number and data start row number.");
+                        showSheetDefDialog(callback, "[warning] Please provide header row number and data start row number.");
                     } else if (includedCnt === 0) {
-                        showSheetDefDialog(workbook, callback, "[warning] Please select at least one sheet for reading in.");
+                        showSheetDefDialog(callback, "[warning] Please select at least one sheet for reading in.");
                     } else {
                         callback(sheets);
                     }

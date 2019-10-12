@@ -12,6 +12,7 @@
             let curSheetName;
             let templates = {};
             let fileName;
+            let workbook;
             let userVarMap = {};
             let icasaVarMap = {
                 "management" : {
@@ -85,31 +86,32 @@
             function readSpreadSheet(target) {
                 let files = target.files;
                 let f = files[0];
-                if (!fileName) {
-                    fileName = getFileName(f.name);
-                }
+                fileName = getFileName(f.name);
                 userVarMap = {};
                 let reader = new FileReader();
                 reader.onload = function(e) {
                     let data = e.target.result;
 //                    data = new Uint8Array(data);
-                    let workbook = XLSX.read(data, {type: 'binary'});
-
-                    showSheetDefDialog(workbook, function (ret) {
-                        templates = ret;
-                        $("#sheet_csv_content").html(to_csv(workbook));
-//                        $("#sheet_json_content").html(to_json(workbook));
-
-                        wbObj = to_object(workbook);
-                        $('#sheet_tab_list').empty();
-                        for (let sheetName in templates) {
-                            $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + sheetName + '" onclick="setSpreadsheet(this);">' + sheetName + '</a></li>');
-                        }
-    //                    $("#sheet_spreadsheet_content").html("");
-                        $('#sheet_tab_list').find("a").first().click();
-                    });
+                    workbook = XLSX.read(data, {type: 'binary'});
+                    showSheetDefDialog(processData);
                 };
                 reader.readAsBinaryString(f);
+            }
+            
+            function processData(ret) {
+                if (ret) templates = ret;
+                if (workbook) {
+                    $("#sheet_csv_content").html(to_csv(workbook));
+//                        $("#sheet_json_content").html(to_json(workbook));
+
+                    wbObj = to_object(workbook);
+                    $('#sheet_tab_list').empty();
+                    for (let sheetName in templates) {
+                        $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + sheetName + '" onclick="setSpreadsheet(this);">' + sheetName + '</a></li>');
+                    }
+    //                    $("#sheet_spreadsheet_content").html("");
+                    $('#sheet_tab_list').find("a").first().click();
+                }
             }
             
             function to_json(workbook) {
