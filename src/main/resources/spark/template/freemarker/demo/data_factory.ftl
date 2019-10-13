@@ -355,7 +355,7 @@
                                 name : "clear",
                                 callback: function(key, selection, clickEvent) { // Callback for specific option
                                     setTimeout(function() {
-                                        alert('Hello world!'); // Fire alert after menu close (with timeout)
+                                        alertBox('Hello world!'); // Fire alert after menu close (with timeout)
                                     }, 0);
                                 }}
                         }
@@ -393,15 +393,104 @@
             }
             
             function openTemplateFile() {
-                alertBox("Functionality under construction...");
-//                $('<input type="file" accept=".json,.sidecar2" onchange="readSpreadSheet(this);">').click();
+                if (!workbook) {
+                    alertBox("Please load spreadsheet file first, then apply SC2 file for it.");
+                } else {
+                    $('<input type="file" accept=".sc2.json,.json,.sc2" onchange="readSC2Json(this);">').click();
+                }
+            }
+
+            function readSC2Json(target) {
+                templates = {};
+                var files = target.files;
+                if (files.length !== 1) {
+                    alertBox('Please select one file!');
+                    return;
+                }
+                var file = files[0];
+                var start = 0;
+                var stop = file.size - 1;
+                var reader = new FileReader();
+                reader.onloadend = function (evt) {
+                    if (evt.target.readyState === FileReader.DONE) { // DONE == 2
+                        var jsonStr = evt.target.result;
+//                        readSoilData(jsonStr);
+                        
+                        var sc2obj = JSON.parse(jsonStr);
+                        if (sc2obj.agmip_translation_mappings) {
+                            if (sc2obj.agmip_translation_mappings.length === 0) {
+                                alertBox("No AgMIP mapping information detected, please try another file!");
+                                return;
+                            }
+                            // Locate the correct file for reading mappings
+                            let fileConfig;
+                            for (let i in sc2obj.agmip_translation_mappings) {
+                                fileConfig = sc2obj.agmip_translation_mappings[i];
+                                if (fileConfig.file && fileConfig.file.file_metadata
+                                        && fileName === fileConfig.file.file_metadata.file_name) {
+                                    break;
+                                } else {
+                                    fileConfig = null;
+                                }
+                            }
+                            // If no matched file name, then use first defition as default
+                            if (!fileConfig) {
+                                fileConfig = sc2obj.agmip_translation_mappings[0];
+                            }
+                            
+                            if (!fileConfig.sheets) {
+                                fileConfig.sheets = [];
+                            }
+                            // Load mapping for each sheet and fill missing column with ignore flag
+                            for (let i in fileConfig.sheets) {
+                                let sheetName = fileConfig.sheets[i].sheet_name;
+                                if (!sheetName) sheetName = "" + i;
+                                templates[sheetName] = Object.assign({}, fileConfig.sheets[i]);
+                                if (!templates[sheetName].header_row) {
+                                    templates[sheetName].header_row = 1;
+                                }
+                                if (!templates[sheetName].data_start_row) {
+                                    templates[sheetName].data_start_row = templates[sheetName].header_row + 1;
+                                }
+                                let sc2Mappings = fileConfig.sheets[i].mappings;
+                                let mappings = templates[sheetName].mappings;
+                                mappings = [];
+                                let curIdx = 0;
+                                for (let j in sc2Mappings) {
+                                    let colIdx = Number(sc2Mappings[j].column_index);
+                                    for (let k = curIdx; k < colIdx; k++) {
+                                        if (!mappings[k]) {
+                                            mappings[k].push({
+                                                column_index : k,
+                                                ignored_flg : true
+                                            });
+                                        }
+                                    }
+                                    if (mappings[colIdx]) {
+                                        mappings[colIdx] = sc2Mappings[j];
+                                    } else {
+                                        mappings.push(sc2Mappings[j]);
+                                    }
+                                }
+                            }
+                            processData();
+                        }
+                    }
+                };
+
+                var blob = file.slice(start, stop + 1);
+                reader.readAsBinaryString(blob);
             }
             
             function saveTemplateFile() {
-                let text = toSC2Json();
-                let ext = "-sc2.json";
-                let blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-                saveAs(blob, fileName + ext);
+                if (!fileName) {
+                    alertBox("Please load spreadsheet file first, then edit and save SC2 file for it.");
+                } else {
+                    let text = toSC2Json();
+                    let ext = "-sc2.json";
+                    let blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+                    saveAs(blob, fileName + ext);
+                }
             }
             
             function toSC2Json(compressFlg) {
@@ -475,7 +564,7 @@
         <div class="container-fluid">
             <div class="">
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" disabled>
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                         Experiment Data <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu">
@@ -486,7 +575,7 @@
                     </ul>
                 </div>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" disabled>
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                         Template <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu">
