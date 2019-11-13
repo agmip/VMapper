@@ -11,8 +11,8 @@ function drawSWV2DPlot(plotVar, plotVarName, data, containerId, cell, style, cha
     let eventData = {PRED:[], IRRD:[]};
     let max = data["sim"]["maxAll"][plotVar];
     let min = data["sim"]["minAll"][plotVar];
-    let lastDS = soilProfile["DS"][Number(cell.row - 1)];
-    if (lastDS) {
+    let lastDS = soilProfile["DS"][Number(cell.row) - 1];
+    if (!lastDS) {
         lastDS = 0;
     }
     let plotTitle = "Time series Plot at cell [" + (Number(cell.row) + 1) + ", " + (Number(cell.col) + 1) + "], Depth: " + lastDS + " - " + soilProfile["DS"][Number(cell.row)] + " cm";
