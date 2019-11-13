@@ -19,7 +19,7 @@
                     <#list icasaMgnVarMap?values?sort_by("code_display")?sort_by("group")?sort_by("subset")?sort_by("dataset") as var>
                     "${var.code_display}" : {
                         code_display : "${var.code_display}",
-                        description : "${var.description}",
+                        description : '${var.description}',
                         unit_or_type : "${var.unit_or_type}",
                         dataset : "${var.dataset}",
                         subset : "${var.subset}",

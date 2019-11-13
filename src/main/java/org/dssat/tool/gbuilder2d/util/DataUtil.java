@@ -46,6 +46,7 @@ public class DataUtil {
     private static final String ICASA_MGN_VAR_HEADER_VAR_SUBGROUP = "subgroup";
     private static final String ICASA_OBV_VAR_HEADER_VAR_SUBGROUP = "sub-group";
     private static final String ICASA_MGN_VAR_HEADER_VAR_RATING = "agmip_data_entry";
+    private static final int ICASA_MIN_ACCEPTABLE_RATING_LEVEL = -1;
     
     private static JSONObject loadCulData() {
         
@@ -336,7 +337,7 @@ public class DataUtil {
                         varDef.put(headers[i], nextLine[attrIdx[i]]);
                     }
                     try {
-                        if (Integer.parseInt(varDef.get(ICASA_MGN_VAR_HEADER_VAR_RATING).toString()) < 0) {
+                        if (Integer.parseInt(varDef.get(ICASA_MGN_VAR_HEADER_VAR_RATING).toString()) < ICASA_MIN_ACCEPTABLE_RATING_LEVEL) {
                             continue;
                         }
                     } catch (NumberFormatException ex) {}
@@ -397,7 +398,7 @@ public class DataUtil {
                         varDef.put(headers[i], nextLine[attrIdx[i]]);
                     }
                     try {
-                        if (Integer.parseInt(varDef.get(ICASA_MGN_VAR_HEADER_VAR_RATING).toString()) < -1) {
+                        if (Integer.parseInt(varDef.get(ICASA_MGN_VAR_HEADER_VAR_RATING).toString()) < ICASA_MIN_ACCEPTABLE_RATING_LEVEL) {
                             continue;
                         }
                     } catch (NumberFormatException ex) {}
