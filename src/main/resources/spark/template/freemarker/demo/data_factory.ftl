@@ -622,8 +622,8 @@
         <#include "data_factory_popup_column.ftl">
         <#include "../footer.ftl">
         <script type="text/javascript" src='/plugins/FileSaver/FileSaver.js'></script>
-        <script src="http://oss.sheetjs.com/js-xlsx/shim.js"></script>
-        <script src="http://oss.sheetjs.com/js-xlsx/xlsx.full.min.js"></script>
+        <script type="text/javascript" src="/js/sheetjs/shim.js" charset="utf-8"></script>
+        <script type="text/javascript" src="/js/sheetjs/xlsx.full.min.js"></script>
         <script type="text/javascript" src="/plugins/filestyle/bootstrap-filestyle.min.js"></script>
         <script type="text/javascript" src="/plugins/chosen/chosen.jquery.min.js" ></script>
         <script type="text/javascript" src="/plugins/chosen/prism.js" charset="utf-8"></script>
