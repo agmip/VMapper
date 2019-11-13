@@ -36,7 +36,7 @@
                     curFileIdx = -1;
                     for (let i = 0; i < files.length; i++) {
                         if (files[i].name === "CellDetail.OUT"
-                                || files[i].match(/CellDetailW.*\.OUT/)
+                                || files[i].name.match(/CellDetailW.*\.OUT/)
                                 || files[i].name === "SWV_2dobv.csv"
 //                                || files[i].name === "Weather.OUT"
 //                                || files[i].name === "SoilWat.OUT"
