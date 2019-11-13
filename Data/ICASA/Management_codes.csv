@@ -198,6 +198,7 @@
 "planting_distribution","PLDS","U","Uniform/Broadcast","","","1","",""
 "planting_distribution","PLDS","RB","Rows on beds","","","1","",""
 "planting_distribution","PLDS","N","Unknown/not given","","","1","",""
+"planting_distribution","PLDS","P","Pots","","","1","",""
 
 "Residues or organic materials","OMCD","RE001","Generic crop residue","","","1","",""
 "Residues or organic materials","OMCD","RE002","Green manure","","","1","",""
