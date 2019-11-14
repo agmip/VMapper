@@ -38,13 +38,25 @@
                     if (!itemData.err_msg) {
                         let colDef = templates[curSheetName].mappings[itemData.column_index - 1];
                         subDiv.find(".col-def-input-item").each(function () {
-                            if ($(this).val()) {
+                            if ($(this).attr("type") === "checkbox") {
+                                if ($(this).is(":checked")) {
+                                    colDef[$(this).attr("name")] = true;
+                                } else {
+                                    delete colDef[$(this).attr("name")];
+                                }
+                            } else if ($(this).val()) {
                                 colDef[$(this).attr("name")] = $(this).val();
                             }
                         });
                     } else {
                         subDiv.find(".col-def-input-item").each(function () {
-                            if ($(this).val()) {
+                            if ($(this).attr("type") === "checkbox") {
+                                if ($(this).is(":checked")) {
+                                    itemData[$(this).attr("name")] = true;
+                                } else {
+                                    delete itemData[$(this).attr("name")];
+                                }
+                            } else if ($(this).val()) {
                                 itemData[$(this).attr("name")] = $(this).val();
                             }
                         });
@@ -73,7 +85,12 @@
                 $(this).val(itemData[$(this).attr("name")]);
             });
             dialog.find("[name=" + type + "_info]").find(".col-def-input-item").each(function () {
-                $(this).val(itemData[$(this).attr("name")]);
+                if ($(this).attr("type") === "checkbox") {
+                    $(this).prop( "checked", itemData[$(this).attr("name")]);
+                } else {
+                    $(this).val(itemData[$(this).attr("name")]);
+                }
+                
             });
             dialog.find("[name='icasa_info']").each(function () {
                 let subDiv = $(this);
@@ -82,7 +99,6 @@
                 });
                 subDiv.find("[name='unit']").each(function () {
                     
-                        
                     $(this).on("input", function () {
                         if ($(this).val() === "" && subDiv.find("[name='icasa_unit']").val() !== "") {
                             subDiv.find("[name='unit_validate_result']").html("Require unit expression");
@@ -109,10 +125,25 @@
                         if (unit) {
                             subDiv.find("[name='icasa_unit']").val(unit);
                             let sourceUnit = subDiv.find("[name='unit']");
-                            sourceUnit.trigger("input");
+                            if (subDiv.find("[name='same_unit_flg']").is(':checked')) {
+                                sourceUnit.val(unit);
+                            } else {
+                                sourceUnit.trigger("input");
+                            }
                         }
                     });
                     $(this).trigger("change");
+                });
+                subDiv.find("[name='same_unit_flg']").each(function () {
+                    $(this).on("change", function () {
+                        let unit = subDiv.find("[name='icasa_unit']").val();
+                        let sourceUnit = subDiv.find("[name='unit']");
+                        if ($(this).is(":checked")) {
+                            sourceUnit.val(unit).trigger("input").prop("readOnly", true);
+                        } else {
+                            sourceUnit.val("").trigger("input").prop("readOnly", false);
+                        }
+                    });
                 });
             });
             dialog.find("[name='customized_info']").each(function () {
@@ -242,9 +273,13 @@
             </div>
             <div class="form-group col-sm-4">
                 <label class="control-label"></label>
+                <div class="input-group col-sm-12">
+                    <input type="checkbox" name="same_unit_flg" class="col-def-input-item"> Apply same unit as ICASA
+                </div>
                 <div class="input-group col-sm-12" name="unit_validate_result"></div>
             </div>
         </div>
+        <!-- Customized Variable Info -->
         <div name="customized_info" hidden>
             <!-- 2nd row -->
             <div class="form-group col-sm-12">
@@ -289,6 +324,7 @@
                 <div class="input-group col-sm-12" name="unit_validate_result"></div>
             </div>
         </div>
+        <!-- Reference Variable Info -->
         <div name="reference_info" hidden>
             <!-- 2nd row -->
             <div class="form-group col-sm-12">
