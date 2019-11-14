@@ -83,7 +83,7 @@
                 }
             }
             
-            function readSpreadSheet(target) {
+            function readSpreadSheet(target, sc2Files) {
                 let files = target.files;
                 let f = files[0];
                 fileName = getFileName(f.name);
@@ -93,7 +93,11 @@
                     let data = e.target.result;
 //                    data = new Uint8Array(data);
                     workbook = XLSX.read(data, {type: 'binary'});
-                    showSheetDefDialog(processData);
+                    if (sc2Files.files && sc2Files.files.length > 0) {
+                        readSC2Json(sc2Files);
+                    } else {
+                        showSheetDefDialog(processData);
+                    }
                 };
                 reader.readAsBinaryString(f);
             }
@@ -377,7 +381,7 @@
             }
             
             function openExpDataFile() {
-                $('<input type="file" accept=".xlsx,.xls" onchange="readSpreadSheet(this);">').click();
+                showLoadFileDialog();
             }
             
             function openExpDataFolderFile() {
@@ -618,6 +622,7 @@
             </div>
         </div>
 
+        <#include "data_factory_popup_loadFile.ftl">
         <#include "data_factory_popup_row.ftl">
         <#include "data_factory_popup_column.ftl">
         <#include "../footer.ftl">
