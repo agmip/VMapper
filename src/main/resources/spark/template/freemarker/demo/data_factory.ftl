@@ -438,21 +438,21 @@
                                 fileConfig = sc2obj.agmip_translation_mappings[0];
                             }
                             
-                            if (!fileConfig.sheets) {
-                                fileConfig.sheets = [];
+                            if (!fileConfig.file.sheets) {
+                                fileConfig.file.sheets = [];
                             }
                             // Load mapping for each sheet and fill missing column with ignore flag
-                            for (let i in fileConfig.sheets) {
-                                let sheetName = fileConfig.sheets[i].sheet_name;
+                            for (let i in fileConfig.file.sheets) {
+                                let sheetName = fileConfig.file.sheets[i].sheet_name;
                                 if (!sheetName) sheetName = "" + i;
-                                templates[sheetName] = Object.assign({}, fileConfig.sheets[i]);
+                                templates[sheetName] = Object.assign({}, fileConfig.file.sheets[i]);
                                 if (!templates[sheetName].header_row) {
                                     templates[sheetName].header_row = 1;
                                 }
                                 if (!templates[sheetName].data_start_row) {
                                     templates[sheetName].data_start_row = templates[sheetName].header_row + 1;
                                 }
-                                let sc2Mappings = fileConfig.sheets[i].mappings;
+                                let sc2Mappings = fileConfig.file.sheets[i].mappings;
                                 let mappings = templates[sheetName].mappings;
                                 mappings = [];
                                 let curIdx = 0;
@@ -460,7 +460,7 @@
                                     let colIdx = Number(sc2Mappings[j].column_index);
                                     for (let k = curIdx; k < colIdx; k++) {
                                         if (!mappings[k]) {
-                                            mappings[k].push({
+                                            mappings.push({
                                                 column_index : k,
                                                 ignored_flg : true
                                             });
