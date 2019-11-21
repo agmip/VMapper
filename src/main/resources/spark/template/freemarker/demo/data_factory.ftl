@@ -420,16 +420,22 @@
                         var jsonStr = evt.target.result;
 //                        readSoilData(jsonStr);
                         
-                        var sc2obj = JSON.parse(jsonStr);
-                        if (sc2obj.agmip_translation_mappings) {
-                            if (sc2obj.agmip_translation_mappings.length === 0) {
+                        var sc2Obj = JSON.parse(jsonStr);
+                        $(".mapping_gengeral_info").val("");
+                        if (sc2Obj.mapping_info) {
+                            for (let key in sc2Obj.mapping_info) {
+                                $("[name='" + key + "']").val(sc2Obj.mapping_info[key]);
+                            }
+                        }
+                        if (sc2Obj.agmip_translation_mappings) {
+                            if (sc2Obj.agmip_translation_mappings.length === 0) {
                                 alertBox("No AgMIP mapping information detected, please try another file!");
                                 return;
                             }
                             // Locate the correct file for reading mappings
                             let fileConfig;
-                            for (let i in sc2obj.agmip_translation_mappings) {
-                                fileConfig = sc2obj.agmip_translation_mappings[i];
+                            for (let i in sc2Obj.agmip_translation_mappings) {
+                                fileConfig = sc2Obj.agmip_translation_mappings[i];
                                 if (fileConfig.file && fileConfig.file.file_metadata
                                         && fileName === fileConfig.file.file_metadata.file_name) {
                                     break;
@@ -439,7 +445,7 @@
                             }
                             // If no matched file name, then use first defition as default
                             if (!fileConfig) {
-                                fileConfig = sc2obj.agmip_translation_mappings[0];
+                                fileConfig = sc2Obj.agmip_translation_mappings[0];
                             }
                             
                             if (!fileConfig.file.sheets) {
@@ -508,7 +514,7 @@
             function toSC2Obj() {
                 let sc2Obj = {
                     mapping_info : {
-                        mapping_author : "data factory (http://dssat2d-plot.herokuapp.com/demo/data_factory)"
+//                        mapping_author : "data factory (http://dssat2d-plot.herokuapp.com/demo/data_factory)",
 //                        source_url: ""
                     },
                     dataset_metadata : {},
@@ -538,6 +544,10 @@
                     ]
                 };
                 
+                $(".mapping_gengeral_info").each(function () {
+                   sc2Obj.mapping_info[$(this).attr("name") ] = $(this).val();
+                });
+                
                 for (let sheetName in templates) {
                     let tmp = Object.assign({}, templates[sheetName]);
                     tmp.mappings = [];
@@ -551,11 +561,20 @@
                 return sc2Obj;
             }
             
-            function alertBox(msg) {
-                bootbox.alert({
-                    message: msg,
-                    backdrop: true
-                });
+            function alertBox(msg, callback) {
+                if (callback) {
+                    bootbox.alert({
+                        message: msg,
+                        backdrop: true,
+                        callback: callback
+                    });
+                } else {
+                    bootbox.alert({
+                        message: msg,
+                        backdrop: true
+                    });
+                }
+                
             }
         </script>
     </head>
@@ -600,6 +619,7 @@
                     <ul class="dropdown-menu" id="sheet_tab_list">
                     </ul>
                 </li>
+                <li><a data-toggle="tab" href="#general_tab">General Info</a></li>
                 <li><a data-toggle="tab" href="#csv_tab">CSV</a></li>
                 <li id="mappingTab"><a data-toggle="tab" href="#mapping_tab">Mappings Preview</a></li>
                 <li id="SC2Tab"><a data-toggle="tab" href="#sc2_tab">SC2 Preview</a></li>
@@ -612,6 +632,22 @@
                 </div>
                 <div id="csv_tab" class="tab-pane fade">
                     <textarea class="form-control" rows="30" id="sheet_csv_content" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
+                </div>
+                <div id="general_tab" class="tab-pane fade">
+                    <div class="subcontainer">
+                        <div class="form-group col-sm-12">
+                            <label class="control-label">Mapping Author Email:</label>
+                            <div class="input-group col-sm-12">
+                                <input type="email" name="mapping_author" class="form-control mapping_gengeral_info" value="">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="control-label">Oringal Data URL:</label>
+                            <div class="input-group col-sm-12">
+                                <input type="url" name="source_url" class="form-control mapping_gengeral_info" value="">
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div id="mapping_tab" class="tab-pane fade">
                     <textarea class="form-control" rows="30" id="mapping_json_content" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
@@ -641,6 +677,13 @@
             $(document).ready(function () {
                 initIcasaLookupSB();
                 chosen_init_all();
+                $('input').on("blur", function(event) {
+                    event.target.checkValidity();
+                }).bind('invalid', function(event) {
+                    alertBox(event.target.value + " is an invalid " + event.target.type, function () {
+                        setTimeout(function() { $(event.target).focus();}, 50);
+                    });
+                });
                 $('.nav-tabs #sheetTab').on('shown.bs.tab', function(){
                     initSpreadsheet(curSheetName);
                 });
