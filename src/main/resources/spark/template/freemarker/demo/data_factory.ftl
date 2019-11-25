@@ -5,6 +5,7 @@
         <#include "../header.ftl">
         <#include "../chosen.ftl">
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/handsontable-pro@latest/dist/handsontable.full.min.css">
+        <link rel="stylesheet" type="text/css" href="/stylesheets/toggle/bootstrap-toggle.min.css" />
         <script>
             let wbObj;
             let spsContainer;
@@ -88,6 +89,7 @@
                 let f = files[0];
                 fileName = getFileName(f.name);
                 userVarMap = {};
+                curSheetName = null;
                 let reader = new FileReader();
                 reader.onload = function(e) {
                     let data = e.target.result;
@@ -113,8 +115,12 @@
                     for (let sheetName in templates) {
                         $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + sheetName + '" onclick="setSpreadsheet(this);">' + sheetName + '</a></li>');
                     }
-    //                    $("#sheet_spreadsheet_content").html("");
-                    $('#sheet_tab_list').find("a").first().click();
+                    $("#sheet_spreadsheet_content").html("");
+                    if (curSheetName) {
+                        initSpreadsheet(curSheetName);
+                    } else {
+                        $('#sheet_tab_list').find("a").first().click();
+                    }
                 }
             }
             
@@ -133,10 +139,20 @@
                     if (roa.length) {
                         if (roa.length > 0) {
                             // store sheet data
-                            let headers = roa[sheetDef.header_row - 1];
+                            let headers;
+                            if (sheetDef.header_row) {
+                                headers = roa[sheetDef.header_row - 1];
+                            } else {
+                                headers = [];
+                            }
                             result[sheetName] = {};
                             result[sheetName].header = headers;
-                            result[sheetName].data = roa.slice(sheetDef.data_start_row - 1);
+//                            if (sheetDef.data_start_row) {
+//                                result[sheetName].data = roa.slice(sheetDef.data_start_row - 1);
+//                            } else {
+                                result[sheetName].data = roa;
+//                            }
+                            
                             
                             // init template structure
                             if (!sheetDef.mappings) {    
@@ -163,8 +179,8 @@
                                         if (headerDef.unit && headerDef.unit !== icasa_unit) {
                                             $.get(encodeURI("/data/unit/convert?unit_to=" + icasa_unit + "&unit_from="+ headerDef.unit + "&value_from=1"),
                                                 function (jsonStr) {
-                                                    var result = JSON.parse(jsonStr);
-                                                    if (result.status !== "0") {
+                                                    let ret = JSON.parse(jsonStr);
+                                                    if (ret.status !== "0") {
                                                         headerDef.unit = icasa_unit; // TODO this should change to give warning message
                                                     }
                                                 }
@@ -212,7 +228,8 @@
                 }
                 let minRows = 10;
                 let data = wbObj[sheetName].data;
-                let mappings = templates[sheetName].mappings;
+                let sheetDef = templates[sheetName];
+                let mappings = sheetDef.mappings;
                 let columns = [];
                 for (let i in mappings) {
                     if (mappings[i].unit === "date") {
@@ -225,31 +242,55 @@
                         columns.push({type: 'text', id : mappings[i]});
                     }
                 }
-                
+                for (let i in data) {
+                    while (columns.length < data[i].length) {
+                        columns.push({type: 'text'});
+                    }
+                }
+
                 let spsOptions = {
                     licenseKey: 'non-commercial-and-evaluation',
                     data: data,
                     columns: columns,
                     stretchH: 'all',
-        //                    width: 500,
+//                    width: 500,
                     autoWrapRow: true,
-        //                    height: 450,
+//                    height: 450,
                     minRows: minRows,
                     maxRows: 365 * 30,
                     manualRowResize: true,
                     manualColumnResize: true,
-                    rowHeaders: true,
+                    rowHeaders: function (row) {
+                        let txt;
+                        if (row === sheetDef.header_row - 1) {
+//                            txt = "Var";
+                            txt = "<span data-toggle='tooltip' title='Header (Varible Code Name)'><Strong>Var</Strong></span>";
+                        } else if (row === sheetDef.unit_row - 1) {
+                            txt = "<span data-toggle='tooltip' title='Unit Expression'><Strong>Unit</Strong></span>";
+                        } else if (row === sheetDef.desc_row - 1) {
+                            txt = "<span data-toggle='tooltip' title='Description/Definition'><Strong>Desc</Strong></span>";
+                        } else if (!sheetDef.data_start_row) {
+                            return row + 1;
+                        } else if (row < sheetDef.data_start_row - 1) {
+                            txt = "<span data-toggle='tooltip' title='Comment/Ignored raw'><em>C</em></span>";;
+                        } else {
+                            txt = row - sheetDef.data_start_row + 2;
+                        }
+                        return txt;
+                    },
                     colHeaders: function (col) {
                         var txt = '<input type="checkbox" name="' + sheetName + '_' + col + '"';
-                        if (mappings[col].ignored_flg) {
+                        if (mappings[col] && mappings[col].ignored_flg) {
                             txt += 'onchange=toggleIgnoreColumn(' + col + ');> ';
                         } else {
                             txt += 'checked onchange=toggleIgnoreColumn(' + col + ');> ';
                         }
-                        if (mappings[col].column_header) {
-                            txt += mappings[col].column_header;
+                        if (!mappings[col]) {
+                            txt += col + 1;
+                        } else if (mappings[col].column_header) {
+                            txt += mappings[col].column_header + " [" + (col + 1) + "]";
                         } else {
-                            txt += "N/a_" + col;
+                            txt += "N/a [" + (col + 1) + "]";
                         }
                         return txt;
                     },
@@ -267,10 +308,11 @@
                         items: {
                             "new_column":{
                                 name: "New Column",
-            //                    hidden: function () { // `hidden` can be a boolean or a function
-            //                        // Hide the option when the first column was clicked
-            //                        return this.getSelectedLast()[1] == 0; // `this` === hot3
-            //                    },
+                                hidden: function () { // `hidden` can be a boolean or a function
+                                    // Hide the option when the first column was clicked
+//                                    return this.getSelectedLast()[1] == 0; // `this` === hot3
+                                    return true;
+                                },
                                 callback: function(key, selection, clickEvent) {
                                     setTimeout(function() {
                                         alertBox("Functionality under construction...");
@@ -346,26 +388,76 @@
                                     }, 0); // Fire alert after menu close (with timeout)
                                 }
                             },
-                            "sep2": '---------',
-                            "row_above": {},
-                            "row_below": {},
-                            "remove_row": {},
-                            "sep1": '---------',
-                            "undo": {},
-                            "redo": {},
-                            "cut": {},
-                            "copy": {},
-                            "clear":{
-                                name : "clear",
-                                callback: function(key, selection, clickEvent) { // Callback for specific option
+                            "edit_row":{
+                                name: "Edit Row Definition",
+                                callback: function(key, selection, clickEvent) {
                                     setTimeout(function() {
-                                        alertBox('Hello world!'); // Fire alert after menu close (with timeout)
-                                    }, 0);
-                                }}
+                                        showSheetDefDialog(processData, null, true);
+                                    }, 0); // Fire alert after menu close (with timeout)
+                                }
+                            },
+//                            "sep2": '---------',
+//                            "row_above": {},
+//                            "row_below": {},
+//                            "remove_row": {},
+//                            "sep1": '---------',
+//                            "undo": {},
+//                            "redo": {},
+//                            "cut": {},
+//                            "copy": {},
+//                            "clear":{
+//                                name : "clear",
+//                                callback: function(key, selection, clickEvent) { // Callback for specific option
+//                                    setTimeout(function() {
+//                                        alertBox('Hello world!'); // Fire alert after menu close (with timeout)
+//                                    }, 0);
+//                                }}
                         }
                     }
                 };
+                if (!$('#tableViewSwitch').prop("checked")) {
+                    spsOptions.data = spsOptions.data.slice(sheetDef.data_start_row - 1);
+                    spsOptions.rowHeaders = true;
+                }
                 spreadsheet = new Handsontable(spsContainer, spsOptions);
+                if ($('#tableViewSwitch').prop("checked")) {
+                    spreadsheet.updateSettings({
+                        cells: function(row, col, prop) {
+                            var cell = spreadsheet.getCell(row,col);
+                            if (!cell) {
+//                                console.log({"row" : row, "col" : col});
+                                return;
+                            }
+                            if (row === sheetDef.header_row - 1) {
+    //                            cell.style.color = "white";
+    //                            cell.style.fontWeight = "bold";
+                                cell.style.fontStyle = "italic";
+                                cell.style.backgroundColor = "lightgrey";
+                                return {readOnly : true};
+                            } else if (row === sheetDef.unit_row - 1) {
+    //                            cell.style.color = "white";
+    //                            cell.style.textDecoration = "underline";
+                                cell.style.fontStyle = "italic";
+                                cell.style.backgroundColor = "lightgrey";
+                                return {readOnly : true};
+                            } else if (row === sheetDef.desc_row - 1) {
+    //                            cell.style.color = "white";
+                                cell.style.fontStyle = "italic";
+                                cell.style.backgroundColor = "lightgrey";
+                                return {readOnly : true};
+                            } else if (row < sheetDef.data_start_row - 1) {
+    //                            cell.style.color = "white";
+                                cell.style.backgroundColor = "lightgrey";
+                                return {readOnly : true};
+                            }
+                        },
+                    });
+                }
+                if (!sheetDef.data_start_row) {
+                    $('#tableViewSwitch').bootstrapToggle('disable');
+                } else {
+                    $('#tableViewSwitch').bootstrapToggle('enable');
+                }
             }
 
             function toggleIgnoreColumn(colIdx) {
@@ -591,7 +683,7 @@
                         Experiment Data <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu">
-                        <li onclick="openExpDataFile()"><a href="#"><span class="glyphicon glyphicon-open"></span> Load file</a></li>
+                        <li onclick="openExpDataFile()" id="openFileMenu"><a href="#"><span class="glyphicon glyphicon-open"></span> Load file</a></li>
                         <li onclick="openExpDataFolderFile()"><a href="#"><span class="glyphicon glyphicon-open"></span> Load folder</a></li>
                         <li onclick="saveExpDataFile()"><a href="#"><span class="glyphicon glyphicon-save"></span> Save</a></li>
                         <li onclick="saveAcebFile()"><a href="#"><span class="glyphicon glyphicon-export"></span> To Aceb</a></li>
@@ -626,9 +718,15 @@
             </ul>
             <div class="tab-content">
                 <div id="spreadshet_tab" class="tab-pane fade in active">
-                    <!--<div class="row">-->
+                    <div class="">
+    <!--                        <span class="label label-info"><strong>&nbsp;Header Row&nbsp;</strong></span>
+                            <span class="label label-info"><u>&nbsp;&nbsp;&nbsp;&nbsp;Unit Row&nbsp;&nbsp;&nbsp;&nbsp;</u></span>
+                            <span class="label label-info"><em>Description Row</em></span>
+                            <span class="label label-default">Ignored Row</span>-->
+                        <span>View Style: </span>
+                        <input type="checkbox" id="tableViewSwitch" data-toggle="toggle" data-size="mini" data-on="Full View" data-off="Data Only">
+                    </div>
                     <div id="sheet_spreadsheet_content" class="col-sm-12"></div>
-                    <!--</div>-->
                 </div>
                 <div id="csv_tab" class="tab-pane fade">
                     <textarea class="form-control" rows="30" id="sheet_csv_content" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
@@ -671,6 +769,7 @@
         <script type="text/javascript" src="/js/chosen/init.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/dataReader/BufferedFileReader.js"></script>
         <script type="text/javascript" src="/js/bootbox/bootbox.all.min.js" charset="utf-8"></script>
+        <script type="text/javascript" src="/js/toggle/bootstrap-toggle.min.js" charset="utf-8"></script>
         <script src="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.js"></script>
         
         <script>
@@ -685,7 +784,11 @@
                     });
                 });
                 $('.nav-tabs #sheetTab').on('shown.bs.tab', function(){
-                    initSpreadsheet(curSheetName);
+                    if (templates[curSheetName].data_start_row) {
+                        initSpreadsheet(curSheetName);
+                    } else {
+                        $('#tableViewSwitch').bootstrapToggle('on');
+                    }
                 });
                 $('.nav-tabs #mappingTab').on('shown.bs.tab', function(){
                     $("#mapping_json_content").html(JSON.stringify(templates, 2, 2));
@@ -694,6 +797,11 @@
                     $("#sc2_json_content").html(toSC2Json());
                 });
                 $("button").prop("disabled", false);
+                $('#tableViewSwitch').change(function () {
+                    initSpreadsheet(curSheetName);
+                });
+                $('#tableViewSwitch').bootstrapToggle('disable');
+                $("#openFileMenu").click();
             });
         </script>
     </body>

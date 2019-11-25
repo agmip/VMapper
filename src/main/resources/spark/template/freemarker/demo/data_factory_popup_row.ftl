@@ -1,44 +1,48 @@
 <script>
-    function showSheetDefDialog(callback, errMsg) {
+    function showSheetDefDialog(callback, errMsg, editFlg) {
         let sheets = {};
-        workbook.SheetNames.forEach(function(sheetName) {
-            sheets[sheetName] = {};
-            sheets[sheetName].sheet_name = sheetName;
-            sheets[sheetName].included_flg = true;
-            var roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1});
-            if(roa.length){
-                for (let i in roa) {
-                    if (!roa[i].length || roa[i].length === 0) {
-                        continue;
-                    }
-                    let fstCell = String(roa[i][0]);
-                    if (fstCell.startsWith("!")) {
-                        if (!sheets[sheetName].unit_row && fstCell.toLowerCase().includes("unit")) {
-                            sheets[sheetName].unit_row = Number(i) + 1;
-                        } else if (!sheets[sheetName].desc_row && 
-                                (fstCell.toLowerCase().includes("definition") || 
-                                fstCell.toLowerCase().includes("description"))) {
-                            sheets[sheetName].desc_row = Number(i) + 1;
+        if (editFlg) {
+            sheets = templates;
+        } else {
+            workbook.SheetNames.forEach(function(sheetName) {
+                sheets[sheetName] = {};
+                sheets[sheetName].sheet_name = sheetName;
+                sheets[sheetName].included_flg = true;
+                var roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1});
+                if(roa.length){
+                    for (let i in roa) {
+                        if (!roa[i].length || roa[i].length === 0) {
+                            continue;
                         }
-                    } else if (fstCell.startsWith("#") || fstCell.startsWith("%")) {
-                        if (!sheets[sheetName].header_row) {
-                            sheets[sheetName].header_row = Number(i) + 1;
+                        let fstCell = String(roa[i][0]);
+                        if (fstCell.startsWith("!")) {
+                            if (!sheets[sheetName].unit_row && fstCell.toLowerCase().includes("unit")) {
+                                sheets[sheetName].unit_row = Number(i) + 1;
+                            } else if (!sheets[sheetName].desc_row && 
+                                    (fstCell.toLowerCase().includes("definition") || 
+                                    fstCell.toLowerCase().includes("description"))) {
+                                sheets[sheetName].desc_row = Number(i) + 1;
+                            }
+                        } else if (fstCell.startsWith("#") || fstCell.startsWith("%")) {
+                            if (!sheets[sheetName].header_row) {
+                                sheets[sheetName].header_row = Number(i) + 1;
+                            }
+                        } else if (sheets[sheetName].header_row && !sheets[sheetName].data_start_row) {
+                            sheets[sheetName].data_start_row = Number(i) + 1;
                         }
-                    } else if (sheets[sheetName].header_row && !sheets[sheetName].data_start_row) {
-                        sheets[sheetName].data_start_row = Number(i) + 1;
-                    }
-                    if (Object.keys(sheets[sheetName]).length >= 6) {
-                        break;
+                        if (Object.keys(sheets[sheetName]).length >= 6) {
+                            break;
+                        }
                     }
                 }
-            }
-            if (!sheets[sheetName].header_row) {
-                sheets[sheetName].header_row = 1;
-            }
-            if (!sheets[sheetName].data_start_row) {
-                sheets[sheetName].data_start_row = sheets[sheetName].header_row + 1;
-            }
-        });
+//                if (!sheets[sheetName].header_row) {
+//                    sheets[sheetName].header_row = 1;
+//                }
+//                if (!sheets[sheetName].data_start_row) {
+//                    sheets[sheetName].data_start_row = sheets[sheetName].header_row + 1;
+//                }
+            });
+        }
         let buttons = {
             cancel: {
                 label: "Cancel",
@@ -63,9 +67,10 @@
                         }
                     }
                     if (idxErrFlg) {
-                        showSheetDefDialog(callback, "[warning] Please provide header row number and data start row number.");
+//                        showSheetDefDialog(callback, "[warning] Please provide header row number and data start row number.", editFlg);
+                        callback(sheets);
                     } else if (includedCnt === 0) {
-                        showSheetDefDialog(callback, "[warning] Please select at least one sheet for reading in.");
+                        showSheetDefDialog(callback, "[warning] Please select at least one sheet for reading in.", editFlg);
                     } else {
                         callback(sheets);
                     }
@@ -85,6 +90,7 @@
             let data = [];
             for (sheetName in sheets) {
                 data.push(sheets[sheetName]);
+                data[data.length - 1].included_flg = true;
             }
             let spsOptions = {
                     licenseKey: 'non-commercial-and-evaluation',
@@ -114,6 +120,22 @@
                 };
                 $(this).find("[name='rowDefSheet']").each(function () {
                     $(this).handsontable(spsOptions);
+                    let popSpreadsheet = $(this).handsontable('getInstance');
+                    if (curSheetName) {
+                        popSpreadsheet.updateSettings({
+                            cells: function(row, col, prop) {
+                                var cell = popSpreadsheet.getCell(row,col);
+                                if (!cell) {
+                                    return;
+                                }
+                                if (curSheetName === data[row].sheet_name) {
+                                    cell.style.backgroundColor = "yellow";
+                                } else {
+                                    return {readOnly : true};
+                                }
+                            },
+                        });
+                    }
                 });
         });
     }
