@@ -115,7 +115,6 @@
                     for (let sheetName in templates) {
                         $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + sheetName + '" onclick="setSpreadsheet(this);">' + sheetName + '</a></li>');
                     }
-                    $("#sheet_spreadsheet_content").html("");
                     if (curSheetName) {
                         initSpreadsheet(curSheetName);
                     } else {
@@ -129,12 +128,16 @@
             }
             
             function to_object(workbook) {
-                var result = {};
+                let result = {};
                 workbook.SheetNames.forEach(function(sheetName) {
                     if (!templates[sheetName]) {
                         return;
                     }
-                    var roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1});
+                    if (curSheetName && sheetName !== curSheetName) {
+                        result[sheetName] = wbObj[sheetName];
+                        return;
+                    }
+                    let roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1});
                     let sheetDef = templates[sheetName];
                     if (roa.length) {
                         if (roa.length > 0) {
@@ -147,15 +150,10 @@
                             }
                             result[sheetName] = {};
                             result[sheetName].header = headers;
-//                            if (sheetDef.data_start_row) {
-//                                result[sheetName].data = roa.slice(sheetDef.data_start_row - 1);
-//                            } else {
-                                result[sheetName].data = roa;
-//                            }
-                            
-                            
+                            result[sheetName].data = roa;
+
                             // init template structure
-                            if (!sheetDef.mappings) {    
+                            if (!sheetDef.mappings || curSheetName) {
                                 sheetDef.mappings = [];
                                 for (let i = 0; i < headers.length; i++) {
                                     let headerDef = {
@@ -190,6 +188,11 @@
                                         }
                                     }
                                     sheetDef.mappings.push(headerDef);
+                                }
+                                for (let i in roa) {
+                                    while (sheetDef.mappings.length < roa[i].length) {
+                                        sheetDef.mappings.push({column_index : i + 1});
+                                    }
                                 }
                             } else {
                                 // Load existing template definition and do unit convertion
@@ -263,7 +266,6 @@
                     rowHeaders: function (row) {
                         let txt;
                         if (row === sheetDef.header_row - 1) {
-//                            txt = "Var";
                             txt = "<span data-toggle='tooltip' title='Header (Varible Code Name)'><Strong>Var</Strong></span>";
                         } else if (row === sheetDef.unit_row - 1) {
                             txt = "<span data-toggle='tooltip' title='Unit Expression'><Strong>Unit</Strong></span>";
@@ -279,20 +281,32 @@
                         return txt;
                     },
                     colHeaders: function (col) {
-                        var txt = '<input type="checkbox" name="' + sheetName + '_' + col + '"';
+                        let checkBox = '<input type="checkbox" name="' + sheetName + '_' + col + '"';
                         if (mappings[col] && mappings[col].ignored_flg) {
-                            txt += 'onchange=toggleIgnoreColumn(' + col + ');> ';
+                            checkBox += 'onchange=toggleIgnoreColumn(' + col + ');> ';
                         } else {
-                            txt += 'checked onchange=toggleIgnoreColumn(' + col + ');> ';
+                            checkBox += 'checked onchange=toggleIgnoreColumn(' + col + ');> ';
                         }
-                        if (!mappings[col]) {
-                            txt += col + 1;
-                        } else if (mappings[col].column_header) {
-                            txt += mappings[col].column_header + " [" + (col + 1) + "]";
+//                        let colIdx = " <span class='badge'>" + (col + 1) + "</span>";
+                        let colIdx = col + 1;
+                        let title = "<span name='" + sheetName + '_' + col + "_label" + "' class='";
+                        if (mappings[col] && mappings[col].ignored_flg) {
+                            title += "label label-default'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
+                        } else if (!mappings[col] || !mappings[col].column_header) {
+                            title += "label label-warning'>" + colIdx + "</span>";
+                        } else if (!mappings[col].icasa) {
+                            title += "label label-warning'>" + mappings[col].column_header + "[" + colIdx + "]</span>";
+                        } else if (mappings[col].icasa) {
+                            if (icasaVarMap.getDefinition(mappings[col].icasa)) {
+                                title += "label label-success'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
+                            } else {
+                                title += "label label-info'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
+                            }
                         } else {
-                            txt += "N/a [" + (col + 1) + "]";
+                            title += "label label-warning'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
                         }
-                        return txt;
+                        
+                        return "<h4>" + checkBox + title + "</h4>";
                     },
 //                    headerTooltips: true,
 //                    afterChange: function(changes, src) {
@@ -300,8 +314,8 @@
 //                            
 //                        }
 //                    },
-                    manualRowMove: true,
-                    manualColumnMove: true,
+                    manualRowMove: false,
+                    manualColumnMove: false,
                     filters: true,
                     dropdownMenu: true,
                     contextMenu: {
@@ -425,7 +439,6 @@
                         cells: function(row, col, prop) {
                             var cell = spreadsheet.getCell(row,col);
                             if (!cell) {
-//                                console.log({"row" : row, "col" : col});
                                 return;
                             }
                             if (row === sheetDef.header_row - 1) {
@@ -453,19 +466,37 @@
                         },
                     });
                 }
+                $('.table_switch_cb').bootstrapToggle('enable');
                 if (!sheetDef.data_start_row) {
                     $('#tableViewSwitch').bootstrapToggle('disable');
-                } else {
-                    $('#tableViewSwitch').bootstrapToggle('enable');
                 }
             }
 
             function toggleIgnoreColumn(colIdx) {
                 if ($("[name='" + curSheetName + "_" + colIdx + "']").last().prop("checked")) {
                     delete templates[curSheetName].mappings[colIdx].ignored_flg;
+                    $("[name='" + curSheetName + "_" + colIdx + "_label']").last().attr("class", getColStatusClass(colIdx));
                 } else {
                     templates[curSheetName].mappings[colIdx].ignored_flg = true;
+                    $("[name='" + curSheetName + "_" + colIdx + "_label']").last().attr("class", "label label-default");
                 }
+            }
+            
+            function getColStatusClass(col) {
+                let sheetDef = templates[curSheetName];
+                let mappings = sheetDef.mappings;
+                if (mappings[col]) {
+                    if (mappings[col].ignored_flg) {
+                        return "label label-default";
+                    } else if (mappings[col].icasa) {
+                        if (icasaVarMap.getDefinition(mappings[col].icasa)) {
+                            return "label label-success";
+                        } else {
+                            return "label label-info";
+                        }
+                    }
+                }
+                return "label label-warning";
             }
             
             function convertUnit() {
@@ -723,8 +754,17 @@
                             <span class="label label-info"><u>&nbsp;&nbsp;&nbsp;&nbsp;Unit Row&nbsp;&nbsp;&nbsp;&nbsp;</u></span>
                             <span class="label label-info"><em>Description Row</em></span>
                             <span class="label label-default">Ignored Row</span>-->
-                        <span>View Style: </span>
-                        <input type="checkbox" id="tableViewSwitch" data-toggle="toggle" data-size="mini" data-on="Full View" data-off="Data Only">
+                        <label>View Style: </label>
+                        <input type="checkbox" id="tableViewSwitch" class="table_switch_cb" data-toggle="toggle" data-size="mini" data-on="Full View" data-off="Data Only">
+                        <label>Column Marker : </label>
+                        <span class="label label-success">ICASA Mapped</span>
+                        <span class="label label-info">Customized</span>
+                        <span class="label label-warning">Undefined</span>
+                        <span class="label label-default">Ignored</span>
+<!--                        <input type="checkbox" id="tableColSwitchSuccess" class="table_switch_cb" data-toggle="toggle" data-size="mini" data-on="Show" data-off="Hide" data-onstyle="success" checked>
+                        <input type="checkbox" id="tableColSwitchWarning" class="table_switch_cb" data-toggle="toggle" data-size="mini" data-on="Show" data-off="Hide" data-onstyle="warning" checked>
+                        <input type="checkbox" id="tableColSwitchDanger" class="table_switch_cb" data-toggle="toggle" data-size="mini" data-on="Show" data-off="Hide" data-onstyle="danger" checked>
+                        <input type="checkbox" id="tableColSwitchInfo" class="table_switch_cb" data-toggle="toggle" data-size="mini" data-on="Show" data-off="Hide" data-onstyle="info" checked>-->
                     </div>
                     <div id="sheet_spreadsheet_content" class="col-sm-12"></div>
                 </div>
@@ -800,7 +840,24 @@
                 $('#tableViewSwitch').change(function () {
                     initSpreadsheet(curSheetName);
                 });
-                $('#tableViewSwitch').bootstrapToggle('disable');
+//                $('#tableColSwitchSuccess').change(function () {
+//                    let plugin = spreadsheet.getPlugin('hiddenColumns');
+//                    let hiddenArr = [];
+//                    let isShown = $('#tableColSwitchSuccess').prop('checked');
+//                    let sheetDef = templates[curSheetName];
+//                    let mappings = sheetDef.mappings;
+//                    for (let i = 0; i < mappings.length; i++) {
+//                        if (mappings[i].icasa) {
+//                            if (isShown) {
+//                                plugin.showColumn(i);
+//                            } else {
+//                                plugin.hideColumn(i);
+//                            }
+//                            
+//                        }
+//                    };
+//                });
+                $('.table_switch_cb').bootstrapToggle('disable');
                 $("#openFileMenu").click();
             });
         </script>

@@ -48,6 +48,7 @@
                                 colDef[$(this).attr("name")] = $(this).val();
                             }
                         });
+                        $("[name='" + curSheetName + "_" + (itemData.column_index - 1) + "_label']").last().attr("class", getColStatusClass(itemData.column_index - 1));
                     } else {
                         subDiv.find(".col-def-input-item").each(function () {
                             if ($(this).attr("type") === "checkbox") {
