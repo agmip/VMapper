@@ -191,7 +191,7 @@
                                 }
                                 for (let i in roa) {
                                     while (sheetDef.mappings.length < roa[i].length) {
-                                        sheetDef.mappings.push({column_index : i + 1});
+                                        sheetDef.mappings.push({column_index : sheetDef.mappings.length});
                                     }
                                 }
                             } else {
