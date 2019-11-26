@@ -137,7 +137,7 @@
                         result[sheetName] = wbObj[sheetName];
                         return;
                     }
-                    let roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1});
+                    let roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1, raw: false});
                     let sheetDef = templates[sheetName];
                     if (roa.length) {
                         if (roa.length > 0) {
@@ -207,7 +207,7 @@
             function to_csv(workbook) {
                 let result = [];
                 workbook.SheetNames.forEach(function(sheetName) {
-                    var csv = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName]);
+                    var csv = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName], {raw: false});
                     if(csv.length){
                         result.push("SHEET: " + sheetName);
                         result.push("");
@@ -236,13 +236,13 @@
                 let columns = [];
                 for (let i in mappings) {
                     if (mappings[i].unit === "date") {
-                        columns.push({type: 'date', id : mappings[i]});
+                        columns.push({type: 'date'});
                     } else if (mappings[i].unit === "text" || mappings[i].unit === "code") {
-                        columns.push({type: 'text', id : mappings[i]});
+                        columns.push({type: 'text'});
                     } else if (mappings[i].unit !== ""){
-                        columns.push({type: 'numeric', id : mappings[i]});
+                        columns.push({type: 'numeric'});
                     } else {
-                        columns.push({type: 'text', id : mappings[i]});
+                        columns.push({type: 'text'});
                     }
                 }
                 for (let i in data) {

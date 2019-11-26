@@ -49,6 +49,14 @@
                             }
                         });
                         $("[name='" + curSheetName + "_" + (itemData.column_index - 1) + "_label']").last().attr("class", getColStatusClass(itemData.column_index - 1));
+                        if (colDef.unit === "date") {
+                            let columns = spreadsheet.getSettings().columns;
+                            columns[itemData.column_index - 1].type = "date";
+//                            columns[itemData.column_index - 1].dateFormat = "YYYY-MM-DD";
+                            spreadsheet.updateSettings({
+                                columns : columns
+                            });
+                        }
                     } else {
                         subDiv.find(".col-def-input-item").each(function () {
                             if ($(this).attr("type") === "checkbox") {
