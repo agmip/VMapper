@@ -824,6 +824,7 @@
                     });
                 });
                 $('.nav-tabs #sheetTab').on('shown.bs.tab', function(){
+                    $('.table_switch_cb').bootstrapToggle('enable');
                     if (templates[curSheetName].data_start_row) {
                         initSpreadsheet(curSheetName);
                     } else {
