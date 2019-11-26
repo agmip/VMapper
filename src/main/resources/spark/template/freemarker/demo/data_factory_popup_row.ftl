@@ -54,6 +54,7 @@
                 className: 'btn-primary',
                 callback: function(){
                     let idxErrFlg = false;
+                    let repeatedErrFlg = false;
                     let includedCnt = 0;
                     for (sheetName in sheets) {
                         if (!sheets[sheetName].data_start_row || !sheets[sheetName].header_row) {
@@ -65,13 +66,26 @@
                         } else {
                             delete sheets[sheetName];
                         }
+                        let keys = ["data_start_row", "header_row", "unit_row", "desc_row"];
+                        for (let i = 0; i < keys.length; i++) {
+                            if (sheets[sheetName][keys[i]]) {
+                                for (let j = i + 1; j < keys.length; j++) {
+                                    if (sheets[sheetName][keys[i]] === sheets[sheetName][keys[j]]) {
+                                        repeatedErrFlg = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
-                    if (idxErrFlg) {
+//                    if (idxErrFlg) {
 //                        showSheetDefDialog(callback, "[warning] Please provide header row number and data start row number.", editFlg);
-                        callback(sheets);
-                    } else if (includedCnt === 0) {
+//                    } else
+                    if (includedCnt === 0) {
                         showSheetDefDialog(callback, "[warning] Please select at least one sheet for reading in.", editFlg);
-                    } else {
+                    } else if (repeatedErrFlg) {
+                        showSheetDefDialog(callback, "[warning] Please select different raw for each definition.", editFlg);
+                    }  else {
                         callback(sheets);
                     }
                 }
