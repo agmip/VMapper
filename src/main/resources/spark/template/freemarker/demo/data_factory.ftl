@@ -297,10 +297,12 @@
                         } else if (!mappings[col].icasa) {
                             title += "label label-warning'>" + mappings[col].column_header + "[" + colIdx + "]</span>";
                         } else if (mappings[col].icasa) {
-                            if (icasaVarMap.getDefinition(mappings[col].icasa)) {
-                                title += "label label-success'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
+                            let varDef = icasaVarMap.getDefinition(mappings[col].icasa);
+                            if (varDef) {
+                                title += "label label-success' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + varDef.description + " [" + varDef.unit_or_type + "]'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
+//                                title += "label label-success' data-toggle='tooltip' title='" + mappings[col].icasa + "'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
                             } else {
-                                title += "label label-info'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
+                                title += "label label-info' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + mappings[col].description + " [" + varDef.unit + "]'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
                             }
                         } else {
                             title += "label label-warning'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
