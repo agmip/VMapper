@@ -63,19 +63,19 @@
                         if (sheets[sheetName].included_flg) {
                             includedCnt++;
                             delete sheets[sheetName].included_flg;
-                        } else {
-                            delete sheets[sheetName];
-                        }
-                        let keys = ["data_start_row", "header_row", "unit_row", "desc_row"];
-                        for (let i = 0; i < keys.length; i++) {
-                            if (sheets[sheetName][keys[i]]) {
-                                for (let j = i + 1; j < keys.length; j++) {
-                                    if (sheets[sheetName][keys[i]] === sheets[sheetName][keys[j]]) {
-                                        repeatedErrFlg = true;
-                                        break;
+                            let keys = ["data_start_row", "header_row", "unit_row", "desc_row"];
+                            for (let i = 0; i < keys.length; i++) {
+                                if (sheets[sheetName][keys[i]]) {
+                                    for (let j = i + 1; j < keys.length; j++) {
+                                        if (sheets[sheetName][keys[i]] === sheets[sheetName][keys[j]]) {
+                                            repeatedErrFlg = true;
+                                            break;
+                                        }
                                     }
                                 }
                             }
+                        } else {
+                            delete sheets[sheetName];
                         }
                     }
 //                    if (idxErrFlg) {
