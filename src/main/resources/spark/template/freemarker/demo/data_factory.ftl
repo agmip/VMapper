@@ -305,7 +305,7 @@
                                     title += "label label-success' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + varDef.description + " [" + varDef.unit_or_type + "]'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
                                 }
                             } else {
-                                title += "label label-info' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + mappings[col].description + " [" + varDef.unit + "]'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
+                                title += "label label-info' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + mappings[col].description + " [" + mappings[col].unit + "]'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
                             }
                         } else {
                             title += "label label-warning'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
