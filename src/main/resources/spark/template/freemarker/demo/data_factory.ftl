@@ -179,7 +179,8 @@
                                                 function (jsonStr) {
                                                     let ret = JSON.parse(jsonStr);
                                                     if (ret.status !== "0") {
-                                                        headerDef.unit = icasa_unit; // TODO this should change to give warning message
+//                                                        headerDef.unit = icasa_unit; // TODO this should change to give warning message
+                                                        headerDef.unit_error = true;
                                                     }
                                                 }
                                             );
@@ -299,7 +300,11 @@
                         } else if (mappings[col].icasa) {
                             let varDef = icasaVarMap.getDefinition(mappings[col].icasa);
                             if (varDef) {
-                                title += "label label-success' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + varDef.description + " [" + varDef.unit_or_type + "]'>[" + colIdx + "] ";
+                                if (mappings[col].unit_error) {
+                                    title += "label label-danger' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + varDef.description + " [" + varDef.unit_or_type + "]'>[" + colIdx + "] ";
+                                } else {
+                                    title += "label label-success' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + varDef.description + " [" + varDef.unit_or_type + "]'>[" + colIdx + "] ";
+                                }
                                 if (mappings[col].icasa.toLowerCase() !== mappings[col].column_header.toLowerCase()) {
                                    title += "<em>" +  mappings[col].column_header + "->" + mappings[col].icasa + "</em> ";
                                 } else {
@@ -773,6 +778,7 @@
                         <span class="label label-success">ICASA Mapped</span>
                         <span class="label label-info">Customized</span>
                         <span class="label label-warning">Undefined</span>
+                        <span class="label label-danger"><em>Warning</em></span>
                         <span class="label label-default">Ignored</span>
 <!--                        <input type="checkbox" id="tableColSwitchSuccess" class="table_switch_cb" data-toggle="toggle" data-size="mini" data-on="Show" data-off="Hide" data-onstyle="success" checked>
                         <input type="checkbox" id="tableColSwitchWarning" class="table_switch_cb" data-toggle="toggle" data-size="mini" data-on="Show" data-off="Hide" data-onstyle="warning" checked>

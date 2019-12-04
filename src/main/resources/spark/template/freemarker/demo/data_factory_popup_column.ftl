@@ -59,6 +59,9 @@
                         if (varDef) {
                             colDef.description = varDef.description;
                         }
+                        if (colDef.unit_error) {
+                            delete colDef.unit_error;
+                        }
                         $("[name='" + curSheetName + "_" + (itemData.column_index - 1) + "_label']").last().attr("class", getColStatusClass(itemData.column_index - 1));
                         let columns = spreadsheet.getSettings().columns;
                         if (colDef.unit === "date") {
