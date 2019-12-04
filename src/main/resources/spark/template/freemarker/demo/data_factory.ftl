@@ -761,9 +761,9 @@
                     </ul>
                 </li>
                 <li><a data-toggle="tab" href="#general_tab">General Info</a></li>
-                <li><a data-toggle="tab" href="#csv_tab">CSV</a></li>
-                <li id="mappingTab"><a data-toggle="tab" href="#mapping_tab">Mappings Preview</a></li>
                 <li id="SC2Tab"><a data-toggle="tab" href="#sc2_tab">SC2 Preview</a></li>
+                <li><a data-toggle="tab" href="#csv_tab"><em> CSV [debug]</em></a></li>
+                <li id="mappingTab"><a data-toggle="tab" href="#mapping_tab"><em>Mappings Cache [debug]</em></a></li>
             </ul>
             <div class="tab-content">
                 <div id="spreadshet_tab" class="tab-pane fade in active">
