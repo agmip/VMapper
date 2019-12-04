@@ -35,6 +35,13 @@
                 className: 'btn-primary',
                 callback: function(){
                     let subDiv = $(this).find("[name=" + curVarType + "]");
+                    if (curVarType !== "customized") {
+                        if (subDiv.find("[name='category']").val() === "") {
+                            itemData.err_msg = "Please select the variable category.";
+                        } else if (itemData.err_msg === "Please select the variable category.") {
+                            delete itemData.err_msg;
+                        }
+                    }
                     if (!itemData.err_msg) {
                         let colDef = templates[curSheetName].mappings[itemData.column_index - 1];
                         subDiv.find(".col-def-input-item").each(function () {
@@ -97,18 +104,17 @@
             dialog.find("[name=column_header]").each(function () {
                 $(this).val(itemData[$(this).attr("name")]);
             });
-            dialog.find("[name=" + type + "_info]").find(".col-def-input-item").each(function () {
-                if ($(this).attr("type") === "checkbox") {
-                    $(this).prop( "checked", itemData[$(this).attr("name")]);
-                } else {
-                    $(this).val(itemData[$(this).attr("name")]);
-                }
-                
-            });
             dialog.find("[name='icasa_info']").each(function () {
                 let subDiv = $(this);
                 subDiv.on("type_shown", function() {
                     chosen_init_name(subDiv.find("[name='icasa']"), "chosen-select-deselect");
+                    $(this).find(".col-def-input-item").each(function () {
+                        if ($(this).attr("type") === "checkbox") {
+                            $(this).prop( "checked", itemData[$(this).attr("name")]);
+                        } else {
+                            $(this).val(itemData[$(this).attr("name")]);
+                        }
+                    });
                 });
                 subDiv.find("[name='unit']").each(function () {
                     
@@ -125,7 +131,10 @@
                                         itemData.err_msg = "Please fix source unit expression";
                                     } else {
                                         subDiv.find("[name='unit_validate_result']").html("");
-                                        delete itemData.err_msg;
+                                        if (itemData.err_msg === "Please provide your unit expression" ||
+                                                itemData.err_msg === "Please fix source unit expression") {
+                                            delete itemData.err_msg;
+                                        }
                                     }
                                 }
                             );
@@ -163,6 +172,16 @@
                 let subDiv = $(this);
                 subDiv.on("type_shown", function() {
                     chosen_init_name(subDiv.find("[name='category']"), "chosen-select-deselect");
+                    $(this).find(".col-def-input-item").each(function () {
+                        if ($(this).attr("type") === "checkbox") {
+                            $(this).prop( "checked", itemData[$(this).attr("name")]);
+                        } else {
+                            $(this).val(itemData[$(this).attr("name")]);
+                        }
+                    });
+                    if (!itemData.icasa) {
+                        $(this).find("[name='icasa']").val(itemData.column_header);
+                    }
                 });
                 subDiv.find("[name='icasa']").each(function () {
                     $(this).on("input", function () {
@@ -186,10 +205,25 @@
                                     itemData.err_msg = "Please fix source unit expression";
                                 } else {
                                     subDiv.find("[name='unit_validate_result']").html("");
-                                    delete itemData.err_msg;
+                                    if (itemData.err_msg === "Please fix source unit expression") {
+                                        delete itemData.err_msg;
+                                    }
                                 }
                             }
                         );
+                    });
+                });
+            });
+            dialog.find("[name='reference_info']").each(function () {
+                let subDiv = $(this);
+                subDiv.on("type_shown", function() {
+                    chosen_init_name(subDiv.find("[name='category']"), "chosen-select-deselect");
+                    $(this).find(".col-def-input-item").each(function () {
+                        if ($(this).attr("type") === "checkbox") {
+                            $(this).prop( "checked", itemData[$(this).attr("name")]);
+                        } else {
+                            $(this).val(itemData[$(this).attr("name")]);
+                        }
                     });
                 });
             });
