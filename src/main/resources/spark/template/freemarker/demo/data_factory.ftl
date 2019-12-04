@@ -311,7 +311,7 @@
                                     title += mappings[col].column_header;
                                 }
                                 if (mappings[col].unit.toLowerCase() !== varDef.unit_or_type.toLowerCase()) {
-                                    title += "<br/><em>[" + mappings[col].unitvarDef. + "->" + unit_or_type + "]</em>"
+                                    title += "<br/><em>[" + mappings[col].unit + "->" + varDef.unit_or_type + "]</em>"
                                 } else {
 //                                    title += " [" + varDef.unit_or_type + "]'>";
                                 }
