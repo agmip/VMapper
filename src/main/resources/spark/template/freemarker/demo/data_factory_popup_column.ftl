@@ -104,6 +104,13 @@
             dialog.find("[name=column_header]").each(function () {
                 $(this).val(itemData[$(this).attr("name")]);
             });
+            dialog.find("[name=" + type + "_info]").find(".col-def-input-item").each(function () {
+                if ($(this).attr("type") === "checkbox") {
+                    $(this).prop( "checked", itemData[$(this).attr("name")]);
+                } else {
+                    $(this).val(itemData[$(this).attr("name")]);
+                }
+            });
             dialog.find("[name='icasa_info']").each(function () {
                 let subDiv = $(this);
                 subDiv.on("type_shown", function() {
