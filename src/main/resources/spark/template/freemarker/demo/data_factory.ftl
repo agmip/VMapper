@@ -291,25 +291,33 @@
                         let colIdx = col + 1;
                         let title = "<span name='" + sheetName + '_' + col + "_label" + "' class='";
                         if (mappings[col] && mappings[col].ignored_flg) {
-                            title += "label label-default'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
+                            title += "label label-default'>" + mappings[col].column_header + " [" + colIdx + "]";
                         } else if (!mappings[col] || !mappings[col].column_header) {
-                            title += "label label-warning'>" + colIdx + "</span>";
-                        } else if (!mappings[col].icasa) {
-                            title += "label label-warning'>" + mappings[col].column_header + "[" + colIdx + "]</span>";
+                            title += "label label-warning'>" + colIdx;
+//                        } else if (!mappings[col].icasa) {
+//                            title += "label label-warning'>" + mappings[col].column_header + "[" + colIdx + "]";
                         } else if (mappings[col].icasa) {
                             let varDef = icasaVarMap.getDefinition(mappings[col].icasa);
                             if (varDef) {
+                                title += "label label-success' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + varDef.description + " [" + varDef.unit_or_type + "]'>[" + colIdx + "] ";
                                 if (mappings[col].icasa.toLowerCase() !== mappings[col].column_header.toLowerCase()) {
-                                    title += "label label-success' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + varDef.description + " [" + varDef.unit_or_type + "]'>" + mappings[col].column_header + "->" + mappings[col].icasa + " [" + colIdx + "]</span>";
+                                   title += "<em>" +  mappings[col].column_header + "->" + mappings[col].icasa + "</em> ";
                                 } else {
-                                    title += "label label-success' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + varDef.description + " [" + varDef.unit_or_type + "]'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
+                                    title += mappings[col].column_header;
                                 }
+                                if (mappings[col].unit.toLowerCase() !== varDef.unit_or_type.toLowerCase()) {
+                                    title += "<br/><em>[" + varDef.unit_or_type + "->" + mappings[col].unit + "]</em>"
+                                } else {
+//                                    title += " [" + varDef.unit_or_type + "]'>";
+                                }
+                                
                             } else {
-                                title += "label label-info' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + mappings[col].description + " [" + mappings[col].unit + "]'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
+                                title += "label label-info' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + mappings[col].description + " [" + mappings[col].unit + "]'>[" + colIdx + "] " + mappings[col].column_header ;
                             }
                         } else {
-                            title += "label label-warning'>" + mappings[col].column_header + " [" + colIdx + "]</span>";
+                            title += "label label-warning'>[" + colIdx + "] " + mappings[col].column_header;
                         }
+                        title += "</span>";
                         
                         return "<h4>" + checkBox + title + "</h4>";
                     },
