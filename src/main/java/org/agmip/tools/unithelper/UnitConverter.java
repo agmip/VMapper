@@ -87,6 +87,7 @@ public class UnitConverter {
         try {
             UnitDB DB_ret = UnitDBManager.instance();
             AGMIP_UNIT.put("number", "count");
+            AGMIP_UNIT.put("plant", "count");
             AGMIP_UNIT.put("dap", "day");
             AGMIP_UNIT.put("doy", "day");
             AGMIP_UNIT.put("decimal_degree", "degree");
@@ -261,6 +262,9 @@ public class UnitConverter {
         for (String s : SPLITTER) {
             if (ret.endsWith(s)) {
                 ret = ret.substring(0, ret.length() - 1);
+            }
+            if (ret.startsWith(s)) {
+                ret = "unitless" + unit;
             }
         }
         
