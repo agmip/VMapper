@@ -41,6 +41,12 @@
                         } else if (itemData.err_msg === "Please select the variable category.") {
                             delete itemData.err_msg;
                         }
+                        let icasa = subDiv.find("[name='icasa']").val();
+                        if (icasa === itemData.column_header) {
+                            itemData.err_msg = itemData.column_header + " is already used by ICASA, please provide a different variable name.";
+                        } else if (itemData.err_msg === itemData.column_header + " is already used by ICASA, please provide a different variable name.") {
+                            delete itemData.err_msg;
+                        }
                     }
                     if (!itemData.err_msg) {
                         let colDef = templates[curSheetName].mappings[itemData.column_index - 1];
@@ -187,6 +193,9 @@
                             $(this).prop( "checked", itemData[$(this).attr("name")]);
                         } else {
                             $(this).val(itemData[$(this).attr("name")]);
+                            if ($(this).attr("name") === "unit") {
+                                $(this).trigger("input");
+                            }
                         }
                     });
                     if (!itemData.icasa) {

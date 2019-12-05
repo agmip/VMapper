@@ -317,7 +317,12 @@
                                 }
                                 
                             } else {
-                                title += "label label-info' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + mappings[col].description + " [" + mappings[col].unit + "]'>[" + colIdx + "] " + mappings[col].column_header ;
+                                title += "label label-info' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + mappings[col].description + " [" + mappings[col].unit + "]'>[" + colIdx + "] ";
+                                if (mappings[col].icasa.toLowerCase() !== mappings[col].column_header.toLowerCase()) {
+                                    title += "<em>" + mappings[col].column_header + "->" + mappings[col].icasa + "</em>";
+                                } else {
+                                    title += mappings[col].column_header;
+                                }
                             }
                         } else {
                             title += "label label-warning'>[" + colIdx + "] " + mappings[col].column_header;
