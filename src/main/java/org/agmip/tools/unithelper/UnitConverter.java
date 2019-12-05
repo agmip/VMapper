@@ -247,7 +247,7 @@ public class UnitConverter {
     }
 
     protected static String preParsing(String unit) {
-        String ret = unit.replaceAll("\\[[^\\]]*\\]", "").replaceAll("\\s", "");
+        String ret = unit.replaceAll(" per ", "/").replaceAll("\\[[^\\]]*\\]", "").replaceAll("\\s", "");
         // Remove extra splitter used by comment expression
         for (String s1 : SPLITTER) {
             for (String s2 : SPLITTER) {
