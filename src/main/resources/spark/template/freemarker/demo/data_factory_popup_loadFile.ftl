@@ -55,7 +55,7 @@
         <!-- 1st row -->
         <div class="form-group col-sm-12">
             <label class="control-label">Raw Data File :</label>
-            <input type="file" name="data_file" class="form-control" accept=".xlsx,.xls">
+            <input type="file" name="data_file" class="form-control" accept=".xlsx,.xls,.csv">
         </div>
         <!-- 2nd row -->
         <div class="form-group col-sm-12">
