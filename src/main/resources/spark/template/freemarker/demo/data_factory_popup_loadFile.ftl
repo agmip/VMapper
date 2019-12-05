@@ -40,10 +40,11 @@
                     sc2FileInput.prop("disabled", true);
                     sc2Files = null;
                 }
-            });
+            }).filestyle({text:"Browse", btnClass:"btn-primary", placeholder:"Browse original data files (*.xlsx; *.xls; *.csv)"});
+                console.log(dialog.find("[name='data_file']").hasClass("filestyle"));
             dialog.find("[name='sc2_file']").on("change", function () {
                 sc2Files = $(this).prop("files");
-            });
+            }).filestyle({text:"Browse", btnClass:"btn-primary", placeholder:"Browse sidecar file 2 file template (*.sc2.json)"});
         });
     }
 </script>
