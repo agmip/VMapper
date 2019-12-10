@@ -147,7 +147,7 @@
                                 } else {
                                     return {readOnly : true};
                                 }
-                            },
+                            }
                         });
                     }
                 });
