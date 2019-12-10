@@ -629,6 +629,7 @@
                                     }
                                 }
                             }
+                            curSheetName = null;
                             processData();
                         }
                     }
