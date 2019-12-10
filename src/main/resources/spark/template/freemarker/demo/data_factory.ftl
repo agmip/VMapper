@@ -749,7 +749,7 @@
                         Template <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu">
-                        <li onclick="openTemplateFile()"><a href="#"><span class="glyphicon glyphicon-open"></span> Load Existed Template</a></li>
+                        <li onclick="openTemplateFile()"><a href="#"><span class="glyphicon glyphicon-open"></span> Load Existing Template</a></li>
                         <li onclick="saveTemplateFile()"><a href="#"><span class="glyphicon glyphicon-save"></span> Save Template</a></li>
                     </ul>
                 </div>
