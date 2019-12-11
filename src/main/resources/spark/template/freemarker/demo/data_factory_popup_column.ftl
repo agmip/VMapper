@@ -49,7 +49,7 @@
                         }
                     }
                     if (!itemData.err_msg) {
-                        let colDef = templates[curSheetName].mappings[itemData.column_index - 1];
+                        let colDef = templates[curFileName][curSheetName].mappings[itemData.column_index - 1];
                         subDiv.find(".col-def-input-item").each(function () {
                             if ($(this).attr("type") === "checkbox") {
                                 if ($(this).is(":checked")) {

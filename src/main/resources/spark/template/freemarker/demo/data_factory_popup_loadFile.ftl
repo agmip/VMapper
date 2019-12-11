@@ -41,7 +41,6 @@
                     sc2Files = null;
                 }
             }).filestyle({text:"Browse", btnClass:"btn-primary", placeholder:"Browse original data files (*.xlsx; *.xls; *.csv)"});
-                console.log(dialog.find("[name='data_file']").hasClass("filestyle"));
             dialog.find("[name='sc2_file']").on("change", function () {
                 sc2Files = $(this).prop("files");
             }).filestyle({text:"Browse", btnClass:"btn-primary", placeholder:"Browse sidecar file 2 file template (*.sc2.json)"});
@@ -56,7 +55,7 @@
         <!-- 1st row -->
         <div class="form-group col-sm-12">
             <label class="control-label">Raw Data File :</label>
-            <input type="file" name="data_file" class="form-control" accept=".xlsx,.xls,.csv">
+            <input type="file" name="data_file" class="form-control" accept=".xlsx,.xls,.csv" multiple>
         </div>
         <!-- 2nd row -->
         <div class="form-group col-sm-12">

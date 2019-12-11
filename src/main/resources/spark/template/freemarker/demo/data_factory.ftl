@@ -12,8 +12,11 @@
             let spreadsheet;
             let curSheetName;
             let templates = {};
-            let fileName;
-            let workbook;
+            let curFileName;
+            let dirName;
+//            let workbook;
+            let workbooks = {};
+            let fileTypes = {};
             let userVarMap = {};
             let icasaVarMap = {
                 "management" : {
@@ -86,59 +89,152 @@
             
             function readSpreadSheet(target, sc2Files) {
                 let files = target.files;
-                let f = files[0];
-                fileName = getFileName(f.name);
+                let idx = 0;
+                let f = files[idx];
+                idx++;
+                let fileName = f.name;
                 userVarMap = {};
+                workbooks = {};
+                fileTypes = {};
+                fileTypes[fileName] = f.type;
+                curFileName = null;
                 curSheetName = null;
                 let reader = new FileReader();
-                reader.onload = function(e) {
+//                reader.onloadend = function(e) {
+//                    let data = e.target.result;
+//                    console.time();
+//                    
+//                    workbook = new ExcelJS.Workbook();
+//                    workbooks[fileName] = workbook;
+//                    workbook.xlsx.load.then(function(workbook) {
+//                        console.timeEnd();
+//                        if (idx < files.length) {
+//                            f = files[idx];
+//                            idx++;
+//                            loadingDialog.find(".loading-msg").html(' Loading ' + fileName + ' (' + idx + '/' + files.length + ') ...');
+//                            reader.readAsArrayBuffer(f);
+//                        } else {
+//                            loadingDialog.modal('hide');
+//                            if (sc2Files.files && sc2Files.files.length > 0) {
+//                                readSC2Json(sc2Files);
+//                            } else {
+//                                showSheetDefDialog(processData);
+//                            }
+//                        }
+//                    });
+//                };
+                reader.onloadend = function(e) {
                     let data = e.target.result;
 //                    data = new Uint8Array(data);
+                    console.time();
                     workbook = XLSX.read(data, {type: 'binary'});
-                    if (sc2Files.files && sc2Files.files.length > 0) {
-                        readSC2Json(sc2Files);
+                    workbooks[fileName] = workbook;
+//                    workbook = XLSX.read(data, {type: 'array'});
+                    console.timeEnd();
+                    
+                    if (idx < files.length) {
+                        f = files[idx];
+                        fileName = f.name;
+                        fileTypes[fileName] = f.type;
+                        idx++;
+                        loadingDialog.find(".loading-msg").html(' Loading ' + fileName + ' (' + idx + '/' + files.length + ') ...');
+                        reader.readAsBinaryString(f);
+//                        reader.readAsArrayBuffer(f);
                     } else {
-                        showSheetDefDialog(processData);
+                        loadingDialog.modal('hide');
+                        if (sc2Files.files && sc2Files.files.length > 0) {
+                            readSC2Json(sc2Files);
+                        } else {
+                            showSheetDefDialog(processData);
+                        }
                     }
                 };
-                reader.readAsBinaryString(f);
+                
+                let loadingDialog = bootbox.dialog({
+                    message: '<h4><span class="glyphicon glyphicon-refresh spinning"></span><span class="loading-msg"> Loading ' + fileName + ' (1/' + files.length + ') ...</span></h4>',
+//                    centerVertical: true,
+                    closeButton: false
+                });
+                loadingDialog.on("shown.bs.modal", function() {
+//                    reader.readAsArrayBuffer(f);
+                    reader.readAsBinaryString(f);
+                });
             }
             
             function processData(ret) {
-                if (ret) templates = ret;
-                if (workbook) {
-                    $("#sheet_csv_content").html(to_csv(workbook));
-//                        $("#sheet_json_content").html(to_json(workbook));
+                if (ret) {
+                    templates = ret;
+                    if (workbooks) {
+                        $("#sheet_csv_content").html(to_csv(workbooks));
+//                        $("#sheet_json_content").html(to_json(workbooks));
+                    }
+                }
 
-                    wbObj = to_object(workbook);
-                    $('#sheet_tab_list').empty();
-                    for (let sheetName in templates) {
-                        $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + sheetName + '" onclick="setSpreadsheet(this);">' + sheetName + '</a></li>');
+                if (!curFileName || !curSheetName) {
+                    wbObj = {};
+                }
+                for (let name in workbooks) {
+                    if (workbooks[name]) {
+                        wbObj[name] = to_object(workbooks[name], name);
                     }
-                    if (curSheetName) {
-                        initSpreadsheet(curSheetName);
-                    } else {
-                        $('#sheet_tab_list').find("a").first().click();
+                }
+
+                $('#sheet_tab_list').empty();
+                for (let fileName in templates) {
+                    $('#sheet_tab_list').append('<li class="dropdown-header"><strong>' + fileName + '</strong></li>');
+                    for (let sheetName in templates[fileName]) {
+                        $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + fileName + '__' + sheetName + '" onclick="setSpreadsheet(this);">' + sheetName + '</a></li>');
                     }
+                    $('#sheet_tab_list').append('<li class="divider"></li>');
+                }
+
+                if (curFileName && curSheetName) {
+                    initSpreadsheet(curFileName, curSheetName);
+                } else {
+                    $('#sheet_tab_list').find("a").first().click();
                 }
             }
             
-            function to_json(workbook) {
-                return JSON.stringify(to_object(workbook), 2, 2);
+            function to_json(workbooks) {
+                let ret = {};
+                for (let name in workbooks) {
+                    ret[name] = to_object(workbook, name);
+                }
+                return JSON.stringify(ret, 2, 2);
             }
             
-            function to_object(workbook) {
+//            function sheet_to_json(sheet, includeEmpty) {
+//                let roa = [];
+//                if (!includeEmpty) {
+//                    includeEmpty = true;
+//                }
+//                sheet.eachRow({ includeEmpty: includeEmpty }, function(row, rowNumber) {
+//                    let tmp = [];
+//                    row.eachCell({ includeEmpty: includeEmpty }, function(cell, colNumber) {
+//                       tmp.push(cell.text) ;
+//                    });
+//                    roa.push(tmp);
+//                });
+//                return roa;
+//            }
+            
+            function to_object(workbook, fileName) {
                 let result = {};
                 workbook.SheetNames.forEach(function(sheetName) {
-                    if (!templates[sheetName]) {
+//                workbook.worksheets.forEach(function(sheet) {
+//                    let sheetName = sheet.name;
+                    if (!templates[fileName] || !templates[fileName][sheetName]) {
                         return;
                     }
-                    if (curSheetName && sheetName !== curSheetName) {
-                        result[sheetName] = wbObj[sheetName];
+                    // Only reload current sheet when editting row definition
+                    if ((curFileName && curFileName !== fileName) || 
+                            (curSheetName && sheetName !== curSheetName)) {
+                        result[sheetName] = wbObj[fileName][sheetName];
                         return;
                     }
                     let roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1, raw: false});
-                    let sheetDef = templates[sheetName];
+//                    let roa = sheet_to_json(sheet);
+                    let sheetDef = templates[fileName][sheetName];
                     if (roa.length) {
                         if (roa.length > 0) {
                             // store sheet data
@@ -205,25 +301,32 @@
                 return result;
             }
             
-            function to_csv(workbook) {
+            function to_csv(workbooks) {
                 let result = [];
-                workbook.SheetNames.forEach(function(sheetName) {
-                    var csv = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName], {raw: false});
-                    if(csv.length){
-                        result.push("SHEET: " + sheetName);
-                        result.push("");
-                        result.push(csv);
-                    }
-                });
+                for (let name in workbooks) {
+                    result.push("File: " + name);
+                    result.push("");
+                    let workbook = workbooks[name];
+                    workbook.SheetNames.forEach(function(sheetName) {
+                        var csv = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName], {raw: false});
+                        if(csv.length){
+                            result.push("SHEET: " + sheetName);
+                            result.push("");
+                            result.push(csv);
+                        }
+                    });
+                }
                 return result.join("\n");
             }
             
             function setSpreadsheet(target) {
                 $("#sheet_name_selected").text(" <" + target.id + ">");
-                curSheetName = target.id;
+                let tmp = target.id.split("__");
+                curFileName = tmp[0];
+                curSheetName = tmp[1];
             }
             
-            function initSpreadsheet(sheetName, spsContainer) {
+            function initSpreadsheet(fileName, sheetName, spsContainer) {
                 if (!spsContainer) {
                     spsContainer = document.querySelector('#sheet_spreadsheet_content');
                 }
@@ -231,8 +334,8 @@
                     spreadsheet.destroy();
                 }
                 let minRows = 10;
-                let data = wbObj[sheetName].data;
-                let sheetDef = templates[sheetName];
+                let data = wbObj[fileName][sheetName].data;
+                let sheetDef = templates[fileName][sheetName];
                 let mappings = sheetDef.mappings;
                 let columns = [];
                 for (let i in mappings) {
@@ -369,7 +472,7 @@
                                         let data = {};
                                         let colIdx = selection[0].start.col;
 //                                        data.column_header = spreadsheet.getColHeader(data.colIdx);
-                                        let colDef = templates[curSheetName].mappings[colIdx];
+                                        let colDef = templates[curFileName][curSheetName].mappings[colIdx];
                                         Object.assign(data, colDef);
                                         showColDefineDialog(data);
                                     }, 0); // Fire alert after menu close (with timeout)
@@ -497,16 +600,16 @@
 
             function toggleIgnoreColumn(colIdx) {
                 if ($("[name='" + curSheetName + "_" + colIdx + "']").last().prop("checked")) {
-                    delete templates[curSheetName].mappings[colIdx].ignored_flg;
+                    delete templates[curFileName][curSheetName].mappings[colIdx].ignored_flg;
                     $("[name='" + curSheetName + "_" + colIdx + "_label']").last().attr("class", getColStatusClass(colIdx));
                 } else {
-                    templates[curSheetName].mappings[colIdx].ignored_flg = true;
+                    templates[curFileName][curSheetName].mappings[colIdx].ignored_flg = true;
                     $("[name='" + curSheetName + "_" + colIdx + "_label']").last().attr("class", "label label-default");
                 }
             }
             
             function getColStatusClass(col) {
-                let sheetDef = templates[curSheetName];
+                let sheetDef = templates[curFileName][curSheetName];
                 let mappings = sheetDef.mappings;
                 if (mappings[col]) {
                     if (mappings[col].ignored_flg) {
@@ -543,7 +646,7 @@
             }
             
             function openTemplateFile() {
-                if (!workbook) {
+                if (Objects.keys(workbooks).length === 0) {
                     alertBox("Please load spreadsheet file first, then apply SC2 file for it.");
                 } else {
                     $('<input type="file" accept=".sc2.json,.json,.sc2" onchange="readSC2Json(this);">').click();
@@ -583,7 +686,9 @@
                             for (let i in sc2Obj.agmip_translation_mappings) {
                                 fileConfig = sc2Obj.agmip_translation_mappings[i];
                                 if (fileConfig.file && fileConfig.file.file_metadata
-                                        && fileName === fileConfig.file.file_metadata.file_name) {
+                                        && (curFileName === fileConfig.file.file_metadata.file_name
+//                                         || curFileName === getFileName(fileConfig.file.file_metadata.file_name) // TODO will be removed later
+                                        )) {
                                     break;
                                 } else {
                                     fileConfig = null;
@@ -598,18 +703,19 @@
                                 fileConfig.file.sheets = [];
                             }
                             // Load mapping for each sheet and fill missing column with ignore flag
+                            let fileName = fileConfig.file.file_metadata.file_name;
                             for (let i in fileConfig.file.sheets) {
                                 let sheetName = fileConfig.file.sheets[i].sheet_name;
                                 if (!sheetName) sheetName = "" + i;
-                                templates[sheetName] = Object.assign({}, fileConfig.file.sheets[i]);
-                                if (!templates[sheetName].header_row) {
-                                    templates[sheetName].header_row = 1;
+                                templates[fileName][sheetName] = Object.assign({}, fileConfig.file.sheets[i]);
+                                if (!templates[fileName][sheetName].header_row) {
+                                    templates[fileName][sheetName].header_row = 1;
                                 }
-                                if (!templates[sheetName].data_start_row) {
-                                    templates[sheetName].data_start_row = templates[sheetName].header_row + 1;
+                                if (!templates[fileName][sheetName].data_start_row) {
+                                    templates[fileName][sheetName].data_start_row = templates[fileName][sheetName].header_row + 1;
                                 }
                                 let sc2Mappings = fileConfig.file.sheets[i].mappings;
-                                let mappings = templates[sheetName].mappings;
+                                let mappings = templates[fileName][sheetName].mappings;
                                 mappings = [];
                                 let curIdx = 0;
                                 for (let j in sc2Mappings) {
@@ -640,13 +746,13 @@
             }
             
             function saveTemplateFile() {
-                if (!fileName) {
+                if (!curFileName) {
                     alertBox("Please load spreadsheet file first, then edit and save SC2 file for it.");
                 } else {
                     let text = toSC2Json();
                     let ext = "-sc2.json";
                     let blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-                    saveAs(blob, fileName + ext);
+                    saveAs(blob, getFileName(curFileName) + ext);
                 }
             }
             
@@ -665,24 +771,7 @@
 //                        source_url: ""
                     },
                     dataset_metadata : {},
-                    agmip_translation_mappings : [
-                        {
-                            relations : [],
-                            //Grab the primary keys from here if EXNAME is not defined
-                            primary_ex_sheet : {
-    //                            file : "",
-    //                            sheet : "" 
-                            },
-                            file : {
-                                file_metadata : {
-                                    file_name : fileName,
-                                    "content-type" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                                    // file_url : ""
-                                },
-                                sheets : []
-                            }
-                        }
-                    ],
+                    agmip_translation_mappings : [],
                     xrefs : [
 //                        {
 //                          xref_provider : "gardian",
@@ -690,20 +779,52 @@
 //                        }
                     ]
                 };
+                let agmipTranslationMappingTemplate = JSON.stringify({
+                    relations : [],
+                    //Grab the primary keys from here if EXNAME is not defined
+                    primary_ex_sheet : {
+//                            file : "",
+//                            sheet : "" 
+                    },
+                    file : {
+                        file_metadata : {
+                            file_name : "",
+                            "content-type" : ""
+                            // file_url : ""
+                        },
+                        sheets : []
+                    }
+                });
                 
                 $(".mapping_gengeral_info").each(function () {
                    sc2Obj.mapping_info[$(this).attr("name") ] = $(this).val();
                 });
-                
-                for (let sheetName in templates) {
-                    let tmp = Object.assign({}, templates[sheetName]);
-                    tmp.mappings = [];
-                    for (let i in templates[sheetName].mappings) {
-                        if (!templates[sheetName].mappings[i].ignored_flg) {
-                            tmp.mappings.push(templates[sheetName].mappings[i]);
+
+                for (let fileName in templates) {
+                    let tmp2 = JSON.parse(agmipTranslationMappingTemplate);
+                    tmp2.file.file_metadata.file_name = fileName;
+                    tmp2.file.file_metadata["content-type"] = fileTypes[fileName];
+//                    if (fileName.toLowerCase().endsWith(".csv")) {
+//                        tmp2.file.file_metadata["content-type"] = "text/csv";
+//                    } else if (fileName.toLowerCase().endsWith(".xlsx")) {
+//                        tmp2.file.file_metadata["content-type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+//                    } else if (fileName.toLowerCase().endsWith(".xls")) {
+//                        tmp2.file.file_metadata["content-type"] = "application/vnd.ms-excel";
+//                    } else {
+//                        // TODO add default content-type key word here
+//                    }
+                    
+                    sc2Obj.agmip_translation_mappings.push(tmp2);
+                    for (let sheetName in templates[fileName]) {
+                        let tmp = Object.assign({}, templates[fileName][sheetName]);
+                        tmp.mappings = [];
+                        for (let i in templates[fileName][sheetName].mappings) {
+                            if (!templates[fileName][sheetName].mappings[i].ignored_flg) {
+                                tmp.mappings.push(templates[fileName][sheetName].mappings[i]);
+                            }
                         }
+                        tmp2.file.sheets.push(tmp);
                     }
-                    sc2Obj.agmip_translation_mappings[0].file.sheets.push(tmp);
                 }
                 return sc2Obj;
             }
@@ -836,6 +957,7 @@
         <script type="text/javascript" src="/js/bootbox/bootbox.all.min.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/toggle/bootstrap-toggle.min.js" charset="utf-8"></script>
         <script src="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.js"></script>
+        <!--<script src="https://cdn.jsdelivr.net/npm/exceljs@1.13.0/dist/exceljs.min.js"></script>-->
         
         <script>
             $(document).ready(function () {
@@ -850,8 +972,8 @@
                 });
                 $('.nav-tabs #sheetTab').on('shown.bs.tab', function(){
                     $('.table_switch_cb').bootstrapToggle('enable');
-                    if (templates[curSheetName].data_start_row) {
-//                        initSpreadsheet(curSheetName);
+                    if (templates[curFileName][curSheetName].data_start_row) {
+//                        initSpreadsheet(curFileName, curSheetName);
                         $('#tableViewSwitch').bootstrapToggle('off');
                     } else {
                         $('#tableViewSwitch').bootstrapToggle('on');
@@ -865,13 +987,13 @@
                 });
                 $("button").prop("disabled", false);
                 $('#tableViewSwitch').change(function () {
-                    initSpreadsheet(curSheetName);
+                    initSpreadsheet(curFileName, curSheetName);
                 });
 //                $('#tableColSwitchSuccess').change(function () {
 //                    let plugin = spreadsheet.getPlugin('hiddenColumns');
 //                    let hiddenArr = [];
 //                    let isShown = $('#tableColSwitchSuccess').prop('checked');
-//                    let sheetDef = templates[curSheetName];
+//                    let sheetDef = templates[curFileName][curSheetName];
 //                    let mappings = sheetDef.mappings;
 //                    for (let i = 0; i < mappings.length; i++) {
 //                        if (mappings[i].icasa) {
