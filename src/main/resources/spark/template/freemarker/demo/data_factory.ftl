@@ -151,7 +151,7 @@
                 };
                 
                 let loadingDialog = bootbox.dialog({
-                    message: '<h4><span class="glyphicon glyphicon-refresh spinning"></span><span class="loading-msg"> Loading ' + fileName + ' (1/' + files.length + ') ...</span></h4>',
+                    message: '<h4><span class="glyphicon glyphicon-refresh spinning"></span><span class="loading-msg"> Loading ' + fileName + ' (1/' + files.length + ') ...</span></h4></br><p>P.S. <mark>MS Excel File (> 1 MB)</mark> might experice longer loading time...</p>',
 //                    centerVertical: true,
                     closeButton: false
                 });
