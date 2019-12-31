@@ -88,12 +88,17 @@ public class UnitConverter {
             UnitDB DB_ret = UnitDBManager.instance();
             AGMIP_UNIT.put("number", "count");
             AGMIP_UNIT.put("plant", "count");
+            AGMIP_UNIT.put("leaf", "count");
+            AGMIP_UNIT.put("eye", "count");
+            AGMIP_UNIT.put("ear", "count");
+            AGMIP_UNIT.put("shoot", "count");
             AGMIP_UNIT.put("dap", "day");
             AGMIP_UNIT.put("doy", "day");
             AGMIP_UNIT.put("decimal_degree", "degree");
             AGMIP_UNIT.put("fraction", "1");
             AGMIP_UNIT.put("unitless", "1");
             AGMIP_UNIT.put("ratio", "1");
+            AGMIP_UNIT.put("vpm", "ppm");
             try {
                 for (String key : AGMIP_UNIT.keySet()) {
                     DB_ret.addAlias(key, AGMIP_UNIT.get(key));
@@ -179,7 +184,7 @@ public class UnitConverter {
             ret.put("status", "1");
             ret.put("message", ex.getMessage());
         } catch (Exception ex) {
-//            Logger.getLogger(UnitConverter.class.getName()).log(Level.SEVERE, null, ex);
+//            ex.printStackTrace(System.err);
             ret.put("status", "1");
             ret.put("message", "undefined unit");
         }
@@ -211,7 +216,7 @@ public class UnitConverter {
             ret.put("status", "1");
             ret.put("message", ex.getMessage());
         } catch (Exception ex) {
-//            Logger.getLogger(UnitConverter.class.getName()).log(Level.SEVERE, null, ex);
+//            ex.printStackTrace(System.err);
             ret.put("status", "1");
             ret.put("message", "undefined unit");
         }
@@ -278,7 +283,8 @@ public class UnitConverter {
     public static boolean isValid(String unitStr) {
         try {
             return PARSER.parse(preParsing(unitStr)) != null;
-        } catch (Exception ex) {
+        } catch (PrefixDBException | SpecificationException | UnitDBException | UnitSystemException ex) {
+            ex.printStackTrace(System.err);
             return false;
         }
     }
@@ -304,7 +310,8 @@ public class UnitConverter {
                 ret = "";
             }
             return ret;
-        } catch (Exception ex) {
+        } catch (PrefixDBException | SpecificationException | UnitDBException | UnitSystemException ex) {
+            ex.printStackTrace(System.err);
             return "";
         }
     }
@@ -324,7 +331,8 @@ public class UnitConverter {
                 return "unitless";
             }
             return ret;
-        } catch (Exception ex) {
+        } catch (PrefixDBException | SpecificationException | UnitDBException | UnitSystemException ex) {
+            ex.printStackTrace(System.err);
             return "";
         }
     }
