@@ -216,10 +216,11 @@
                 });
                 subDiv.find("[name='unit']").each(function () {
                     $(this).on("input", function () {
-                        $.get(encodeURI("/data/unit/lookup?unit=" + $(this).val()),
+                        let unit = $(this).val().toLowerCase();
+                        $.get(encodeURI("/data/unit/lookup?unit=" + unit),
                             function (jsonStr) {
                                 var unitInfo = JSON.parse(jsonStr);
-                                if (unitInfo.message === "undefined unit expression") {
+                                if (unitInfo.message === "undefined unit expression" && unit !== "text" && unit !== "code") {
                                     subDiv.find("[name='unit_validate_result']").html("Not compatiable unit");
                                     itemData.err_msg = "Please fix source unit expression";
                                 } else {
