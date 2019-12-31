@@ -220,7 +220,7 @@
                         $.get(encodeURI("/data/unit/lookup?unit=" + unit),
                             function (jsonStr) {
                                 var unitInfo = JSON.parse(jsonStr);
-                                if (unitInfo.message === "undefined unit expression" && unit !== "text" && unit !== "code") {
+                                if (unitInfo.message === "undefined unit expression" && unit !== "text" && unit !== "code" && unit !== "date") {
                                     subDiv.find("[name='unit_validate_result']").html("Not compatiable unit");
                                     itemData.err_msg = "Please fix source unit expression";
                                 } else {
