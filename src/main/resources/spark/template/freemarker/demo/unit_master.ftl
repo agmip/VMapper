@@ -6,16 +6,18 @@
         <#include "../chosen.ftl">
         
         <script>
+            const WP = "<br/>";
+
             function lookupUnit(output, unit) {
                 if (!unit) {
-                    $("#" + output).text("");
+                    $("#" + output).html(WP);
                     if (output.endsWith("validate")) {
-                        $("#unit_category").text("");
+                        $("#unit_category").html(WP);
                     }
                 } else {
                     $("#" + output).text("Looking for " + unit + " ...");
                     if (output.endsWith("validate")) {
-                        $("#unit_category").text("");
+                        $("#unit_category").html(WP);
                     }
                     $.get(encodeURI("/data/unit/lookup?unit=" + unit),
                         function (jsonStr) {
@@ -71,14 +73,14 @@
                 if (symbol) {
                     $("#unit_symbol").text(symbol);
                 } else {
-                    $("#unit_symbol").text("");
+                    $("#unit_symbol").html(WP);
                 }
             }
             
             function updatePrefix(symbol) {
                 if (!symbol) {
-                    $("#prefix_desc").text("");
-                    $("#prefix_symbol").text("");
+                    $("#prefix_desc").html(WP);
+                    $("#prefix_symbol").html(WP);
                 } else {
                     $("#prefix_symbol").text(symbol);
                     let value;
@@ -110,40 +112,42 @@
             <hr>
             <div class="row">
                 <div class="col-sm-8">
-                    <div class="col-sm-4">
-                        <h3>Unit Validation</h3>
-                        <label class="control-label" for="unit">Unit Expression:</label>
-                        <div class="input-group col-sm-12">
-                            <input type="text" id="unit" class="form-control" value="" placeholder="Unit text expression" data-toggle="tooltip" title="Unit text expression" oninput="lookupUnit('unit_desc_validate', this.value);">
+                    <div class="col-sm-12">
+                        <div class="col-sm-4">
+                            <h3>Unit Validation</h3>
+                            <label class="control-label" for="unit">Unit Expression:</label>
+                            <div class="input-group col-sm-12">
+                                <input type="text" id="unit" class="form-control" value="" placeholder="Unit text expression" data-toggle="tooltip" title="Unit text expression" oninput="lookupUnit('unit_desc_validate', this.value);">
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <h3>Unit Lookup</h3>
-                        <label class="control-label" for="unit">Unit Primary Category:</label>
-                        <div class="input-group col-sm-12">
-                            <select id="unit_type" class="form-control chosen-select-deselect exp-data" onchange="updateUnitType(this.value);" data-placeholder="Choose a Unit Type..." required>
-                                <option value=""></option>
-                                <#list baseUnits?keys as code>
-                                <option value="${code!}">${baseUnits[code]!}</option>
-                                </#list>
-                            </select>
+                        <div class="col-sm-4">
+                            <h3>Unit Lookup</h3>
+                            <label class="control-label" for="unit">Unit Primary Category:</label>
+                            <div class="input-group col-sm-12">
+                                <select id="unit_type" class="form-control chosen-select-deselect exp-data" onchange="updateUnitType(this.value);" data-placeholder="Choose a Unit Type..." required>
+                                    <option value=""></option>
+                                    <#list baseUnits?keys as code>
+                                    <option value="${code!}">${baseUnits[code]!}</option>
+                                    </#list>
+                                </select>
+                            </div>
+                            <label class="control-label" for="unit">Unit Sublist:</label>
+                            <div class="input-group col-sm-12">
+                                <select id="unit_sublist" class="form-control chosen-select-deselect exp-data" onchange="lookupUnit('unit_desc_lookup', this.value);showSymbol(this.value)" data-placeholder="Choose a Unit Type..." required>
+                                </select>
+                            </div>
                         </div>
-                        <label class="control-label" for="unit">Unit Sublist:</label>
-                        <div class="input-group col-sm-12">
-                            <select id="unit_sublist" class="form-control chosen-select-deselect exp-data" onchange="lookupUnit('unit_desc_lookup', this.value);showSymbol(this.value)" data-placeholder="Choose a Unit Type..." required>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <h3>Prefix Lookup</h3>
-                        <label class="control-label" for="unit">Prefix list:</label>
-                        <div class="input-group col-sm-12">
-                            <select id="unit_type" class="form-control chosen-select-deselect exp-data" onchange="updatePrefix(this.value);" data-placeholder="Choose a Prefix..." required>
-                                <option value=""></option>
-                                <#list prefixes as prefix>
-                                <option value="${prefix.symbol!}">${prefix.name!} - ${prefix.value!"N/a"}</option>
-                                </#list>
-                            </select>
+                        <div class="col-sm-4">
+                            <h3>Prefix Lookup</h3>
+                            <label class="control-label" for="unit">Prefix list:</label>
+                            <div class="input-group col-sm-12">
+                                <select id="unit_type" class="form-control chosen-select-deselect exp-data" onchange="updatePrefix(this.value);" data-placeholder="Choose a Prefix..." required>
+                                    <option value=""></option>
+                                    <#list prefixes as prefix>
+                                    <option value="${prefix.symbol!}">${prefix.name!} - ${prefix.value!"N/a"}</option>
+                                    </#list>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="col-sm-12">
@@ -151,23 +155,23 @@
                         <div class="col-sm-4">
                             <h3>Validation Result</h3>
                             <label class="control-label" for="unit">Unit Standard Expression:</label>
-                            <div id="unit_desc_validate" class="input-group col-sm-12"></div>
+                            <span id="unit_desc_validate" class="input-group col-sm-12"><br/></span>
                             <label class="control-label" for="unit">Unit Category Code:</label>
-                            <div id="unit_category" class="input-group col-sm-12"></div>
+                            <span id="unit_category" class="input-group col-sm-12"><br/></span>
                         </div>
                         <div class="col-sm-4">
                             <h3>Lookup Result</h3>
                             <label class="control-label" for="unit">Unit Standard Expression:</label>
-                            <div id="unit_desc_lookup" class="input-group col-sm-12"></div>
+                            <span id="unit_desc_lookup" class="input-group col-sm-12"><br/></span>
                             <label class="control-label" for="unit">Unit Symbol:</label>
-                            <div id="unit_symbol" class="input-group col-sm-12"></div>
+                            <span id="unit_symbol" class="input-group col-sm-12"><br/></span>
                         </div>
                         <div class="col-sm-4">
                             <h3>Lookup Result</h3>
                             <label class="control-label" for="unit">Prefix Standard Expression:</label>
-                            <div id="prefix_desc" class="input-group col-sm-12"></div>
+                            <span id="prefix_desc" class="input-group col-sm-12"><br/></span>
                             <label class="control-label" for="unit">Prefix Symbol:</label>
-                            <div id="prefix_symbol" class="input-group col-sm-12"></div>
+                            <span id="prefix_symbol" class="input-group col-sm-12"><br/></span>
                         </div>
                     </div>
                 </div>
