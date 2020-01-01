@@ -646,7 +646,7 @@
             }
             
             function openTemplateFile() {
-                if (Objects.keys(workbooks).length === 0) {
+                if (Object.keys(workbooks).length === 0) {
                     alertBox("Please load spreadsheet file first, then apply SC2 file for it.");
                 } else {
                     $('<input type="file" accept=".sc2.json,.json,.sc2" onchange="readSC2Json(this);">').click();
