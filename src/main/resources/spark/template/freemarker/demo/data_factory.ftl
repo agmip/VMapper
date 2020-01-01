@@ -126,11 +126,11 @@
                 reader.onloadend = function(e) {
                     let data = e.target.result;
 //                    data = new Uint8Array(data);
-                    console.time();
+//                    console.time();
                     workbook = XLSX.read(data, {type: 'binary'});
                     workbooks[fileName] = workbook;
 //                    workbook = XLSX.read(data, {type: 'array'});
-                    console.timeEnd();
+//                    console.timeEnd();
                     
                     if (idx < files.length) {
                         f = files[idx];
