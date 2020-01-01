@@ -392,21 +392,25 @@
                             checkBox += 'checked onchange=toggleIgnoreColumn(' + col + ');> ';
                         }
 //                        let colIdx = " <span class='badge'>" + (col + 1) + "</span>";
+                        let refMark = "";
+                        if (mappings[col] && mappings[col].reference_flg) {
+                            refMark = "<span class='glyphicon glyphicon-flag'></span> ";
+                        }
                         let colIdx = col + 1;
                         let title = "<span name='" + sheetName + '_' + col + "_label" + "' class='";
                         if (mappings[col] && mappings[col].ignored_flg) {
-                            title += "label label-default'>" + mappings[col].column_header + " [" + colIdx + "]";
+                            title += "label label-default'>" + refMark + mappings[col].column_header + " [" + colIdx + "]";
                         } else if (!mappings[col] || !mappings[col].column_header) {
-                            title += "label label-warning'>" + colIdx;
+                            title += "label label-warning'>" + refMark + colIdx;
 //                        } else if (!mappings[col].icasa) {
-//                            title += "label label-warning'>" + mappings[col].column_header + "[" + colIdx + "]";
+//                            title += "label label-warning'>" + refMark + mappings[col].column_header + "[" + colIdx + "]";
                         } else if (mappings[col].icasa) {
                             let varDef = icasaVarMap.getDefinition(mappings[col].icasa);
                             if (varDef) {
                                 if (mappings[col].unit_error) {
-                                    title += "label label-danger' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + varDef.description + " [" + varDef.unit_or_type + "]'>[" + colIdx + "] ";
+                                    title += "label label-danger' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + varDef.description + " [" + varDef.unit_or_type + "]'>" + refMark + "[" + colIdx + "] ";
                                 } else {
-                                    title += "label label-success' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + varDef.description + " [" + varDef.unit_or_type + "]'>[" + colIdx + "] ";
+                                    title += "label label-success' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + varDef.description + " [" + varDef.unit_or_type + "]'>" + refMark + "[" + colIdx + "] ";
                                 }
                                 if (mappings[col].icasa.toLowerCase() !== mappings[col].column_header.toLowerCase()) {
                                    title += "<em>" +  mappings[col].column_header + "->" + mappings[col].icasa + "</em> ";
@@ -420,15 +424,17 @@
                                 }
                                 
                             } else {
-                                title += "label label-info' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + mappings[col].description + " [" + mappings[col].unit + "]'>[" + colIdx + "] ";
+                                title += "label label-info' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + mappings[col].description + " [" + mappings[col].unit + "]'>" + refMark + "[" + colIdx + "] ";
                                 if (mappings[col].icasa.toLowerCase() !== mappings[col].column_header.toLowerCase()) {
                                     title += "<em>" + mappings[col].column_header + "->" + mappings[col].icasa + "</em>";
                                 } else {
                                     title += mappings[col].column_header;
                                 }
                             }
+                        } else if (mappings[col].reference_flg) {
+                            title += "label label-info'>" + refMark + "[" + colIdx + "] " + mappings[col].column_header;
                         } else {
-                            title += "label label-warning'>[" + colIdx + "] " + mappings[col].column_header;
+                            title += "label label-warning'>" + refMark + "[" + colIdx + "] " + mappings[col].column_header;
                         }
                         title += "</span>";
                         
@@ -620,6 +626,8 @@
                         } else {
                             return "label label-info";
                         }
+                    } if (mappings[col].reference_flg) {
+                        return "label label-info";
                     }
                 }
                 return "label label-warning";
@@ -918,6 +926,7 @@
                         <span class="label label-warning">Undefined</span>
                         <span class="label label-danger"><em>Warning</em></span>
                         <span class="label label-default">Ignored</span>
+                        <span class="label" style="background-color: white;color:black;"><span class="glyphicon">&#xe034;</span> Reference Key</span>
 <!--                        <input type="checkbox" id="tableColSwitchSuccess" class="table_switch_cb" data-toggle="toggle" data-size="mini" data-on="Show" data-off="Hide" data-onstyle="success" checked>
                         <input type="checkbox" id="tableColSwitchWarning" class="table_switch_cb" data-toggle="toggle" data-size="mini" data-on="Show" data-off="Hide" data-onstyle="warning" checked>
                         <input type="checkbox" id="tableColSwitchDanger" class="table_switch_cb" data-toggle="toggle" data-size="mini" data-on="Show" data-off="Hide" data-onstyle="danger" checked>

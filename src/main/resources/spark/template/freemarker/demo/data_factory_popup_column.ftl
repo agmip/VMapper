@@ -6,11 +6,15 @@
             if (itemData.icasa) {
                 if (icasaVarMap.getDefinition(itemData.icasa)) {
                     type = "icasa";
-                } else if (itemData.reference) {
+                } else if (itemData.category) {
+                    type = "customized";
+                } else if (itemData.reference_flg) {
                     type = "reference";
                 } else {
                     type = "customized";
                 }
+            } else if (itemData.reference_flg) {
+                type = "reference";
             } else if (itemData.description) {
                 type = "customized";
             } else {
@@ -35,18 +39,29 @@
                 className: 'btn-primary',
                 callback: function(){
                     let subDiv = $(this).find("[name=" + curVarType + "]");
-                    if (curVarType !== "customized") {
+                    let isRef = $(this).find("[name=reference_flg]").is(":checked");
+                    if (curVarType === "customized_info") {
                         if (subDiv.find("[name='category']").val() === "") {
                             itemData.err_msg = "Please select the variable category.";
                         } else if (itemData.err_msg === "Please select the variable category.") {
                             delete itemData.err_msg;
                         }
+
                         let icasa = subDiv.find("[name='icasa']").val();
+                        if (!icasa) {
+                            itemData.err_msg = "Please provide a code name for your customized variable.";
+                        } else if (itemData.err_msg === "Please provide a code name for your customized variable.") {
+                            delete itemData.err_msg;
+                        }
                         if (icasa === itemData.column_header) {
                             itemData.err_msg = itemData.column_header + " is already used by ICASA, please provide a different variable name.";
                         } else if (itemData.err_msg === itemData.column_header + " is already used by ICASA, please provide a different variable name.") {
                             delete itemData.err_msg;
                         }
+                    } else if (curVarType === "icasa_info") {
+                        // TODO
+                    } else if (curVarType === "reference_info") {
+                        // TODO
                     }
                     if (!itemData.err_msg) {
                         let colDef = templates[curFileName][curSheetName].mappings[itemData.column_index - 1];
@@ -59,8 +74,16 @@
                                 }
                             } else if ($(this).val()) {
                                 colDef[$(this).attr("name")] = $(this).val();
+                            } else {
+                                delete colDef[$(this).attr("name")];
                             }
                         });
+                        if (isRef) {
+                            colDef.reference_flg = true;
+                        } else {
+                            delete colDef.reference_flg;
+                        }
+                        
                         let varDef = icasaVarMap.getDefinition(colDef.icasa);
                         if (varDef) {
                             colDef.description = varDef.description;
@@ -87,8 +110,15 @@
                                 }
                             } else if ($(this).val()) {
                                 itemData[$(this).attr("name")] = $(this).val();
+                            }else {
+                                delete itemData[$(this).attr("name")];
                             }
                         });
+                        if (isRef) {
+                            itemData.reference_flg = true;
+                        } else {
+                            delete itemData.reference_flg;
+                        }
                         showColDefineDialog(itemData, type);
                     }
                 }
@@ -112,6 +142,9 @@
             }
             dialog.find("[name=column_header]").each(function () {
                 $(this).val(itemData[$(this).attr("name")]);
+            });
+            dialog.find("[name=reference_flg]").each(function () {
+                $(this).prop("checked", itemData[$(this).attr("name")]);
             });
             dialog.find("[name=" + type + "_info]").find(".col-def-input-item").each(function () {
                 if ($(this).attr("type") === "checkbox") {
@@ -183,6 +216,7 @@
                         }
                     });
                 });
+                dialog.find("[name=reference_flg]").prop("disabled", false);
             });
             dialog.find("[name='customized_info']").each(function () {
                 let subDiv = $(this);
@@ -198,9 +232,9 @@
                             }
                         }
                     });
-                    if (!itemData.icasa) {
-                        $(this).find("[name='icasa']").val(itemData.column_header);
-                    }
+//                    if (!itemData.icasa) {
+//                        $(this).find("[name='icasa']").val(itemData.column_header);
+//                    }
                 });
                 subDiv.find("[name='icasa']").each(function () {
                     $(this).on("input", function () {
@@ -233,11 +267,13 @@
                         );
                     });
                 });
+                dialog.find("[name=reference_flg]").prop("disabled", false);
             });
             dialog.find("[name='reference_info']").each(function () {
                 let subDiv = $(this);
                 subDiv.on("type_shown", function() {
-                    chosen_init_name(subDiv.find("[name='category']"), "chosen-select-deselect");
+//                    chosen_init_name(subDiv.find("[name='category']"), "chosen-select-deselect");
+
                     $(this).find(".col-def-input-item").each(function () {
                         if ($(this).attr("type") === "checkbox") {
                             $(this).prop( "checked", itemData[$(this).attr("name")]);
@@ -245,6 +281,9 @@
                             $(this).val(itemData[$(this).attr("name")]);
                         }
                     });
+                    itemData.reference_flg = true;
+                    dialog.find("[name=reference_flg]").prop("checked", true);
+                    dialog.find("[name=reference_flg]").prop("disabled", true);
                 });
             });
             dialog.find("[name='var_type']").each(function () {
@@ -253,6 +292,7 @@
                     if (curVarType) {
                         dialog.find("[name=" + curVarType + "]").fadeOut("fast", function () {
                             curVarType = type + "_info";
+                            delete itemData.err_msg;
                             dialog.find("[name=" + curVarType + "]").fadeIn().trigger("type_shown");
                         });
                     } else {
@@ -314,6 +354,9 @@
                     <option value="reference">Reference variable</option>
                 </select>
             </div>
+            <div class="input-group col-sm-12">
+                <input type="checkbox" name="reference_flg">&nbsp;Used as reference key between tables
+            </div>
         </div>
         <!-- ICASA Management Variable Info -->
         <div name="icasa_info" hidden>
@@ -366,6 +409,36 @@
                     </select>
                 </div>
             </div>
+            <!-- 3rd row -->
+            <div class="form-group col-sm-12">
+                <label class="control-label">Variable Code</label>
+                <div class="input-group col-sm-12">
+                    <input type="text" name="icasa" class="form-control col-def-input-item" value="">
+                </div>
+            </div>
+            <!-- 4th row -->
+            <div class="form-group col-sm-12">
+                <label class="control-label">Description</label>
+                <div class="input-group col-sm-12">
+                    <input type="text" name="description" class="form-control col-def-input-item" value="">
+                </div>
+            </div>
+            <!-- 5th row -->
+            <div class="form-group col-sm-12">
+                <label class="control-label">Unit</label>
+                <div class="input-group col-sm-12">
+                    <input type="text" name="unit" class="form-control col-def-input-item" value="">
+                </div>
+            </div>
+            <!-- 6th row -->
+            <div class="form-group col-sm-12">
+                <label class="control-label"></label>
+                <div class="input-group col-sm-12" name="unit_validate_result"></div>
+            </div>
+        </div>
+        <!-- Reference Variable Info -->
+        <div name="reference_info" hidden>
+            <!-- 2nd row -->
             <div class="form-group col-sm-12">
                 <label class="control-label">Variable Code</label>
                 <div class="input-group col-sm-12">
@@ -381,20 +454,13 @@
             </div>
             <!-- 4th row -->
             <div class="form-group col-sm-12">
-                <label class="control-label">Unit</label>
-                <div class="input-group col-sm-12">
-                    <input type="text" name="unit" class="form-control col-def-input-item" value="">
-                </div>
+                <h6><em>
+                    Please note:
+                    <li>Variable defined as reference only type will not be saved into JSON data structure during translation.</li>
+                    <li>If you would like to keep this variable, please define it as customized variable and check "Used as reference key between tables" option.</li>
+                </em></h6>
             </div>
-            <div class="form-group col-sm-12">
-                <label class="control-label"></label>
-                <div class="input-group col-sm-12" name="unit_validate_result"></div>
-            </div>
-        </div>
-        <!-- Reference Variable Info -->
-        <div name="reference_info" hidden>
-            <!-- 2nd row -->
-            <div class="form-group col-sm-12">
+<!--            <div class="form-group col-sm-12">
                 <label class="control-label">Reference Type</label>
                 <div class="input-group col-sm-12">
                     <select name="category" class="form-control col-def-input-item" data-placeholder="Choose a variable type...">
@@ -410,7 +476,7 @@
                         <option value="5052">Weather Station Daily Data</option>
                     </select>
                 </div>
-            </div>
+            </div>-->
         </div>
     </div>
     <p>&nbsp;</p>
