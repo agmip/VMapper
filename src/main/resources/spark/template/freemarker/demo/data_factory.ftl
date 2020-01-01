@@ -704,6 +704,17 @@
                             }
                             // Load mapping for each sheet and fill missing column with ignore flag
                             let fileName = fileConfig.file.file_metadata.file_name;
+                            if (!fileTypes[fileName]) {
+                                let contentType = fileConfig.file.file_metadata["content-type"];
+                                for (let name in fileTypes) {
+                                    if (name.startsWith(fileName) && (!contentType || fileTypes[name] === contentType)) {
+                                        fileName = name;
+                                    }
+                                }
+                            }
+                            if (!templates[fileName]) {
+                                templates[fileName] = {};
+                            }
                             for (let i in fileConfig.file.sheets) {
                                 let sheetName = fileConfig.file.sheets[i].sheet_name;
                                 if (!sheetName) sheetName = "" + i;
