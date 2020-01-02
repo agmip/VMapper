@@ -2,6 +2,7 @@
     function showColDefineDialog(itemData, type) {
 //                let promptClass = 'event-input-' + itemData.event;
         let curVarType;
+        let colDef = templates[curFileName][curSheetName].mappings[itemData.column_index - 1];
         if (!type) {
             if (itemData.icasa) {
                 if (icasaVarMap.getDefinition(itemData.icasa)) {
@@ -64,7 +65,6 @@
                         // TODO
                     }
                     if (!itemData.err_msg) {
-                        let colDef = templates[curFileName][curSheetName].mappings[itemData.column_index - 1];
                         subDiv.find(".col-def-input-item").each(function () {
                             if ($(this).attr("type") === "checkbox") {
                                 if ($(this).is(":checked")) {
@@ -80,6 +80,9 @@
                         });
                         if (isRef) {
                             colDef.reference_flg = true;
+                            if (curVarType === "reference_info") {
+                                delete colDef.category;
+                            }
                         } else {
                             delete colDef.reference_flg;
                         }
@@ -157,6 +160,8 @@
                 let subDiv = $(this);
                 subDiv.on("type_shown", function() {
                     chosen_init_name(subDiv.find("[name='icasa']"), "chosen-select-deselect");
+                    dialog.find("[name=reference_flg]").prop("disabled", false);
+                    dialog.find("[name=reference_flg]").prop("checked", !!colDef.reference_flg);
                     $(this).find(".col-def-input-item").each(function () {
                         if ($(this).attr("type") === "checkbox") {
                             $(this).prop( "checked", itemData[$(this).attr("name")]);
@@ -216,11 +221,12 @@
                         }
                     });
                 });
-                dialog.find("[name=reference_flg]").prop("disabled", false);
             });
             dialog.find("[name='customized_info']").each(function () {
                 let subDiv = $(this);
                 subDiv.on("type_shown", function() {
+                    dialog.find("[name=reference_flg]").prop("disabled", false);
+                    dialog.find("[name=reference_flg]").prop("checked", !!colDef.reference_flg);
                     chosen_init_name(subDiv.find("[name='category']"), "chosen-select-deselect");
                     $(this).find(".col-def-input-item").each(function () {
                         if ($(this).attr("type") === "checkbox") {
@@ -267,7 +273,6 @@
                         );
                     });
                 });
-                dialog.find("[name=reference_flg]").prop("disabled", false);
             });
             dialog.find("[name='reference_info']").each(function () {
                 let subDiv = $(this);
