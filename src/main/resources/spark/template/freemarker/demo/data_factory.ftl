@@ -331,9 +331,6 @@
                 if (!spsContainer) {
                     spsContainer = document.querySelector('#sheet_spreadsheet_content');
                 }
-                if (spreadsheet) {
-                    spreadsheet.destroy();
-                }
                 let minRows = 10;
                 let data = wbObj[fileName][sheetName].data;
                 let sheetDef = templates[fileName][sheetName];
@@ -361,9 +358,9 @@
                     data: data,
                     columns: columns,
                     stretchH: 'all',
-//                    width: 500,
+                    width: '100%',
                     autoWrapRow: true,
-//                    height: 450,
+                    height: $(window).height() - $("body").height() + $("#sheet_spreadsheet_content").height(),
                     minRows: minRows,
                     maxRows: 365 * 30,
                     manualRowResize: true,
@@ -565,6 +562,9 @@
                 if (!$('#tableViewSwitch').prop("checked")) {
                     spsOptions.data = spsOptions.data.slice(sheetDef.data_start_row - 1);
                     spsOptions.rowHeaders = true;
+                }
+                if (spreadsheet) {
+                    spreadsheet.destroy();
                 }
                 spreadsheet = new Handsontable(spsContainer, spsOptions);
                 if ($('#tableViewSwitch').prop("checked")) {
@@ -933,7 +933,7 @@
                         <input type="checkbox" id="tableColSwitchDanger" class="table_switch_cb" data-toggle="toggle" data-size="mini" data-on="Show" data-off="Hide" data-onstyle="danger" checked>
                         <input type="checkbox" id="tableColSwitchInfo" class="table_switch_cb" data-toggle="toggle" data-size="mini" data-on="Show" data-off="Hide" data-onstyle="info" checked>-->
                     </div>
-                    <div id="sheet_spreadsheet_content" class="col-sm-12"></div>
+                    <div id="sheet_spreadsheet_content" class="col-sm-12" style="overflow: hidden"></div>
                 </div>
                 <div id="csv_tab" class="tab-pane fade">
                     <textarea class="form-control" rows="30" id="sheet_csv_content" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
@@ -1028,6 +1028,13 @@
 //                    };
 //                });
                 $('.table_switch_cb').bootstrapToggle('disable');
+                $(window).resize(function(){
+                    if (spreadsheet) {
+                        spreadsheet.updateSettings({
+                            height: $(window).height() - $("body").height() + $("#sheet_spreadsheet_content").height()
+                        });
+                    }
+                });
                 $("#openFileMenu").click();
             });
         </script>
