@@ -320,10 +320,11 @@
             }
             
             function setSpreadsheet(target) {
-                $("#sheet_name_selected").text(" <" + target.id + ">");
+//                $("#sheet_name_selected").text(" <" + target.id + ">");
                 let tmp = target.id.split("__");
                 curFileName = tmp[0];
                 curSheetName = tmp[1];
+                $("#sheet_name_selected").text(" <" + curSheetName + ">");
             }
             
             function initSpreadsheet(fileName, sheetName, spsContainer) {
