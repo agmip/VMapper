@@ -48,7 +48,7 @@ function chosen_init_name(name, className) {
     }
 }
 
-function chosen_init_name(target, className) {
+function chosen_init_target(target, className) {
     target.chosen("destroy");
     if (className === undefined) {
         for (let selector in chonsenConfigs) {

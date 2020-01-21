@@ -159,7 +159,7 @@
             dialog.find("[name='icasa_info']").each(function () {
                 let subDiv = $(this);
                 subDiv.on("type_shown", function() {
-                    chosen_init_name(subDiv.find("[name='icasa']"), "chosen-select-deselect");
+                    chosen_init_target(subDiv.find("[name='icasa']"), "chosen-select-deselect");
                     dialog.find("[name=reference_flg]").prop("disabled", false);
                     dialog.find("[name=reference_flg]").prop("checked", !!colDef.reference_flg);
                     $(this).find(".col-def-input-item").each(function () {
@@ -227,7 +227,7 @@
                 subDiv.on("type_shown", function() {
                     dialog.find("[name=reference_flg]").prop("disabled", false);
                     dialog.find("[name=reference_flg]").prop("checked", !!colDef.reference_flg);
-                    chosen_init_name(subDiv.find("[name='category']"), "chosen-select-deselect");
+                    chosen_init_target(subDiv.find("[name='category']"), "chosen-select-deselect");
                     $(this).find(".col-def-input-item").each(function () {
                         if ($(this).attr("type") === "checkbox") {
                             $(this).prop( "checked", itemData[$(this).attr("name")]);
@@ -277,7 +277,7 @@
             dialog.find("[name='reference_info']").each(function () {
                 let subDiv = $(this);
                 subDiv.on("type_shown", function() {
-//                    chosen_init_name(subDiv.find("[name='category']"), "chosen-select-deselect");
+//                    chosen_init_target(subDiv.find("[name='category']"), "chosen-select-deselect");
 
                     $(this).find(".col-def-input-item").each(function () {
                         if ($(this).attr("type") === "checkbox") {
@@ -306,7 +306,7 @@
                     }
                 });
                 $(this).val(type);
-                chosen_init_name($(this), "chosen-select");
+                chosen_init_target($(this), "chosen-select");
                 $(this).trigger("change");
             });
         });
