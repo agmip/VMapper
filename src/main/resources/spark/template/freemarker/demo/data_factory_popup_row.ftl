@@ -115,9 +115,26 @@
             }
             let data = [];
             let mergeCells = [];
+            let columns = [
+//                {type: 'text', data : "file_name", readOnly: true},
+                {type: 'text', data : "sheet_name", readOnly: true},
+                {type: 'numeric', data : "header_row"},
+                {type: 'numeric', data : "data_start_row"},
+                {type: 'numeric', data : "unit_row"},
+                {type: 'numeric', data : "desc_row"},
+                {type: 'checkbox', data : "included_flg"}
+            ];
+            let colHeaders = ["Sheet", "Header Row #", "Data start Row #", "Unit Row #", "Description Row #", "Included"];
+            if (!editFlg) {
+                columns = [
+                    {type: 'text', data : "sheet_name", readOnly: true},
+                    {type: 'checkbox', data : "included_flg"}
+                ];
+                colHeaders = ["Sheet","Included"];
+            }
             for (fileName in sheets) {
                 data.push({sheet_name: fileName, flie_name_row:true});
-                mergeCells.push({row: data.length - 1, col: 0, rowspan: 1, colspan: 6});
+                mergeCells.push({row: data.length - 1, col: 0, rowspan: 1, colspan: columns.length});
                 for (sheetName in sheets[fileName]) {
                     data.push(sheets[fileName][sheetName]);
                     data[data.length - 1].included_flg = true;
@@ -126,15 +143,7 @@
             let spsOptions = {
                     licenseKey: 'non-commercial-and-evaluation',
                     data: data,
-                    columns: [
-//                        {type: 'text', data : "file_name", readOnly: true},
-                        {type: 'text', data : "sheet_name", readOnly: true},
-                        {type: 'numeric', data : "header_row"},
-                        {type: 'numeric', data : "data_start_row"},
-                        {type: 'numeric', data : "unit_row"},
-                        {type: 'numeric', data : "desc_row"},
-                        {type: 'checkbox', data : "included_flg"}
-                    ],
+                    columns : columns,
                     stretchH: 'all',
                     autoWrapRow: true,
                     height: 300,
@@ -143,7 +152,7 @@
                     manualRowResize: false,
                     manualColumnResize: false,
                     rowHeaders: false,
-                    colHeaders: ["Sheet", "Header Row #", "Data start Row #", "Unit Row #", "Description Row #", "Included"],
+                    colHeaders: colHeaders,
                     manualRowMove: false,
                     manualColumnMove: false,
                     filters: true,
@@ -173,6 +182,27 @@
                         }
                     });
                 });
+        });
+    }
+
+    function showSheetDefPrompt(callback) {
+        bootbox.confirm({
+            message: "The raws of the sheet has not been defined yet, do you want to do that?",
+            buttons: {
+                confirm: {
+                    label: 'Confirm',
+                    className: 'btn-primary'
+                },
+                cancel: {
+                    label: 'Later',
+                    className: 'btn-default'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    showSheetDefDialog(callback, null, true);
+                }
+            }
         });
     }
 </script>

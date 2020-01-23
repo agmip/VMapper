@@ -997,6 +997,7 @@
 //                        initSpreadsheet(curFileName, curSheetName);
                         $('#tableViewSwitch').bootstrapToggle('off');
                     } else {
+                        showSheetDefPrompt(processData);
                         $('#tableViewSwitch').bootstrapToggle('on');
                     }
                 });
