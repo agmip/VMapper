@@ -93,6 +93,8 @@
                             } else if (colDef.formula === "fill_with_previous") {
                                 delete colDef.formula;
                             }
+                        } else {
+                            delete colDef.formula;
                         }
                         
                         let varDef = icasaVarMap.getDefinition(colDef.icasa);
@@ -136,6 +138,8 @@
                             } else if (itemData.formula === "fill_with_previous") {
                                 delete itemData.formula;
                             }
+                        } else {
+                            delete itemData.formula;
                         }
                         showColDefineDialog(itemData, type);
                     }
@@ -509,7 +513,7 @@
         <div class="form-group col-sm-12">
             <label class="control-label">Other Options</label>
             <div class="input-group col-sm-12">
-                <select name="other_options" class="form-control" data-placeholder="Choose reference types..." multiple>
+                <select name="other_options" class="form-control" data-placeholder="Choose data handling options..." multiple>
                     <option value=""></option>
                     <option value="fill_with_previous">Use previous value to fill empty cells</option>
                 </select>
