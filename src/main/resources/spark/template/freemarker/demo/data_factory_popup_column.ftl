@@ -41,6 +41,7 @@
                 callback: function(){
                     let subDiv = $(this).find("[name=" + curVarType + "]");
                     let isRef = $(this).find("[name=reference_flg]").is(":checked");
+                    let othOpts = $(this).find("[name=other_options]").val();
                     if (curVarType === "customized_info") {
                         if (subDiv.find("[name='category']").val() === "") {
                             itemData.err_msg = "Please select the variable category.";
@@ -86,6 +87,13 @@
                         } else {
                             delete colDef.reference_flg;
                         }
+                        if (othOpts.length > 0) {
+                            if (othOpts.includes("fill_with_previous")) {
+                                colDef.formula = "fill_with_previous";
+                            } else if (colDef.formula === "fill_with_previous") {
+                                delete colDef.formula;
+                            }
+                        }
                         
                         let varDef = icasaVarMap.getDefinition(colDef.icasa);
                         if (varDef) {
@@ -122,6 +130,13 @@
                         } else {
                             delete itemData.reference_flg;
                         }
+                        if (othOpts.length > 0) {
+                            if (othOpts.includes("fill_with_previous")) {
+                                itemData.formula = "fill_with_previous";
+                            } else if (itemData.formula === "fill_with_previous") {
+                                delete itemData.formula;
+                            }
+                        }
                         showColDefineDialog(itemData, type);
                     }
                 }
@@ -145,6 +160,13 @@
             }
             dialog.find("[name=column_header]").each(function () {
                 $(this).val(itemData[$(this).attr("name")]);
+            });
+            dialog.find("[name=other_options]").each(function () {
+                $(this).val([]);
+                if (itemData.formula) {
+                    $(this).find("option[value='" + itemData.formula + "']").prop("selected", true);
+                }
+                chosen_init_target($(this));
             });
             dialog.find("[name=reference_flg]").each(function () {
                 $(this).prop("checked", itemData[$(this).attr("name")]);
@@ -482,6 +504,16 @@
                     </select>
                 </div>
             </div>-->
+        </div>
+        <!-- bottom row -->
+        <div class="form-group col-sm-12">
+            <label class="control-label">Other Options</label>
+            <div class="input-group col-sm-12">
+                <select name="other_options" class="form-control" data-placeholder="Choose reference types..." multiple>
+                    <option value=""></option>
+                    <option value="fill_with_previous">Use previous value to fill empty cells</option>
+                </select>
+            </div>
         </div>
     </div>
     <p>&nbsp;</p>
