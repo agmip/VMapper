@@ -283,7 +283,7 @@ public class DataUtil {
                         }
                     }
                     if (!nextLine[codeIdx].trim().isEmpty()) {
-                        codeDef.put(nextLine[codeIdx].trim(), nextLine[textIdx]);
+                        codeDef.put(nextLine[codeIdx].trim(), nextLine[textIdx].trim());
                     }
                 }
             }
@@ -334,7 +334,7 @@ public class DataUtil {
                 } else if (!nextLine[attrIdx[0]].trim().isEmpty()) {
                     JSONObject varDef = new JSONObject();
                     for (int i = 0; i < attrIdx.length; i++) {
-                        varDef.put(headers[i], nextLine[attrIdx[i]]);
+                        varDef.put(headers[i], nextLine[attrIdx[i]].trim());
                     }
                     try {
                         if (Integer.parseInt(varDef.get(ICASA_MGN_VAR_HEADER_VAR_RATING).toString()) < ICASA_MIN_ACCEPTABLE_RATING_LEVEL) {
@@ -395,7 +395,7 @@ public class DataUtil {
                 } else if (!nextLine[attrIdx[0]].trim().isEmpty()) {
                     JSONObject varDef = new JSONObject();
                     for (int i = 0; i < attrIdx.length; i++) {
-                        varDef.put(headers[i], nextLine[attrIdx[i]]);
+                        varDef.put(headers[i], nextLine[attrIdx[i]].trim());
                     }
                     try {
                         if (Integer.parseInt(varDef.get(ICASA_MGN_VAR_HEADER_VAR_RATING).toString()) < ICASA_MIN_ACCEPTABLE_RATING_LEVEL) {
