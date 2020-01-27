@@ -12,3 +12,15 @@
 </#if>
 </#list>
     </Outputs>
+            <Test name ="test1">
+<#list io as var>
+<#if var.iotype?? && var.iotype != "O" && var.iotype != "">
+                <InputValue name="${var.name!}"><#if var.default?? && var.default != "">${var.default!}<#elseif var.datatype?? && (var.datatype?contains("ARRAY") || var.datatype?contains("LIST"))>[]<#else>0</#if></InputValue>
+</#if>
+</#list>
+<#list io as var>
+<#if var.iotype?? && var.iotype != "I" && var.iotype != "">
+                <OutputValue name="${var.name!}" precision ="3"><#if var.default?? && var.default != "">${var.default!}<#elseif var.datatype?? && (var.datatype?contains("ARRAY") || var.datatype?contains("LIST"))>[]<#else>0</#if></OutputValue>
+</#if>
+</#list>
+            </Test>

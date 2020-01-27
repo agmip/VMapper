@@ -102,6 +102,9 @@
             
             function initSpreadsheet(category) {
                 $('#sheet_' + category).parent("fieldset").attr("hidden", false);
+                $('#sheet_' + category).css("height","550px");
+                $('#sheet_' + category).css("width","1500px");
+                $('#sheet_' + category).css('overflow','scroll');
                 let spsContainer = document.querySelector('#sheet_' + category);
                 let spsOptions = {
                     licenseKey: 'non-commercial-and-evaluation',
