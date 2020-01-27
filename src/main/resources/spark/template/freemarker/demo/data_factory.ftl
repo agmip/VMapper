@@ -8,7 +8,7 @@
         <link rel="stylesheet" type="text/css" href="/stylesheets/toggle/bootstrap-toggle.min.css" />
         <script>
             let wbObj;
-            let spsContainer;
+//            let spsContainer;
             let spreadsheet;
             let curSheetName;
             let templates = {};
