@@ -283,7 +283,10 @@ public class UnitConverter {
     public static boolean isValid(String unitStr) {
         try {
             return PARSER.parse(preParsing(unitStr)) != null;
-        } catch (PrefixDBException | SpecificationException | UnitDBException | UnitSystemException ex) {
+        } catch (SpecificationException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        } catch (PrefixDBException | UnitDBException | UnitSystemException ex) {
             ex.printStackTrace(System.err);
             return false;
         }
@@ -310,7 +313,10 @@ public class UnitConverter {
                 ret = "";
             }
             return ret;
-        } catch (PrefixDBException | SpecificationException | UnitDBException | UnitSystemException ex) {
+        } catch (SpecificationException ex) {
+            System.err.println(ex.getMessage());
+            return "";
+        } catch (PrefixDBException | UnitDBException | UnitSystemException ex) {
             ex.printStackTrace(System.err);
             return "";
         }
@@ -331,7 +337,10 @@ public class UnitConverter {
                 return "unitless";
             }
             return ret;
-        } catch (PrefixDBException | SpecificationException | UnitDBException | UnitSystemException ex) {
+        } catch (SpecificationException ex) {
+            System.err.println(ex.getMessage());
+            return "";
+        } catch (PrefixDBException | UnitDBException | UnitSystemException ex) {
             ex.printStackTrace(System.err);
             return "";
         }
