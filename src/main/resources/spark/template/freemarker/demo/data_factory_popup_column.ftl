@@ -40,8 +40,9 @@
                 className: 'btn-primary',
                 callback: function(){
                     let subDiv = $(this).find("[name=" + curVarType + "]");
-                    let isRef = $(this).find("[name=reference_flg]").is(":checked");
-                    let othOpts = $(this).find("[name=other_options]").val();
+//                    let isRef = $(this).find("[name=reference_flg]").is(":checked");
+//                    let refTypes = $(this).find("[name=reference_type]").val();
+//                    let othOpts = $(this).find("[name=other_options]").val();
                     if (curVarType === "customized_info") {
                         if (subDiv.find("[name='category']").val() === "") {
                             itemData.err_msg = "Please select the variable category.";
@@ -66,36 +67,7 @@
                         // TODO
                     }
                     if (!itemData.err_msg) {
-                        subDiv.find(".col-def-input-item").each(function () {
-                            if ($(this).attr("type") === "checkbox") {
-                                if ($(this).is(":checked")) {
-                                    colDef[$(this).attr("name")] = true;
-                                } else {
-                                    delete colDef[$(this).attr("name")];
-                                }
-                            } else if ($(this).val()) {
-                                colDef[$(this).attr("name")] = $(this).val();
-                            } else {
-                                delete colDef[$(this).attr("name")];
-                            }
-                        });
-                        if (isRef) {
-                            colDef.reference_flg = true;
-                            if (curVarType === "reference_info") {
-                                delete colDef.category;
-                            }
-                        } else {
-                            delete colDef.reference_flg;
-                        }
-                        if (othOpts.length > 0) {
-                            if (othOpts.includes("fill_with_previous")) {
-                                colDef.formula = "fill_with_previous";
-                            } else if (colDef.formula === "fill_with_previous") {
-                                delete colDef.formula;
-                            }
-                        } else {
-                            delete colDef.formula;
-                        }
+                        updateData($(this), colDef, curVarType);
                         
                         let varDef = icasaVarMap.getDefinition(colDef.icasa);
                         if (varDef) {
@@ -114,33 +86,7 @@
                             columns : columns
                         });
                     } else {
-                        subDiv.find(".col-def-input-item").each(function () {
-                            if ($(this).attr("type") === "checkbox") {
-                                if ($(this).is(":checked")) {
-                                    itemData[$(this).attr("name")] = true;
-                                } else {
-                                    delete itemData[$(this).attr("name")];
-                                }
-                            } else if ($(this).val()) {
-                                itemData[$(this).attr("name")] = $(this).val();
-                            }else {
-                                delete itemData[$(this).attr("name")];
-                            }
-                        });
-                        if (isRef) {
-                            itemData.reference_flg = true;
-                        } else {
-                            delete itemData.reference_flg;
-                        }
-                        if (othOpts.length > 0) {
-                            if (othOpts.includes("fill_with_previous")) {
-                                itemData.formula = "fill_with_previous";
-                            } else if (itemData.formula === "fill_with_previous") {
-                                delete itemData.formula;
-                            }
-                        } else {
-                            delete itemData.formula;
-                        }
+                        updateData($(this), itemData, curVarType);
                         showColDefineDialog(itemData, type);
                     }
                 }
@@ -336,6 +282,45 @@
                 $(this).trigger("change");
             });
         });
+    }
+    
+    function updateData(div, itemData, curVarType) {
+        let subDiv = div.find("[name=" + curVarType + "]");
+        let isRef = div.find("[name=reference_flg]").is(":checked");
+        let refTypes = div.find("[name=reference_type]").val();
+        let othOpts = div.find("[name=other_options]").val();
+        subDiv.find(".col-def-input-item").each(function () {
+            if ($(this).attr("type") === "checkbox") {
+                if ($(this).is(":checked")) {
+                    itemData[$(this).attr("name")] = true;
+                } else {
+                    delete itemData[$(this).attr("name")];
+                }
+            } else if ($(this).val()) {
+                itemData[$(this).attr("name")] = $(this).val();
+            }else {
+                delete itemData[$(this).attr("name")];
+            }
+        });
+        if (isRef) {
+            itemData.reference_flg = true;
+            updateRefType(itemData, refTypes);
+            if (curVarType === "reference_info") {
+                delete itemData.category;
+            }
+        } else {
+            delete itemData.reference_flg;
+            delete itemData.reference_type;
+        }
+        if (othOpts.length > 0) {
+            if (othOpts.includes("fill_with_previous")) {
+                itemData.formula = "fill_with_previous";
+            } else if (itemData.formula === "fill_with_previous") {
+                delete itemData.formula;
+            }
+        } else {
+            delete itemData.formula;
+        }
     }
 
     function initIcasaLookupSB() {
