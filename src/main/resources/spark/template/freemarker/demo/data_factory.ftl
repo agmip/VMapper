@@ -10,6 +10,7 @@
             let wbObj;
 //            let spsContainer;
             let spreadsheet;
+            let refSpreadsheet;
             let curSheetName;
             let templates = {};
             let curFileName;
@@ -96,6 +97,7 @@
                 userVarMap = {};
                 workbooks = {};
                 fileTypes = {};
+                templates = {};
                 fileTypes[fileName] = f.type;
                 curFileName = null;
                 curSheetName = null;
@@ -251,6 +253,7 @@
                             // init template structure
                             if (!sheetDef.mappings || curSheetName) {
                                 sheetDef.mappings = [];
+                                sheetDef.compoundKeys = [];
                                 for (let i = 0; i < headers.length; i++) {
                                     let headerDef = {
                                         column_header : headers[i],
@@ -663,7 +666,6 @@
             }
 
             function readSC2Json(target) {
-                templates = {};
                 var files = target.files;
                 if (files.length !== 1) {
                     alertBox('Please select one file!');
@@ -691,72 +693,168 @@
                                 return;
                             }
                             // Locate the correct file for reading mappings
-                            let fileConfig;
-                            for (let i in sc2Obj.agmip_translation_mappings) {
-                                fileConfig = sc2Obj.agmip_translation_mappings[i];
-                                if (fileConfig.file && fileConfig.file.file_metadata
-                                        && (curFileName === fileConfig.file.file_metadata.file_name
-//                                         || curFileName === getFileName(fileConfig.file.file_metadata.file_name) // TODO will be removed later
-                                        )) {
-                                    break;
-                                } else {
-                                    fileConfig = null;
-                                }
-                            }
-                            // If no matched file name, then use first defition as default
-                            if (!fileConfig) {
-                                fileConfig = sc2Obj.agmip_translation_mappings[0];
-                            }
-                            
-                            if (!fileConfig.file.sheets) {
-                                fileConfig.file.sheets = [];
-                            }
-                            // Load mapping for each sheet and fill missing column with ignore flag
-                            let fileName = fileConfig.file.file_metadata.file_name;
-                            if (!fileTypes[fileName]) {
-                                let contentType = fileConfig.file.file_metadata["content-type"];
-                                for (let name in fileTypes) {
-                                    if (name.startsWith(fileName) && (!contentType || fileTypes[name] === contentType)) {
-                                        fileName = name;
-                                    }
-                                }
-                            }
-                            if (!templates[fileName]) {
-                                templates[fileName] = {};
-                            }
-                            for (let i in fileConfig.file.sheets) {
-                                let sheetName = fileConfig.file.sheets[i].sheet_name;
-                                if (!sheetName) sheetName = "" + i;
-                                templates[fileName][sheetName] = Object.assign({}, fileConfig.file.sheets[i]);
-                                if (!templates[fileName][sheetName].header_row) {
-                                    templates[fileName][sheetName].header_row = 1;
-                                }
-                                if (!templates[fileName][sheetName].data_start_row) {
-                                    templates[fileName][sheetName].data_start_row = templates[fileName][sheetName].header_row + 1;
-                                }
-                                let sc2Mappings = fileConfig.file.sheets[i].mappings;
-                                let mappings = templates[fileName][sheetName].mappings;
-                                mappings = [];
-                                let curIdx = 0;
-                                for (let j in sc2Mappings) {
-                                    let colIdx = Number(sc2Mappings[j].column_index);
-                                    for (let k = curIdx; k < colIdx; k++) {
-                                        if (!mappings[k]) {
-                                            mappings.push({
-                                                column_index : k,
-                                                ignored_flg : true
-                                            });
+                            let fileConfigs = [];
+                            if (curFileName) {
+                                // If spreadsheet is already loaded, then only pick up the config for the loaded file
+                                for (let fileName in wbObj) {
+                                    for (let i in sc2Obj.agmip_translation_mappings) {
+                                        let fileConfig = sc2Obj.agmip_translation_mappings[i];
+                                        if (fileConfig.file && fileConfig.file.file_metadata
+                                                && (fileName === fileConfig.file.file_metadata.file_name
+                                                    || getFileName(fileName) === getFileName(fileConfig.file.file_metadata.file_name)
+                                                )) {
+                                            fileConfigs.push(fileConfig);
                                         }
                                     }
-                                    if (mappings[colIdx]) {
-                                        mappings[colIdx] = sc2Mappings[j];
+                                }
+                                // If not found matched config
+                                if (!fileConfigs.length === 0) {
+                                    // TODO then use default first records to apply
+                                    if (sc2Obj.agmip_translation_mappings.length === Object.keys(wbObj).length) {
+                                        fileConfig = sc2Obj.agmip_translation_mappings;
                                     } else {
-                                        mappings.push(sc2Mappings[j]);
+                                        // TODO give warning?
+                                    }
+                                    
+                                }
+                            } else {
+                                // Load all the configs
+                                fileConfigs = sc2Obj.agmip_translation_mappings;
+                            }
+                            
+                            for (let i in fileConfigs) {
+                                let fileConfig = fileConfigs[i];
+                                let refConfigs = {};
+                                for (let i in fileConfig.relations) {
+                                   refConfigs[fileConfig.relations[i].sheet] = fileConfig.relations[i];
+                                }
+                                if (!fileConfig.file.sheets) {
+                                    fileConfig.file.sheets = [];
+                                }
+                                // Load mapping for each sheet and fill missing column with ignore flag
+                                let fileName = fileConfig.file.file_metadata.file_name;
+                                if (!fileTypes[fileName]) {
+                                    let contentType = fileConfig.file.file_metadata["content-type"];
+                                    for (let name in fileTypes) {
+                                        if (name.startsWith(fileName) && (!contentType || fileTypes[name] === contentType)) {
+                                            fileName = name;
+                                        }
                                     }
                                 }
+                                templates[fileName] = {};
+                                for (let i in fileConfig.file.sheets) {
+                                    let sheetName = fileConfig.file.sheets[i].sheet_name;
+                                    let refConfig;
+                                    if (!sheetName) {
+                                        sheetName = "" + i;
+                                        refConfig = fileConfig.relations[i];
+                                    } else {
+                                        refConfig = refConfigs[sheetName];
+                                    }
+                                    if (refConfig) {
+                                        refConfig.parse_index = {};
+                                        refConfig.parse_header = {};
+                                        if (refConfig.primary_keys) {
+                                            for (let j in refConfig.primary_keys) {
+                                                let keys = refConfig.primary_keys[j];
+                                                let isCompKey = keys.length > 1;
+                                                for (let k in keys) {
+                                                    let index = keys[k].index;
+                                                    let header = keys[k].header;
+                                                    if (index) {
+                                                        if (!refConfig.parse_index[index]) {
+                                                            refConfig.parse_index[index] = {}
+                                                        }
+                                                        refConfig.parse_index[index].primary = true;
+                                                        if (isCompKey) {
+                                                            refConfig.parse_index[index].compound = true;
+                                                        }
+                                                    }
+                                                    if (header) {
+                                                        if (!refConfig.parse_header[header]) {
+                                                            refConfig.parse_header[header] = {}
+                                                        }
+                                                        refConfig.parse_header[header].primary = true;
+                                                        if (isCompKey) {
+                                                            refConfig.parse_header[header].compound = true;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (refConfig.foreign_keys) {
+                                            for (let j in refConfig.foreign_keys) {
+                                                let keys = refConfig.foreign_keys[j].keys;
+                                                if (!keys) {
+                                                    continue;
+                                                }
+                                                let isCompKey = keys.length > 1;
+                                                for (let k in keys) {
+                                                    let index = keys[k].index;
+                                                    let header = keys[k].header;
+                                                    if (index) {
+                                                        if (!refConfig.parse_index[index]) {
+                                                            refConfig.parse_index[index] = {}
+                                                        }
+                                                        refConfig.parse_index[index].foreign = true;
+                                                        if (isCompKey) {
+                                                            refConfig.parse_index[index].compound = true;
+                                                        }
+                                                    }
+                                                    if (header) {
+                                                        if (!refConfig.parse_header[header]) {
+                                                            refConfig.parse_header[header] = {}
+                                                        }
+                                                        refConfig.parse_header[header].foreign = true;
+                                                        if (isCompKey) {
+                                                            refConfig.parse_header[header].compound = true;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
+                                    } else {
+                                        refConfig = {parse_index : {}, parse_header : {}};
+                                    }
+                                    // If load SC2 separatedly and have excluding sheets, then skip the mapping for those sheets
+                                    if (curFileName && !wbObj[fileName][sheetName]) {
+                                        continue;
+                                    }
+                                    templates[fileName][sheetName] = Object.assign({}, fileConfig.file.sheets[i]);
+                                    if (!templates[fileName][sheetName].header_row) {
+                                        templates[fileName][sheetName].header_row = 1;
+                                    }
+                                    if (!templates[fileName][sheetName].data_start_row) {
+                                        templates[fileName][sheetName].data_start_row = templates[fileName][sheetName].header_row + 1;
+                                    }
+                                    let sc2Mappings = fileConfig.file.sheets[i].mappings;
+                                    let mappings = templates[fileName][sheetName].mappings;
+                                    mappings = [];
+                                    for (let j in sc2Mappings) {
+                                        let colIdx = Number(sc2Mappings[j].column_index);
+                                        for (let k = mappings.length; k < colIdx; k++) {
+                                            if (!mappings[k]) {
+                                                mappings.push({
+                                                    column_index : k,
+                                                    ignored_flg : true
+                                                });
+                                            }
+                                        }
+                                        mappings[colIdx] = sc2Mappings[j];
+                                        let header = mappings[colIdx].column_header;
+                                        if (refConfig.parse_index[colIdx])  {
+                                            mappings[colIdx].reference_flg = true;
+                                            mappings[colIdx].reference_type = refConfig.parse_index[colIdx];
+                                        } else if (header && refConfig.parse_header[header]) {
+                                            mappings[colIdx].reference_flg = true;
+                                            mappings[colIdx].reference_type = refConfig.parse_header[header];
+                                        }
+                                    }
+                                }
+                                curSheetName = null;
+                                processData();
                             }
-                            curSheetName = null;
-                            processData();
                         }
                     }
                 };
@@ -815,6 +913,18 @@
                         sheets : []
                     }
                 });
+                let refSheetTemplate = JSON.stringify({
+                    "file": null,
+                    "sheet": null,
+                    "primary_keys": [],
+                    "foreign_keys": []
+                });
+//                let refForeignKeyTemplate = JSON.stringify({
+//                    "source_file": "a.xlsx",
+//                    "source_sheet": "Experiment_metadata",
+//                    "source_keys": ["EID"],
+//                    "keys":["EXPER_ID"]
+//                });
                 
                 $(".mapping_gengeral_info").each(function () {
                    sc2Obj.mapping_info[$(this).attr("name") ] = $(this).val();
@@ -836,11 +946,42 @@
                     
                     sc2Obj.agmip_translation_mappings.push(tmp2);
                     for (let sheetName in templates[fileName]) {
+                        let refSheet = JSON.parse(refSheetTemplate);
+                        refSheet.file = fileName;
+                        refSheet.sheet = sheetName;
+                        tmp2.relations.push(refSheet);
+                        
                         let tmp = Object.assign({}, templates[fileName][sheetName]);
                         tmp.mappings = [];
                         for (let i in templates[fileName][sheetName].mappings) {
-                            if (!templates[fileName][sheetName].mappings[i].ignored_flg) {
-                                tmp.mappings.push(templates[fileName][sheetName].mappings[i]);
+                            let mapping = templates[fileName][sheetName].mappings[i];
+                            if (!mapping.ignored_flg) {
+                                let mappingCopy = Object.assign({}, mapping);
+                                tmp.mappings.push(mappingCopy);
+                                if (mapping.reference_flg) {
+                                    delete mappingCopy.reference_type;
+                                    let key = {index : mapping.column_index};
+                                    if (mapping.column_header) {
+                                        key.header = mapping.column_header;
+                                    }
+                                    if (mapping.icasa) {
+                                        key.icasa = mapping.icasa;
+                                    }
+                                    if (mapping.reference_type) {
+                                        if (mapping.reference_type.primary) {
+                                            refSheet.primary_keys.push([key]);
+                                        }
+                                        if (mapping.reference_type.foreign) {
+                                            let foreignKey = {
+                                                source_file : "",
+                                                source_sheet : "",
+                                                source_keys : [],
+                                                keys : [key]
+                                            };
+                                            refSheet.foreign_keys.push(foreignKey);
+                                        }
+                                    }
+                                }
                             }
                         }
                         tmp2.file.sheets.push(tmp);
@@ -848,7 +989,7 @@
                 }
                 return sc2Obj;
             }
-            
+
             function alertBox(msg, callback) {
                 if (callback) {
                     bootbox.alert({
@@ -908,6 +1049,7 @@
                     </ul>
                 </li>
                 <li><a data-toggle="tab" href="#general_tab">General Info</a></li>
+                <li id="refTab"><a data-toggle="tab" href="#reference_tab">Table Relation Info</a></li>
                 <li id="SC2Tab"><a data-toggle="tab" href="#sc2_tab">SC2 Preview</a></li>
                 <li><a data-toggle="tab" href="#csv_tab"><em> CSV [debug]</em></a></li>
                 <li id="mappingTab"><a data-toggle="tab" href="#mapping_tab"><em>Mappings Cache [debug]</em></a></li>
@@ -954,6 +1096,9 @@
                         </div>
                     </div>
                 </div>
+                <div id="reference_tab" class="tab-pane fade">
+                    <div id="ref_table" class="subcontainer panel-group"></div>
+                </div>
                 <div id="mapping_tab" class="tab-pane fade">
                     <textarea class="form-control" rows="30" id="mapping_json_content" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
                 </div>
@@ -966,6 +1111,7 @@
         <#include "data_factory_popup_loadFile.ftl">
         <#include "data_factory_popup_row.ftl">
         <#include "data_factory_popup_column.ftl">
+        <#include "data_factory_table_reference.ftl">
         <#include "../footer.ftl">
         <script type="text/javascript" src='/plugins/FileSaver/FileSaver.js'></script>
         <script type="text/javascript" src="/js/sheetjs/shim.js" charset="utf-8"></script>
@@ -1000,6 +1146,9 @@
                         showSheetDefPrompt(processData);
                         $('#tableViewSwitch').bootstrapToggle('on');
                     }
+                });
+                $('.nav-tabs #refTab').on('shown.bs.tab', function(){
+                    initRefTable();
                 });
                 $('.nav-tabs #mappingTab').on('shown.bs.tab', function(){
                     $("#mapping_json_content").html(JSON.stringify(templates, 2, 2));

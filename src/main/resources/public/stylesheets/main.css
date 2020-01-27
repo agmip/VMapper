@@ -57,6 +57,9 @@ h4 {
 .subcontainer {
     padding: 20px 20px;
 }
+.subcontainer2 {
+    padding-bottom: 20px;
+}
 .row {
     padding-bottom: 10px; 
 }

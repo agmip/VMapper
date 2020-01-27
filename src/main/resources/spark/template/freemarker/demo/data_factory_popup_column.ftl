@@ -111,6 +111,11 @@
             dialog.find("[name=column_header]").each(function () {
                 $(this).val(itemData[$(this).attr("name")]);
             });
+            dialog.find("[name=reference_type]").each(function () {
+                if (itemData[$(this).attr("name")]) {
+                    $(this).val(Object.keys(itemData[$(this).attr("name")]));
+                }
+            });
             dialog.find("[name=other_options]").each(function () {
                 $(this).val([]);
                 if (itemData.formula) {
@@ -119,8 +124,25 @@
                 chosen_init_target($(this));
             });
             dialog.find("[name=reference_flg]").each(function () {
-                $(this).prop("checked", itemData[$(this).attr("name")]);
+                $(this).on("change", function () {
+                    if ($(this).is(":checked")) {
+                        itemData.reference_flg = true;
+                    } else {
+                        delete itemData.reference_flg;
+                    }
+                    if (!itemData.reference_flg) {
+                        dialog.find("[name=reference_type_div]").hide();
+                    } else {
+                        dialog.find("[name=reference_type_div]").show("fast", function() {
+                            chosen_init_target($(this).find("[name='reference_type']"), "chosen-select");
+                        });
+                    }
+                });
+                $(this).prop("checked", itemData[$(this).attr("name")]).trigger("change");
             });
+//            if (!itemData.reference_flg) {
+//                dialog.find("[name=ref_type_div]").hide();
+//            }
             dialog.find("[name=" + type + "_info]").find(".col-def-input-item").each(function () {
                 if ($(this).attr("type") === "checkbox") {
                     $(this).prop( "checked", itemData[$(this).attr("name")]);
@@ -372,6 +394,17 @@
             </div>
             <div class="input-group col-sm-12">
                 <input type="checkbox" name="reference_flg">&nbsp;Used as reference key between tables
+            </div>
+        </div>
+        <div class="form-group col-sm-12" name="reference_type_div">
+            <label class="control-label">Reference Type</label>
+            <div class="input-group col-sm-12">
+                <select name="reference_type" class="form-control" data-placeholder="Choose reference types..." multiple>
+                    <option value=""></option>
+                    <option value="primary">Primary Key</option>
+                    <option value="foreign">Foreign Key</option>
+                    <option value="compound">Compound key</option>
+                </select>
             </div>
         </div>
         <!-- ICASA Management Variable Info -->
