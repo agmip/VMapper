@@ -187,7 +187,7 @@
                 subDiv.on("type_shown", function() {
                     chosen_init_target(subDiv.find("[name='icasa']"), "chosen-select-deselect");
                     dialog.find("[name=reference_flg]").prop("disabled", false);
-                    dialog.find("[name=reference_flg]").prop("checked", !!colDef.reference_flg);
+                    dialog.find("[name=reference_flg]").prop("checked", !!colDef.reference_flg).trigger("change");
                     $(this).find(".col-def-input-item").each(function () {
                         if ($(this).attr("type") === "checkbox") {
                             $(this).prop( "checked", itemData[$(this).attr("name")]);
@@ -252,7 +252,7 @@
                 let subDiv = $(this);
                 subDiv.on("type_shown", function() {
                     dialog.find("[name=reference_flg]").prop("disabled", false);
-                    dialog.find("[name=reference_flg]").prop("checked", !!colDef.reference_flg);
+                    dialog.find("[name=reference_flg]").prop("checked", !!colDef.reference_flg).trigger("change");
                     chosen_init_target(subDiv.find("[name='category']"), "chosen-select-deselect");
                     $(this).find(".col-def-input-item").each(function () {
                         if ($(this).attr("type") === "checkbox") {
@@ -313,7 +313,7 @@
                         }
                     });
                     itemData.reference_flg = true;
-                    dialog.find("[name=reference_flg]").prop("checked", true);
+                    dialog.find("[name=reference_flg]").prop("checked", true).trigger("change");
                     dialog.find("[name=reference_flg]").prop("disabled", true);
                 });
             });
