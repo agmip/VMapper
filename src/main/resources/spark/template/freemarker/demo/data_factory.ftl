@@ -844,6 +844,9 @@
                 if (refConfig[keyType + "_keys"]) {
                     for (let j in refConfig[keyType + "_keys"]) {
                         let keys = refConfig[keyType + "_keys"][j];
+                        if (keyType === "foreign") {
+                            keys = keys.keys;
+                        }
                         if (!keys) {
                             continue;
                         }
