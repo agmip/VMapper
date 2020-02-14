@@ -756,130 +756,8 @@
                                         refConfig.parse_header = {};
                                         refConfig.parse_comp_index = {};
                                         refConfig.parse_comp_header = {};
-                                        if (refConfig.primary_keys) {
-                                            for (let j in refConfig.primary_keys) {
-                                                let keys = refConfig.primary_keys[j];
-                                                let isCompKey = keys.length > 1;
-                                                let indexs = [];
-                                                let headers = [];
-                                                for (let k in keys) {
-                                                    let index = Number(keys[k].index);
-                                                    let header = keys[k].header;
-                                                    if (index) {
-                                                        if (!refConfig.parse_index[index]) {
-                                                            refConfig.parse_index[index] = {}
-                                                        }
-                                                        if (isCompKey) {
-                                                            refConfig.parse_index[index].compound = true;
-                                                        } else {
-                                                            refConfig.parse_index[index].primary = true;
-                                                        }
-                                                        if (indexs) {
-                                                            indexs.push(index);
-                                                        }
-                                                    } else {
-                                                        indexs = null;
-                                                    }
-                                                    if (header) {
-                                                        if (!refConfig.parse_header[header]) {
-                                                            refConfig.parse_header[header] = {}
-                                                        }
-                                                        if (isCompKey) {
-                                                            refConfig.parse_header[header].compound = true;
-                                                        } else {
-                                                            refConfig.parse_header[header].primary = true;
-                                                        }
-                                                        if (headers) {
-                                                            headers.push(header);
-                                                        }
-                                                    } else {
-                                                        headers = null
-                                                    }
-                                                }
-                                                if (isCompKey) {
-                                                    if (indexs) {
-                                                        let id = indexs.join("__");
-                                                        if (!refConfig.parse_comp_index[id]) {
-                                                            refConfig.parse_comp_index[id] = {reference_flg : true, reference_type: {}};
-                                                        }
-                                                        refConfig.parse_comp_index[id].vars = keys;
-                                                        refConfig.parse_comp_index[id].reference_type.primary = true;
-                                                    }
-                                                    if (headers) {
-                                                        let id = headers.join("__");
-                                                        if (!refConfig.parse_comp_header[id]) {
-                                                            refConfig.parse_comp_header[id] = {reference_flg : true, reference_type: {}};
-                                                        }
-                                                        refConfig.parse_comp_header[id].vars = keys;
-                                                        refConfig.parse_comp_header[id].reference_type.primary = true;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        if (refConfig.foreign_keys) {
-                                            for (let j in refConfig.foreign_keys) {
-                                                let keys = refConfig.foreign_keys[j].keys;
-                                                if (!keys) {
-                                                    continue;
-                                                }
-                                                let isCompKey = keys.length > 1;
-                                                let indexs = [];
-                                                let headers = [];
-                                                for (let k in keys) {
-                                                    let index = Number(keys[k].index);
-                                                    let header = keys[k].header;
-                                                    if (index) {
-                                                        if (!refConfig.parse_index[index]) {
-                                                            refConfig.parse_index[index] = {}
-                                                        }
-                                                        if (isCompKey) {
-                                                            refConfig.parse_index[index].compound = true;
-                                                        } else {
-                                                            refConfig.parse_index[index].foreign = true;
-                                                        }
-                                                        if (indexs) {
-                                                            indexs.push(index);
-                                                        }
-                                                    } else {
-                                                        indexs = null;
-                                                    }
-                                                    if (header) {
-                                                        if (!refConfig.parse_header[header]) {
-                                                            refConfig.parse_header[header] = {}
-                                                        }
-                                                        if (isCompKey) {
-                                                            refConfig.parse_header[header].compound = true;
-                                                        } else {
-                                                            refConfig.parse_header[header].foreign = true;
-                                                        }
-                                                        if (headers) {
-                                                            headers.push(header);
-                                                        }
-                                                    } else {
-                                                        headers = null
-                                                    }
-                                                }
-                                                if (isCompKey) {
-                                                    if (indexs) {
-                                                        let id = indexs.join("__");
-                                                        if (!refConfig.parse_comp_index[id]) {
-                                                            refConfig.parse_comp_index[id] = {reference_flg : true, reference_type: {}};
-                                                        }
-                                                        refConfig.parse_comp_index[id].vars = keys;
-                                                        refConfig.parse_comp_index[id].reference_type.foreign = true;
-                                                    }
-                                                    if (headers) {
-                                                        let id = headers.join("__");
-                                                        if (!refConfig.parse_comp_header[id]) {
-                                                            refConfig.parse_comp_header[id] = {reference_flg : true, reference_type: {}};
-                                                        }
-                                                        refConfig.parse_comp_header[id].vars = keys;
-                                                        refConfig.parse_comp_header[id].reference_type.foreign = true;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        
+                                        readRelations(refConfig, "primary");
+                                        readRelations(refConfig, "foreign");
                                     } else {
                                         refConfig = {parse_index : {}, parse_header : {}, compoundKeys: []};
                                     }
@@ -960,6 +838,76 @@
 
                 var blob = file.slice(start, stop + 1);
                 reader.readAsBinaryString(blob);
+            }
+            
+            function readRelations(refConfig, keyType) {
+                if (refConfig[keyType + "_keys"]) {
+                    for (let j in refConfig[keyType + "_keys"]) {
+                        let keys = refConfig[keyType + "_keys"][j];
+                        if (!keys) {
+                            continue;
+                        }
+                        let isCompKey = keys.length > 1;
+                        let indexs = [];
+                        let headers = [];
+                        for (let k in keys) {
+                            // Create lookup map by index
+                            let index = Number(keys[k].index);
+                            if (index) {
+                                if (!refConfig.parse_index[index]) {
+                                    refConfig.parse_index[index] = {}
+                                }
+                                if (isCompKey) {
+                                    refConfig.parse_index[index].compound = true;
+                                } else {
+                                    refConfig.parse_index[index][keyType] = true;
+                                }
+                                if (indexs) {
+                                    indexs.push(index);
+                                }
+                            } else {
+                                indexs = null;
+                            }
+                            // Create lookup map by header
+                            let header = keys[k].header;
+                            if (header) {
+                                if (!refConfig.parse_header[header]) {
+                                    refConfig.parse_header[header] = {}
+                                }
+                                if (isCompKey) {
+                                    refConfig.parse_header[header].compound = true;
+                                } else {
+                                    refConfig.parse_header[header][keyType] = true;
+                                }
+                                if (headers) {
+                                    headers.push(header);
+                                }
+                            } else {
+                                headers = null
+                            }
+                        }
+                        if (isCompKey) {
+                            // Create lookup map for compound key by index
+                            if (indexs) {
+                                let id = indexs.join("__");
+                                if (!refConfig.parse_comp_index[id]) {
+                                    refConfig.parse_comp_index[id] = {reference_flg : true, reference_type: {}};
+                                }
+                                refConfig.parse_comp_index[id].vars = keys;
+                                refConfig.parse_comp_index[id].reference_type[keyType] = true;
+                            }
+                            // Create lookup map for compound key by header
+                            if (headers) {
+                                let id = headers.join("__");
+                                if (!refConfig.parse_comp_header[id]) {
+                                    refConfig.parse_comp_header[id] = {reference_flg : true, reference_type: {}};
+                                }
+                                refConfig.parse_comp_header[id].vars = keys;
+                                refConfig.parse_comp_header[id].reference_type[keyType] = true;
+                            }
+                        }
+                    }
+                }
             }
             
             function saveTemplateFile() {
