@@ -40,9 +40,14 @@
                 className: 'btn-primary',
                 callback: function(){
                     let subDiv = $(this).find("[name=" + curVarType + "]");
-//                    let isRef = $(this).find("[name=reference_flg]").is(":checked");
-//                    let refTypes = $(this).find("[name=reference_type]").val();
+                    let isRef = $(this).find("[name=reference_flg]").is(":checked");
+                    let refTypes = $(this).find("[name=reference_type]").val();
 //                    let othOpts = $(this).find("[name=other_options]").val();
+                    if (isRef && refTypes.length === 0 && !isCompOnly(colDef)) {
+                        itemData.err_msg = "Please select the reference type.";
+                    } else if (itemData.err_msg === "Please select the reference type.") {
+                        delete itemData.err_msg;
+                    }
                     if (curVarType === "customized_info") {
                         if (subDiv.find("[name='category']").val() === "") {
                             itemData.err_msg = "Please select the variable category.";
@@ -138,7 +143,6 @@
                         });
                     }
                 });
-                $(this).prop("checked", itemData[$(this).attr("name")]).trigger("change");
             });
 //            if (!itemData.reference_flg) {
 //                dialog.find("[name=ref_type_div]").hide();
@@ -154,8 +158,8 @@
                 let subDiv = $(this);
                 subDiv.on("type_shown", function() {
                     chosen_init_target(subDiv.find("[name='icasa']"), "chosen-select-deselect");
-                    dialog.find("[name=reference_flg]").prop("disabled", false);
-                    dialog.find("[name=reference_flg]").prop("checked", !!colDef.reference_flg).trigger("change");
+                    dialog.find("[name=reference_flg]").prop("disabled", isCompOnly(itemData));
+                    dialog.find("[name=reference_flg]").prop("checked", !!itemData.reference_flg).trigger("change");
                     $(this).find(".col-def-input-item").each(function () {
                         if ($(this).attr("type") === "checkbox") {
                             $(this).prop( "checked", itemData[$(this).attr("name")]);
@@ -219,8 +223,8 @@
             dialog.find("[name='customized_info']").each(function () {
                 let subDiv = $(this);
                 subDiv.on("type_shown", function() {
-                    dialog.find("[name=reference_flg]").prop("disabled", false);
-                    dialog.find("[name=reference_flg]").prop("checked", !!colDef.reference_flg).trigger("change");
+                    dialog.find("[name=reference_flg]").prop("disabled", isCompOnly(mapping));
+                    dialog.find("[name=reference_flg]").prop("checked", !!itemData.reference_flg).trigger("change");
                     chosen_init_target(subDiv.find("[name='category']"), "chosen-select-deselect");
                     $(this).find(".col-def-input-item").each(function () {
                         if ($(this).attr("type") === "checkbox") {
@@ -304,6 +308,10 @@
                 $(this).trigger("change");
             });
         });
+    }
+
+    function isCompOnly(mapping) {
+        return !!mapping.reference_type && Object.keys(mapping.reference_type).length === 1 && !!mapping.reference_type.compound;
     }
     
     function updateData(div, itemData, curVarType) {
@@ -403,7 +411,7 @@
                     <option value=""></option>
                     <option value="primary">Primary Key</option>
                     <option value="foreign">Foreign Key</option>
-                    <option value="compound">Compound key</option>
+                    <!--<option value="compound">Compound key</option>-->
                 </select>
             </div>
         </div>

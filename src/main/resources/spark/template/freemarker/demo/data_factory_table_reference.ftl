@@ -209,9 +209,9 @@
     }
     
     function isRefVar(mapping) {
-        return mapping.reference_type && (Object.keys(mapping.reference_type).length !== 1 || !mapping.reference_type.compound);
+        return !!mapping.reference_type && (Object.keys(mapping.reference_type).length !== 1 || !mapping.reference_type.compound);
     }
-
+    
     function getRefVarList() {
         let ret = {};
         for (let fileName in templates) {
