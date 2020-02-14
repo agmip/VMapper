@@ -754,30 +754,64 @@
                                     if (refConfig) {
                                         refConfig.parse_index = {};
                                         refConfig.parse_header = {};
+                                        refConfig.parse_comp_index = {};
+                                        refConfig.parse_comp_header = {};
                                         if (refConfig.primary_keys) {
                                             for (let j in refConfig.primary_keys) {
                                                 let keys = refConfig.primary_keys[j];
                                                 let isCompKey = keys.length > 1;
+                                                let indexs = [];
+                                                let headers = [];
                                                 for (let k in keys) {
-                                                    let index = keys[k].index;
+                                                    let index = Number(keys[k].index);
                                                     let header = keys[k].header;
                                                     if (index) {
                                                         if (!refConfig.parse_index[index]) {
                                                             refConfig.parse_index[index] = {}
                                                         }
-                                                        refConfig.parse_index[index].primary = true;
                                                         if (isCompKey) {
                                                             refConfig.parse_index[index].compound = true;
+                                                        } else {
+                                                            refConfig.parse_index[index].primary = true;
                                                         }
+                                                        if (indexs) {
+                                                            indexs.push(index);
+                                                        }
+                                                    } else {
+                                                        indexs = null;
                                                     }
                                                     if (header) {
                                                         if (!refConfig.parse_header[header]) {
                                                             refConfig.parse_header[header] = {}
                                                         }
-                                                        refConfig.parse_header[header].primary = true;
                                                         if (isCompKey) {
                                                             refConfig.parse_header[header].compound = true;
+                                                        } else {
+                                                            refConfig.parse_header[header].primary = true;
                                                         }
+                                                        if (headers) {
+                                                            headers.push(header);
+                                                        }
+                                                    } else {
+                                                        headers = null
+                                                    }
+                                                }
+                                                if (isCompKey) {
+                                                    if (indexs) {
+                                                        let id = indexs.join("__");
+                                                        if (!refConfig.parse_comp_index[id]) {
+                                                            refConfig.parse_comp_index[id] = {reference_flg : true, reference_type: {}};
+                                                        }
+                                                        refConfig.parse_comp_index[id].vars = keys;
+                                                        refConfig.parse_comp_index[id].reference_type.primary = true;
+                                                    }
+                                                    if (headers) {
+                                                        let id = headers.join("__");
+                                                        if (!refConfig.parse_comp_header[id]) {
+                                                            refConfig.parse_comp_header[id] = {reference_flg : true, reference_type: {}};
+                                                        }
+                                                        refConfig.parse_comp_header[id].vars = keys;
+                                                        refConfig.parse_comp_header[id].reference_type.primary = true;
                                                     }
                                                 }
                                             }
@@ -789,33 +823,65 @@
                                                     continue;
                                                 }
                                                 let isCompKey = keys.length > 1;
+                                                let indexs = [];
+                                                let headers = [];
                                                 for (let k in keys) {
-                                                    let index = keys[k].index;
+                                                    let index = Number(keys[k].index);
                                                     let header = keys[k].header;
                                                     if (index) {
                                                         if (!refConfig.parse_index[index]) {
                                                             refConfig.parse_index[index] = {}
                                                         }
-                                                        refConfig.parse_index[index].foreign = true;
                                                         if (isCompKey) {
                                                             refConfig.parse_index[index].compound = true;
+                                                        } else {
+                                                            refConfig.parse_index[index].foreign = true;
                                                         }
+                                                        if (indexs) {
+                                                            indexs.push(index);
+                                                        }
+                                                    } else {
+                                                        indexs = null;
                                                     }
                                                     if (header) {
                                                         if (!refConfig.parse_header[header]) {
                                                             refConfig.parse_header[header] = {}
                                                         }
-                                                        refConfig.parse_header[header].foreign = true;
                                                         if (isCompKey) {
                                                             refConfig.parse_header[header].compound = true;
+                                                        } else {
+                                                            refConfig.parse_header[header].foreign = true;
                                                         }
+                                                        if (headers) {
+                                                            headers.push(header);
+                                                        }
+                                                    } else {
+                                                        headers = null
+                                                    }
+                                                }
+                                                if (isCompKey) {
+                                                    if (indexs) {
+                                                        let id = indexs.join("__");
+                                                        if (!refConfig.parse_comp_index[id]) {
+                                                            refConfig.parse_comp_index[id] = {reference_flg : true, reference_type: {}};
+                                                        }
+                                                        refConfig.parse_comp_index[id].vars = keys;
+                                                        refConfig.parse_comp_index[id].reference_type.foreign = true;
+                                                    }
+                                                    if (headers) {
+                                                        let id = headers.join("__");
+                                                        if (!refConfig.parse_comp_header[id]) {
+                                                            refConfig.parse_comp_header[id] = {reference_flg : true, reference_type: {}};
+                                                        }
+                                                        refConfig.parse_comp_header[id].vars = keys;
+                                                        refConfig.parse_comp_header[id].reference_type.foreign = true;
                                                     }
                                                 }
                                             }
                                         }
                                         
                                     } else {
-                                        refConfig = {parse_index : {}, parse_header : {}};
+                                        refConfig = {parse_index : {}, parse_header : {}, compoundKeys: []};
                                     }
                                     // If load SC2 separatedly and have excluding sheets, then skip the mapping for those sheets
                                     if (curFileName && !wbObj[fileName][sheetName]) {
@@ -829,26 +895,59 @@
                                         templates[fileName][sheetName].data_start_row = templates[fileName][sheetName].header_row + 1;
                                     }
                                     let sc2Mappings = fileConfig.file.sheets[i].mappings;
+                                    templates[fileName][sheetName].mappings = [];
+                                    templates[fileName][sheetName].compoundKeys = [];
                                     let mappings = templates[fileName][sheetName].mappings;
-                                    mappings = [];
                                     for (let j in sc2Mappings) {
                                         let colIdx = Number(sc2Mappings[j].column_index);
-                                        for (let k = mappings.length; k < colIdx; k++) {
+                                        for (let k = mappings.length; k < colIdx - 1; k++) {
                                             if (!mappings[k]) {
                                                 mappings.push({
-                                                    column_index : k,
+                                                    column_index : k + 1,
                                                     ignored_flg : true
                                                 });
                                             }
                                         }
-                                        mappings[colIdx] = sc2Mappings[j];
-                                        let header = mappings[colIdx].column_header;
+                                        mappings[colIdx - 1] = sc2Mappings[j];
+                                        let header = sc2Mappings[j].column_header;
                                         if (refConfig.parse_index[colIdx])  {
-                                            mappings[colIdx].reference_flg = true;
-                                            mappings[colIdx].reference_type = refConfig.parse_index[colIdx];
+                                            sc2Mappings[j].reference_flg = true;
+                                            sc2Mappings[j].reference_type = refConfig.parse_index[colIdx];
                                         } else if (header && refConfig.parse_header[header]) {
-                                            mappings[colIdx].reference_flg = true;
-                                            mappings[colIdx].reference_type = refConfig.parse_header[header];
+                                            sc2Mappings[j].reference_flg = true;
+                                            sc2Mappings[j].reference_type = refConfig.parse_header[header];
+                                        }
+                                    }
+                                    let compoundKeys = templates[fileName][sheetName].compoundKeys;
+                                    for (let id in refConfig.parse_comp_index) {
+                                        compoundKeys.push(refConfig.parse_comp_index[id]);
+                                        for (let i in refConfig.parse_comp_index[id].vars) {
+                                            let index = refConfig.parse_comp_index[id].vars[i].index;
+                                            let header = refConfig.parse_comp_index[id].vars[i].header;
+                                            let found = false;
+                                            for (let j in mappings) {
+                                                if (mappings.column_index === index) {
+                                                    refConfig.parse_comp_index[id].vars[i] = mappings[j];
+                                                    found = true;
+                                                    break;
+                                                }
+                                            }
+                                            if (found) {
+                                                continue;
+                                            }
+                                            for (let j in mappings) {
+                                                if (mappings.column_header === header) {
+                                                    refConfig.parse_comp_index[id].vars[i] = mappings[j];
+                                                    found = true;
+                                                    break;
+                                                }
+                                            }
+                                            if (!found) {
+                                                refConfig.parse_comp_index[id].vars[i] = {
+                                                    column_index : index,
+                                                    column_header : header
+                                                };
+                                            }
                                         }
                                     }
                                 }
@@ -982,6 +1081,39 @@
                                         }
                                     }
                                 }
+                            }
+                        }
+                        if (templates[fileName][sheetName].compoundKeys) {
+                            for (let i in templates[fileName][sheetName].compoundKeys) {
+                                let compoundKey = templates[fileName][sheetName].compoundKeys[i];
+                                let keys = [];
+                                for (let j in compoundKey.vars) {
+                                    let mapping = compoundKey.vars[j];
+                                    let key = {index : mapping.column_index};
+                                    if (mapping.column_header) {
+                                        key.header = mapping.column_header;
+                                    }
+                                    if (mapping.icasa) {
+                                        key.icasa = mapping.icasa;
+                                    }
+                                    keys.push(key);
+                                }
+                                if (compoundKey.reference_type) {
+                                    if (compoundKey.reference_type.primary) {
+                                        refSheet.primary_keys.push(keys);
+                                    }
+                                    if (compoundKey.reference_type.foreign) {
+                                        let foreignKey = {
+                                            source_file : "",
+                                            source_sheet : "",
+                                            source_keys : [],
+                                            keys : keys
+                                        };
+                                        refSheet.foreign_keys.push(foreignKey);
+                                    }
+                                }
+//                                let keyIdxs = compoundKey.index; // TODO continue develop from here
+                                // TODO think about compound flag in each mapping which might be lost during save into SC2 file
                             }
                         }
                         tmp2.file.sheets.push(tmp);

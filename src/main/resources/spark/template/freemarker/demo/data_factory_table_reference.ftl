@@ -29,14 +29,14 @@
         ret.find("[name='sheet_name']").html(sheetName);
         let varListDiv = ret.find("[name='var_list']");
         for (let i in mappings) {
-            varListDiv.append(createRefTableVarDiv(mappings[i]));
+            varListDiv.append(createRefTableVarDiv(fileName, sheetName, mappings[i]));
         }
 //        varListDiv.append(createRefTableNewVarDiv(fileName, sheetName, varListDiv));
         initRefTableNewVarDiv(ret.find("[name='ref_var_new']"), fileName, sheetName, varListDiv);
         return ret;
     }
 
-    function createRefTableVarDiv(mapping) {
+    function createRefTableVarDiv(fileName, sheetName, mapping) {
         let ret = $("#template").find("[name='template_ref_var']").clone();
         ret.find("[name='var_name']").html(getVarNameLabel(mapping));
         if (mapping.reference_type) {
@@ -47,8 +47,14 @@
         });
         
         ret.find("[name='edit_btn']").on("click", function() {
-            delete mapping.reference_flg;
-            delete mapping.reference_type;
+            if (mapping.vars) {
+                let compoundKeys = templates[fileName][sheetName].compoundKeys;
+                let idx = compoundKeys.indexOf(mapping);
+                compoundKeys.splice(idx, 1);
+            } else {
+                delete mapping.reference_flg;
+                delete mapping.reference_type;
+            }
             ret.remove();
         });
         return ret;
@@ -71,14 +77,34 @@
                 editBtn.prop("disabled", true);
             } else if (values.length === 1) {
                 for (let i in mappings) {
-                    if (mappings[i].column_index === Number(values[0]) && mappings[i].reference_flg) {
+                    if (mappings[i].column_index === Number(values[0]) && isRefVar(mappings[i])) {
                         editBtn.prop("disabled", true);
                         return;
                     }
                 }
                 editBtn.prop("disabled", false);
             } else {
-                editBtn.prop("disabled", compoundKeys.includes(values));
+                let isRepeated = false;
+                for (let i in compoundKeys) {
+                    if (compoundKeys[i].vars.length === values.length) {
+                        for (let j in values) {
+                            isRepeated = false;
+                            for (let k in compoundKeys[i].vars) {
+                                if (compoundKeys[i].vars[k].column_index === Number(values[j])) {
+                                    isRepeated = true;
+                                    break;
+                                }
+                            }
+                            if (!isRepeated) {
+                                break;
+                            }
+                        }
+                    }
+                    if (isRepeated) {
+                        break;
+                    }
+                }
+                editBtn.prop("disabled", isRepeated);
             }
             
         });
@@ -87,34 +113,49 @@
             let varIdxs = varNameComp.val();
             if (varIdxs.length === 0) {
                 // TODO give a warning for let user choose a variable
-            }
-            for (let i in varIdxs) {
-                let varIdx = Number(varIdxs[i]);
-                for (let i in mappings) {
-                    if (mappings[i].column_index === varIdx) {
-                        mappings[i].reference_flg = true;
-                        updateRefType(mappings[i], refTypeSB.val());
-
-                        // Add raw for new reference variable
-                        let newDiv = createRefTableVarDiv(mappings[i]);
-                        varListDiv.append(newDiv);
-                        newDiv.find("select").each(function () {
-                            chosen_init_target($(this));
-                        });
-
-                        // re-init new variable raw
-                        div.find("select").each(function() {
-                            $(this).find("option:selected").prop("selected", false);
-                            chosen_init_target($(this));
-                        });
-                        $(this).prop("disabled", true);
-                        return;
+            } else {
+                // Init reference mapping target
+                let mapping;
+                if (varIdxs.length === 1) {
+                    let varIdx = Number(varIdxs[0]);
+                    for (let i in mappings) {
+                        if (mappings[i].column_index === varIdx) {
+                            mapping = mappings[i];
+                            break;
+                        }
                     }
+                    // TODO give a warning for unrecognized var index
+                } else {
+                    mapping = {vars : []};
+                    for (let i in varIdxs) {
+                        let varIdx = Number(varIdxs[i]);
+                        for (let i in mappings) {
+                            if (mappings[i].column_index === varIdx) {
+                                mappings[i].reference_flg = true;
+                                updateRefType(mappings[i], ["compound"]);
+                                mapping.vars.push(mappings[i]);
+                            }
+                        }
+                    }
+                    compoundKeys.push(mapping);
                 }
-                // TODO give a warning for unrecognized var index
+                
+                // Setup reference fields
+                mapping.reference_flg = true;
+                updateRefType(mapping, refTypeSB.val());
+                // Add raw for new reference variable
+                let newDiv = createRefTableVarDiv(fileName, sheetName, mapping);
+                varListDiv.append(newDiv);
+                newDiv.find("select").each(function () {
+                    chosen_init_target($(this));
+                });
             }
-            
-            
+            // re-init new variable raw
+            div.find("select").each(function() {
+                $(this).find("option:selected").prop("selected", false);
+                chosen_init_target($(this));
+            });
+            $(this).prop("disabled", true);
         });
         return div;
     }
@@ -123,7 +164,9 @@
         if (opts.length === 0) {
             delete mapping.reference_type;
         } else {
-            mapping.reference_type = {};
+            if (opts.length !== 1 || opts[0] !== "compound" || !mapping.reference_type) {
+                mapping.reference_type = {};
+            }
             for (let i in opts) {
                 mapping.reference_type[opts[i]] = true;
             }
@@ -131,6 +174,18 @@
     }
     
     function getVarNameLabel(mapping) {
+        if (mapping.vars) {
+            let ret = [];
+            for (let i in mapping.vars) {
+                ret.push(getVarNameText(mapping.vars[i]));
+            }
+            return ret.join("; ");
+        } else {
+            return getVarNameText(mapping);
+        }
+    }
+    
+    function getVarNameText(mapping) {
         let header = mapping.column_header;
         let icasa = mapping.icasa;
         let index = mapping.column_index;
@@ -152,6 +207,10 @@
     function createReferences() {
         let refVarList = getRefVarList();
     }
+    
+    function isRefVar(mapping) {
+        return mapping.reference_type && (Object.keys(mapping.reference_type).length !== 1 || !mapping.reference_type.compound);
+    }
 
     function getRefVarList() {
         let ret = {};
@@ -163,14 +222,20 @@
                 for (let i in template[sheetName].mappings) {
                     let mapping = template[sheetName].mappings[i];
                     if (mapping.reference_flg) {
-                        ret[fileName][sheetName].keys.push(mapping);
-    //                                if (mapping.ref_type.primary) {
-    //                                    ret[fileName][sheetName].primary.push(mapping);
-    //                                }
-    //                                if (mapping.ref_type.foreign) {
-    //                                    ret[fileName][sheetName].foreign.push(mapping);
-    //                                }
+                        if (isRefVar(mapping)) {
+                            ret[fileName][sheetName].keys.push(mapping);
+//                            if (mapping.ref_type.primary) {
+//                                ret[fileName][sheetName].primary.push(mapping);
+//                            }
+//                            if (mapping.ref_type.foreign) {
+//                                ret[fileName][sheetName].foreign.push(mapping);
+//                            }
+                        }
                     }
+                }
+                for (let i in template[sheetName].compoundKeys) {
+                    let compoundKey = template[sheetName].compoundKeys[i];
+                    ret[fileName][sheetName].keys.push(compoundKey);
                 }
             }
         }
@@ -189,7 +254,7 @@
                     <div class="col-sm-9">
                         <div class="col-sm-5"><span class="label label-primary">Ref Type</span></div>
                         <div class="col-sm-3"><span class="label label-primary">Ref Target</span></div>
-                        <div class="col-sm-3"><span class="label label-primary">Ref other</span></div>
+                        <!--<div class="col-sm-3"><span class="label label-primary">Ref other</span></div>-->
                     </div>
                 </div>
             </div>
@@ -210,15 +275,15 @@
                                 <option value=""></option>
                                 <option value="primary">Primary</option>
                                 <option value="foreign">Foreign</option>
-                                <option value="compound">Compound</option>
+                                <!--<option value="compound">Compound</option>-->
                             </select>
                         </div>
                         <div class="col-sm-3">
-                            <input type="email" name="mapping_author" class="form-control" value="">
+                            <input type="text" name="reference_target" class="form-control" value="">
                         </div>
-                        <div class="col-sm-3">
-                            <input type="email" name="mapping_author" class="form-control" value="">
-                        </div>
+<!--                        <div class="col-sm-3">
+                            <input type="text" name="reference_other" class="form-control" value="">
+                        </div>-->
                         <div class="col-sm-1">
                             <button type="button" name="edit_btn" class="btn btn-info btn-sm"><span class="glyphicon glyphicon-plus"></span></button>
                         </div>
@@ -235,15 +300,15 @@
                     <option value=""></option>
                     <option value="primary">Primary</option>
                     <option value="foreign">Foreign</option>
-                    <option value="compound">Compound</option>
+                    <!--<option value="compound">Compound</option>-->
                 </select>
             </div>
             <div class="col-sm-3">
-                <input type="email" name="mapping_author" class="form-control" value="">
+                <input type="text" name="reference_target" class="form-control" value="">
             </div>
-            <div class="col-sm-3">
-                <input type="email" name="mapping_author" class="form-control" value="">
-            </div>
+<!--            <div class="col-sm-3">
+                <input type="text" name="reference_other" class="form-control" value="">
+            </div>-->
             <div class="col-sm-1">
                <button type="button" name="edit_btn" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-minus"></span></button>
             </div>
