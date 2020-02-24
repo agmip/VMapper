@@ -223,7 +223,7 @@
             dialog.find("[name='customized_info']").each(function () {
                 let subDiv = $(this);
                 subDiv.on("type_shown", function() {
-                    dialog.find("[name=reference_flg]").prop("disabled", isCompOnly(mapping));
+                    dialog.find("[name=reference_flg]").prop("disabled", isCompOnly(itemData));
                     dialog.find("[name=reference_flg]").prop("checked", !!itemData.reference_flg).trigger("change");
                     chosen_init_target(subDiv.find("[name='category']"), "chosen-select-deselect");
                     $(this).find(".col-def-input-item").each(function () {
@@ -341,6 +341,7 @@
         } else {
             delete itemData.reference_flg;
             delete itemData.reference_type;
+            delete itemData.reference_target;
         }
         if (othOpts.length > 0) {
             if (othOpts.includes("fill_with_previous")) {
