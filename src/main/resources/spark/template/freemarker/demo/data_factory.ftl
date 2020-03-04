@@ -809,86 +809,6 @@
                 reader.readAsBinaryString(blob);
             }
             
-            function readRelations(refConfig, keyType) {
-                if (refConfig[keyType + "_keys"]) {
-                    for (let j in refConfig[keyType + "_keys"]) {
-                        let keys = refConfig[keyType + "_keys"][j];
-                        if (keyType === "foreign") {
-                            keys = keys.keys;
-                        }
-                        if (!keys) {
-                            continue;
-                        }
-                        let isCompKey = keys.length > 1;
-                        let indexs = [];
-                        let headers = [];
-                        for (let k in keys) {
-                            // Create lookup map by index
-                            let index = Number(keys[k].index);
-                            if (!index && !isCompKey) {
-                                index = k + 1;
-                            }
-                            if (!refConfig.parse_index[index]) {
-                                refConfig.parse_index[index] = {reference_type: {}}
-                            }
-                            if (isCompKey) {
-                                refConfig.parse_index[index].reference_type.compound = true;
-                            } else {
-                                refConfig.parse_index[index].reference_type[keyType] = true;
-                            }
-                            indexs.push(index);
-                            // Create lookup map by header
-                            let header = keys[k].header;
-                            if (header) {
-                                if (!refConfig.parse_header[header]) {
-                                    refConfig.parse_header[header] = {reference_type: {}}
-                                }
-                                if (isCompKey) {
-                                    refConfig.parse_header[header].reference_type.compound = true;
-                                } else {
-                                    refConfig.parse_header[header].reference_type[keyType] = true;
-                                }
-                                if (headers) {
-                                    headers.push(header);
-                                }
-                            } else {
-                                headers = null
-                            }
-                        }
-                        if (isCompKey) {
-                            // Create lookup map for compound key by index
-                            if (indexs) {
-                                let id = indexs.join("__");
-                                if (!refConfig.parse_comp_index[id]) {
-                                    refConfig.parse_comp_index[id] = {
-                                        column_index : indexs.join("__"),
-                                        column_indexs : indexs,
-                                        reference_flg : true,
-                                        reference_type: {}
-                                    };
-                                }
-                                refConfig.parse_comp_index[id].vars = keys;
-                                refConfig.parse_comp_index[id].reference_type[keyType] = true;
-                            }
-                            // Create lookup map for compound key by header
-                            if (headers) {
-                                let id = headers.join("__");
-                                if (!refConfig.parse_comp_header[id]) {
-                                    refConfig.parse_comp_header[id] = {
-                                        column_index : indexs.join("__"),
-                                        column_indexs : indexs,
-                                        reference_flg : true,
-                                        reference_type: {}
-                                    };
-                                }
-                                refConfig.parse_comp_header[id].vars = keys;
-                                refConfig.parse_comp_header[id].reference_type[keyType] = true;
-                            }
-                        }
-                    }
-                }
-            }
-            
             function saveTemplateFile() {
                 if (!curFileName) {
                     alertBox("Please load spreadsheet file first, then edit and save SC2 file for it.");
@@ -969,38 +889,7 @@
                                 tmp.mappings.push(mappingCopy);
                                 if (mapping.reference_flg) {
                                     delete mappingCopy.reference_type;
-                                    let key = {index : mapping.column_index};
-                                    if (mapping.column_header) {
-                                        key.header = mapping.column_header;
-                                    }
-                                    if (mapping.icasa) {
-                                        key.icasa = mapping.icasa;
-                                    }
-                                    if (mapping.reference_type) {
-                                        if (mapping.reference_type.primary) {
-                                            refSheet.primary_keys.push([key]);
-                                        }
-                                        if (mapping.reference_type.foreign) {
-                                            let foreignKey = {
-                                                source_file : "",
-                                                source_sheet : "",
-                                                source_keys : [],
-                                                keys : [key]
-                                            };
-                                            if (mapping.reference_target) {
-                                                foreignKey.source_file = mapping.reference_target.source_file;
-                                                foreignKey.source_sheet = mapping.reference_target.source_sheet;
-                                                for (let j in mapping.reference_target.source_keys) {
-                                                    foreignKey.source_keys.push({
-                                                        index : mapping.reference_target.source_keys[i].column_index,
-                                                        header : mapping.reference_target.source_keys[i].column_header,
-                                                        icasa : mapping.reference_target.source_keys[i].icasa
-                                                    });
-                                                }
-                                            }
-                                            refSheet.foreign_keys.push(foreignKey);
-                                        }
-                                    }
+                                    delete mappingCopy.reference_flg;
                                 }
                             }
                         }
@@ -1102,11 +991,6 @@
                         <span class="label label-warning">Undefined</span>
                         <span class="label label-danger"><em>Warning</em></span>
                         <span class="label label-default">Ignored</span>
-                        <span class="label" style="background-color: white;color:black;"><span class="glyphicon">&#xe034;</span> Reference Key</span>
-<!--                        <input type="checkbox" id="tableColSwitchSuccess" class="table_switch_cb" data-toggle="toggle" data-size="mini" data-on="Show" data-off="Hide" data-onstyle="success" checked>
-                        <input type="checkbox" id="tableColSwitchWarning" class="table_switch_cb" data-toggle="toggle" data-size="mini" data-on="Show" data-off="Hide" data-onstyle="warning" checked>
-                        <input type="checkbox" id="tableColSwitchDanger" class="table_switch_cb" data-toggle="toggle" data-size="mini" data-on="Show" data-off="Hide" data-onstyle="danger" checked>
-                        <input type="checkbox" id="tableColSwitchInfo" class="table_switch_cb" data-toggle="toggle" data-size="mini" data-on="Show" data-off="Hide" data-onstyle="info" checked>-->
                     </div>
                     <div id="sheet_spreadsheet_content" class="col-sm-12" style="overflow: hidden"></div>
                 </div>

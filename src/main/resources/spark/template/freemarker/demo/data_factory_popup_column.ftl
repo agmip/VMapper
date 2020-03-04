@@ -7,15 +7,9 @@
             if (itemData.icasa) {
                 if (icasaVarMap.getDefinition(itemData.icasa)) {
                     type = "icasa";
-                } else if (itemData.category) {
-                    type = "customized";
-                } else if (itemData.reference_flg) {
-                    type = "reference";
                 } else {
                     type = "customized";
                 }
-            } else if (itemData.reference_flg) {
-                type = "reference";
             } else if (itemData.description) {
                 type = "customized";
             } else {
@@ -40,14 +34,7 @@
                 className: 'btn-primary',
                 callback: function(){
                     let subDiv = $(this).find("[name=" + curVarType + "]");
-                    let isRef = $(this).find("[name=reference_flg]").is(":checked");
-                    let refTypes = $(this).find("[name=reference_type]").val();
 //                    let othOpts = $(this).find("[name=other_options]").val();
-                    if (isRef && refTypes.length === 0 && !isCompOnly(colDef)) {
-                        itemData.err_msg = "Please select the reference type.";
-                    } else if (itemData.err_msg === "Please select the reference type.") {
-                        delete itemData.err_msg;
-                    }
                     if (curVarType === "customized_info") {
                         if (subDiv.find("[name='category']").val() === "") {
                             itemData.err_msg = "Please select the variable category.";
@@ -67,8 +54,6 @@
                             delete itemData.err_msg;
                         }
                     } else if (curVarType === "icasa_info") {
-                        // TODO
-                    } else if (curVarType === "reference_info") {
                         // TODO
                     }
                     if (!itemData.err_msg) {
@@ -116,11 +101,6 @@
             dialog.find("[name=column_header]").each(function () {
                 $(this).val(itemData[$(this).attr("name")]);
             });
-            dialog.find("[name=reference_type]").each(function () {
-                if (itemData[$(this).attr("name")]) {
-                    $(this).val(Object.keys(itemData[$(this).attr("name")]));
-                }
-            });
             dialog.find("[name=other_options]").each(function () {
                 $(this).val([]);
                 if (itemData.formula) {
@@ -128,25 +108,6 @@
                 }
                 chosen_init_target($(this));
             });
-            dialog.find("[name=reference_flg]").each(function () {
-                $(this).on("change", function () {
-                    if ($(this).is(":checked")) {
-                        itemData.reference_flg = true;
-                    } else {
-                        delete itemData.reference_flg;
-                    }
-                    if (!itemData.reference_flg) {
-                        dialog.find("[name=reference_type_div]").hide();
-                    } else {
-                        dialog.find("[name=reference_type_div]").show("fast", function() {
-                            chosen_init_target($(this).find("[name='reference_type']"), "chosen-select");
-                        });
-                    }
-                });
-            });
-//            if (!itemData.reference_flg) {
-//                dialog.find("[name=ref_type_div]").hide();
-//            }
             dialog.find("[name=" + type + "_info]").find(".col-def-input-item").each(function () {
                 if ($(this).attr("type") === "checkbox") {
                     $(this).prop( "checked", itemData[$(this).attr("name")]);
@@ -158,8 +119,6 @@
                 let subDiv = $(this);
                 subDiv.on("type_shown", function() {
                     chosen_init_target(subDiv.find("[name='icasa']"), "chosen-select-deselect");
-                    dialog.find("[name=reference_flg]").prop("disabled", isCompOnly(itemData));
-                    dialog.find("[name=reference_flg]").prop("checked", !!itemData.reference_flg).trigger("change");
                     $(this).find(".col-def-input-item").each(function () {
                         if ($(this).attr("type") === "checkbox") {
                             $(this).prop( "checked", itemData[$(this).attr("name")]);
@@ -223,8 +182,6 @@
             dialog.find("[name='customized_info']").each(function () {
                 let subDiv = $(this);
                 subDiv.on("type_shown", function() {
-                    dialog.find("[name=reference_flg]").prop("disabled", isCompOnly(itemData));
-                    dialog.find("[name=reference_flg]").prop("checked", !!itemData.reference_flg).trigger("change");
                     chosen_init_target(subDiv.find("[name='category']"), "chosen-select-deselect");
                     $(this).find(".col-def-input-item").each(function () {
                         if ($(this).attr("type") === "checkbox") {
@@ -272,23 +229,6 @@
                     });
                 });
             });
-            dialog.find("[name='reference_info']").each(function () {
-                let subDiv = $(this);
-                subDiv.on("type_shown", function() {
-//                    chosen_init_target(subDiv.find("[name='category']"), "chosen-select-deselect");
-
-                    $(this).find(".col-def-input-item").each(function () {
-                        if ($(this).attr("type") === "checkbox") {
-                            $(this).prop( "checked", itemData[$(this).attr("name")]);
-                        } else {
-                            $(this).val(itemData[$(this).attr("name")]);
-                        }
-                    });
-                    itemData.reference_flg = true;
-                    dialog.find("[name=reference_flg]").prop("checked", true).trigger("change");
-                    dialog.find("[name=reference_flg]").prop("disabled", true);
-                });
-            });
             dialog.find("[name='var_type']").each(function () {
                 $(this).on("change", function () {
                     type = $(this).val();
@@ -309,15 +249,9 @@
             });
         });
     }
-
-    function isCompOnly(mapping) {
-        return !!mapping.reference_type && Object.keys(mapping.reference_type).length === 1 && !!mapping.reference_type.compound;
-    }
     
     function updateData(div, itemData, curVarType) {
         let subDiv = div.find("[name=" + curVarType + "]");
-        let isRef = div.find("[name=reference_flg]").is(":checked");
-        let refTypes = div.find("[name=reference_type]").val();
         let othOpts = div.find("[name=other_options]").val();
         subDiv.find(".col-def-input-item").each(function () {
             if ($(this).attr("type") === "checkbox") {
@@ -332,17 +266,6 @@
                 delete itemData[$(this).attr("name")];
             }
         });
-        if (isRef) {
-            itemData.reference_flg = true;
-            updateRefType(itemData, refTypes);
-            if (curVarType === "reference_info") {
-                delete itemData.category;
-            }
-        } else {
-            delete itemData.reference_flg;
-            delete itemData.reference_type;
-            delete itemData.reference_target;
-        }
         if (othOpts.length > 0) {
             if (othOpts.includes("fill_with_previous")) {
                 itemData.formula = "fill_with_previous";
@@ -398,21 +321,6 @@
                     <option value=""></option>
                     <option value="icasa">ICASA variable</option>
                     <option value="customized">Customized variable</option>
-                    <option value="reference">Reference variable</option>
-                </select>
-            </div>
-            <div class="input-group col-sm-12">
-                <input type="checkbox" name="reference_flg">&nbsp;Used as reference key between tables
-            </div>
-        </div>
-        <div class="form-group col-sm-12" name="reference_type_div">
-            <label class="control-label">Reference Type</label>
-            <div class="input-group col-sm-12">
-                <select name="reference_type" class="form-control" data-placeholder="Choose reference types..." multiple>
-                    <option value=""></option>
-                    <option value="primary">Primary Key</option>
-                    <option value="foreign">Foreign Key</option>
-                    <!--<option value="compound">Compound key</option>-->
                 </select>
             </div>
         </div>
@@ -493,48 +401,6 @@
                 <label class="control-label"></label>
                 <div class="input-group col-sm-12" name="unit_validate_result"></div>
             </div>
-        </div>
-        <!-- Reference Variable Info -->
-        <div name="reference_info" hidden>
-            <!-- 2nd row -->
-            <div class="form-group col-sm-12">
-                <label class="control-label">Variable Code</label>
-                <div class="input-group col-sm-12">
-                    <input type="text" name="icasa" class="form-control col-def-input-item" value="">
-                </div>
-            </div>
-            <!-- 3rd row -->
-            <div class="form-group col-sm-12">
-                <label class="control-label">Description</label>
-                <div class="input-group col-sm-12">
-                    <input type="text" name="description" class="form-control col-def-input-item" value="">
-                </div>
-            </div>
-            <!-- 4th row -->
-            <div class="form-group col-sm-12">
-                <h6><em>
-                    Please note:
-                    <li>Variable defined as reference only type will not be saved into JSON data structure during translation.</li>
-                    <li>If you would like to keep this variable, please define it as customized variable and check "Used as reference key between tables" option.</li>
-                </em></h6>
-            </div>
-<!--            <div class="form-group col-sm-12">
-                <label class="control-label">Reference Type</label>
-                <div class="input-group col-sm-12">
-                    <select name="category" class="form-control col-def-input-item" data-placeholder="Choose a variable type...">
-                        <option value=""></option>
-                        <option value="1011">Experiment Meta Data</option>
-                        <option value="2011">Experiment Management Data</option>
-                        <option value="2099">Experiment Management Event Data</option>
-                        <option value="2502">Experiment Observation Summary Data</option>
-                        <option value="2511">Experiment Observation Time-Series Data</option>
-                        <option value="4051">Soil Profile Data</option>
-                        <option value="4052">Soil Layer Data</option>
-                        <option value="5041">Weather Station Profie Data</option>
-                        <option value="5052">Weather Station Daily Data</option>
-                    </select>
-                </div>
-            </div>-->
         </div>
         <!-- bottom row -->
         <div class="form-group col-sm-12">
