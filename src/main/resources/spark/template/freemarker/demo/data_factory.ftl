@@ -253,7 +253,7 @@
                             // init template structure
                             if (!sheetDef.mappings || curSheetName) {
                                 sheetDef.mappings = [];
-                                sheetDef.compoundKeys = [];
+                                sheetDef.references = {};
                                 for (let i = 0; i < headers.length; i++) {
                                     let headerDef = {
                                         column_header : headers[i],
@@ -726,7 +726,11 @@
                                 let fileConfig = fileConfigs[i];
                                 let refConfigs = {};
                                 for (let i in fileConfig.relations) {
-                                   refConfigs[fileConfig.relations[i].sheet] = fileConfig.relations[i];
+                                    let fromSheet = fileConfig.relations[i].from.sheet;
+                                    if (!refConfigs[fromSheet]) {
+                                        refConfigs[fromSheet] = [];
+                                    }
+                                   refConfigs[fromSheet].push(fileConfig.relations[i]);
                                 }
                                 if (!fileConfig.file.sheets) {
                                     fileConfig.file.sheets = [];
@@ -751,16 +755,6 @@
                                     } else {
                                         refConfig = refConfigs[sheetName];
                                     }
-                                    if (refConfig) {
-                                        refConfig.parse_index = {};
-                                        refConfig.parse_header = {};
-                                        refConfig.parse_comp_index = {};
-                                        refConfig.parse_comp_header = {};
-                                        readRelations(refConfig, "primary");
-                                        readRelations(refConfig, "foreign");
-                                    } else {
-                                        refConfig = {parse_index : {}, parse_header : {}, compoundKeys: []};
-                                    }
                                     // If load SC2 separatedly and have excluding sheets, then skip the mapping for those sheets
                                     if (curFileName && !wbObj[fileName][sheetName]) {
                                         continue;
@@ -774,7 +768,7 @@
                                     }
                                     let sc2Mappings = fileConfig.file.sheets[i].mappings;
                                     templates[fileName][sheetName].mappings = [];
-                                    templates[fileName][sheetName].compoundKeys = [];
+                                    templates[fileName][sheetName].references = {};
                                     let mappings = templates[fileName][sheetName].mappings;
                                     for (let j in sc2Mappings) {
                                         let colIdx = Number(sc2Mappings[j].column_index);
@@ -787,46 +781,21 @@
                                             }
                                         }
                                         mappings[colIdx - 1] = sc2Mappings[j];
-                                        let header = sc2Mappings[j].column_header;
-                                        if (refConfig.parse_index[colIdx])  {
-                                            sc2Mappings[j].reference_flg = true;
-                                            sc2Mappings[j].reference_type = refConfig.parse_index[colIdx].reference_type;
-                                        } else if (header && refConfig.parse_header[header]) {
-                                            sc2Mappings[j].reference_flg = true;
-                                            sc2Mappings[j].reference_type = refConfig.parse_header[header].reference_type;
-                                        }
                                     }
-                                    let compoundKeys = templates[fileName][sheetName].compoundKeys;
-                                    for (let id in refConfig.parse_comp_index) {
-                                        compoundKeys.push(refConfig.parse_comp_index[id]);
-                                        for (let i in refConfig.parse_comp_index[id].vars) {
-                                            let index = refConfig.parse_comp_index[id].vars[i].index;
-                                            let header = refConfig.parse_comp_index[id].vars[i].header;
-                                            let found = false;
-                                            for (let j in mappings) {
-                                                if (mappings.column_index === index) {
-                                                    refConfig.parse_comp_index[id].vars[i] = mappings[j];
-                                                    found = true;
-                                                    break;
-                                                }
-                                            }
-                                            if (found) {
-                                                continue;
-                                            }
-                                            for (let j in mappings) {
-                                                if (mappings.column_header === header) {
-                                                    refConfig.parse_comp_index[id].vars[i] = mappings[j];
-                                                    found = true;
-                                                    break;
-                                                }
-                                            }
-                                            if (!found) {
-                                                refConfig.parse_comp_index[id].vars[i] = {
-                                                    column_index : index,
-                                                    column_header : header
-                                                };
-                                            }
+                                    let references = templates[fileName][sheetName].references;
+                                    for (let j in refConfig) {
+                                        let refDef = refConfig[j];
+                                        let fromKeyIdxs = getKeyIdxArr(refDef.from.keys);
+                                        let toKeyIdxs = getKeyIdxArr(refDef.to.keys);
+                                        let toKey = getRefDefKey(refDef.to, toKeyIdxs);
+                                        if (!references[fromKeyIdxs]) {
+                                            references[fromKeyIdxs] = {};
                                         }
+                                        references[fromKeyIdxs][toKey] = {
+                                            file: refDef.to.file,
+                                            sheet: refDef.to.sheet,
+                                            keys: getKeyArr(toKeyIdxs, mappings)
+                                        };
                                     }
                                 }
                                 curSheetName = null;
@@ -970,18 +939,6 @@
                         sheets : []
                     }
                 });
-                let refSheetTemplate = JSON.stringify({
-                    "file": null,
-                    "sheet": null,
-                    "primary_keys": [],
-                    "foreign_keys": []
-                });
-//                let refForeignKeyTemplate = JSON.stringify({
-//                    "source_file": "a.xlsx",
-//                    "source_sheet": "Experiment_metadata",
-//                    "source_keys": ["EID"],
-//                    "keys":["EXPER_ID"]
-//                });
                 
                 $(".mapping_gengeral_info").each(function () {
                    sc2Obj.mapping_info[$(this).attr("name") ] = $(this).val();
@@ -1003,11 +960,6 @@
                     
                     sc2Obj.agmip_translation_mappings.push(tmp2);
                     for (let sheetName in templates[fileName]) {
-                        let refSheet = JSON.parse(refSheetTemplate);
-                        refSheet.file = fileName;
-                        refSheet.sheet = sheetName;
-                        tmp2.relations.push(refSheet);
-                        
                         let tmp = Object.assign({}, templates[fileName][sheetName]);
                         tmp.mappings = [];
                         for (let i in templates[fileName][sheetName].mappings) {
@@ -1052,48 +1004,17 @@
                                 }
                             }
                         }
-                        if (templates[fileName][sheetName].compoundKeys) {
-                            for (let i in templates[fileName][sheetName].compoundKeys) {
-                                let compoundKey = templates[fileName][sheetName].compoundKeys[i];
-                                let keys = [];
-                                for (let j in compoundKey.vars) {
-                                    let mapping = compoundKey.vars[j];
-                                    let key = {index : mapping.column_index};
-                                    if (mapping.column_header) {
-                                        key.header = mapping.column_header;
-                                    }
-                                    if (mapping.icasa) {
-                                        key.icasa = mapping.icasa;
-                                    }
-                                    keys.push(key);
+                        if (templates[fileName][sheetName].references) {
+                            for (let fromKeyIdxs in templates[fileName][sheetName].references) {
+                                let refDefs = templates[fileName][sheetName].references[fromKeyIdxs];
+                                for (let toRefDefStr in refDefs) {
+                                    let toRefDef = refDefs[toRefDefStr];
+                                    let refDef = createRefDefObj({file: fileName, sheet: sheetName},
+                                        JSON.parse("[" + fromKeyIdxs + "]"),
+                                        toRefDef,
+                                        getKeyIdxArr(toRefDef.keys));
+                                    tmp2.relations.push(refDef);
                                 }
-                                if (compoundKey.reference_type) {
-                                    if (compoundKey.reference_type.primary) {
-                                        refSheet.primary_keys.push(keys);
-                                    }
-                                    if (compoundKey.reference_type.foreign) {
-                                        let foreignKey = {
-                                            source_file : "",
-                                            source_sheet : "",
-                                            source_keys : [],
-                                            keys : keys
-                                        };
-                                        if (compoundKey.reference_target) {
-                                            foreignKey.source_file = compoundKey.reference_target.source_file;
-                                            foreignKey.source_sheet = compoundKey.reference_target.source_sheet;
-                                            for (let j in compoundKey.reference_target.source_keys) {
-                                                foreignKey.source_keys.push({
-                                                    index : compoundKey.reference_target.source_keys[i].column_index,
-                                                    header : compoundKey.reference_target.source_keys[i].column_header,
-                                                    icasa : compoundKey.reference_target.source_keys[i].icasa
-                                                });
-                                            }
-                                        }
-                                        refSheet.foreign_keys.push(foreignKey);
-                                    }
-                                }
-//                                let keyIdxs = compoundKey.index; // TODO continue develop from here
-                                // TODO think about compound flag in each mapping which might be lost during save into SC2 file
                             }
                         }
                         tmp2.file.sheets.push(tmp);
@@ -1161,7 +1082,7 @@
                     </ul>
                 </li>
                 <li><a data-toggle="tab" href="#general_tab">General Info</a></li>
-                <li id="refTab"><a data-toggle="tab" href="#reference_tab">Table Relation Info</a></li>
+                <li id="refTab"><a data-toggle="tab" href="#reference_tab">Table Relations</a></li>
                 <li id="SC2Tab"><a data-toggle="tab" href="#sc2_tab">SC2 Preview</a></li>
                 <li><a data-toggle="tab" href="#csv_tab"><em> CSV [debug]</em></a></li>
                 <li id="mappingTab"><a data-toggle="tab" href="#mapping_tab"><em>Mappings Cache [debug]</em></a></li>
