@@ -349,7 +349,7 @@
                     let refDefFrom = {
                         file: fileName,
                         sheet: sheetName,
-                        keys: getKeyArr(JSON.parse("[" + keyIdxs + "]"))
+                        keys: getKeyArr(JSON.parse("[" + keyIdxs + "]"), template[sheetName].mappings)
                     };
                     let refDefTo = template[sheetName].references[keyIdxs];
                     for (let refDefKey in refDefTo) {
