@@ -368,19 +368,50 @@
 <div id="template" hidden>
     <div class="panel panel-info" name="template_ref_table">
         <div class="panel-heading">
-            <!--<div class="col-sm-12">Reference List : </div>-->
             <div class="row" style="padding: 0px">
+            <div class="col-sm-11">
+                <div class="row" style="padding: 0px">
+                    <div class="col-sm-6 text-left">
+                        <span class="label label-primary">From</span>
+                        <hr>
+                        <div class="row" style="padding: 0px">
+                            <div class="col-sm-6 text-left"><span class="label label-primary">Sheet</span></div>
+                            <div class="col-sm-6 text-left"><span class="label label-primary">Variable</span></div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 text-left">
+                        <span class="label label-primary">To</span>
+                        <hr>
+                        <div class="row" style="padding: 0px">
+                            <div class="col-sm-6 text-left"><span class="label label-primary">Sheet</span></div>
+                            <div class="col-sm-6 text-left"><span class="label label-primary">Variable</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="col-sm-1"><span class="label label-primary">Edit</span></div>
+            </div>
+            
+<!--            <div class="row" style="padding: 0px">
                 <div class="col-sm-11">
                     <div class="col-sm-6 text-left"><span class="label label-primary">From</span></div>
                     <div class="col-sm-6 text-left"><span class="label label-primary">To</span></div>
                 </div>
                 <div class="col-sm-1"><span class="label label-primary">Edit</span></div>
-            </div>
+            </div><div class="row" style="padding: 0px">
+                <div class="col-sm-11">
+                    <div class="col-sm-3 text-left"><span class="label label-primary">Sheet</span></div>
+                    <div class="col-sm-3 text-left"><span class="label label-primary">Variable</span></div>
+                    <div class="col-sm-3 text-left"><span class="label label-primary">Sheet</span></div>
+                    <div class="col-sm-3 text-left"><span class="label label-primary">Variable</span></div>
+                </div>
+            </div>-->
         </div>
         <div class="panel-body">
             <div class="row">
                 <div name="ref_def_list"></div>
-                <div name="template_ref_def_new" class="row">
+                <div name="template_ref_def_new" class="row" style="padding-top: 10px">
                     <div class="col-sm-11">
                         <div class="col-sm-3">
                             <select class="form-control" name="reference_from_sheet" data-placeholder="Choose ...">

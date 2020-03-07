@@ -252,3 +252,8 @@ ul.nav-tabs button.tabaddbtns {
     from { -webkit-transform: rotate(0deg); }
     to { -webkit-transform: rotate(360deg); }
 }
+
+.panel hr {
+    border-top:1px dashed grey;
+    margin: 2px
+}
