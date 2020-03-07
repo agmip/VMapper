@@ -29,6 +29,7 @@
                         dataset : "${var.dataset}",
                         subset : "${var.subset}",
                         group : "${var.group}",
+                        order : ${var.set_group_order},
                         agmip_data_entry : "${var.agmip_data_entry}",
                         category : "${var.dataset} / ${var.subset} / ${var.group}"
                     }<#sep>,</#sep>
@@ -43,6 +44,7 @@
                         dataset : "${var.dataset}",
                         subset : "${var.subset}",
                         group : "${var.group}",
+                        order : ${var.set_group_order},
                         agmip_data_entry : "${var.agmip_data_entry}",
                         category : "${var.dataset} / ${var.subset} / ${var.group}"
                     }<#sep>,</#sep>
@@ -72,6 +74,61 @@
                         return group[varName].unit_or_type;
                     } else {
                         return null;
+                    }
+                },
+                "getDataset" : function(varName) {
+                    let group = this.getPrimaryGroup(varName);
+                    if (group) {
+                        return group[varName].dataset;
+                    } else {
+                        return null;
+                    }
+                },
+                "getSubset" : function(varName) {
+                    let group = this.getPrimaryGroup(varName);
+                    if (group) {
+                        return group[varName].subset;
+                    } else {
+                        return null;
+                    }
+                },
+                "getGroup" : function(varName) {
+                    let group = this.getPrimaryGroup(varName);
+                    if (group) {
+                        return group[varName].group;
+                    } else {
+                        return null;
+                    }
+                },
+                "getOrder" : function(varName) {
+                    let group = this.getPrimaryGroup(varName);
+                    if (group) {
+                        return group[varName].order;
+                    } else {
+                        return -1;
+                    }
+                },
+                "isHigherLevel" : function(var1, var2) {
+                    let order1 = getOrder(var1);
+                    let order2 = getOrder(var2);
+                    if (order1 < 4000 && order2 < 4000) {
+                        return order1 > order2;
+                    } else if (order1 > 8000 && order1 < 9000) {
+                        return true;
+                    } else if (order1 > 4000 && order1 < 5000) {
+                        if (order2 > 4000 && order2 < 5000) {
+                            return order1 > order2;
+                        } else {
+                            null;
+                        }
+                    } else if (order1 > 5000 && order1 < 6000) {
+                        if (order2 > 5000 && order2 < 6000) {
+                            return order1 > order2;
+                        } else {
+                            null;
+                        }
+                    } else {
+                        return order1 > order2; // TODO
                     }
                 }
             };

@@ -44,6 +44,7 @@ public class DataUtil {
     private static final String ICASA_MGN_VAR_HEADER_VAR_SUBSET = "subset";
     private static final String ICASA_MGN_VAR_HEADER_VAR_GROUP = "group";
     private static final String ICASA_MGN_VAR_HEADER_VAR_SUBGROUP = "subgroup";
+    private static final String ICASA_MGN_VAR_HEADER_VAR_ORDER = "set_group_order";
     private static final String ICASA_OBV_VAR_HEADER_VAR_SUBGROUP = "sub-group";
     private static final String ICASA_MGN_VAR_HEADER_VAR_RATING = "agmip_data_entry";
     private static final int ICASA_MIN_ACCEPTABLE_RATING_LEVEL = -1;
@@ -309,6 +310,7 @@ public class DataUtil {
                 ICASA_MGN_VAR_HEADER_VAR_SUBSET,
                 ICASA_MGN_VAR_HEADER_VAR_GROUP,
                 ICASA_MGN_VAR_HEADER_VAR_SUBGROUP,
+                ICASA_MGN_VAR_HEADER_VAR_ORDER,
                 ICASA_MGN_VAR_HEADER_VAR_RATING};
             int[] attrIdx = new int[headers.length];
             for (int i = 0; i < attrIdx.length; i++) {
@@ -370,6 +372,7 @@ public class DataUtil {
                 ICASA_MGN_VAR_HEADER_VAR_SUBSET,
                 ICASA_MGN_VAR_HEADER_VAR_GROUP,
                 ICASA_OBV_VAR_HEADER_VAR_SUBGROUP,
+                ICASA_MGN_VAR_HEADER_VAR_ORDER,
                 ICASA_MGN_VAR_HEADER_VAR_RATING};
             int[] attrIdx = new int[headers.length];
             for (int i = 0; i < attrIdx.length; i++) {
