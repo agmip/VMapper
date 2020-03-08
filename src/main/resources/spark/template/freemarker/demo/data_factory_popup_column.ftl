@@ -121,7 +121,9 @@
                     chosen_init_target(subDiv.find("[name='icasa']"), "chosen-select-deselect");
                     $(this).find(".col-def-input-item").each(function () {
                         if ($(this).attr("type") === "checkbox") {
-                            $(this).prop( "checked", itemData[$(this).attr("name")]);
+                            if (itemData[$(this).attr("name")]) {
+                                $(this).prop("checked", itemData[$(this).attr("name")]).trigger("change");
+                            }
                         } else {
                             $(this).val(itemData[$(this).attr("name")]);
                         }
@@ -174,7 +176,16 @@
                         if ($(this).is(":checked")) {
                             sourceUnit.val(unit).trigger("input").prop("readOnly", true);
                         } else {
-                            sourceUnit.val("").trigger("input").prop("readOnly", false);
+                            let unitRow = templates[curFileName][curSheetName].unit_row;
+                            let orgUnit = colDef.unit;
+                            if (orgUnit === unit) {
+                                if (unitRow && unitRow > 0) {
+                                    orgUnit = wbObj[curFileName][curSheetName].data[unitRow - 1][colDef.column_index - 1];
+                                } else {
+                                    orgUnit = "";
+                                }
+                            }
+                            sourceUnit.val(orgUnit).trigger("input").prop("readOnly", false);
                         }
                     });
                 });
