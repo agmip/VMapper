@@ -98,6 +98,7 @@
                     } else if (repeatedErrFlg) {
                         showSheetDefDialog(callback, "[warning] Please select different raw for each definition.", editFlg);
                     }  else {
+                        isChanged = true;
                         callback(sheets);
                     }
                 }

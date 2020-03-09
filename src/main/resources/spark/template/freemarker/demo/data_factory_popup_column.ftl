@@ -78,6 +78,7 @@
                     } else {
                         updateData($(this), itemData, curVarType);
                         showColDefineDialog(itemData, type);
+                        isChanged = true;
                     }
                 }
             }

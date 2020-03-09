@@ -15,6 +15,7 @@
             let templates = {};
             let curFileName;
             let dirName;
+            let isChanged;
 //            let workbook;
             let workbooks = {};
             let fileTypes = {};
@@ -158,6 +159,7 @@
                 fileTypes[fileName] = f.type;
                 curFileName = null;
                 curSheetName = null;
+                isChanged = false;
                 let reader = new FileReader();
 //                reader.onloadend = function(e) {
 //                    let data = e.target.result;
@@ -673,6 +675,7 @@
                     templates[curFileName][curSheetName].mappings[colIdx].ignored_flg = true;
                     $("[name='" + curSheetName + "_" + colIdx + "_label']").last().attr("class", "label label-default");
                 }
+                isChanged = true;
             }
             
             function getColStatusClass(col) {
@@ -874,6 +877,7 @@
                     let ext = "-sc2.json";
                     let blob = new Blob([text], {type: "text/plain;charset=utf-8"});
                     saveAs(blob, getFileName(curFileName) + ext);
+                    isChanged = false;
                 }
             }
             
@@ -1160,6 +1164,21 @@
                     }
                 });
                 $("#openFileMenu").click();
+                $(window).on('beforeunload',function(){
+                    console.log(isChanged);
+                    if (isChanged) {
+                        return "There are changes have not been saved yet";
+                    }
+                });
+//                window.addEventListener('beforeunload', (event) => {
+//                    console.log(isChanged);
+//                    if (isChanged) {
+//                        event.preventDefault();
+//                        event.returnValue = "There are changes have not been saved yet";
+//                    } else {
+//                        delete event['returnValue'];
+//                    }
+//                });
             });
         </script>
     </body>

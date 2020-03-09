@@ -45,6 +45,7 @@
             if (Object.keys(references[fromKeyIdxs])) {
                 delete references[fromKeyIdxs];
             }
+            isChanged = true;
         });
         return div;
     }
@@ -207,10 +208,12 @@
                 defListDiv.append(creatRefDefDiv(newRefDef));
                 fromSheetSB.val([]).trigger("chosen:updated").trigger("change");
                 toSheetSB.val([]).trigger("chosen:updated").trigger("change");
+                isChanged = true;
             });
         } else {
             editBtn.on("click", function() {
                 // TODO remove the record
+                isChanged = true;
             });
         }
         return div;
