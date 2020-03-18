@@ -391,7 +391,7 @@
             <div class="col-sm-11">
                 <div class="row" style="padding: 0px">
                     <div class="col-sm-6 text-left">
-                        <span class="label label-primary">From</span>
+                        <span class="label label-primary">From</span> (The lookup value will be read from this table)
                         <hr>
                         <div class="row" style="padding: 0px">
                             <div class="col-sm-6 text-left"><span class="label label-primary">Sheet</span></div>
@@ -399,7 +399,7 @@
                         </div>
                     </div>
                     <div class="col-sm-6 text-left">
-                        <span class="label label-primary">To</span>
+                        <span class="label label-primary">To</span> (The lookup value will be used to search records in this table)
                         <hr>
                         <div class="row" style="padding: 0px">
                             <div class="col-sm-6 text-left"><span class="label label-primary">Sheet</span></div>
