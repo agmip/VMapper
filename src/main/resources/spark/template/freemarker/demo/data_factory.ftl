@@ -159,6 +159,7 @@
                 fileTypes[fileName] = f.type;
                 curFileName = null;
                 curSheetName = null;
+                wbObj = null;
                 isChanged = false;
                 let reader = new FileReader();
 //                reader.onloadend = function(e) {
@@ -398,20 +399,23 @@
                 let sheetDef = templates[fileName][sheetName];
                 let mappings = sheetDef.mappings;
                 let columns = [];
+                if (data.length < minRows) {
+                    data = JSON.parse(JSON.stringify(data)); // TODO set raw data as read only for a temprory solution
+                }
                 for (let i in mappings) {
                     if (mappings[i].unit === "date") {
-                        columns.push({type: 'date'});
+                        columns.push({type: 'date', readOnly: true});
                     } else if (mappings[i].unit === "text" || mappings[i].unit === "code") {
-                        columns.push({type: 'text'});
+                        columns.push({type: 'text', readOnly: true});
                     } else if (mappings[i].unit !== ""){
-                        columns.push({type: 'numeric'});
+                        columns.push({type: 'numeric', readOnly: true});
                     } else {
-                        columns.push({type: 'text'});
+                        columns.push({type: 'text', readOnly: true});
                     }
                 }
                 for (let i in data) {
                     while (columns.length < data[i].length) {
-                        columns.push({type: 'text'});
+                        columns.push({type: 'text', readOnly: true});
                     }
                 }
 
