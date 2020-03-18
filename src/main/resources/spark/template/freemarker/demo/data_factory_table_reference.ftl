@@ -100,6 +100,7 @@
         let toSheetSB = div.find("[name='reference_to_sheet']");
         let fromKeySB = div.find("[name='reference_from_vars']");
         let toKeySB = div.find("[name='reference_to_vars']");
+        let singleCB = div.find("[name='meta_table_flg']");
         
         if (refDef) {
             initSheetSB(fromSheetSB, refDef.from);
@@ -120,7 +121,7 @@
                 toSheetSB.find("option").prop("disabled", false).trigger("chosen:updated");
             } else {
                 let refDefSheet = JSON.parse(val);
-                fromKeySB.prop("disabled", false);
+                fromKeySB.prop("disabled", singleCB.prop("checked"));
                 initKeySB(fromKeySB, refDefSheet);
                 if (toSheetSB.val() === val) {
                     toSheetSB.val("");
@@ -172,10 +173,19 @@
         toSheetSB.on("change", function() {
             let val = $(this).val();
             if (!val) {
+                singleCB.prop("checked", false).prop("disabled", true);
                 toKeySB.val([]).prop("disabled", true).trigger("chosen:updated").trigger("change");
             } else {
                 let refDefSheet = JSON.parse(val);
-                toKeySB.prop("disabled", false);
+                if (templates[refDefSheet.file][refDefSheet.sheet].single_flg) {
+                    singleCB.prop("disabled", false);
+                } else {
+                    singleCB.prop("disabled", true);
+                    if (singleCB.prop("checked")) {
+                        singleCB.prop("checked", false).trigger("change");
+                    }
+                }
+                toKeySB.prop("disabled", singleCB.prop("checked"));
                 initKeySB(toKeySB, refDefSheet);
                 fromKeySB.trigger("change");
             }
@@ -192,6 +202,12 @@
             }
         });
         if (isNewKeyDiv) {
+            singleCB.on("change", function() {
+                let isChecked = singleCB.prop("checked");
+                fromKeySB.val([]).prop("disabled", isChecked).trigger("chosen:updated");
+                toKeySB.val([]).prop("disabled", isChecked).trigger("chosen:updated");
+                editBtn.prop("disabled", !isChecked);
+            });
             editBtn.prop("disabled", true).on("click", function() {
                 let fromSheet = JSON.parse(fromSheetSB.val());
                 let fromKeyIdxs = fromKeySB.val();
@@ -435,6 +451,9 @@
                             <select class="form-control" name="reference_to_vars" data-placeholder="Choose ..." multiple disabled>
                                 <option value=""></option>
                             </select>
+                        </div>
+                        <div class="col-sm-6 col-sm-offset-6">
+                            <input type="checkbox" name="meta_table_flg" disabled> Apply the data in this table as global information to every record in "From" table.
                         </div>
                     </div>
                     <div class="col-sm-1">

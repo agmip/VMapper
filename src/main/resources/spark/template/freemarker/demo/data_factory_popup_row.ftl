@@ -2,12 +2,18 @@
     function showSheetDefDialog(callback, errMsg, editFlg) {
         let sheets = {};
         if (editFlg) {
-            sheets = templates;
+            sheets = JSON.parse(JSON.stringify(templates));
+            if (!sheets[curFileName][curSheetName].header_row) {
+                sheets[curFileName][curSheetName].header_row = 1;
+            }
+            if (!sheets[curFileName][curSheetName].data_start_row) {
+                sheets[curFileName][curSheetName].data_start_row = sheets[curFileName][curSheetName].header_row + 1;
+            }
         } else {
             for (let fileName in workbooks) {
                 let workbook = workbooks[fileName];
                 sheets[fileName] = {};
-                workbook.SheetNames.forEach(function(sheetName) {
+                workbook.SheetNames.forEach(function(sheetName) {1
 //                workbook.worksheets.forEach(function(sheet) {
 //                    let sheetName = sheet.name;
                     sheets[fileName][sheetName] = {};
@@ -15,6 +21,7 @@
 //                    sheets[fileName][sheetName].file_name = fileName;
                     sheets[fileName][sheetName].sheet_name = sheetName;
                     sheets[fileName][sheetName].included_flg = true;
+                    sheets[fileName][sheetName].single_flg = false;
                     let roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1});
     //                let roa = sheet_to_json(sheet);
                     if(roa.length){
@@ -38,17 +45,15 @@
                             } else if (sheets[fileName][sheetName].header_row && !sheets[fileName][sheetName].data_start_row) {
                                 sheets[fileName][sheetName].data_start_row = Number(i) + 1;
                             }
-                            if (Object.keys(sheets[fileName][sheetName]).length >= 6) {
+                            if (Object.keys(sheets[fileName][sheetName]).length >= 7) {
                                 break;
                             }
                         }
                     }
-//                    if (!sheets[fileName][sheetName].header_row) {
-//                        sheets[fileName][sheetName].header_row = 1;
-//                    }
-//                    if (!sheets[fileName][sheetName].data_start_row) {
-//                        sheets[fileName][sheetName].data_start_row = sheets[fileName][sheetName].header_row + 1;
-    //                }
+
+                    if (sheets[fileName][sheetName].data_start_row) {
+                        sheets[fileName][sheetName].single_flg = roa.length === sheets[fileName][sheetName].data_start_row;
+                    }
                 });
             }
             
@@ -66,8 +71,8 @@
                     let idxErrFlg = false;
                     let repeatedErrFlg = false;
                     let includedCnt = 0;
-                    for (fileName in sheets) {
-                        for (sheetName in sheets[fileName]) {
+                    for (let fileName in sheets) {
+                        for (let sheetName in sheets[fileName]) {
                             if (!sheets[fileName][sheetName].data_start_row || !sheets[fileName][sheetName].header_row) {
                                 idxErrFlg = true;
                             }
@@ -89,6 +94,9 @@
                                 delete sheets[fileName][sheetName];
                             }
                         }
+                    }
+                    if (editFlg && sheets[curFileName][curSheetName].data_start_row) {
+                        sheets[curFileName][curSheetName].single_flg = wbObj[curFileName][curSheetName].data.length === sheets[curFileName][curSheetName].data_start_row;
                     }
 //                    if (idxErrFlg) {
 //                        showSheetDefDialog(callback, "[warning] Please provide header row number and data start row number.", editFlg);
@@ -133,10 +141,10 @@
                 ];
                 colHeaders = ["Sheet","Included"];
             }
-            for (fileName in sheets) {
+            for (let fileName in sheets) {
                 data.push({sheet_name: fileName, flie_name_row:true});
                 mergeCells.push({row: data.length - 1, col: 0, rowspan: 1, colspan: columns.length});
-                for (sheetName in sheets[fileName]) {
+                for (let sheetName in sheets[fileName]) {
                     data.push(sheets[fileName][sheetName]);
                     data[data.length - 1].included_flg = true;
                 }
