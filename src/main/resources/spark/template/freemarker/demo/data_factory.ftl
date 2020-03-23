@@ -240,6 +240,18 @@
                         wbObj[name] = to_object(workbooks[name], name);
                     }
                 }
+                for (let fileName in templates) {
+                    for (let sheetName in templates[fileName]) {
+                        let sheetDef = templates[fileName][sheetName];
+                        if (sheetDef.references) {
+                            for (let fromKeyIdxs in sheetDef.references) {
+                                for (let toKey in sheetDef.references[fromKeyIdxs]) {
+                                    sheetDef.references[fromKeyIdxs][toKey].keys = getKeyArr(sheetDef.references[fromKeyIdxs][toKey].keys, templates[sheetDef.references[fromKeyIdxs][toKey].file][sheetDef.references[fromKeyIdxs][toKey].sheet].mappings);
+                                }
+                            }
+                        }
+                    }
+                }
 
                 $('#sheet_tab_list').empty();
                 for (let fileName in templates) {
@@ -355,8 +367,58 @@
                                     }
                                 }
                             } else {
-                                // Load existing template definition and do unit convertion
-                                // TODO
+                                // check if header is matched with given spreadsheet
+                                let tmpMappings = [];
+                                for (let i in sheetDef.mappings) {
+                                    if (sheetDef.mappings[i].column_header !== headers[i]) {
+                                        tmpMappings[i] = sheetDef.mappings[i];
+                                        delete sheetDef.mappings[i];
+                                    }
+                                }
+                                // check if there is header matched columns
+                                for (let i in tmpMappings) {
+                                    for (let j = 0; j < headers.length; j++) {
+                                        if (tmpMappings[i].column_header === headers[j]) {
+                                            sheetDef.mappings[j] = tmpMappings[i];
+                                            delete tmpMappings[i];
+                                            break;
+                                        }
+                                    }
+                                }
+                                // check if there is undefined columns with matched index
+                                for (let i in tmpMappings) {
+                                    if (!sheetDef.mappings[i]) {
+                                        sheetDef.mappings[i] = tmpMappings[i];
+                                        delete tmpMappings[i];
+                                    }
+                                }
+                                // fill missing column definition with ignored flag
+                                for (let i = 0; i < headers.length; i++) {
+                                    if(!sheetDef.mappings[i]) {
+                                        let headerDef = {
+                                            column_index : i + 1,
+                                            column_header : headers[i],
+                                            ignored_flg : true
+                                        }
+                                        // Load existing template definition
+                                        if (sheetDef.unit_row) {
+                                            headerDef.unit = roa[sheetDef.unit_row - 1][i];
+                                        }
+                                        if (sheetDef.desc_row) {
+                                            headerDef.description = roa[sheetDef.desc_row - 1][i];
+                                        }
+                                        let headerName = String(headerDef.column_header).toUpperCase();
+                                        if (icasaVarMap.getDefinition(headerName)) {
+                                            headerDef.icasa = headerName;
+                                        } else if (icasaVarMap.getDefinition(headerDef.column_header)) {
+                                            headerDef.icasa = headerDef.column_header;
+                                        }
+                                        sheetDef.mappings[i] = headerDef;
+                                    } else if (sheetDef.mappings[i].column_header !== headers[i]) {
+                                        sheetDef.mappings[i].column_header = headers[i];
+                                        // TODO deal with sc2 mappings is not fully matched with given spreadsheet columns
+                                    }
+                                }
                             }
                         }
                     }
@@ -824,27 +886,18 @@
                                         continue;
                                     }
                                     templates[fileName][sheetName] = Object.assign({}, fileConfig.file.sheets[i]);
-                                    if (!templates[fileName][sheetName].header_row) {
-                                        templates[fileName][sheetName].header_row = 1;
-                                    }
-                                    if (!templates[fileName][sheetName].data_start_row) {
-                                        templates[fileName][sheetName].data_start_row = templates[fileName][sheetName].header_row + 1;
-                                    }
+//                                    if (!templates[fileName][sheetName].header_row) {
+//                                        templates[fileName][sheetName].header_row = 1;
+//                                    }
+//                                    if (!templates[fileName][sheetName].data_start_row) {
+//                                        templates[fileName][sheetName].data_start_row = templates[fileName][sheetName].header_row + 1;
+//                                    }
                                     let sc2Mappings = fileConfig.file.sheets[i].mappings;
                                     templates[fileName][sheetName].mappings = [];
                                     templates[fileName][sheetName].references = {};
                                     let mappings = templates[fileName][sheetName].mappings;
                                     for (let j in sc2Mappings) {
-                                        let colIdx = Number(sc2Mappings[j].column_index);
-                                        for (let k = mappings.length; k < colIdx - 1; k++) {
-                                            if (!mappings[k]) {
-                                                mappings.push({
-                                                    column_index : k + 1,
-                                                    ignored_flg : true
-                                                });
-                                            }
-                                        }
-                                        mappings[colIdx - 1] = sc2Mappings[j];
+                                        mappings[sc2Mappings[j].column_index - 1] = sc2Mappings[j];
                                     }
                                     let references = templates[fileName][sheetName].references;
                                     for (let j in refConfig) {
@@ -858,7 +911,7 @@
                                         references[fromKeyIdxs][toKey] = {
                                             file: refDef.to.file,
                                             sheet: refDef.to.sheet,
-                                            keys: getKeyArr(toKeyIdxs, mappings)
+                                            keys: toKeyIdxs //getKeyArr(toKeyIdxs, mappings)
                                         };
                                     }
                                 }
