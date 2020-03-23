@@ -137,7 +137,7 @@
                             subDiv.find("[name='unit_validate_result']").html("Require unit expression");
                             itemData.err_msg = "Please provide your unit expression";
                         } else {
-                            $.get(encodeURI("/data/unit/convert?unit_to=" + subDiv.find("[name='icasa_unit']").val() + "&unit_from="+ $(this).val() + "&value_from=1"),
+                            $.get("/data/unit/convert?value_from=3&unit_to=" + encodeURIComponent(subDiv.find("[name='icasa_unit']").val()) + "&unit_from="+ encodeURIComponent($(this).val()),
                                 function (jsonStr) {
                                     var result = JSON.parse(jsonStr);
                                     if (result.status !== "0") {
@@ -224,7 +224,7 @@
                 subDiv.find("[name='unit']").each(function () {
                     $(this).on("input", function () {
                         let unit = $(this).val().toLowerCase();
-                        $.get(encodeURI("/data/unit/lookup?unit=" + unit),
+                        $.get("/data/unit/lookup?unit=" + encodeURIComponent(unit),
                             function (jsonStr) {
                                 var unitInfo = JSON.parse(jsonStr);
                                 if (unitInfo.message === "undefined unit expression" && unit !== "text" && unit !== "code" && unit !== "date") {

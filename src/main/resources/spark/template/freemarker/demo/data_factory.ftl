@@ -365,7 +365,7 @@
                                     if (!headerDef.unit) {
                                         headerDef.unit_error = true;
                                     } else if (headerDef.unit !== icasa_unit) {
-                                        $.get(encodeURI("/data/unit/convert?unit_to=" + icasa_unit + "&unit_from="+ headerDef.unit + "&value_from=1"),
+                                        $.get("/data/unit/convert?value_from=2&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
                                             function (jsonStr) {
                                                 let ret = JSON.parse(jsonStr);
                                                 if (ret.status !== "0") {
@@ -440,7 +440,7 @@
                                         if (!headerDef.unit) {
                                             headerDef.unit_error = true;
                                         } else if (headerDef.unit !== icasa_unit) {
-                                            $.get(encodeURI("/data/unit/convert?unit_to=" + icasa_unit + "&unit_from="+ headerDef.unit + "&value_from=1"),
+                                            $.get("/data/unit/convert?value_from=1&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
                                                 function (jsonStr) {
                                                     let ret = JSON.parse(jsonStr);
                                                     if (ret.status !== "0") {

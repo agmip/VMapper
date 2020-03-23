@@ -19,7 +19,7 @@
                     if (output.endsWith("validate")) {
                         $("#unit_category").html(WP);
                     }
-                    $.get(encodeURI("/data/unit/lookup?unit=" + unit),
+                    $.get("/data/unit/lookup?unit=" + encodeURIComponent(unit),
                         function (jsonStr) {
                             var unitInfo = JSON.parse(jsonStr);
                             $('#'+ output).html(unitInfo.message);
@@ -37,7 +37,7 @@
                 var unitFrom = $("#unit_from").val();
                 var unitTo = $("#unit_to").val();
                 if (valueFrom && unitFrom && unitTo) {
-                    $.get(encodeURI("/data/unit/convert?unit_to=" + unitTo + "&unit_from="+unitFrom + "&value_from=" + valueFrom),
+                    $.get("/data/unit/convert?unit_to=" + encodeURIComponent(unitTo) + "&unit_from="+ encodeURIComponent(unitFrom) + "&value_from=" + encodeURIComponent(valueFrom),
                         function (jsonStr) {
                             var result = JSON.parse(jsonStr);
                             if (result.status !== "0") {
@@ -52,7 +52,7 @@
             
             function updateUnitType(unitType) {
                 
-                $.get(encodeURI("/data/unit/lookup?type=" + unitType),
+                $.get("/data/unit/lookup?type=" + encodeURIComponent(unitType),
                     function (jsonStr) {
                         var units = JSON.parse(jsonStr);
                         var sb = $('#unit_sublist').empty().append('<option value=""></option>');
