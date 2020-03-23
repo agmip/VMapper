@@ -30,6 +30,7 @@
                         dataset : "${var.dataset}",
                         subset : "${var.subset}",
                         group : "${var.group}",
+                        <#if var.subgroup??>subgroup : "${var.subgroup}",</#if>
                         order : ${var.set_group_order},
                         agmip_data_entry : "${var.agmip_data_entry}",
                         category : "${var.dataset} / ${var.subset} / ${var.group}"
@@ -45,6 +46,7 @@
                         dataset : "${var.dataset}",
                         subset : "${var.subset}",
                         group : "${var.group}",
+                        <#if var['sub-group']??>subgroup : "${var['sub-group']}",</#if>
                         order : ${var.set_group_order},
                         agmip_data_entry : "${var.agmip_data_entry}",
                         category : "${var.dataset} / ${var.subset} / ${var.group}"
@@ -97,26 +99,50 @@
                         return null;
                     }
                 },
-                "getDataset" : function(varName) {
+                "getDataset" : function(varName, isLower) {
                     let group = this.getPrimaryGroup(varName);
                     if (group) {
-                        return group[varName].dataset;
+                        if (isLower) {
+                            return group[varName].dataset.toLowerCase();
+                        } else {
+                            return group[varName].dataset;
+                        }
                     } else {
                         return null;
                     }
                 },
-                "getSubset" : function(varName) {
+                "getSubset" : function(varName, isLower) {
                     let group = this.getPrimaryGroup(varName);
                     if (group) {
-                        return group[varName].subset;
+                        if (isLower) {
+                            return group[varName].subset.toLowerCase();
+                        } else {
+                            return group[varName].subset;
+                        }
                     } else {
                         return null;
                     }
                 },
-                "getGroup" : function(varName) {
+                "getGroup" : function(varName, isLower) {
                     let group = this.getPrimaryGroup(varName);
                     if (group) {
-                        return group[varName].group;
+                        if (isLower) {
+                            return group[varName].group.toLowerCase();
+                        } else {
+                            return group[varName].group;
+                        }
+                    } else {
+                        return null;
+                    }
+                },
+                "getSubGroup" : function(varName, isLower) {
+                    let group = this.getPrimaryGroup(varName);
+                    if (group) {
+                        if (isLower) {
+                            return group[varName].subgroup.toLowerCase();
+                        } else {
+                            return group[varName].subgroup;
+                        }
                     } else {
                         return null;
                     }
