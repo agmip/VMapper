@@ -464,6 +464,8 @@
                                                     if (ret.status !== "0") {
 //                                                        headerDef.unit = icasa_unit; // TODO this should change to give warning message
                                                         headerDef.unit_error = true;
+                                                    } else {
+                                                        delete headerDef.unit_error;
                                                     }
                                                 }
                                             );
@@ -471,11 +473,15 @@
                                             $.get("/data/unit/lookup?unit=" + encodeURIComponent(headerDef.unit),
                                                 function (jsonStr) {
                                                     var unitInfo = JSON.parse(jsonStr);
-                                                    if (unitInfo.message === "undefined unit expression" && unit !== "text" && unit !== "code" && unit !== "date") {
+                                                    if (unitInfo.message === "undefined unit expression" && headerDef.unit !== "text" && headerDef.unit !== "code" && headerDef.unit !== "date") {
                                                         headerDef.unit_error = true;
+                                                    } else {
+                                                        delete headerDef.unit_error;
                                                     }
                                                 }
                                             );
+                                        } else {
+                                             delete headerDef.unit_error;
                                         }
                                     }
                                 }
