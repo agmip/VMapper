@@ -1038,6 +1038,7 @@
                     for (let sheetName in templates[fileName]) {
                         let tmp = Object.assign({}, templates[fileName][sheetName]);
                         tmp.mappings = [];
+                        delete tmp.references;
                         for (let i in templates[fileName][sheetName].mappings) {
                             let mapping = templates[fileName][sheetName].mappings[i];
                             if (!mapping.ignored_flg) {
