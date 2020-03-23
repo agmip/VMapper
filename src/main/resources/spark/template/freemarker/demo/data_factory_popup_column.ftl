@@ -48,9 +48,9 @@
                         } else if (itemData.err_msg === "Please provide a code name for your customized variable.") {
                             delete itemData.err_msg;
                         }
-                        if (icasa === itemData.column_header) {
-                            itemData.err_msg = itemData.column_header + " is already used by ICASA, please provide a different variable name.";
-                        } else if (itemData.err_msg === itemData.column_header + " is already used by ICASA, please provide a different variable name.") {
+                        if (icasaVarMap.isDefined(icasa)) {
+                            itemData.err_msg = icasa + " is already used by ICASA, please provide a different variable name.";
+                        } else if (itemData.err_msg === icasa + " is already used by ICASA, please provide a different variable name.") {
                             delete itemData.err_msg;
                         }
                     } else if (curVarType === "icasa_info") {

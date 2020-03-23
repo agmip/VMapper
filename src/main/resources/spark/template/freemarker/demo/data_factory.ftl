@@ -77,6 +77,9 @@
                         return null;
                     }
                 },
+                "isDefined" : function(varName) {
+                    return !!this.getPrimaryGroup(varName);
+                },
                 "getDefinition" : function(varName) {
                     let group = this.getPrimaryGroup(varName);
                     if (group) {
