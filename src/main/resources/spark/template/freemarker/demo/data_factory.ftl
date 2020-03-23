@@ -373,12 +373,21 @@
                                     let icasa_unit = icasaVarMap.getUnit(headerDef.icasa);
                                     if (!headerDef.unit) {
                                         headerDef.unit_error = true;
-                                    } else if (headerDef.unit !== icasa_unit) {
+                                    } else if (icasa_unit && headerDef.unit !== icasa_unit) {
                                         $.get("/data/unit/convert?value_from=2&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
                                             function (jsonStr) {
                                                 let ret = JSON.parse(jsonStr);
                                                 if (ret.status !== "0") {
 //                                                        headerDef.unit = icasa_unit; // TODO this should change to give warning message
+                                                    headerDef.unit_error = true;
+                                                }
+                                            }
+                                        );
+                                    } else if (!icasa_unit) {
+                                        $.get("/data/unit/lookup?unit=" + encodeURIComponent(headerDef.unit),
+                                            function (jsonStr) {
+                                                var unitInfo = JSON.parse(jsonStr);
+                                                if (unitInfo.message === "undefined unit expression" && unit !== "text" && unit !== "code" && unit !== "date") {
                                                     headerDef.unit_error = true;
                                                 }
                                             }
@@ -448,12 +457,21 @@
                                         let icasa_unit = icasaVarMap.getUnit(headerDef.icasa);
                                         if (!headerDef.unit) {
                                             headerDef.unit_error = true;
-                                        } else if (headerDef.unit !== icasa_unit) {
+                                        } else if (icasa_unit && headerDef.unit !== icasa_unit) {
                                             $.get("/data/unit/convert?value_from=1&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
                                                 function (jsonStr) {
                                                     let ret = JSON.parse(jsonStr);
                                                     if (ret.status !== "0") {
 //                                                        headerDef.unit = icasa_unit; // TODO this should change to give warning message
+                                                        headerDef.unit_error = true;
+                                                    }
+                                                }
+                                            );
+                                        } else if (!icasa_unit) {
+                                            $.get("/data/unit/lookup?unit=" + encodeURIComponent(headerDef.unit),
+                                                function (jsonStr) {
+                                                    var unitInfo = JSON.parse(jsonStr);
+                                                    if (unitInfo.message === "undefined unit expression" && unit !== "text" && unit !== "code" && unit !== "date") {
                                                         headerDef.unit_error = true;
                                                     }
                                                 }
