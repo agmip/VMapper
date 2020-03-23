@@ -87,6 +87,7 @@ public class UnitConverter {
         try {
             UnitDB DB_ret = UnitDBManager.instance();
             AGMIP_UNIT.put("number", "count");
+            AGMIP_UNIT.put("unit", "count");
             AGMIP_UNIT.put("plant", "count");
             AGMIP_UNIT.put("leaf", "count");
             AGMIP_UNIT.put("eye", "count");
