@@ -314,6 +314,29 @@
             obvOptgroup.append('<option value="' + varName + '">' + obvVarMap[varName].description + ' - ' + varName + ' (' + obvVarMap[varName].unit_or_type +  ')</option>');
         }
     }
+    
+    function initIcasaCategorySB() {
+        let varSB = $("[name='customized_info']").find("[name='category']");
+        varSB.append('<option value=""></option>');
+        let defOptgroups = {};
+        let icasaGroupList = icasaVarMap.getGroupList();
+        for (let order in icasaGroupList) {
+            let subset = icasaGroupList[order].subset;
+            if (!defOptgroups[subset]) {
+                defOptgroups[subset] = $('<optgroup label="' + subset.capitalize() + ' variable"></optgroup>');
+            }
+            if (icasaGroupList[order].subgroup && !icasaGroupList[order].subgroup.toLowerCase().includes(icasaGroupList[order].group.toLowerCase())) {
+                defOptgroups[subset].append('<option value="' + order + '">' + icasaGroupList[order].group.capitalize() + ' ' + icasaGroupList[order].subgroup.capitalize() +  '</option>');
+            } else if (!icasaGroupList[order].subgroup) {
+                defOptgroups[subset].append('<option value="' + order + '">' + icasaGroupList[order].group.capitalize() +  '</option>');
+            } else {
+                defOptgroups[subset].append('<option value="' + order + '">' + icasaGroupList[order].subgroup.capitalize() +  '</option>');
+            }
+        }
+        for (let subset in defOptgroups) {
+            varSB.append(defOptgroups[subset]);
+        }
+    }
 </script>
 <!-- popup page for define column -->
 <div id="col_define_popup" hidden>
@@ -374,7 +397,7 @@
                 <label class="control-label">Variable Category</label>
                 <div class="input-group col-sm-12">
                     <select name="category" class="form-control col-def-input-item" data-placeholder="Choose a variable type...">
-                        <option value=""></option>
+<!--                        <option value=""></option>
                         <option value="1011">Experiment Meta Data</option>
                         <option value="2011">Experiment Management Data</option>
                         <option value="2099">Experiment Management Event Data</option>
@@ -382,8 +405,8 @@
                         <option value="2511">Experiment Observation Time-Series Data</option>
                         <option value="4051">Soil Profile Data</option>
                         <option value="4052">Soil Layer Data</option>
-                        <option value="5041">Weather Station Profie Data</option>
-                        <option value="5052">Weather Station Daily Data</option>
+                        <option value="5046">Weather Station Profie Data</option>
+                        <option value="5052">Weather Station Daily Data</option>-->
                     </select>
                 </div>
             </div>

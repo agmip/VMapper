@@ -51,6 +51,23 @@
                     }<#sep>,</#sep>
                     </#list>
                 },
+                "groupList" : null,
+                "getGroupList" : function() {
+                    if (!this.groupList) {
+                        this.groupList = {};
+                        for (let varName in this.management) {
+                            if (!this.groupList[this.management[varName].order]) {
+                                this.groupList[this.management[varName].order] = this.management[varName];
+                            }
+                        }
+                        for (let varName in this.observation) {
+                            if (!this.groupList[this.observation[varName].order]) {
+                                this.groupList[this.observation[varName].order] = this.observation[varName];
+                            }
+                        }
+                    }
+                    return this.groupList;
+                },
                 "getPrimaryGroup" : function(varName) {
                     if (this.management[varName]) {
                         return this.management;
@@ -1117,6 +1134,10 @@
                 }
                 
             }
+            
+            String.prototype.capitalize = function() {
+                return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
+            }
         </script>
     </head>
 
@@ -1236,6 +1257,7 @@
         <script>
             $(document).ready(function () {
                 initIcasaLookupSB();
+                initIcasaCategorySB();
                 chosen_init_all();
                 $('input').on("blur", function(event) {
                     event.target.checkValidity();
