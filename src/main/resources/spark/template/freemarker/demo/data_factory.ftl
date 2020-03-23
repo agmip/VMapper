@@ -257,16 +257,34 @@
                 for (let fileName in templates) {
                     $('#sheet_tab_list').append('<li class="dropdown-header"><strong>' + fileName + '</strong></li>');
                     for (let sheetName in templates[fileName]) {
-                        $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + fileName + '__' + sheetName + '" onclick="setSpreadsheet(this);">' + sheetName + '</a></li>');
+                        let cntUndefined = countUndefinedColumns(templates[fileName][sheetName].mappings);
+                        if (cntUndefined > 0) {
+                            $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + fileName + '__' + sheetName + '" onclick="setSpreadsheet(this);">' + sheetName + '&nbsp;&nbsp;<span class="label label-danger label-as-badge">' + cntUndefined + '</span></a></li>');
+                        } else {
+                            $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + fileName + '__' + sheetName + '" onclick="setSpreadsheet(this);">' + sheetName + '&nbsp;&nbsp;<span class="label label-danger label-as-badge invisible">' + cntUndefined + '</span></a></li>');
+                        }
                     }
                     $('#sheet_tab_list').append('<li class="divider"></li>');
                 }
 
                 if (curFileName && curSheetName) {
-                    initSpreadsheet(curFileName, curSheetName);
+//                    initSpreadsheet(curFileName, curSheetName);
+                    let linkId = curFileName + "__" + curSheetName;
+                    $('#sheet_tab_list').find("[id='" + linkId +"']").click();
                 } else {
                     $('#sheet_tab_list').find("a").first().click();
                 }
+            }
+            
+            function countUndefinedColumns(mappings) {
+                let ret = 0;
+                for (let i in mappings) {
+                    let classNames = getColStatusClass(i, mappings);
+                    if (classNames.includes("warning") || classNames.includes("danger")) {
+                        ret++;
+                    }
+                }
+                return ret;
             }
             
             function to_json(workbooks) {
@@ -343,21 +361,19 @@
                                     } else if (icasaVarMap.getDefinition(headerDef.column_header)) {
                                         headerDef.icasa = headerDef.column_header;
                                     }
-                                    if (headerDef.icasa) {
-                                        let icasa_unit = icasaVarMap.getUnit(headerDef.icasa);
-                                        if (headerDef.unit && headerDef.unit !== icasa_unit) {
-                                            $.get(encodeURI("/data/unit/convert?unit_to=" + icasa_unit + "&unit_from="+ headerDef.unit + "&value_from=1"),
-                                                function (jsonStr) {
-                                                    let ret = JSON.parse(jsonStr);
-                                                    if (ret.status !== "0") {
+                                    let icasa_unit = icasaVarMap.getUnit(headerDef.icasa);
+                                    if (!headerDef.unit) {
+                                        headerDef.unit_error = true;
+                                    } else if (headerDef.unit !== icasa_unit) {
+                                        $.get(encodeURI("/data/unit/convert?unit_to=" + icasa_unit + "&unit_from="+ headerDef.unit + "&value_from=1"),
+                                            function (jsonStr) {
+                                                let ret = JSON.parse(jsonStr);
+                                                if (ret.status !== "0") {
 //                                                        headerDef.unit = icasa_unit; // TODO this should change to give warning message
-                                                        headerDef.unit_error = true;
-                                                    }
+                                                    headerDef.unit_error = true;
                                                 }
-                                            );
-                                        } else if (!headerDef.unit) {
-                                            headerDef.unit = icasa_unit;
-                                        }
+                                            }
+                                        );
                                     }
                                     sheetDef.mappings.push(headerDef);
                                 }
@@ -394,8 +410,9 @@
                                 }
                                 // fill missing column definition with ignored flag
                                 for (let i = 0; i < headers.length; i++) {
-                                    if(!sheetDef.mappings[i]) {
-                                        let headerDef = {
+                                    let headerDef = sheetDef.mappings[i];
+                                    if(!headerDef) {
+                                        headerDef = {
                                             column_index : i + 1,
                                             column_header : headers[i],
                                             ignored_flg : true
@@ -417,6 +434,22 @@
                                     } else if (sheetDef.mappings[i].column_header !== headers[i]) {
                                         sheetDef.mappings[i].column_header = headers[i];
                                         // TODO deal with sc2 mappings is not fully matched with given spreadsheet columns
+                                    }
+                                    if (headerDef.icasa) {
+                                        let icasa_unit = icasaVarMap.getUnit(headerDef.icasa);
+                                        if (!headerDef.unit) {
+                                            headerDef.unit_error = true;
+                                        } else if (headerDef.unit !== icasa_unit) {
+                                            $.get(encodeURI("/data/unit/convert?unit_to=" + icasa_unit + "&unit_from="+ headerDef.unit + "&value_from=1"),
+                                                function (jsonStr) {
+                                                    let ret = JSON.parse(jsonStr);
+                                                    if (ret.status !== "0") {
+//                                                        headerDef.unit = icasa_unit; // TODO this should change to give warning message
+                                                        headerDef.unit_error = true;
+                                                    }
+                                                }
+                                            );
+                                        }
                                     }
                                 }
                             }
@@ -543,7 +576,9 @@
                                 } else {
                                     title += mappings[col].column_header;
                                 }
-                                if (mappings[col].unit.toLowerCase() !== varDef.unit_or_type.toLowerCase()) {
+                                if (!mappings[col].unit) {
+                                    title += "<br/><em>[?->" + varDef.unit_or_type + "]</em>"
+                                } else if (mappings[col].unit.toLowerCase() !== varDef.unit_or_type.toLowerCase()) {
                                     title += "<br/><em>[" + mappings[col].unit + "->" + varDef.unit_or_type + "]</em>"
                                 } else {
 //                                    title += " [" + varDef.unit_or_type + "]'>";
@@ -744,12 +779,15 @@
                 isChanged = true;
             }
             
-            function getColStatusClass(col) {
-                let sheetDef = templates[curFileName][curSheetName];
-                let mappings = sheetDef.mappings;
+            function getColStatusClass(col, mappings) {
+                if (!mappings) {
+                    mappings = templates[curFileName][curSheetName].mappings;
+                }
                 if (mappings[col]) {
-                    if (mappings[col].ignored_flg) {
+                     if (mappings[col].ignored_flg) {
                         return "label label-default";
+                    } else if (mappings[col].unit_error) {
+                        return "label label-danger";
                     } else if (mappings[col].icasa) {
                         if (icasaVarMap.getDefinition(mappings[col].icasa)) {
                             return "label label-success";
@@ -1175,7 +1213,6 @@
                 $('.nav-tabs #sheetTab').on('shown.bs.tab', function(){
                     $('.table_switch_cb').bootstrapToggle('enable');
                     if (templates[curFileName][curSheetName].data_start_row) {
-//                        initSpreadsheet(curFileName, curSheetName);
                         $('#tableViewSwitch').bootstrapToggle('off');
                     } else {
                         showSheetDefPrompt(processData);
@@ -1212,6 +1249,17 @@
 //                        }
 //                    };
 //                });
+                $('#sheetTab').on("click", function() {
+                    $('#sheet_tab_list').find("a").each(function () {
+                        let tmp = $(this).attr('id').split("__");
+                        let cntUndefined = countUndefinedColumns(templates[tmp[0]][tmp[1]].mappings);
+                        if (cntUndefined > 0) {
+                            $(this).find("span").html(cntUndefined).removeClass("invisible");
+                        } else {
+                            $(this).find("span").html(cntUndefined).addClass("invisible");
+                        }
+                    });
+                });
                 $('.table_switch_cb').bootstrapToggle('disable');
                 $(window).resize(function(){
                     if (spreadsheet) {
