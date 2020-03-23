@@ -23,6 +23,12 @@
                     sheets[fileName][sheetName].included_flg = true;
                     sheets[fileName][sheetName].single_flg = false;
                     let roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1});
+                    for (let i = roa.length; i >= 0; i--) {
+                        if (roa[i] && roa[i].length > 0) {
+                            roa.splice(i + 1, roa.length - i);
+                            break;
+                        }
+                    }
     //                let roa = sheet_to_json(sheet);
                     if(roa.length){
                         for (let i in roa) {
