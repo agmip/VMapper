@@ -348,23 +348,23 @@
             </div>
             <!-- 3rd row -->
             <div class="form-group col-sm-4">
+                <label class="control-label">Data Unit</label>
+                <div class="input-group col-sm-12">
+                    <input type="text" name="unit" class="form-control col-def-input-item" value="">
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
                 <label class="control-label">ICASA Unit</label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="icasa_unit" class="form-control" value="" readonly>
                 </div>
             </div>
             <div class="form-group col-sm-4">
-                <label class="control-label">Original Unit</label>
-                <div class="input-group col-sm-12">
-                    <input type="text" name="unit" class="form-control col-def-input-item" value="">
-                </div>
-            </div>
-            <div class="form-group col-sm-4">
                 <label class="control-label"></label>
-                <div class="input-group col-sm-12">
+                <div class="input-group col-sm-12" name="unit_validate_result"></div>
+                <div class="input-group col-sm-12 invisible">
                     <input type="checkbox" name="same_unit_flg" class="col-def-input-item"> Apply same unit as ICASA
                 </div>
-                <div class="input-group col-sm-12" name="unit_validate_result"></div>
             </div>
         </div>
         <!-- Customized Variable Info -->
