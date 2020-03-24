@@ -1040,7 +1040,7 @@
                 };
 
                 var blob = file.slice(start, stop + 1);
-                reader.readAsBinaryString(blob);
+                reader.readAsText(blob);
             }
             
             function saveTemplateFile() {
