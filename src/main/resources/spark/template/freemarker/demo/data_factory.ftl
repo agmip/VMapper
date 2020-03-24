@@ -1032,10 +1032,10 @@
                                         };
                                     }
                                 }
-                                curSheetName = null;
-                                processData();
+                                
                             }
                         }
+                        processData();
                     }
                 };
 
