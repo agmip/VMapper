@@ -272,10 +272,10 @@
             function processData(ret) {
                 if (ret) {
                     templates = ret;
-                    if (workbooks) {
-                        $("#sheet_csv_content").html(to_csv(workbooks));
+                }
+                if (workbooks) {
+                    $("#sheet_csv_content").html(to_csv(workbooks));
 //                        $("#sheet_json_content").html(to_json(workbooks));
-                    }
                 }
 
                 if (!curFileName || !curSheetName) {
