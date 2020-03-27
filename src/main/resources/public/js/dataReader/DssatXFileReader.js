@@ -34,7 +34,7 @@ function readXFileData(rawData, fileName) {
         }
     }
     expData.exp_no = fileName.substring(6, 8);
-    expData.crid_dssat = fileName.substring(9, 11);
+    expData.crid_dssat = fileName.substring(fileName.length - 3, fileName.length - 1);
     
     for (let i = 0; i < rawData.length; i++) {
         let line = rawData[i];
