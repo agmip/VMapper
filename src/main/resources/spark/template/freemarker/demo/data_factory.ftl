@@ -931,17 +931,22 @@
                             }
                         }
                         if (sc2Obj.agmip_translation_mappings) {
-                            if (sc2Obj.agmip_translation_mappings.length === 0) {
+                            let files = sc2Obj.agmip_translation_mappings.files;
+                            let relations = sc2Obj.agmip_translation_mappings.relations;
+                            if (!files || files.length === 0) {
                                 alertBox("No AgMIP mapping information detected, please try another file!");
                                 return;
+                            }
+                            if (!relations) {
+                                relations = [];
                             }
                             // Locate the correct file for reading mappings
                             let fileConfigs = [];
                             if (curFileName) {
                                 // If spreadsheet is already loaded, then only pick up the config for the loaded file
                                 for (let fileName in wbObj) {
-                                    for (let i in sc2Obj.agmip_translation_mappings) {
-                                        let fileConfig = sc2Obj.agmip_translation_mappings[i];
+                                    for (let i in files) {
+                                        let fileConfig = files[i];
                                         if (fileConfig.file && fileConfig.file.file_metadata
                                                 && (fileName === fileConfig.file.file_metadata.file_name
                                                     || getFileName(fileName) === getFileName(fileConfig.file.file_metadata.file_name)
@@ -951,10 +956,10 @@
                                     }
                                 }
                                 // If not found matched config
-                                if (!fileConfigs.length === 0) {
+                                if (fileConfigs.length === 0) {
                                     // TODO then use default first records to apply
-                                    if (sc2Obj.agmip_translation_mappings.length === Object.keys(wbObj).length) {
-                                        fileConfig = sc2Obj.agmip_translation_mappings;
+                                    if (files.length === Object.keys(wbObj).length) {
+                                        fileConfigs = files;
                                     } else {
                                         // TODO give warning?
                                     }
@@ -962,19 +967,20 @@
                                 }
                             } else {
                                 // Load all the configs
-                                fileConfigs = sc2Obj.agmip_translation_mappings;
+                                fileConfigs = files;
+                            }
+                            
+                            let refConfigs = {};
+                            for (let i in relations) {
+                                let fromSheet = relations[i].from.sheet;
+                                if (!refConfigs[fromSheet]) {
+                                    refConfigs[fromSheet] = [];
+                                }
+                               refConfigs[fromSheet].push(relations[i]);
                             }
                             
                             for (let i in fileConfigs) {
                                 let fileConfig = fileConfigs[i];
-                                let refConfigs = {};
-                                for (let i in fileConfig.relations) {
-                                    let fromSheet = fileConfig.relations[i].from.sheet;
-                                    if (!refConfigs[fromSheet]) {
-                                        refConfigs[fromSheet] = [];
-                                    }
-                                   refConfigs[fromSheet].push(fileConfig.relations[i]);
-                                }
                                 if (!fileConfig.file.sheets) {
                                     fileConfig.file.sheets = [];
                                 }
@@ -1034,6 +1040,9 @@
                                 }
                                 
                             }
+                        } else {
+                            alertBox("No AgMIP mapping information detected, please try another file!");
+                            return;
                         }
                         processData();
                     }
@@ -1070,7 +1079,10 @@
 //                        source_url: ""
                     },
                     dataset_metadata : {},
-                    agmip_translation_mappings : [],
+                    agmip_translation_mappings : {
+                        relations : [],
+                        files : []
+                    },
                     xrefs : [
 //                        {
 //                          xref_provider : "gardian",
@@ -1079,7 +1091,6 @@
                     ]
                 };
                 let agmipTranslationMappingTemplate = JSON.stringify({
-                    relations : [],
                     //Grab the primary keys from here if EXNAME is not defined
                     primary_ex_sheet : {
 //                            file : "",
@@ -1113,7 +1124,7 @@
 //                        // TODO add default content-type key word here
 //                    }
                     
-                    sc2Obj.agmip_translation_mappings.push(tmp2);
+                    sc2Obj.agmip_translation_mappings.files.push(tmp2);
                     for (let sheetName in templates[fileName]) {
                         let tmp = Object.assign({}, templates[fileName][sheetName]);
                         tmp.mappings = [];
@@ -1138,7 +1149,7 @@
                                         JSON.parse("[" + fromKeyIdxs + "]"),
                                         toRefDef,
                                         getKeyIdxArr(toRefDef.keys));
-                                    tmp2.relations.push(refDef);
+                                    sc2Obj.agmip_translation_mappings.relations.push(refDef);
                                 }
                             }
                         }
