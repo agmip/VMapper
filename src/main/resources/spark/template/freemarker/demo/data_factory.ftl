@@ -6,6 +6,7 @@
         <#include "../chosen.ftl">
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/handsontable-pro@latest/dist/handsontable.full.min.css">
         <link rel="stylesheet" type="text/css" href="/stylesheets/toggle/bootstrap-toggle.min.css" />
+        <link rel="stylesheet" type="text/css" href="/plugins/jsonViewer/jquery.json-viewer.css" />
         <script>
             let wbObj;
 //            let spsContainer;
@@ -1268,10 +1269,20 @@
                     <div id="ref_table" class="subcontainer panel-group"></div>
                 </div>
                 <div id="mapping_tab" class="tab-pane fade">
-                    <textarea class="form-control" rows="30" id="mapping_json_content" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
+                    <div class="col-sm-6" style="overflow: auto;height: 600px">
+                        <div id="mapping_json_content_tree"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <textarea class="form-control" rows="30" id="mapping_json_content_text" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
+                    </div>
                 </div>
                 <div id="sc2_tab" class="tab-pane fade">
-                    <textarea class="form-control" rows="30" id="sc2_json_content" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
+                    <div class="col-sm-6" style="overflow: auto;height: 600px">
+                        <div id="sc2_json_content_tree"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <textarea class="form-control" rows="30" id="sc2_json_content_text" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1287,6 +1298,7 @@
         <script type="text/javascript" src="/plugins/filestyle/bootstrap-filestyle.min.js"></script>
         <script type="text/javascript" src="/plugins/chosen/chosen.jquery.min.js" ></script>
         <script type="text/javascript" src="/plugins/chosen/prism.js" charset="utf-8"></script>
+        <script type="text/javascript" src="/plugins/jsonViewer/jquery.json-viewer.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/chosen/init.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/dataReader/BufferedFileReader.js"></script>
         <script type="text/javascript" src="/js/bootbox/bootbox.all.min.js" charset="utf-8"></script>
@@ -1319,10 +1331,12 @@
                     initRefTable();
                 });
                 $('.nav-tabs #mappingTab').on('shown.bs.tab', function(){
-                    $("#mapping_json_content").html(JSON.stringify(templates, 2, 2));
+                    $("#mapping_json_content_text").html(JSON.stringify(templates, 2, 2));
+                    $("#mapping_json_content_tree").jsonViewer(templates, {collapsed: true, rootCollapsable: false});
                 });
                 $('.nav-tabs #SC2Tab').on('shown.bs.tab', function(){
-                    $("#sc2_json_content").html(toSC2Json());
+                    $("#sc2_json_content_text").html(toSC2Json());
+                    $("#sc2_json_content_tree").jsonViewer(toSC2Obj(), {collapsed: true, rootCollapsable: false});
                 });
                 $("button").prop("disabled", false);
                 $('#tableViewSwitch').change(function () {
