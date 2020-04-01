@@ -23,7 +23,7 @@
             let userVarMap = {};
             let icasaVarMap = {
                 "management" : {
-                    <#list icasaMgnVarMap?values?sort_by("code_display")?sort_by("group")?sort_by("subset")?sort_by("dataset") as var>
+                    <#list icasaMgnVarMap?values?sort_by("code_display")?sort_by("set_group_order") as var>
                     "${var.code_display}" : {
                         code_display : "${var.code_display}",
                         description : '${var.description}',
@@ -39,7 +39,7 @@
                     </#list>
                 },
                 "observation" : {
-                    <#list icasaObvVarMap?values?sort_by("code_display")?sort_by("group")?sort_by("subset")?sort_by("dataset") as var>
+                    <#list icasaObvVarMap?values?sort_by("code_display")?sort_by("set_group_order") as var>
                     "${var.code_display}" : {
                         code_display : "${var.code_display}",
                         description : "${var.description}",
@@ -53,6 +53,22 @@
                         category : "${var.dataset} / ${var.subset} / ${var.group}"
                     }<#sep>,</#sep>
                     </#list>
+                },
+                "allDefs" : null,
+                "getAllDefs" : function () {
+                    if (!this.allDefs) {
+                        this.allDefs = {};
+                        for (let i in this.management) {
+                            this.allDefs[i] = this.management[i];
+                        }
+                        for (let i in this.observation) {
+                            if (this.allDefs[i]) {
+                                console.log("[warning] repeated ICASA definition detected! " + this.observation[i].code_display);
+                            }
+                            this.allDefs[i] = this.observation[i];
+                        }
+                    }
+                    return this.allDefs;
                 },
                 "groupList" : null,
                 "getGroupList" : function() {
@@ -156,27 +172,170 @@
                         return -1;
                     }
                 },
-                "isHigherLevel" : function(var1, var2) {
-                    let order1 = getOrder(var1);
-                    let order2 = getOrder(var2);
-                    if (order1 < 4000 && order2 < 4000) {
-                        return order1 > order2;
-                    } else if (order1 > 8000 && order1 < 9000) {
-                        return true;
-                    } else if (order1 > 4000 && order1 < 5000) {
-                        if (order2 > 4000 && order2 < 5000) {
-                            return order1 > order2;
-                        } else {
-                            null;
+                "getMappingOrder" : function(mapping) {
+                    if (mapping.order) {
+                        return mapping.order;
+                    }
+                    let icasa = mapping.icasa;
+                    if (!icasa) {
+                        icasa = mapping.column_header;
+                    }
+                    return this.getOrder(icasa);
+                },
+                "icasaDataCatDef" : null,
+                "getIicasaDataCatDefMapping" : function(mapping) {
+                    return this.getIicasaDataCatDef(this.getMappingOrder(mapping));
+                },
+                "getIicasaDataCatDef" : function(order) {
+                    if (!this.icasaDataCatDef) {
+                        this.initIcasaDataCatDef();
+                    }
+                    if (!order || !this.icasaDataCatDef[order]) {
+                        return {rank: -1, category: "unknown", order: order};
+                    }
+                    return this.icasaDataCatDef[order];
+                },
+                "initIcasaDataCatDef" : function() {
+                    this.icasaDataCatDef = {};
+                    let relations = {};
+                    let lastCat;
+                    let parentCat;
+                    let trtCat = this.getCategory(this.management["TRTNO"]);
+                    let metaCat = this.getCategory(this.management["EXNAME"]);
+                    let defs = this.getAllDefs();
+                    for (let varName in defs) {
+                        let order = defs[varName].order;
+                        if (this.icasaDataCatDef[order]) {
+                            continue;
                         }
-                    } else if (order1 > 5000 && order1 < 6000) {
-                        if (order2 > 5000 && order2 < 6000) {
-                            return order1 > order2;
+                        this.icasaDataCatDef[order] = this.getCategory(defs[varName]);
+                        let category = this.icasaDataCatDef[order].category;
+                        if (!relations[category]) {
+                            relations[category] = [];
                         } else {
-                            null;
+                            if (this.icasaDataCatDef[relations[category][0]].parent) {
+                                this.icasaDataCatDef[order].parent = this.icasaDataCatDef[relations[category][0]].parent;
+                            }
                         }
+                        relations[category].push(order);
+                        let curCat = this.icasaDataCatDef[order];
+                        if (curCat.rank === 2) {
+                            trtCat = curCat;
+                            if (!curCat.child) {
+                                curCat.child = [];
+                            }
+                        } else if (curCat.rank === 1) {
+                            metaCat = curCat;
+                        }
+                        if (!parentCat) {
+                            parentCat = curCat;
+                        } else if (curCat.rank - lastCat.rank === 1) {
+                            parentCat = lastCat;
+                        }
+                        if (curCat.rank - parentCat.rank === 1) {
+                            if (!parentCat.child) {
+                                parentCat.child = [];
+                            }
+                            if (!curCat.parent) {
+                                curCat.parent = [];
+                            }
+                            for (let i in relations[parentCat.category]) {
+                                let parCode = relations[parentCat.category][i];
+                                if (!this.icasaDataCatDef[parCode].child) {
+                                    this.icasaDataCatDef[parCode].child = parentCat.child;
+                                }
+                                if (!curCat.parent.includes(parCode)) {
+                                    curCat.parent.push(parCode);
+                                }
+                            }
+                            for (let i in relations[curCat.category]) {
+                                let chdCode = relations[curCat.category][i];
+                                if (!this.icasaDataCatDef[chdCode].parent) {
+                                    this.icasaDataCatDef[chdCode].parent = curCat.parent;
+                                }
+                                if (!parentCat.child.includes(chdCode)) {
+                                    parentCat.child.push(chdCode);
+                                }
+                            }
+                        } else {
+                            if (curCat.rank === 3) {
+                                trtCat.child.push(curCat.order);
+                                if (!curCat.parent) {
+                                    curCat.parent = [trtCat.order];
+                                }
+                            } else if (curCat.rank === 0) {
+                                let parArr = [];
+                                curCat.child = relations[metaCat.category];
+                                for (let i in curCat.child) {
+                                    if (!this.icasaDataCatDef[curCat.child[i]].parent) {
+                                        this.icasaDataCatDef[curCat.child[i]].parent = parArr;
+                                    } else {
+                                        parArr = this.icasaDataCatDef[curCat.child[i]].parent;
+                                    }
+                                }
+                                parArr.push(curCat.order);
+                            }
+                        }
+                        lastCat = curCat;
+                    }
+                },
+                "getCategory" : function(mapping) {
+                    let icasa = mapping.icasa;
+                    if (!icasa) {
+                        icasa = mapping.column_header;
+                    }
+                    if (!icasa) {
+                        icasa = mapping.code_display;
+                    }
+                    let order = this.getOrder(icasa);
+                    let dataset = this.getDataset(icasa, true);
+                    let subset = this.getSubset(icasa, true);
+                    let group = this.getGroup(icasa, true);
+                    let subgroup = this.getSubGroup(icasa, true);
+                    if (order < 0) {
+                        return {rank: -1, category: "unknown"};
+                    } else if (order > 8000 && order < 9000) {
+                        return {rank: 0, category: dataset, order: order};
+                    } else if (order < 2000) {
+                        return {rank: 1, category: subset, order: order};
+                    } else if (order < 3000) {
+                        if (order === 2011) {
+                            return {rank: 2, category: group, order: order};
+                        } else if (order > 2500) {
+                            return {rank: 3, category: subset, order: order};
+                        } else {
+                            if (subgroup) {
+                                return {rank: 4, category: subgroup, order: order};
+                            } else {
+                                return {rank: 3, category: group, order: order};
+                            }
+                        }
+                    } else if (order < 4000) {
+                        return {rank: 3, category: subset, order: order};
+                    } else if (order < 5000) {
+                        if (order === 4051) {
+                            return {rank: 5, category: group, order: order};
+                        } else if (order === 4052) {
+                            return {rank: 6, category: subgroup, order: order};
+                        } else if (order > 4040) {
+                            return {rank: 4, category: group, order: order};
+                        } else {
+                            return {rank: 3, category: subset, order: order};
+                        }
+                    } else if (order < 6000) {
+                        if (order === 5052) {
+                            return {rank: 5, category: group, order: order};
+                        } if (order > 5040) {
+                            return {rank: 4, category: subset, order: order};
+                        } else {
+                            return {rank: 3, category: subset, order: order};
+                        }
+                    } else if (order < 8000) {
+                        return {rank: 3, category: group, order: order};
+                    } else if (order < 10000) {
+                        return {rank: 3, category: subset, order: order};
                     } else {
-                        return order1 > order2; // TODO
+                        return {rank: -1, category: "unknown", order: order};
                     }
                 }
             };
@@ -1173,7 +1332,17 @@
                         backdrop: true
                     });
                 }
-                
+            }
+            
+            function confirmBox(msg, callback) {
+                bootbox.confirm({
+                    message: msg,
+                    callback: function (result) {
+                        if (result) {
+                            callback();
+                        }
+                    }
+                });
             }
             
             String.prototype.capitalize = function() {
@@ -1380,13 +1549,11 @@
                 });
                 $("#openFileMenu").click();
                 $(window).on('beforeunload',function(){
-                    console.log(isChanged);
                     if (isChanged) {
                         return "There are changes have not been saved yet";
                     }
                 });
 //                window.addEventListener('beforeunload', (event) => {
-//                    console.log(isChanged);
 //                    if (isChanged) {
 //                        event.preventDefault();
 //                        event.returnValue = "There are changes have not been saved yet";

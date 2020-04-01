@@ -20,6 +20,9 @@
             defListDiv.append(refDefDiv);
         }
         initRefDefDiv(ret.find("[name='template_ref_def_new']"));
+        ret.find("[name='auto_detect_btn']").on("click", function() {
+            detectReferences(defListDiv);
+        });
         return ret;
     }
     
@@ -382,34 +385,214 @@
         }
         return ret;
     }
+    
+    function detectReferences(defListDiv) {
+        confirmBox("This process will overwrite the exisiting reference configuration.", function() {
+            for (let fileName in templates) {
+                for (let sheetName in templates[fileName]) {
+                    templates[fileName][sheetName].references = {};
+                }
+            }
+            defListDiv.html("");
+            let tableRanks = getTableRanks();
+            let rootRankArr;
+            // Check general references from lowest rank to highest rank
+            for (let i = tableRanks.length - 1; i >= 0; i--) {
+                let tableRankArr = tableRanks[i];
+                if (!tableRankArr) {
+                    continue;
+                }
+                rootRankArr = tableRankArr;
+                for (let j in tableRankArr) {
+                    let tableRank = tableRankArr[j];
+                    let newRefDef= detectReference(tableRanks, tableRank, tableRank.order, true);
+                    if (newRefDef && newRefDef !== true) {
+                        defListDiv.append(creatRefDefDiv(newRefDef));
+                    }
+                }
+            }
+            // Check global information case
+            for (let i = 0; i <= tableRanks.length - 1; i++) {
+                let tableRankArr = tableRanks[i];
+                if (!tableRankArr) {
+                    continue;
+                }
+                for (let j in tableRankArr) {
+                    let tableRank = tableRankArr[j];
+                    if (templates[tableRank.file][tableRank.sheet].single_flg) {
+                        let newRefDef= detectReference(tableRanks, tableRank, tableRank.order, false);
+                        if (newRefDef && newRefDef !== true) {
+                            defListDiv.append(creatRefDefDiv(newRefDef));
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    function detectReference(tableRanks, tableRank, order, lookForParent) {
+        let newRefDef = null;
+        let catDef = icasaVarMap.getIicasaDataCatDef(order);
+        let lookupOrders;
+        if (lookForParent) {
+            lookupOrders = catDef.parent;
+        } else {
+            lookupOrders = catDef.child;
+        }
+        if (!lookupOrders) {
+            return newRefDef;
+        }
+        // Check direct relations
+        let directTableRanks;
+        if (lookForParent) {
+            directTableRanks = tableRanks[catDef.rank - 1];
+        } else {
+            directTableRanks = tableRanks[catDef.rank + 1];
+        }
+        if (directTableRanks) {
+            for (let i in directTableRanks) {
+                let lookupTableRank = directTableRanks[i];
+                if (lookupOrders.includes(lookupTableRank.order)) {
+                    newRefDef = createReference(lookupTableRank.file, lookupTableRank.sheet, tableRank.file, tableRank.sheet);
+                    if (newRefDef) {
+                        return newRefDef;
+                    }
+                }
+            }
+        }
+        // Check ground relations
+        for (let k in lookupOrders) {
+            newRefDef = detectReference(tableRanks, tableRank, lookupOrders[k], lookForParent);
+            if (newRefDef) {
+                return newRefDef;
+            }
+        }
+        return newRefDef;
+    }
+    
+    function createReference(fromFile, fromSheet, toFile, toSheet) {
+        let ret = null;
+        let from = templates[fromFile][fromSheet];
+        let to = templates[toFile][toSheet];
+        let toKeyIdxs = [];
+        let fromKeyIdxs = [];
+        if (from.mappings.length === 0 || to.mappings.length === 0) {
+            return ret;
+        }
+        // Check if global table is already linked with child table with keys
+        if (to.single_flg && from.references) {
+            for (let fromKeyIdx in from.references) {
+                for (let toKey in from.references[fromKeyIdx]) {
+                    if (from.references[fromKeyIdx][toKey].file === toFile &&
+                            from.references[fromKeyIdx][toKey].sheet === toSheet) {
+                        return true;
+                    }
+                }
+            }
+            for (let fromKeyIdx in to.references) {
+                for (let toKey in to.references[fromKeyIdx]) {
+                    if (to.references[fromKeyIdx][toKey].file === fromFile &&
+                            to.references[fromKeyIdx][toKey].sheet === fromSheet) {
+                        return true;
+                    }
+                }
+            }
+        }
+        for (let i in to.mappings) {
+            let toIcasa = to.mappings[i].icasa;
+            let toHeader = to.mappings[i].column_header;
+            if (!toIcasa && !toHeader) {
+                continue;
+            }
+            for (let j in from.mappings) {
+                let fromIcasa = from.mappings[j].icasa;
+                let fromHeader = from.mappings[j].column_header;
+                if (!fromIcasa && !fromHeader) {
+                    continue;
+                }
+                if (fromIcasa  && (fromIcasa  === toIcasa  || fromIcasa  === toHeader)
+                 || fromHeader && (fromHeader === toHeader || fromHeader === toIcasa)) {
+                    fromKeyIdxs.push(from.mappings[j].column_index);
+                    toKeyIdxs.push(to.mappings[i].column_index);
+                    break;
+                }
+            }
+        }
+        if (fromKeyIdxs.length === 0 && !to.single_flg) {
+            return ret;
+        } else {
+            if (!from.references) {
+                from.references = {};
+            }
+            let references = from.references;
+            if (!references[fromKeyIdxs]) {
+                references[fromKeyIdxs] = {};
+            }
+            let newRefDef = createRefDefObj({file: fromFile, sheet: fromSheet}, fromKeyIdxs, {file: toFile, sheet: toSheet}, toKeyIdxs);
+            references[fromKeyIdxs][getRefDefKey({file: toFile, sheet: toSheet}, toKeyIdxs)] = newRefDef.to;
+            ret = newRefDef;
+        }
+        return ret;
+    }
+    
+    function getTableRanks() {
+        let tableRanks = [];
+        for (let fileName in templates) {
+            for (let sheetName in templates[fileName]) {
+                let catObj = getTableCategory(templates[fileName][sheetName].mappings);
+                catObj.file = fileName;
+                catObj.sheet = sheetName;
+                if (!tableRanks[catObj.rank]) {
+                    tableRanks[catObj.rank] = [];
+                }
+                tableRanks[catObj.rank].push(catObj);
+            }
+        }
+        return tableRanks;
+        
+    }
+    
+    function getTableCategory(mappings) {
+        let ret = {rank : -1, category : "unknown"};
+        for (let i in mappings) {
+            if (mappings[i].icasa && ["exname", "soil_id", "wst_id"].includes(mappings[i].icasa.toLowerCase())) {
+                continue;
+            }
+            let retCat = icasaVarMap.getCategory(mappings[i]);
+            if (retCat.rank > 0 && (ret.rank < 0 || ret.rank > retCat.rank)) {
+                ret = retCat;
+            }
+        }
+        return ret;
+    }
 </script>
 
 <div id="template" hidden>
     <div class="panel panel-info" name="template_ref_table">
         <div class="panel-heading">
             <div class="row" style="padding: 0px">
-            <div class="col-sm-11">
-                <div class="row" style="padding: 0px">
-                    <div class="col-sm-6 text-left">
-                        <span class="label label-primary">From</span> (The lookup value will be read from this table)
-                        <hr>
-                        <div class="row" style="padding: 0px">
-                            <div class="col-sm-6 text-left"><span class="label label-primary">Sheet</span></div>
-                            <div class="col-sm-6 text-left"><span class="label label-primary">Variable</span></div>
+                <div class="col-sm-11">
+                    <div class="row" style="padding: 0px">
+                        <div class="col-sm-6 text-left">
+                            <span class="label label-primary">From</span> (The lookup value will be read from this table)
+                            <hr>
+                            <div class="row" style="padding: 0px">
+                                <div class="col-sm-6 text-left"><span class="label label-primary">Sheet</span></div>
+                                <div class="col-sm-6 text-left"><span class="label label-primary">Variable</span></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 text-left">
+                            <span class="label label-primary">To</span> (The lookup value will be used to search records in this table)
+                            <hr>
+                            <div class="row" style="padding: 0px">
+                                <div class="col-sm-6 text-left"><span class="label label-primary">Sheet</span></div>
+                                <div class="col-sm-6 text-left"><span class="label label-primary">Variable</span></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-sm-6 text-left">
-                        <span class="label label-primary">To</span> (The lookup value will be used to search records in this table)
-                        <hr>
-                        <div class="row" style="padding: 0px">
-                            <div class="col-sm-6 text-left"><span class="label label-primary">Sheet</span></div>
-                            <div class="col-sm-6 text-left"><span class="label label-primary">Variable</span></div>
-                        </div>
-                    </div>
+
                 </div>
-                
-            </div>
-            <div class="col-sm-1"><span class="label label-primary">Edit</span></div>
+                <div class="col-sm-1"><span class="label label-primary">Edit</span></div>
             </div>
             
 <!--            <div class="row" style="padding: 0px">
@@ -428,6 +611,13 @@
             </div>-->
         </div>
         <div class="panel-body">
+            <div class="row">
+                <div class="col-sm-11 col-sm-offset-1">
+                    <button type="button" class="btn btn-info ">
+                        <span class="glyphicon glyphicon-search"></span> Auto Detect Reference 
+                    </button>
+                </div>
+            </div>
             <div class="row">
                 <div name="ref_def_list"></div>
                 <div name="template_ref_def_new" class="row" style="padding-top: 10px">
