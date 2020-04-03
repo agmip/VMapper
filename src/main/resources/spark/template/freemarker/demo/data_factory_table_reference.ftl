@@ -34,10 +34,16 @@
         let toSheetDiv = div.find("[name='reference_to_sheet']");
         let fromKeyDiv = div.find("[name='reference_from_vars']");
         let toKeyDiv = div.find("[name='reference_to_vars']");
-        fromSheetDiv.html(refDef.from.file + "<br>-- " + refDef.from.sheet);
-        toSheetDiv.html(refDef.to.file + "<br>-- " + refDef.to.sheet);
+        if (Object.keys(templates) > 1) {
+            fromSheetDiv.html(refDef.from.file + "<br>-- " + refDef.from.sheet);
+            toSheetDiv.html(refDef.to.file + "<br>-- " + refDef.to.sheet);
+        } else {
+            fromSheetDiv.html(refDef.from.sheet);
+            toSheetDiv.html(refDef.to.sheet);
+        }
         setRefKeysDiv(fromKeyDiv, refDef.from);
         setRefKeysDiv(toKeyDiv, refDef.to);
+        
         div.find("[name='ref_def_json']").val(JSON.stringify(refDef));
         editBtn.on("click", function() {
             div.remove();
