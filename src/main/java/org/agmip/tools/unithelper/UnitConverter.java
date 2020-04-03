@@ -290,6 +290,9 @@ public class UnitConverter {
         } catch (PrefixDBException | UnitDBException | UnitSystemException ex) {
             ex.printStackTrace(System.err);
             return false;
+        } catch (Exception ex) {
+            ex.printStackTrace(System.err);
+            return false;
         }
     }
 
@@ -320,6 +323,9 @@ public class UnitConverter {
         } catch (PrefixDBException | UnitDBException | UnitSystemException ex) {
             ex.printStackTrace(System.err);
             return "";
+        } catch (Exception ex) {
+            ex.printStackTrace(System.err);
+            return "";
         }
     }
 
@@ -342,6 +348,9 @@ public class UnitConverter {
             System.err.println(ex.getMessage());
             return "";
         } catch (PrefixDBException | UnitDBException | UnitSystemException ex) {
+            ex.printStackTrace(System.err);
+            return "";
+        } catch (Exception ex) {
             ex.printStackTrace(System.err);
             return "";
         }
