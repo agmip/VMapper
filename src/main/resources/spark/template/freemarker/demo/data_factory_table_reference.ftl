@@ -684,16 +684,16 @@
         <div class="row">
             <div class="col-sm-11">
                 <div class="col-sm-3">
-                    <div name="reference_from_sheet"></div>
+                    <div name="reference_from_sheet" style="overflow-wrap:break-word"></div>
                 </div>
                 <div class="col-sm-3">
-                    <div name="reference_from_vars"></div>
+                    <div name="reference_from_vars" style="overflow-wrap:break-word"></div>
                 </div>
                 <div class="col-sm-3">
-                    <div name="reference_to_sheet"></div>
+                    <div name="reference_to_sheet" style="overflow-wrap:break-word"></div>
                 </div>
                 <div class="col-sm-3">
-                    <div name="reference_to_vars"></div>
+                    <div name="reference_to_vars" style="overflow-wrap:break-word"></div>
                 </div>
             </div>
             <input type='hidden' name='ref_def_json'>
