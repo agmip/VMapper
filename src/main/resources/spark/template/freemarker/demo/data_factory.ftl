@@ -561,7 +561,7 @@
                                 sheetDef.references = {};
                                 for (let i = 0; i < headers.length; i++) {
                                     let headerDef = {
-                                        column_header : headers[i],
+                                        column_header : headers[i].trim(),
                                         column_index : i + 1
                                     };
                                     if (sheetDef.unit_row) {
@@ -638,7 +638,7 @@
                                     if(!headerDef) {
                                         headerDef = {
                                             column_index : i + 1,
-                                            column_header : headers[i],
+                                            column_header : headers[i].trim(),
                                             ignored_flg : true
                                         }
                                         // Load existing template definition
@@ -656,7 +656,7 @@
                                         }
                                         sheetDef.mappings[i] = headerDef;
                                     } else if (sheetDef.mappings[i].column_header !== headers[i]) {
-                                        sheetDef.mappings[i].column_header = headers[i];
+                                        sheetDef.mappings[i].column_header = headers[i].trim();
                                         // TODO deal with sc2 mappings is not fully matched with given spreadsheet columns
                                     }
                                     if (headerDef.icasa) {
