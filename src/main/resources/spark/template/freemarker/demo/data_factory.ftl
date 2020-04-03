@@ -783,61 +783,13 @@
                         return txt;
                     },
                     colHeaders: function (col) {
-                        let checkBox = '<input type="checkbox" name="' + sheetName + '_' + col + '"';
+                        let checkBox = '<input type="checkbox" name="' + fileName + "_" + sheetName + '_' + col + '"';
                         if (mappings[col] && mappings[col].ignored_flg) {
                             checkBox += 'onchange=toggleIgnoreColumn(' + col + ');> ';
                         } else {
                             checkBox += 'checked onchange=toggleIgnoreColumn(' + col + ');> ';
                         }
-//                        let colIdx = " <span class='badge'>" + (col + 1) + "</span>";
-                        let refMark = "";
-                        if (mappings[col] && mappings[col].reference_flg) {
-                            refMark = "<span class='glyphicon glyphicon-flag'></span> ";
-                        }
-                        let colIdx = col + 1;
-                        let title = "<span name='" + sheetName + '_' + col + "_label" + "' class='";
-                        if (mappings[col] && mappings[col].ignored_flg) {
-                            title += "label label-default'>" + refMark + mappings[col].column_header + " [" + colIdx + "]";
-                        } else if (!mappings[col] || !mappings[col].column_header) {
-                            title += "label label-warning'>" + refMark + colIdx;
-//                        } else if (!mappings[col].icasa) {
-//                            title += "label label-warning'>" + refMark + mappings[col].column_header + "[" + colIdx + "]";
-                        } else if (mappings[col].icasa) {
-                            let varDef = icasaVarMap.getDefinition(mappings[col].icasa);
-                            if (varDef) {
-                                if (mappings[col].unit_error) {
-                                    title += "label label-danger' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + varDef.description + " [" + varDef.unit_or_type + "]'>" + refMark + "[" + colIdx + "] ";
-                                } else {
-                                    title += "label label-success' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + varDef.description + " [" + varDef.unit_or_type + "]'>" + refMark + "[" + colIdx + "] ";
-                                }
-                                if (mappings[col].icasa.toLowerCase() !== mappings[col].column_header.toLowerCase()) {
-                                   title += "<em>" +  mappings[col].column_header + "->" + mappings[col].icasa + "</em> ";
-                                } else {
-                                    title += mappings[col].column_header;
-                                }
-                                if (!mappings[col].unit) {
-                                    title += "<br/><em>[?->" + varDef.unit_or_type + "]</em>"
-                                } else if (mappings[col].unit.toLowerCase() !== varDef.unit_or_type.toLowerCase()) {
-                                    title += "<br/><em>[" + mappings[col].unit + "->" + varDef.unit_or_type + "]</em>"
-                                } else {
-//                                    title += " [" + varDef.unit_or_type + "]'>";
-                                }
-                                
-                            } else {
-                                title += "label label-info' data-toggle='tooltip' title='<" + mappings[col].icasa + "> " + mappings[col].description + " [" + mappings[col].unit + "]'>" + refMark + "[" + colIdx + "] ";
-                                if (mappings[col].icasa.toLowerCase() !== mappings[col].column_header.toLowerCase()) {
-                                    title += "<em>" + mappings[col].column_header + "->" + mappings[col].icasa + "</em>";
-                                } else {
-                                    title += mappings[col].column_header;
-                                }
-                            }
-                        } else if (mappings[col].reference_flg) {
-                            title += "label label-info'>" + refMark + "[" + colIdx + "] " + mappings[col].column_header;
-                        } else {
-                            title += "label label-warning'>" + refMark + "[" + colIdx + "] " + mappings[col].column_header;
-                        }
-                        title += "</span>";
-                        
+                        let title = getColHeaderComp(mappings, col, fileName + "_" + sheetName + '_' + col + "_label").prop('outerHTML');
                         return "<h4>" + checkBox + title + "</h4>";
                     },
 //                    headerTooltips: true,
@@ -891,7 +843,7 @@
                                     let selection = this.getSelected();
                                     for (let i in selection) {
                                         for (let j = selection[i][1]; j <= selection[i][3]; j++) {
-                                            if ($("[name='" + curSheetName + "_" + j + "']").last().prop("checked")) {
+                                            if ($("[name='" + curFileName + "_" + curSheetName + "_" + j + "']").last().prop("checked")) {
                                                 return false;
                                             }
                                         }
@@ -902,7 +854,7 @@
                                     setTimeout(function() {
                                         for (let i in selection) {
                                             for (let j = selection[i].start.col; j <= selection[i].end.col; j++) {
-                                                let cb = $("[name='" + curSheetName + "_" + j + "']").last();
+                                                let cb = $("[name='" + curFileName + "_" + curSheetName + "_" + j + "']").last();
                                                 cb.prop("checked", false).trigger("change");
                                             }
                                         }
@@ -916,7 +868,7 @@
                                     let selection = this.getSelected();
                                     for (let i in selection) {
                                         for (let j = selection[i][1]; j <= selection[i][3]; j++) {
-                                            if (!$("[name='" + curSheetName + "_" + j + "']").last().prop("checked")) {
+                                            if (!$("[name='" + curFileName + "_" + curSheetName + "_" + j + "']").last().prop("checked")) {
                                                 return false;
                                             }
                                         }
@@ -927,7 +879,7 @@
                                     setTimeout(function() {
                                         for (let i in selection) {
                                             for (let j = selection[i].start.col; j <= selection[i].end.col; j++) {
-                                                let cb = $("[name='" + curSheetName + "_" + j + "']").last();
+                                                let cb = $("[name='" + curFileName + "_" + curSheetName + "_" + j + "']").last();
                                                 cb.prop("checked", true).trigger("change");
                                             }
                                         }
@@ -1007,14 +959,94 @@
                 }
             }
 
-            function toggleIgnoreColumn(colIdx) {
-                if ($("[name='" + curSheetName + "_" + colIdx + "']").last().prop("checked")) {
-                    delete templates[curFileName][curSheetName].mappings[colIdx].ignored_flg;
-                    $("[name='" + curSheetName + "_" + colIdx + "_label']").last().attr("class", getColStatusClass(colIdx));
-                } else {
-                    templates[curFileName][curSheetName].mappings[colIdx].ignored_flg = true;
-                    $("[name='" + curSheetName + "_" + colIdx + "_label']").last().attr("class", "label label-default");
+            function getColHeaderComp(mappings, col,  name) {
+                let mapping = mappings[col];
+                let title = $("<span></span>");
+                title.attr("name", name);
+
+                let refMark = "";
+                if (mapping && mapping.reference_flg) {
+                    refMark = "<span class='glyphicon glyphicon-flag'></span> ";
                 }
+//                let colIdx = " <span class='badge'>" + (col + 1) + "</span>";
+                let colIdx = col + 1;
+                
+                let text;
+                let classes;
+                let tooltip;
+                if (mapping && mapping.ignored_flg) {
+                    classes = "label label-default";
+                    text = refMark + mapping.column_header + " [" + colIdx + "]";
+                } else if (!mapping || !mapping.column_header) {
+                    classes = "label label-warning";
+                    text = refMark + colIdx;
+//                } else if (!mapping.icasa) {
+//                    classes = "label label-warning";
+//                    text = refMark + mapping.column_header + "[" + colIdx + "]";
+                } else if (mapping.icasa) {
+                    let varDef = icasaVarMap.getDefinition(mapping.icasa);
+                    if (varDef) {
+                        if (mapping.unit_error) {
+                            classes = "label label-danger";
+                        } else {
+                            classes = "label label-success";
+                        }
+                        tooltip = "<" + mapping.icasa + "> " + varDef.description + " [" + varDef.unit_or_type + "]";
+                        text = refMark + "[" + colIdx + "] ";
+                        if (mapping.icasa.toLowerCase() !== mapping.column_header.toLowerCase()) {
+                           text += "<em>" +  mapping.column_header + "->" + mapping.icasa + "</em> ";
+                        } else {
+                            text += mapping.column_header;
+                        }
+                        if (!mapping.unit) {
+                            text += "<br/><em>[?->" + varDef.unit_or_type + "]</em>"
+                        } else if (mapping.unit.toLowerCase() !== varDef.unit_or_type.toLowerCase()) {
+                            text += "<br/><em>[" + mapping.unit + "->" + varDef.unit_or_type + "]</em>"
+                        } else {
+//                            text += " [" + varDef.unit_or_type + "]'>";
+                        }
+
+                    } else {
+                        tooltip ="<" + mapping.icasa + "> " + mapping.description + " [" + mapping.unit + "]";
+                        classes = "label label-info";
+                        text = refMark + "[" + colIdx + "] ";
+                        if (mapping.icasa.toLowerCase() !== mapping.column_header.toLowerCase()) {
+                            text += "<em>" + mapping.column_header + "->" + mapping.icasa + "</em>";
+                        } else {
+                            text += mapping.column_header;
+                        }
+                    }
+                } else if (mapping.reference_flg) {
+                    classes = "label label-info";
+                    text = refMark + "[" + colIdx + "] " + mapping.column_header;
+                } else {
+                    classes = "label label-warning";
+                    text = refMark + "[" + colIdx + "] " + mapping.column_header;
+                }
+                title.prop("class", classes);
+                if (tooltip) {
+                    title.attr("data-toggle", "tooltip");
+                    title.prop("title", tooltip);
+                }
+                title.html(text);
+                return title;
+            }
+
+            function toggleIgnoreColumn(colIdx) {
+                let key = curFileName + "_" + curSheetName + "_" + colIdx;
+                let headerCB = $("[name='" + key + "']").last();
+                let header = $("[name='" + key + "_label']").last();
+                let mapping = templates[curFileName][curSheetName].mappings[colIdx];
+                if (headerCB.prop("checked")) {
+                    delete mapping.ignored_flg;
+//                    header.html("class", getColStatusClass(colIdx));
+                } else {
+                    mapping.ignored_flg = true;
+//                    header.attr("class", "label label-default");
+                }
+                let newHeader = getColHeaderComp(templates[curFileName][curSheetName].mappings, colIdx, key + "_label");
+                header.attr("class", newHeader.attr("class"));
+                header.html(newHeader.html());
                 isChanged = true;
             }
             
