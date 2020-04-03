@@ -842,7 +842,9 @@
                                     // Hide the option when it is ignored
                                     let selection = this.getSelected();
                                     for (let i in selection) {
-                                        for (let j = selection[i][1]; j <= selection[i][3]; j++) {
+                                        let start = Math.min(selection[i][1], selection[i][3]);
+                                        let end = Math.max(selection[i][1], selection[i][3]);
+                                        for (let j = start; j <= end; j++) {
                                             if ($("[name='" + curFileName + "_" + curSheetName + "_" + j + "']").last().prop("checked")) {
                                                 return false;
                                             }
@@ -867,7 +869,9 @@
                                     // Hide the option when it is ignored
                                     let selection = this.getSelected();
                                     for (let i in selection) {
-                                        for (let j = selection[i][1]; j <= selection[i][3]; j++) {
+                                        let start = Math.min(selection[i][1], selection[i][3]);
+                                        let end = Math.max(selection[i][1], selection[i][3]);
+                                        for (let j = start; j <= end; j++) {
                                             if (!$("[name='" + curFileName + "_" + curSheetName + "_" + j + "']").last().prop("checked")) {
                                                 return false;
                                             }
@@ -894,6 +898,45 @@
                                     }, 0); // Fire alert after menu close (with timeout)
                                 }
                             },
+                            "apply_same_unit" : {
+                                name : "Apply ICASA Unit",
+                                hidden: function () { // `hidden` can be a boolean or a function
+                                    // Hide the option when it is ignored
+                                    let selection = this.getSelected();
+                                    let mappings = templates[curFileName][curSheetName].mappings;
+                                    for (let i in selection) {
+                                        let start = Math.min(selection[i][1], selection[i][3]);
+                                        let end = Math.max(selection[i][1], selection[i][3]);
+                                        for (let j = start; j <= end; j++) {
+                                            if (mappings[j].unit_error) {
+                                                return false;
+                                            }
+                                        }
+                                    }
+                                    return true;
+                                },
+                                callback : function(key, selection, clickEvent) {
+                                    setTimeout(function() {
+                                        let mappings = templates[curFileName][curSheetName].mappings;
+                                        for (let i in selection) {
+                                            for (let j = selection[i].start.col; j <= selection[i].end.col; j++) {
+                                                if (mappings[j].unit_error) {
+                                                    let icasaUnit = icasaVarMap.getUnit(mappings[j].icasa);
+                                                    if (icasaUnit) {
+                                                        mappings[j].unit = icasaUnit;
+                                                        delete mappings[j].unit_error;
+                                                        let newHeader = getColHeaderComp(templates[curFileName][curSheetName].mappings, j);
+                                                        let header = $("[name='" + curFileName + "_" + curSheetName + "_" + j + "_label']").last();
+                                                        header.attr("class", newHeader.attr("class"));
+                                                        header.html(newHeader.html());
+                                                        isChanged = true;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }, 0); // Fire alert after menu close (with timeout)
+                                }
+                            }
 //                            "sep2": '---------',
 //                            "row_above": {},
 //                            "row_below": {},
@@ -962,6 +1005,9 @@
             function getColHeaderComp(mappings, col,  name) {
                 let mapping = mappings[col];
                 let title = $("<span></span>");
+                if (!name) {
+                    name = curFileName + "_" + curSheetName + "_" + col + "_label";
+                }
                 title.attr("name", name);
 
                 let refMark = "";
@@ -1044,7 +1090,7 @@
                     mapping.ignored_flg = true;
 //                    header.attr("class", "label label-default");
                 }
-                let newHeader = getColHeaderComp(templates[curFileName][curSheetName].mappings, colIdx, key + "_label");
+                let newHeader = getColHeaderComp(templates[curFileName][curSheetName].mappings, colIdx);
                 header.attr("class", newHeader.attr("class"));
                 header.html(newHeader.html());
                 isChanged = true;
