@@ -613,7 +613,7 @@
         <div class="panel-body">
             <div class="row">
                 <div class="col-sm-11 col-sm-offset-1">
-                    <button type="button" class="btn btn-info ">
+                    <button type="button" class="btn btn-info" name="auto_detect_btn">
                         <span class="glyphicon glyphicon-search"></span> Auto Detect Reference 
                     </button>
                 </div>
