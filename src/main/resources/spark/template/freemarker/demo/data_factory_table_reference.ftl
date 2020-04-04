@@ -425,11 +425,9 @@
                 }
                 for (let j in tableRankArr) {
                     let tableRank = tableRankArr[j];
-                    if (templates[tableRank.file][tableRank.sheet].single_flg) {
-                        let newRefDef= detectReference(tableRanks, tableRank, tableRank.order, false);
-                        if (newRefDef && newRefDef !== true) {
-                            defListDiv.append(creatRefDefDiv(newRefDef));
-                        }
+                    let newRefDef= detectReference(tableRanks, tableRank, tableRank.order, false);
+                    if (newRefDef && newRefDef !== true) {
+                        defListDiv.append(creatRefDefDiv(newRefDef));
                     }
                 }
             }
@@ -486,21 +484,19 @@
             return ret;
         }
         // Check if global table is already linked with child table with keys
-        if (to.single_flg && from.references) {
-            for (let fromKeyIdx in from.references) {
-                for (let toKey in from.references[fromKeyIdx]) {
-                    if (from.references[fromKeyIdx][toKey].file === toFile &&
-                            from.references[fromKeyIdx][toKey].sheet === toSheet) {
-                        return true;
-                    }
+        for (let fromKeyIdx in from.references) {
+            for (let toKey in from.references[fromKeyIdx]) {
+                if (from.references[fromKeyIdx][toKey].file === toFile &&
+                        from.references[fromKeyIdx][toKey].sheet === toSheet) {
+                    return true;
                 }
             }
-            for (let fromKeyIdx in to.references) {
-                for (let toKey in to.references[fromKeyIdx]) {
-                    if (to.references[fromKeyIdx][toKey].file === fromFile &&
-                            to.references[fromKeyIdx][toKey].sheet === fromSheet) {
-                        return true;
-                    }
+        }
+        for (let fromKeyIdx in to.references) {
+            for (let toKey in to.references[fromKeyIdx]) {
+                if (to.references[fromKeyIdx][toKey].file === fromFile &&
+                        to.references[fromKeyIdx][toKey].sheet === fromSheet) {
+                    return true;
                 }
             }
         }
@@ -561,7 +557,7 @@
     function getTableCategory(mappings) {
         let ret = {rank : -1, category : "unknown"};
         for (let i in mappings) {
-            if (mappings[i].icasa && ["exname", "soil_id", "wst_id"].includes(mappings[i].icasa.toLowerCase())) {
+            if (mappings[i].ignored_flg || (mappings[i].icasa && ["exname", "soil_id", "wst_id"].includes(mappings[i].icasa.toLowerCase()))) {
                 continue;
             }
             let retCat = icasaVarMap.getCategory(mappings[i]);
