@@ -189,6 +189,7 @@
                 "getIicasaDataCatDef" : function(order) {
                     if (!this.icasaDataCatDef) {
                         this.initIcasaDataCatDef();
+//                        console.log(this.icasaDataCatDef);
                     }
                     if (!order || !this.icasaDataCatDef[order]) {
                         return {rank: -1, category: "unknown", order: order};
@@ -201,6 +202,8 @@
                     let lastCat;
                     let parentCat;
                     let trtCat = this.getCategory(this.management["TRTNO"]);
+                    trtCat.child = [];
+                    let fieldCat;
                     let metaCat = this.getCategory(this.management["EXNAME"]);
                     let defs = this.getAllDefs();
                     for (let varName in defs) {
@@ -219,16 +222,19 @@
                         }
                         relations[category].push(order);
                         let curCat = this.icasaDataCatDef[order];
-                        if (curCat.rank === 2) {
-                            trtCat = curCat;
+                        if (curCat.rank === 3 && curCat.order === 2031) {
+                            fieldCat = curCat;
                             if (!curCat.child) {
                                 curCat.child = [];
                             }
-                        } else if (curCat.rank === 1) {
-                            metaCat = curCat;
                         }
+//                        else if (curCat.rank === 1) {
+//                            metaCat = curCat;
+//                        }
                         if (!parentCat) {
                             parentCat = curCat;
+                        } else if (curCat.rank === 4 && curCat.order > 4000) {
+                            parentCat = fieldCat;
                         } else if (curCat.rank - lastCat.rank === 1) {
                             parentCat = lastCat;
                         }
@@ -263,18 +269,19 @@
                                 if (!curCat.parent) {
                                     curCat.parent = [trtCat.order];
                                 }
-                            } else if (curCat.rank === 0) {
-                                let parArr = [];
-                                curCat.child = relations[metaCat.category];
-                                for (let i in curCat.child) {
-                                    if (!this.icasaDataCatDef[curCat.child[i]].parent) {
-                                        this.icasaDataCatDef[curCat.child[i]].parent = parArr;
-                                    } else {
-                                        parArr = this.icasaDataCatDef[curCat.child[i]].parent;
-                                    }
-                                }
-                                parArr.push(curCat.order);
                             }
+//                            else if (curCat.rank === 0) {
+//                                let parArr = [];
+//                                curCat.child = relations[metaCat.category];
+//                                for (let i in curCat.child) {
+//                                    if (!this.icasaDataCatDef[curCat.child[i]].parent) {
+//                                        this.icasaDataCatDef[curCat.child[i]].parent = parArr;
+//                                    } else {
+//                                        parArr = this.icasaDataCatDef[curCat.child[i]].parent;
+//                                    }
+//                                }
+//                                parArr.push(curCat.order);
+//                            }
                         }
                         lastCat = curCat;
                     }
@@ -295,9 +302,9 @@
                     if (order < 0) {
                         return {rank: -1, category: "unknown"};
                     } else if (order > 8000 && order < 9000) {
-                        return {rank: 0, category: dataset, order: order};
+                        return {rank: 3, category: dataset, order: order};
                     } else if (order < 2000) {
-                        return {rank: 1, category: subset, order: order};
+                        return {rank: 3, category: subset, order: order};
                     } else if (order < 3000) {
                         if (order === 2011) {
                             return {rank: 2, category: group, order: order};
@@ -314,21 +321,21 @@
                         return {rank: 3, category: subset, order: order};
                     } else if (order < 5000) {
                         if (order === 4051) {
-                            return {rank: 5, category: group, order: order};
+                            return {rank: 6, category: group, order: order};
                         } else if (order === 4052) {
-                            return {rank: 6, category: subgroup, order: order};
+                            return {rank: 7, category: subgroup, order: order};
                         } else if (order > 4040) {
-                            return {rank: 4, category: group, order: order};
+                            return {rank: 5, category: group, order: order};
                         } else {
-                            return {rank: 3, category: subset, order: order};
+                            return {rank: 4, category: subset, order: order};
                         }
                     } else if (order < 6000) {
                         if (order === 5052) {
-                            return {rank: 5, category: group, order: order};
+                            return {rank: 6, category: group, order: order};
                         } if (order > 5040) {
-                            return {rank: 4, category: subset, order: order};
+                            return {rank: 5, category: subset, order: order};
                         } else {
-                            return {rank: 3, category: subset, order: order};
+                            return {rank: 4, category: subset, order: order};
                         }
                     } else if (order < 8000) {
                         return {rank: 3, category: group, order: order};
