@@ -818,7 +818,7 @@
                                 }
                             },
                             "define_column":{
-                                name: "Define Column",
+                                name: '<span class="glyphicon glyphicon-edit"></span> Define Column',
                                 disabled: function () {
                                     // disable the option when the multiple columns were selected
                                     let range = this.getSelectedLast();
@@ -837,7 +837,7 @@
                                 }
                             },
                             "ignore_column":{
-                                name: "Ignore Column",
+                                name: '<span class="glyphicon glyphicon-ban-circle"></span> Ignore Column',
                                 hidden: function () { // `hidden` can be a boolean or a function
                                     // Hide the option when it is ignored
                                     let selection = this.getSelected();
@@ -864,7 +864,7 @@
                                 }
                             },
                             "include_column":{
-                                name: "Include Column",
+                                name: '<span class="glyphicon glyphicon-ok-circle"></span> Include Column',
                                 hidden: function () { // `hidden` can be a boolean or a function
                                     // Hide the option when it is ignored
                                     let selection = this.getSelected();
@@ -891,7 +891,7 @@
                                 }
                             },
                             "edit_row":{
-                                name: "Edit Row Definition",
+                                name: '<span class="glyphicon glyphicon-edit"></span> Edit Row Definition',
                                 callback: function(key, selection, clickEvent) {
                                     setTimeout(function() {
                                         showSheetDefDialog(processData, null, true);
@@ -899,7 +899,7 @@
                                 }
                             },
                             "apply_same_unit" : {
-                                name : "Apply ICASA Unit",
+                                name : '<span class="glyphicon glyphicon-check"></span> Apply ICASA Unit',
                                 hidden: function () { // `hidden` can be a boolean or a function
                                     // Hide the option when it is ignored
                                     let selection = this.getSelected();
