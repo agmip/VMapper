@@ -568,9 +568,12 @@
                                 sheetDef.references = {};
                                 for (let i = 0; i < headers.length; i++) {
                                     let headerDef = {
-                                        column_header : headers[i].trim(),
+                                        column_header : "",
                                         column_index : i + 1
                                     };
+                                    if (headers[i]) {
+                                        headerDef.column_header = headers[i].trim();
+                                    }
                                     if (sheetDef.unit_row) {
                                         headerDef.unit = roa[sheetDef.unit_row - 1][i];
                                     }
@@ -645,8 +648,11 @@
                                     if(!headerDef) {
                                         headerDef = {
                                             column_index : i + 1,
-                                            column_header : headers[i].trim(),
+                                            column_header : "",
                                             ignored_flg : true
+                                        }
+                                        if (headers[i]) {
+                                            headerDef.column_header = headers[i].trim();
                                         }
                                         // Load existing template definition
                                         if (sheetDef.unit_row) {
@@ -1025,32 +1031,26 @@
                 let colIdx = col + 1;
                 
                 let text;
-                let classes;
+                let classes = getColStatusClass(col, mappings);
                 let tooltip;
                 if (mapping && mapping.ignored_flg) {
-                    classes = "label label-default";
                     text = refMark + mapping.column_header + " [" + colIdx + "]";
-                } else if (!mapping || !mapping.column_header) {
-                    classes = "label label-warning";
+                } else if (!mapping || (!mapping.column_header && !mapping.icasa)) {
                     text = refMark + colIdx;
 //                } else if (!mapping.icasa) {
-//                    classes = "label label-warning";
 //                    text = refMark + mapping.column_header + "[" + colIdx + "]";
                 } else if (mapping.icasa) {
                     let varDef = icasaVarMap.getDefinition(mapping.icasa);
+                    text = refMark + "[" + colIdx + "] ";
+                    if (mapping.column_header && mapping.icasa.toLowerCase() !== mapping.column_header.toLowerCase()) {
+                       text += "<em>" +  mapping.column_header + "->" + mapping.icasa + "</em> ";
+                    } else if (mapping.column_header) {
+                        text += mapping.column_header;
+                    } else {
+                        text += "<em>" +  mapping.icasa + "</em> ";
+                    }
                     if (varDef) {
-                        if (mapping.unit_error) {
-                            classes = "label label-danger";
-                        } else {
-                            classes = "label label-success";
-                        }
                         tooltip = "<" + mapping.icasa + "> " + varDef.description + " [" + varDef.unit_or_type + "]";
-                        text = refMark + "[" + colIdx + "] ";
-                        if (mapping.icasa.toLowerCase() !== mapping.column_header.toLowerCase()) {
-                           text += "<em>" +  mapping.column_header + "->" + mapping.icasa + "</em> ";
-                        } else {
-                            text += mapping.column_header;
-                        }
                         if (!mapping.unit) {
                             text += "<br/><em>[?->" + varDef.unit_or_type + "]</em>"
                         } else if (mapping.unit.toLowerCase() !== varDef.unit_or_type.toLowerCase()) {
@@ -1061,19 +1061,10 @@
 
                     } else {
                         tooltip ="<" + mapping.icasa + "> " + mapping.description + " [" + mapping.unit + "]";
-                        classes = "label label-info";
-                        text = refMark + "[" + colIdx + "] ";
-                        if (mapping.icasa.toLowerCase() !== mapping.column_header.toLowerCase()) {
-                            text += "<em>" + mapping.column_header + "->" + mapping.icasa + "</em>";
-                        } else {
-                            text += mapping.column_header;
-                        }
                     }
                 } else if (mapping.reference_flg) {
-                    classes = "label label-info";
                     text = refMark + "[" + colIdx + "] " + mapping.column_header;
                 } else {
-                    classes = "label label-warning";
                     text = refMark + "[" + colIdx + "] " + mapping.column_header;
                 }
                 title.prop("class", classes);
