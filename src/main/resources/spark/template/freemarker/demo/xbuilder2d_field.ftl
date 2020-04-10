@@ -254,9 +254,9 @@
         updateWstSB(wstInfoUserMap, file.name);
     }
     
-    function updateWstSB(data, fileName) {
-        if ($("#wst_file_name").html() === "") {
-            $("#wst_file_name").append(fileName);
+    function updateWstSB(data, fileName, isOverwritten) {
+        if ($("#wst_file_name").html() === "" || isOverwritten) {
+            $("#wst_file_name").html(fileName);
         } else {
             $("#wst_file_name").append(", " + fileName);
         }

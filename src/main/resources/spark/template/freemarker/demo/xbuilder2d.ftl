@@ -655,6 +655,15 @@
             
             function readXFile (rawData, file) {
                 let data = readXFileData(rawData, file.name);
+                loadData(data);
+            }
+            
+            function readJFile(rawData, file) {
+                let data = JSON.parse(rawData);
+                loadData(data);
+            }
+            
+            function checkExtenalLink(data) {
                 data.experiment.crid = convertCropCode2(data.experiment.crid_dssat);
                 let soilFile = {
                     sl_notes : "Unknown data",
