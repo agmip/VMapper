@@ -732,7 +732,7 @@
                                     last_year : year + dur - 1
                                 };
                             }
-                            updateWstSB(wstInfoUserMap, fileName);
+                            updateWstSB(wstInfoUserMap, fileName, true);
                         }
                     }
                 }
@@ -753,18 +753,10 @@
                         }
                     }
                 }
-                loadData(data);
-                let cumstomizedCulData = cultivars;
-                getCulData(data.experiment.crid, cumstomizedCulData);
-            }
-            
-            function readJFile(rawData, file) {
-                let data = JSON.parse(rawData);
-                loadData(data);
             }
             
             function loadData(rawData, ) {
-                
+                checkExtenalLink(rawData);
                 // Load meta data
                 expData = rawData.experiment;
                 $('.exp-data').each(function() {
@@ -804,6 +796,10 @@
                 for (let id in rawData.treatment) {
                     addTrt(Number(id) + 1, rawData.treatment[id]);
                 }
+                
+                // Load cultivars
+                let cumstomizedCulData = cultivars;
+                getCulData(rawData.experiment.crid, cumstomizedCulData);
                 
                 reset();
                 $("#SiteInfoTab a").click();
