@@ -101,6 +101,7 @@
             return;
         }
         if ($("#spreadsheet_swc_btn").hasClass("btn-primary")) {
+            mergeSubEvents();
             syncDataToTml();
         } else {
             events = getEvents();
