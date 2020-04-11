@@ -66,7 +66,7 @@
     }
     
     function setManagement(target) {
-//        syncEventData();
+        syncEventData();
         events = managements[target.id].data;
         eventData = managements[target.id].tmlData;
         mgnId = target.id;
