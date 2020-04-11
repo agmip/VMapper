@@ -328,6 +328,7 @@
                     }
                 } else {
                     data.id = newId();
+                    data.creator = "sps";
                 }
                 if (updIdx) {
                     events[updIdx] = data;

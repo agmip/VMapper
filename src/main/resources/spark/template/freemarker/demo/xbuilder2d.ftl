@@ -254,7 +254,9 @@
                         }
                     },
                     onUpdate: function (item, callback) {
-                        showEventDataDialog(item, true, true);
+                        if ($("#timeline_swc_btn").hasClass("btn-primary")) {
+                            showEventDataDialog(item, true, true);
+                        }
                     },
                     onDropObjectOnItem: function(objectData, event, callback) {
                         if (!event) { return; }
