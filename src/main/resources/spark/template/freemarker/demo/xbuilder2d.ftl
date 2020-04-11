@@ -379,6 +379,13 @@
 //                            
 //                        }
 //                    },
+                    columnSorting: {
+                        sortEmptyCells: false,
+                        initialConfig: {
+                            column: 1,
+                            sortOrder: 'asc'
+                        }
+                    },
                     manualRowMove: true,
                     manualColumnMove: true,
                     contextMenu: true,
