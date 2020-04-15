@@ -292,7 +292,7 @@
             return;
         }
         let mappings = templates[refDef.file][refDef.sheet].mappings;
-        let val = sb.val();
+        let val = [];
         if (refDef && refDef.keys) {
             val = createRefKeyTaregetKeyStr(refDef.keys);
         }
