@@ -1,7 +1,13 @@
 package org.dssat.tool.gbuilder2d.util;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.*;
 
 public class Path {
@@ -69,60 +75,61 @@ public class Path {
     }
     
     public static class Folder {
-        public final static String DATA = "Data";
-        public final static String DATA_SOIL = "C:\\DSSAT47\\Soil";
-        public final static String DATA_WTH = "C:\\DSSAT47\\Weather";
-        public final static String SOIL_LIST = "soil_list.json";
-        public final static String WTH_LIST = "wth_list.json";
-        public final static String CULTIVAR = "Genotype";
-        public final static String CULTIVAR_LIST = "crop_list.csv";
-        public final static String ICASA_DIR = "ICASA";
-        public final static String ICASA_MGN_CODE = "Management_codes.csv";
-        public final static String ICASA_MGN_VAR = "Management_info.csv";
-        public final static String ICASA_OBV_VAR = "Measured_data.csv";
-        public static final int DSSAT_VERSION = 47;
+        public final static String DATA_DIR = Config.get("DATA_DIR"); //"Data";
+        public final static String DSSAT_DIR = Config.get("DSSAT_DIR"); //"Data\\DSSAT47";
+        public final static String DATA_SOIL_DIR = Config.get("DATA_SOIL_DIR"); //"Soil";
+        public final static String DATA_WTH_DIR = Config.get("DATA_WTH_DIR"); //"Weather";
+        public final static String CULTIVAR_DIR = Config.get("CULTIVAR_DIR"); //"Genotype";
+        public final static String SOIL_LIST = Config.get("SOIL_LIST"); //"soil_list.json";
+        public final static String WTH_LIST = Config.get("WTH_LIST"); //"wth_list.json";
+        public final static String CULTIVAR_LIST = Config.get("CULTIVAR_LIST"); //"crop_list.csv";
+        public final static String ICASA_DIR = Config.get("ICASA_DIR"); //"ICASA";
+        public final static String ICASA_MGN_CODE = Config.get("ICASA_MGN_CODE"); //"Management_codes.csv";
+        public final static String ICASA_MGN_VAR = Config.get("ICASA_MGN_VAR"); //"Management_info.csv";
+        public final static String ICASA_OBV_VAR = Config.get("ICASA_OBV_VAR"); //"Measured_data.csv";
+        public final static String DSSAT_VERSION = Config.get("DSSAT_VERSION"); //"47";
         public static File getCulFile(String modelName) {
-            File ret = Paths.get(DATA, CULTIVAR, getDSSATFileNameWithVer(modelName, "CUL")).toFile();
+            File ret = Paths.get(DSSAT_DIR, CULTIVAR_DIR, getDSSATFileNameWithVer(modelName, "CUL")).toFile();
             return ret;
         }
         public static File getCulListFile() {
-            File ret = Paths.get(DATA, CULTIVAR_LIST).toFile();
+            File ret = Paths.get(DATA_DIR, CULTIVAR_LIST).toFile();
             return ret;
         }
         public static File getSoilListDir() {
-            File ret = Paths.get(DATA_SOIL).toFile();
+            File ret = Paths.get(DSSAT_DIR, DATA_SOIL_DIR).toFile();
             return ret;
         }
         public static File getSoilListFile() {
-            File ret = Paths.get(DATA, SOIL_LIST).toFile();
+            File ret = Paths.get(DATA_DIR, SOIL_LIST).toFile();
             return ret;
         }
         public static File getWthListDir() {
-            File ret = Paths.get(DATA_WTH).toFile();
+            File ret = Paths.get(DSSAT_DIR, DATA_WTH_DIR).toFile();
             return ret;
         }
         public static File getWthListFile() {
-            File ret = Paths.get(DATA, WTH_LIST).toFile();
+            File ret = Paths.get(DATA_DIR, WTH_LIST).toFile();
             return ret;
         }
         
         public static File getICASAFile(String sheetName) {
-            File ret = Paths.get(DATA, ICASA_DIR, sheetName + ".csv").toFile();
+            File ret = Paths.get(DATA_DIR, ICASA_DIR, sheetName + ".csv").toFile();
             return ret;
         }
         
         public static File getICASAMgnCodeFile() {
-            File ret = Paths.get(DATA, ICASA_DIR, ICASA_MGN_CODE).toFile();
+            File ret = Paths.get(DATA_DIR, ICASA_DIR, ICASA_MGN_CODE).toFile();
             return ret;
         }
         
         public static File getICASAMgnVarFile() {
-            File ret = Paths.get(DATA, ICASA_DIR, ICASA_MGN_VAR).toFile();
+            File ret = Paths.get(DATA_DIR, ICASA_DIR, ICASA_MGN_VAR).toFile();
             return ret;
         }
         
         public static File getICASAObvVarFile() {
-            File ret = Paths.get(DATA, ICASA_DIR, ICASA_OBV_VAR).toFile();
+            File ret = Paths.get(DATA_DIR, ICASA_DIR, ICASA_OBV_VAR).toFile();
             return ret;
         }
         
@@ -138,6 +145,48 @@ public class Path {
             } else {
                 return pref.trim().toUpperCase() + "0" + DSSAT_VERSION + "." + ext.trim().toUpperCase();
             }
+        }
+    }
+    
+    public static class Config {
+        private final static HashMap<String, String> CONFIGS = readConfig();
+        private static HashMap<String, String> readConfig() {
+            HashMap<String, String> ret = new HashMap();
+            ret.put("DATA_DIR", "Data");
+            ret.put("DSSAT_DIR", "Data\\DSSAT47");
+            ret.put("DATA_SOIL_DIR", "Soil");
+            ret.put("DATA_WTH_DIR", "Weather");
+            ret.put("CULTIVAR_DIR", "Genotype");
+            ret.put("SOIL_LIST", "soil_list.json");
+            ret.put("WTH_LIST", "wth_list.json");
+            ret.put("CULTIVAR_LIST", "crop_list.csv");
+            ret.put("ICASA_DIR", "ICASA");
+            ret.put("ICASA_MGN_CODE", "Management_codes.csv");
+            ret.put("ICASA_MGN_VAR", "Management_info.csv");
+            ret.put("ICASA_OBV_VAR", "Measured_data.csv");
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(new File("config.ini")));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    int dividerIdx = line.indexOf("=");
+                    if (dividerIdx > 0) {
+                        String key = line.substring(0, dividerIdx).trim();
+                        String value = line.substring(dividerIdx + 1).trim();
+                        ret.put(key, value);
+                    }
+                }
+            } catch(Exception ex) {
+                ex.printStackTrace(System.err);
+            }
+            System.out.println("Load config as " + ret.toString());
+            return ret;
+        }
+        public static String get(String key) {
+            String ret = CONFIGS.get(key);
+            if (ret == null) {
+                ret = "";
+            }
+            return ret;
         }
     }
 }

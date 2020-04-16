@@ -440,50 +440,56 @@ public class DataUtil {
             
             // Read Soil Data from given directory
             DssatSoilInput soilDataReader = new DssatSoilInput();
-            
-            for (File file : dir.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.toUpperCase().endsWith(".SOL");
-                }
-            })) {
-                JSONObject profile = new JSONObject(soilDataReader.readFile(file.getPath()));
-                JSONArray soils = profile.getObjArr("soils");
-                for (Object item : soils) {
-                    JSONObject soil = (JSONObject) item;
-                    String name = soil.getOrBlank("soil_name");
-                    if (name.matches("\\d\\s+.+")) {
-                        System.out.println("[warn] Incorrect data format detected in " + file.getName() + " for " + soil.getOrBlank("soil_id"));
-                        soil.put("soil_name", name.substring(1).trim());
-                        soil.put("sldp", soil.getOrBlank("sldp") + name.substring(0, 1));
+            try {
+                for (File file : dir.listFiles(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.toUpperCase().endsWith(".SOL");
                     }
-                    if (soil.getObjArr("soilLayer").isEmpty()) {
-                        System.out.println("[warn] Empty layer data detected in " + file.getName() + " for " + soil.getOrBlank("soil_id"));
+                })) {
+                    JSONObject profile = new JSONObject(soilDataReader.readFile(file.getPath()));
+                    JSONArray soils = profile.getObjArr("soils");
+                    for (Object item : soils) {
+                        JSONObject soil = (JSONObject) item;
+                        String name = soil.getOrBlank("soil_name");
+                        if (name.matches("\\d\\s+.+")) {
+                            System.out.println("[warn] Incorrect data format detected in " + file.getName() + " for " + soil.getOrBlank("soil_id"));
+                            soil.put("soil_name", name.substring(1).trim());
+                            soil.put("sldp", soil.getOrBlank("sldp") + name.substring(0, 1));
+                        }
+                        if (soil.getObjArr("soilLayer").isEmpty()) {
+                            System.out.println("[warn] Empty layer data detected in " + file.getName() + " for " + soil.getOrBlank("soil_id"));
+                        }
                     }
-                }
-                profile.put("soils", soils);
-                for (Object item : soils) {
-                    JSONObject soil = (JSONObject) item;
-                    String notes = soil.getOrBlank("sl_notes");
-                    if (!notes.isEmpty()) {
-                        profile.put("sl_notes", notes);
-                        break;
+                    profile.put("soils", soils);
+                    for (Object item : soils) {
+                        JSONObject soil = (JSONObject) item;
+                        String notes = soil.getOrBlank("sl_notes");
+                        if (!notes.isEmpty()) {
+                            profile.put("sl_notes", notes);
+                            break;
+                        }
                     }
+                    profile.put("file_name", file.getName());
+                    ret.add(profile);
                 }
-                profile.put("file_name", file.getName());
-                ret.add(profile);
-            }
-            
-            // Save Loaded data into cache file for future usage
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(cacheFile, false))) {
-                JSONArray arr = new JSONArray();
-                arr.addAll(ret);
-                bw.write(arr.toJSONString());
-                bw.flush();
-            } catch (IOException ex) {
+
+                // Save Loaded data into cache file for future usage
+                try (BufferedWriter bw = new BufferedWriter(new FileWriter(cacheFile, false))) {
+                    JSONArray arr = new JSONArray();
+                    arr.addAll(ret);
+                    bw.write(arr.toJSONString());
+                    bw.flush();
+                } catch (IOException ex) {
+                    ex.printStackTrace(System.err);
+                }
+            } catch (Exception ex) {
                 ex.printStackTrace(System.err);
+                System.out.println("[warn] failed at scanning local soil file, will use cached data instead...");
+                if (cacheFile.exists()) {
+                    ret = parseFrom(cacheFile).getObjArr();
+                }
             }
-            
         } else if (cacheFile.exists()) {
             ret = parseFrom(cacheFile).getObjArr();
         }
@@ -501,34 +507,50 @@ public class DataUtil {
         if (dir.isDirectory() && dir.exists()) {
             
             // Read Soil Data from given directory
-            for (File file : dir.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.toUpperCase().endsWith(".WTH");
-                }
-            })) {
-                JSONObject profile = readWthFile(file);
-                String wstId = profile.getOrBlank("wst_id");
-                if (wthMap.containsKey(wstId)) {
-                    if (!wthMap.get(wstId).getOrBlank("wst_notes").equals(profile.getOrBlank("wst_notes"))) {
-                        System.out.println("[warn] Inconsistent wst_notes detected in " + file.getName());
+            try {
+                for (File file : dir.listFiles(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.toUpperCase().endsWith(".WTH");
                     }
-                    ((ArrayList) wthMap.get(wstId).get("wst_years")).addAll(profile.getArr("wst_years"));
-                } else {
-                    ret.add(profile);
-                    wthMap.put(wstId, profile);
+                })) {
+                    JSONObject profile = readWthFile(file);
+                    if (profile == null) {
+                        continue;
+                    }
+                    String wstId = profile.getOrBlank("wst_id");
+                    ArrayList<String> wstYears = profile.getArr("wst_years");
+                    if (wstId == null || wstYears == null || wstYears.isEmpty()) {
+                        System.out.println("[warn] Detect weather file with unrecognizable file name as " + file.getName());
+                        continue;
+                    }
+                    if (wthMap.containsKey(wstId)) {
+                        if (!wthMap.get(wstId).getOrBlank("wst_notes").equals(profile.getOrBlank("wst_notes"))) {
+                            System.out.println("[warn] Inconsistent wst_notes detected in " + file.getName());
+                        }
+                        ((ArrayList) wthMap.get(wstId).get("wst_years")).addAll(profile.getArr("wst_years"));
+                    } else {
+                        ret.add(profile);
+                        wthMap.put(wstId, profile);
+                    }
+
                 }
-                
-            }
-            
-            // Save Loaded data into cache file for future usage
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(cacheFile, false))) {
-                JSONArray arr = new JSONArray();
-                arr.addAll(ret);
-                bw.write(arr.toJSONString());
-                bw.flush();
-            } catch (IOException ex) {
+
+                // Save Loaded data into cache file for future usage
+                try (BufferedWriter bw = new BufferedWriter(new FileWriter(cacheFile, false))) {
+                    JSONArray arr = new JSONArray();
+                    arr.addAll(ret);
+                    bw.write(arr.toJSONString());
+                    bw.flush();
+                } catch (IOException ex) {
+                    ex.printStackTrace(System.err);
+                }
+            } catch (Exception ex) {
                 ex.printStackTrace(System.err);
+                System.out.println("[warn] failed at scanning local weather file, will use cached data instead...");
+                if (cacheFile.exists()) {
+                    ret = parseFrom(cacheFile).getObjArr();
+                }
             }
             
         } else if (cacheFile.exists()) {
