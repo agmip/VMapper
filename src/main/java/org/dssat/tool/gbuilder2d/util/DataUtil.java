@@ -53,6 +53,8 @@ public class DataUtil {
         
         JSONObject ret = new JSONObject();
         File culListFile = Path.Folder.getCulListFile();
+        System.out.println(culListFile.getPath());
+        System.out.println(culListFile.exists());
         String line;
         ArrayList<String> titles = new ArrayList();
         boolean titleFlg = false; 
@@ -104,6 +106,8 @@ public class DataUtil {
             } else {
                 JSONObject meta = ret.getAsObj(crid);
                 File culFile = Path.Folder.getCulFile(meta.getOrBlank("model"));
+                System.out.println(culFile.getPath());
+                System.out.println(culFile.exists());
                 culData = getCulDataList(culFile);
             }
             ret.getAsObj(crid).put("cultivars", culData);
