@@ -172,7 +172,9 @@ public class Path {
                     if (dividerIdx > 0) {
                         String key = line.substring(0, dividerIdx).trim();
                         String value = line.substring(dividerIdx + 1).trim();
-                        ret.put(key, value);
+                        if (!value.isEmpty()) {
+                            ret.put(key, value);
+                        }
                     }
                 }
             } catch(Exception ex) {
