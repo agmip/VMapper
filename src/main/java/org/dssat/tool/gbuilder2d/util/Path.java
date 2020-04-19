@@ -153,7 +153,7 @@ public class Path {
         private static HashMap<String, String> readConfig() {
             HashMap<String, String> ret = new HashMap();
             ret.put("DATA_DIR", "Data");
-            ret.put("DSSAT_DIR", "Data\\DSSAT47");
+            ret.put("DSSAT_DIR", Paths.get("Data", "DSSAT47").toString());
             ret.put("DATA_SOIL_DIR", "Soil");
             ret.put("DATA_WTH_DIR", "Weather");
             ret.put("CULTIVAR_DIR", "Genotype");
