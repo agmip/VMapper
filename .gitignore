@@ -232,4 +232,6 @@ nb-configuration.xml
 Data/ICASA/Sheet2.csv
 Data/ICASA/Form Responses 2.csv
 Data/ICASA/Form Responses 1.csv
-Data/DSSAT47/
+!Data/DSSAT47/
+Data/DSSAT47/*
+!Data/DSSAT47/Genotype
