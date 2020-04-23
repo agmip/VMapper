@@ -385,9 +385,9 @@
             <div class="form-group col-sm-4">
                 <label class="control-label"></label>
                 <div class="input-group col-sm-12" name="unit_validate_result"></div>
-                <div class="input-group col-sm-12 invisible">
+<!--                <div class="input-group col-sm-12 invisible">
                     <input type="checkbox" name="same_unit_flg" class="col-def-input-item"> Apply same unit as ICASA
-                </div>
+                </div>-->
             </div>
         </div>
         <!-- Customized Variable Info -->
