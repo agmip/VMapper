@@ -743,18 +743,37 @@
                 $("#sheet_name_selected").text(" <" + curSheetName + ">");
             }
             
+//            function getMappings(fileName, sheetName) {
+//                let mappings = [];
+//                let sheetDef = templates[fileName][sheetName];
+//                let i = 0;
+//                for (let j = 0; j < sheetDef.vmappings.length; j++) {
+//                    let vmapping = sheetDef.vmappings[j];
+//                    while (vmapping.prev_column_index >= i + 1 && i < sheetDef.mappings.length) {
+//                        mappings.push(sheetDef.mappings[i]);
+//                        i++;
+//                    }
+//                    mappings.push(vmapping);
+//                }
+//                for (;i < sheetDef.mappings.length; i++) {
+//                    mappings.push(sheetDef.mappings[i]);
+//                }
+//                return mappings;
+//            }
+            
             function initSpreadsheet(fileName, sheetName, spsContainer) {
                 if (!spsContainer) {
                     spsContainer = document.querySelector('#sheet_spreadsheet_content');
                 }
-                let minRows = 10;
+//                let minRows = 10;
                 let data = wbObj[fileName][sheetName].data;
                 let sheetDef = templates[fileName][sheetName];
+//               let mappings = getMappings(fileName, sheetName);
                 let mappings = sheetDef.mappings;
                 let columns = [];
-                if (data.length < minRows) {
-                    data = JSON.parse(JSON.stringify(data)); // TODO set raw data as read only for a temprory solution
-                }
+//                if (data.length < minRows) {
+//                    data = JSON.parse(JSON.stringify(data)); // TODO set raw data as read only for a temprory solution
+//                }
                 for (let i in mappings) {
                     if (mappings[i].unit === "date") {
                         columns.push({type: 'date', readOnly: true});
@@ -780,24 +799,28 @@
                     width: '100%',
                     autoWrapRow: true,
                     height: $(window).height() - $("body").height() + $("#sheet_spreadsheet_content").height(),
-                    minRows: minRows,
+//                    minRows: minRows,
                     maxRows: 365 * 30,
                     manualRowResize: true,
                     manualColumnResize: true,
                     rowHeaders: function (row) {
                         let txt;
-                        if (row === sheetDef.header_row - 1) {
-                            txt = "<span data-toggle='tooltip' title='Header (Varible Code Name)'><Strong>Var</Strong></span>";
+                        let idx = row + 1;
+                        if (!$('#tableViewSwitch').prop("checked")) {
+                            txt = sheetDef.data_start_row + row;
+                        } else if (row === sheetDef.header_row - 1) {
+                            txt = "<span data-toggle='tooltip' title='Header (Varible Code Name)'><Strong>Var</Strong> " + idx + "</span>";
                         } else if (row === sheetDef.unit_row - 1) {
-                            txt = "<span data-toggle='tooltip' title='Unit Expression'><Strong>Unit</Strong></span>";
+                            txt = "<span data-toggle='tooltip' title='Unit Expression'><Strong>Unit</Strong> " + idx + "</span>";
                         } else if (row === sheetDef.desc_row - 1) {
-                            txt = "<span data-toggle='tooltip' title='Description/Definition'><Strong>Desc</Strong></span>";
+                            txt = "<span data-toggle='tooltip' title='Description/Definition'><Strong>Desc</Strong> " + idx + "</span>";
                         } else if (!sheetDef.data_start_row) {
-                            return row + 1;
+                            txt = idx;
                         } else if (row < sheetDef.data_start_row - 1) {
-                            txt = "<span data-toggle='tooltip' title='Comment/Ignored raw'><em>C</em></span>";;
+                            txt = "<span data-toggle='tooltip' title='Comment/Ignored raw'><em>C</em> " + idx + "</span>";;
                         } else {
-                            txt = row - sheetDef.data_start_row + 2;
+//                            txt = row - sheetDef.data_start_row + 2;
+                            txt = idx;
                         }
                         return txt;
                     },
@@ -979,7 +1002,7 @@
                 };
                 if (!$('#tableViewSwitch').prop("checked")) {
                     spsOptions.data = spsOptions.data.slice(sheetDef.data_start_row - 1);
-                    spsOptions.rowHeaders = true;
+//                    spsOptions.rowHeaders = true;
                 }
                 if (spreadsheet) {
                     spreadsheet.destroy();
@@ -1042,7 +1065,7 @@
                 let classes = getColStatusClass(col, mappings);
                 let tooltip;
                 if (mapping && mapping.ignored_flg) {
-                    text = refMark + mapping.column_header + " [" + colIdx + "]";
+                    text = refMark + "[" + colIdx + "] " + mapping.column_header;
                 } else if (!mapping || (!mapping.column_header && !mapping.icasa)) {
                     text = refMark + colIdx;
 //                } else if (!mapping.icasa) {
