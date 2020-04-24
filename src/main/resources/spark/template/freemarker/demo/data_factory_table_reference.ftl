@@ -538,19 +538,19 @@
     }
     
     function getTableRanks() {
-        let tableRanks = [];
+        let ret = [];
         for (let fileName in templates) {
             for (let sheetName in templates[fileName]) {
                 let catObj = getTableCategory(templates[fileName][sheetName].mappings);
                 catObj.file = fileName;
                 catObj.sheet = sheetName;
-                if (!tableRanks[catObj.rank]) {
-                    tableRanks[catObj.rank] = [];
+                if (!ret[catObj.rank]) {
+                    ret[catObj.rank] = [];
                 }
-                tableRanks[catObj.rank].push(catObj);
+                ret[catObj.rank].push(catObj);
             }
         }
-        return tableRanks;
+        return ret;
         
     }
     
