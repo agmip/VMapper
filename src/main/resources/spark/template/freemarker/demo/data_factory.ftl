@@ -1589,7 +1589,7 @@
                     isChanged = true;
                     isViewUpdated = false;
                     isDebugViewUpdated = false;
-                }
+                });
                 $('.nav-tabs #sheetTab').on('shown.bs.tab', function(){
                     $('.table_switch_cb').bootstrapToggle('enable');
                     if (templates[curFileName][curSheetName].data_start_row) {
