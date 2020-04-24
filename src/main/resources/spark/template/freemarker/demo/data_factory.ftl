@@ -1316,6 +1316,10 @@
                     },
                     dataset_metadata : {},
                     agmip_translation_mappings : {
+                        primary_ex_sheet : {
+                            file : null,
+                            sheet : null,
+                        },
                         relations : [],
                         files : []
                     },
@@ -1328,10 +1332,6 @@
                 };
                 let agmipTranslationMappingTemplate = JSON.stringify({
                     //Grab the primary keys from here if EXNAME is not defined
-                    primary_ex_sheet : {
-//                            file : "",
-//                            sheet : "" 
-                    },
                     file : {
                         file_metadata : {
                             file_name : "",
