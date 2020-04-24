@@ -1374,6 +1374,10 @@
                                     delete mappingCopy.reference_type;
                                     delete mappingCopy.reference_flg;
                                 }
+                                if (mapping.format_customized) {
+                                    mappingCopy.format = mapping.format_customized;
+                                    delete mappingCopy.format_customized;
+                                }
                             }
                         }
                         if (templates[fileName][sheetName].references) {

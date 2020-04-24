@@ -141,7 +141,7 @@
                                 function (jsonStr) {
                                     var result = JSON.parse(jsonStr);
                                     if (result.status !== "0") {
-                                        subDiv.find("[name='unit_validate_result']").html("Not compatiable unit");
+                                        subDiv.find("[name='unit_validate_result']").html("Incompatiable unit");
                                         itemData.err_msg = "Please fix source unit expression";
                                     } else {
                                         subDiv.find("[name='unit_validate_result']").html("");
@@ -152,6 +152,16 @@
                                     }
                                 }
                             );
+                        }
+                        subDiv.find("[name='format']").prop("disabled", $(this).val().toLowerCase() !== "date").trigger("change");
+                    });
+                });
+                subDiv.find("[name='format']").each(function () {
+                    $(this).on("change", function () {
+                        if ($(this).val() !== "ISO") {
+                            subDiv.find("[name='format_customized']").prop("disabled", true).val($(this).val()).trigger("change");
+                        } else {
+                            subDiv.find("[name='format_customized']").prop("disabled", false).trigger("change");
                         }
                     });
                 });
@@ -228,7 +238,7 @@
                             function (jsonStr) {
                                 var unitInfo = JSON.parse(jsonStr);
                                 if (unitInfo.message === "undefined unit expression" && unit !== "text" && unit !== "code" && unit !== "date") {
-                                    subDiv.find("[name='unit_validate_result']").html("Not compatiable unit");
+                                    subDiv.find("[name='unit_validate_result']").html("Incompatiable unit");
                                     itemData.err_msg = "Please fix source unit expression";
                                 } else {
                                     subDiv.find("[name='unit_validate_result']").html("");
@@ -238,6 +248,16 @@
                                 }
                             }
                         );
+                        subDiv.find("[name='format']").prop("disabled", $(this).val().toLowerCase() !== "date").trigger("change");
+                    });
+                });
+                subDiv.find("[name='format']").each(function () {
+                    $(this).on("change", function () {
+                        if ($(this).val() !== "ISO") {
+                            subDiv.find("[name='format_customized']").prop("disabled", true).val($(this).val()).trigger("change");
+                        } else {
+                            subDiv.find("[name='format_customized']").prop("disabled", false).trigger("change");
+                        }
                     });
                 });
             });
@@ -370,24 +390,34 @@
                 </div>
             </div>
             <!-- 3rd row -->
-            <div class="form-group col-sm-4">
+            <div class="form-group col-sm-3">
                 <label class="control-label">Data Unit</label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="unit" class="form-control col-def-input-item" value="">
+                    <div class="label label-danger" name="unit_validate_result"></div>
                 </div>
             </div>
-            <div class="form-group col-sm-4">
+            <div class="form-group col-sm-3">
                 <label class="control-label">ICASA Unit</label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="icasa_unit" class="form-control" value="" readonly>
                 </div>
             </div>
-            <div class="form-group col-sm-4">
-                <label class="control-label"></label>
-                <div class="input-group col-sm-12" name="unit_validate_result"></div>
-<!--                <div class="input-group col-sm-12 invisible">
-                    <input type="checkbox" name="same_unit_flg" class="col-def-input-item"> Apply same unit as ICASA
-                </div>-->
+            <div class="form-group col-sm-3">
+                <label class="control-label">Format</label>
+                <div class="input-group col-sm-12">
+                    <select name="format" class="form-control col-def-input-item" value="" disabled>
+                        <option value="">MS Excel Default</option>
+                        <option value="yyyyDDD">Year + DOY</option>
+                        <option value="ISO">Customized ISO format</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <label class="control-label">&nbsp;</label>
+                <div class="input-group col-sm-12">
+                    <input type="text" name="format_customized" class="form-control col-def-input-item" value="" disabled>
+                </div>
             </div>
         </div>
         <!-- Customized Variable Info -->
@@ -425,16 +455,28 @@
                 </div>
             </div>
             <!-- 5th row -->
-            <div class="form-group col-sm-12">
+            <div class="form-group col-sm-4">
                 <label class="control-label">Unit</label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="unit" class="form-control col-def-input-item" value="">
+                    <div class="label label-danger" name="unit_validate_result"></div>
                 </div>
             </div>
-            <!-- 6th row -->
-            <div class="form-group col-sm-12">
-                <label class="control-label"></label>
-                <div class="input-group col-sm-12" name="unit_validate_result"></div>
+            <div class="form-group col-sm-4">
+                <label class="control-label">Format</label>
+                <div class="input-group col-sm-12">
+                    <select name="format" class="form-control col-def-input-item" value="" disabled>
+                        <option value="">MS Excel Default</option>
+                        <option value="yyyyDDD">Year + DOY</option>
+                        <option value="ISO">Customized ISO format</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="control-label">&nbsp;</label>
+                <div class="input-group col-sm-12">
+                    <input type="text" name="format_customized" class="form-control col-def-input-item" value="" disabled>
+                </div>
             </div>
         </div>
         <!-- bottom row -->
