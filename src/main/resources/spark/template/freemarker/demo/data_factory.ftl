@@ -842,12 +842,12 @@
                                 },
                                 callback: function(key, selection, clickEvent) {
                                     setTimeout(function() {
-                                        let data = {};
+                                        let itemData = {};
                                         let colIdx = selection[0].start.col;
 //                                        data.column_header = spreadsheet.getColHeader(data.colIdx);
-                                        let colDef = templates[curFileName][curSheetName].mappings[colIdx];
-                                        Object.assign(data, colDef);
-                                        showColDefineDialog(data);
+                                        let colDef = mappings[colIdx];
+                                        Object.assign(itemData, colDef);
+                                        showColDefineDialog(itemData);
                                     }, 0); // Fire alert after menu close (with timeout)
                                 }
                             },
@@ -860,7 +860,7 @@
                                         let start = Math.min(selection[i][1], selection[i][3]);
                                         let end = Math.max(selection[i][1], selection[i][3]);
                                         for (let j = start; j <= end; j++) {
-                                            if ($("[name='" + curFileName + "_" + curSheetName + "_" + j + "']").last().prop("checked")) {
+                                            if ($("[name='" + fileName + "_" + sheetName + "_" + j + "']").last().prop("checked")) {
                                                 return false;
                                             }
                                         }
@@ -871,7 +871,7 @@
                                     setTimeout(function() {
                                         for (let i in selection) {
                                             for (let j = selection[i].start.col; j <= selection[i].end.col; j++) {
-                                                let cb = $("[name='" + curFileName + "_" + curSheetName + "_" + j + "']").last();
+                                                let cb = $("[name='" + fileName + "_" + sheetName + "_" + j + "']").last();
                                                 cb.prop("checked", false).trigger("change");
                                             }
                                         }
@@ -887,7 +887,7 @@
                                         let start = Math.min(selection[i][1], selection[i][3]);
                                         let end = Math.max(selection[i][1], selection[i][3]);
                                         for (let j = start; j <= end; j++) {
-                                            if (!$("[name='" + curFileName + "_" + curSheetName + "_" + j + "']").last().prop("checked")) {
+                                            if (!$("[name='" + fileName + "_" + sheetName + "_" + j + "']").last().prop("checked")) {
                                                 return false;
                                             }
                                         }
@@ -898,7 +898,7 @@
                                     setTimeout(function() {
                                         for (let i in selection) {
                                             for (let j = selection[i].start.col; j <= selection[i].end.col; j++) {
-                                                let cb = $("[name='" + curFileName + "_" + curSheetName + "_" + j + "']").last();
+                                                let cb = $("[name='" + fileName + "_" + sheetName + "_" + j + "']").last();
                                                 cb.prop("checked", true).trigger("change");
                                             }
                                         }
@@ -918,7 +918,7 @@
                                 hidden: function () { // `hidden` can be a boolean or a function
                                     // Hide the option when it is ignored
                                     let selection = this.getSelected();
-                                    let mappings = templates[curFileName][curSheetName].mappings;
+//                                    let mappings = templates[fileName][sheetName].mappings;
                                     for (let i in selection) {
                                         let start = Math.min(selection[i][1], selection[i][3]);
                                         let end = Math.max(selection[i][1], selection[i][3]);
@@ -932,7 +932,7 @@
                                 },
                                 callback : function(key, selection, clickEvent) {
                                     setTimeout(function() {
-                                        let mappings = templates[curFileName][curSheetName].mappings;
+//                                        let mappings = templates[fileName][sheetName].mappings;
                                         for (let i in selection) {
                                             for (let j = selection[i].start.col; j <= selection[i].end.col; j++) {
                                                 if (mappings[j].unit_error) {
@@ -940,8 +940,8 @@
                                                     if (icasaUnit) {
                                                         mappings[j].unit = icasaUnit;
                                                         delete mappings[j].unit_error;
-                                                        let newHeader = getColHeaderComp(templates[curFileName][curSheetName].mappings, j);
-                                                        let header = $("[name='" + curFileName + "_" + curSheetName + "_" + j + "_label']").last();
+                                                        let newHeader = getColHeaderComp(mappings, j);
+                                                        let header = $("[name='" + fileName + "_" + sheetName + "_" + j + "_label']").last();
                                                         header.attr("class", newHeader.attr("class"));
                                                         header.html(newHeader.html());
                                                         isChanged = true;
