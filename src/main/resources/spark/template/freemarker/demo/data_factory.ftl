@@ -569,7 +569,8 @@
                                 for (let i = 0; i < headers.length; i++) {
                                     let headerDef = {
                                         column_header : "",
-                                        column_index : i + 1
+                                        column_index : i + 1,
+                                        column_index_org : i + 1
                                     };
                                     if (headers[i]) {
                                         headerDef.column_header = headers[i].trim();
@@ -613,7 +614,7 @@
                                 }
                                 for (let i in roa) {
                                     while (sheetDef.mappings.length < roa[i].length) {
-                                        sheetDef.mappings.push({column_index : sheetDef.mappings.length});
+                                        sheetDef.mappings.push({column_index : sheetDef.mappings.length, column_index_org : sheetDef.mappings.length});
                                     }
                                 }
                             } else {
@@ -647,8 +648,9 @@
                                     let headerDef = sheetDef.mappings[i];
                                     if(!headerDef) {
                                         headerDef = {
-                                            column_index : i + 1,
                                             column_header : "",
+                                            column_index : i + 1,
+                                            column_index_org : i + 1,
                                             ignored_flg : true
                                         }
                                         if (headers[i]) {
@@ -1257,6 +1259,9 @@
                                     let mappings = templates[fileName][sheetName].mappings;
                                     for (let j in sc2Mappings) {
                                         mappings[sc2Mappings[j].column_index - 1] = sc2Mappings[j];
+                                        if (!sc2Mappings[j].column_index_org) {
+                                            sc2Mappings[j].column_index_org = sc2Mappings[j].column_index;
+                                        }
                                     }
                                     let references = templates[fileName][sheetName].references;
                                     for (let j in refConfig) {
@@ -1369,7 +1374,9 @@
                             let mapping = templates[fileName][sheetName].mappings[i];
                             if (!mapping.ignored_flg) {
                                 let mappingCopy = Object.assign({}, mapping);
-                                tmp.mappings.push(mappingCopy);
+                                    mappingCopy.column_index = mappingCopy.column_index_org;
+                                    delete mappingCopy.column_index_org;
+                                    tmp.mappings.push(mappingCopy);
                                 if (mapping.reference_flg) {
                                     delete mappingCopy.reference_type;
                                     delete mappingCopy.reference_flg;
