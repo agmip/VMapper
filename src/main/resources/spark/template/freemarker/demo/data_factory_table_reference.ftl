@@ -55,6 +55,8 @@
                 delete references[fromKeyIdxs];
             }
             isChanged = true;
+            isViewUpdated = false;
+            isDebugViewUpdated = false;
         });
         return div;
     }
@@ -234,11 +236,15 @@
                 fromSheetSB.val([]).trigger("chosen:updated").trigger("change");
                 toSheetSB.val([]).trigger("chosen:updated").trigger("change");
                 isChanged = true;
+                isViewUpdated = false;
+                isDebugViewUpdated = false;
             });
         } else {
             editBtn.on("click", function() {
                 // TODO remove the record
                 isChanged = true;
+                isViewUpdated = false;
+                isDebugViewUpdated = false;
             });
         }
         return div;

@@ -17,6 +17,8 @@
             let curFileName;
             let dirName;
             let isChanged;
+            let isViewUpdated;
+            let isDebugViewUpdated;
 //            let workbook;
             let workbooks = {};
             let fileTypes = {};
@@ -374,6 +376,8 @@
                 curSheetName = null;
                 wbObj = null;
                 isChanged = false;
+                isViewUpdated = false;
+                isDebugViewUpdated = false;
                 let reader = new FileReader();
 //                reader.onloadend = function(e) {
 //                    let data = e.target.result;
@@ -945,6 +949,8 @@
                                                         header.attr("class", newHeader.attr("class"));
                                                         header.html(newHeader.html());
                                                         isChanged = true;
+                                                        isViewUpdated = false;
+                                                        isDebugViewUpdated = false;
                                                     }
                                                 }
                                             }
@@ -1094,6 +1100,8 @@
                 header.attr("class", newHeader.attr("class"));
                 header.html(newHeader.html());
                 isChanged = true;
+                isViewUpdated = false;
+                isDebugViewUpdated = false;
             }
             
             function getColStatusClass(col, mappings) {
@@ -1577,6 +1585,11 @@
                         setTimeout(function() { $(event.target).focus();}, 50);
                     });
                 });
+                $(".mapping_gengeral_info").on("change", function () {
+                    isChanged = true;
+                    isViewUpdated = false;
+                    isDebugViewUpdated = false;
+                }
                 $('.nav-tabs #sheetTab').on('shown.bs.tab', function(){
                     $('.table_switch_cb').bootstrapToggle('enable');
                     if (templates[curFileName][curSheetName].data_start_row) {
@@ -1591,11 +1604,17 @@
                 });
                 $('.nav-tabs #mappingTab').on('shown.bs.tab', function(){
                     $("#mapping_json_content_text").html(JSON.stringify(templates, 2, 2));
-                    $("#mapping_json_content_tree").jsonViewer(templates, {collapsed: true, rootCollapsable: false});
+                    if (!isDebugViewUpdated) {
+                        $("#mapping_json_content_tree").jsonViewer(templates, {collapsed: true, rootCollapsable: false});
+                        isDebugViewUpdated = true;
+                    }
                 });
                 $('.nav-tabs #SC2Tab').on('shown.bs.tab', function(){
                     $("#sc2_json_content_text").html(toSC2Json());
-                    $("#sc2_json_content_tree").jsonViewer(toSC2Obj(), {collapsed: true, rootCollapsable: false});
+                    if (!isViewUpdated) {
+                        $("#sc2_json_content_tree").jsonViewer(toSC2Obj(), {collapsed: true, rootCollapsable: false});
+                        isViewUpdated = true;
+                    }
                 });
                 $("button").prop("disabled", false);
                 $('#tableViewSwitch').change(function () {

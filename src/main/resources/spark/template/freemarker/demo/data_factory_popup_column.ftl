@@ -75,10 +75,12 @@
                         spreadsheet.updateSettings({
                             columns : columns
                         });
+                        isChanged = true;
+                        isViewUpdated = false;
+                        isDebugViewUpdated = false;
                     } else {
                         updateData($(this), itemData, curVarType);
                         showColDefineDialog(itemData, type);
-                        isChanged = true;
                     }
                 }
             }

@@ -113,6 +113,8 @@
                         showSheetDefDialog(callback, "[warning] Please select different raw for each definition.", editFlg);
                     }  else {
                         isChanged = true;
+                        isViewUpdated = false;
+                        isDebugViewUpdated = false;
                         callback(sheets);
                     }
                 }
