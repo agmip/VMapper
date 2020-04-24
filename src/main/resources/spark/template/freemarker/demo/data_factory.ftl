@@ -1507,18 +1507,21 @@
                 </div>
                 <div id="general_tab" class="tab-pane fade">
                     <div class="subcontainer">
-                        <div class="form-group col-sm-12">
-                            <label class="control-label">Mapping Author Email:</label>
-                            <div class="input-group col-sm-12">
-                                <input type="email" name="mapping_author" class="form-control mapping_gengeral_info" value="">
+                        <fieldset class="col-sm-12">
+                            <legend data-toggle="tooltip" title="Used for file name">Data Information</legend>
+                            <div class="form-group col-sm-12">
+                                <label class="control-label">Mapping Author Email:</label>
+                                <div class="input-group col-sm-12">
+                                    <input type="email" name="mapping_author" class="form-control mapping_gengeral_info" value="">
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group col-sm-12">
-                            <label class="control-label">Oringal Data URL:</label>
-                            <div class="input-group col-sm-12">
-                                <input type="url" name="source_url" class="form-control mapping_gengeral_info" value="">
+                            <div class="form-group col-sm-12">
+                                <label class="control-label">Oringal Data URL:</label>
+                                <div class="input-group col-sm-12">
+                                    <input type="url" name="source_url" class="form-control mapping_gengeral_info" value="">
+                                </div>
                             </div>
-                        </div>
+                        </fieldset>
                     </div>
                 </div>
                 <div id="reference_tab" class="tab-pane fade">
