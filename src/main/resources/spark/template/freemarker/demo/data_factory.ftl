@@ -1509,7 +1509,7 @@
                     <ul class="dropdown-menu" id="sheet_tab_list">
                     </ul>
                 </li>
-                <li><a data-toggle="tab" href="#general_tab">General Info</a></li>
+                <li id="genTab"><a data-toggle="tab" href="#general_tab">General Info</a></li>
                 <li id="refTab"><a data-toggle="tab" href="#reference_tab">Table Relations</a></li>
                 <li id="SC2Tab"><a data-toggle="tab" href="#sc2_tab">SC2 Preview</a></li>
                 <li><a data-toggle="tab" href="#csv_tab"><em> CSV [debug]</em></a></li>
@@ -1621,6 +1621,9 @@
                         showSheetDefPrompt(processData);
                         $('#tableViewSwitch').bootstrapToggle('on');
                     }
+                });
+                $('.nav-tabs #genTab').on('shown.bs.tab', function(){
+//                    chosen_init_all($("#general_tab"));
                 });
                 $('.nav-tabs #refTab').on('shown.bs.tab', function(){
                     initRefTable();
