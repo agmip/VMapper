@@ -322,8 +322,10 @@
         }
         sb.html('<option value=""></option>');
         for (let i in mappings) {
-            let opt = $('<option value="' + mappings[i].column_index + '">' + getVarNameLabel(mappings[i]) + '</option>');
-            sb.append(opt);
+            if (mappings[i].column_index_org) {
+                let opt = $('<option value="' + mappings[i].column_index + '">' + getVarNameLabel(mappings[i]) + '</option>');
+                sb.append(opt);
+            }
         }
         sb.val(val).trigger("chosen:updated");
     }
