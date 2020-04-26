@@ -544,41 +544,151 @@
                         result[sheetName] = wbObj[fileName][sheetName];
                         return;
                     }
-                    let roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1, raw: false});
-                    for (let i = roa.length; i >= 0; i--) {
-                        if (roa[i] && roa[i].length > 0) {
-                            roa.splice(i + 1, roa.length - i);
-                            break;
-                        }
-                    }
-//                    let roa = sheet_to_json(sheet);
+                    let roa;
                     let sheetDef = templates[fileName][sheetName];
-                    if (roa.length) {
-                        if (roa.length > 0) {
-                            // store sheet data
-                            let headers;
-                            if (sheetDef.header_row) {
-                                headers = roa[sheetDef.header_row - 1];
-                            } else {
-                                headers = [];
+                    let headers;
+                    if (wbObj[fileName] && wbObj[fileName][sheetName]) {
+                        result[sheetName] = wbObj[fileName][sheetName];
+                        roa = result[sheetName].data;
+                        headers = result[sheetName].header;
+                    }
+                    if (!roa) {
+                        roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1, raw: false});
+                        for (let i = roa.length; i >= 0; i--) {
+                            if (roa[i] && roa[i].length > 0) {
+                                roa.splice(i + 1, roa.length - i);
+                                break;
                             }
-                            result[sheetName] = {};
-                            result[sheetName].header = headers;
-                            result[sheetName].data = roa;
-
-                            // init template structure
-                            if (!sheetDef.mappings || curSheetName) {
+                        }
+//                        let roa = sheet_to_json(sheet);
+                        
+                        // store sheet data
+                        if (sheetDef.header_row) {
+                            headers = roa[sheetDef.header_row - 1];
+                        } else {
+                            headers = [];
+                        }
+                        result[sheetName] = {};
+                        result[sheetName].header = headers;
+                        result[sheetName].data = roa;
+                    }
+                    
+                    if (roa.length && roa.length > 0) {
+                        // init template structure
+                        if (!sheetDef.mappings || curSheetName) {
+                            if (!sheetDef.mappings) {
                                 sheetDef.mappings = [];
+                            }
+                            if (!sheetDef.references) {
                                 sheetDef.references = {};
-                                for (let i = 0; i < headers.length; i++) {
-                                    let headerDef = {
+                            }
+                            for (let i = 0; i < headers.length; i++) {
+                                let headerDef = sheetDef.mappings[i];
+                                if (!headerDef) {
+                                    headerDef = {
                                         column_header : "",
                                         column_index : i + 1,
                                         column_index_org : i + 1
                                     };
+                                    sheetDef.mappings.push(headerDef);
+                                }
+                                if (!headerDef.column_index_org) {
+                                    updateRawData(roa, sheetDef, headerDef);
+                                    continue;
+                                }
+                                if (headers[i]) {
+                                    headerDef.column_header = headers[i].trim();
+                                }
+                                if (sheetDef.unit_row) {
+                                    headerDef.unit = roa[sheetDef.unit_row - 1][i];
+                                }
+                                if (sheetDef.desc_row) {
+                                    headerDef.description = roa[sheetDef.desc_row - 1][i];
+                                }
+                                let headerName = String(headerDef.column_header).toUpperCase();
+                                if (icasaVarMap.getDefinition(headerName)) {
+                                    headerDef.icasa = headerName;
+                                } else if (icasaVarMap.getDefinition(headerDef.column_header)) {
+                                    headerDef.icasa = headerDef.column_header;
+                                }
+                                let icasa_unit = icasaVarMap.getUnit(headerDef.icasa);
+                                if (!headerDef.unit) {
+                                    headerDef.unit_error = true;
+                                } else if (icasa_unit && headerDef.unit !== icasa_unit) {
+                                    $.get("/data/unit/convert?value_from=2&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
+                                        function (jsonStr) {
+                                            let ret = JSON.parse(jsonStr);
+                                            if (ret.status !== "0") {
+//                                                headerDef.unit = icasa_unit; // TODO this should change to give warning message
+                                                headerDef.unit_error = true;
+                                            }
+                                        }
+                                    );
+                                } else if (!icasa_unit) {
+                                    $.get("/data/unit/lookup?unit=" + encodeURIComponent(headerDef.unit),
+                                        function (jsonStr) {
+                                            var unitInfo = JSON.parse(jsonStr);
+                                            if (unitInfo.message === "undefined unit expression" && headerDef.unit !== "text" && headerDef.unit !== "code" && headerDef.unit !== "date") {
+                                                headerDef.unit_error = true;
+                                            }
+                                        }
+                                    );
+                                }
+                            }
+                            for (let i in roa) {
+                                while (sheetDef.mappings.length < roa[i].length) {
+                                    sheetDef.mappings.push({column_index : sheetDef.mappings.length, column_index_org : sheetDef.mappings.length});
+                                }
+                            }
+                        } else {
+                            for (let i in sheetDef.mappings) {
+                                let mapping = sheetDef.mappings[i];
+                                if (!mapping.column_index_org) {
+                                    shiftRefFromKeyIdx(sheetDef, i);
+                                    shiftRawData(roa, i);
+                                    updateRawData(roa, sheetDef, mapping);
+                                }
+                            }
+                            // check if header is matched with given spreadsheet
+                            let tmpMappings = [];
+                            for (let i in sheetDef.mappings) {
+                                if (sheetDef.mappings[i].column_header !== headers[i]) {
+                                    tmpMappings[i] = sheetDef.mappings[i];
+                                    delete sheetDef.mappings[i];
+                                }
+                            }
+                            // check if there is header matched columns
+                            for (let i in tmpMappings) {
+                                for (let j = 0; j < headers.length; j++) {
+                                    if (tmpMappings[i].column_header === headers[j]) {
+                                        sheetDef.mappings[j] = tmpMappings[i];
+                                        delete tmpMappings[i];
+                                        break;
+                                    }
+                                }
+                            }
+                            // check if there is undefined columns with matched index
+                            for (let i in tmpMappings) {
+                                if (!sheetDef.mappings[i]) {
+                                    sheetDef.mappings[i] = tmpMappings[i];
+                                    delete tmpMappings[i];
+                                }
+                            }
+                            // fill missing column definition with ignored flag
+                            let vrColCnt = 0;
+                            for (let i = 0; i < headers.length; i++) {
+                                let headerDef = sheetDef.mappings[i];
+                                if(!headerDef) {
+                                    headerDef = {
+                                        column_header : "",
+                                        column_index : i + 1,
+                                        column_index_org : i + 1 - vrColCnt,
+                                        ignored_flg : true
+                                    }
                                     if (headers[i]) {
                                         headerDef.column_header = headers[i].trim();
                                     }
+                                    // Load existing template definition
                                     if (sheetDef.unit_row) {
                                         headerDef.unit = roa[sheetDef.unit_row - 1][i];
                                     }
@@ -591,16 +701,29 @@
                                     } else if (icasaVarMap.getDefinition(headerDef.column_header)) {
                                         headerDef.icasa = headerDef.column_header;
                                     }
+                                    sheetDef.mappings[i] = headerDef;
+                                } else {
+                                    if (!headerDef.column_index_org) {
+                                        vrColCnt++;
+                                    }
+                                    if (sheetDef.mappings[i].column_header !== headers[i]) {
+                                        sheetDef.mappings[i].column_header = headers[i].trim();
+                                        // TODO deal with sc2 mappings is not fully matched with given spreadsheet columns
+                                    }
+                                }
+                                if (headerDef.icasa) {
                                     let icasa_unit = icasaVarMap.getUnit(headerDef.icasa);
                                     if (!headerDef.unit) {
                                         headerDef.unit_error = true;
                                     } else if (icasa_unit && headerDef.unit !== icasa_unit) {
-                                        $.get("/data/unit/convert?value_from=2&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
+                                        $.get("/data/unit/convert?value_from=1&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
                                             function (jsonStr) {
                                                 let ret = JSON.parse(jsonStr);
                                                 if (ret.status !== "0") {
-//                                                        headerDef.unit = icasa_unit; // TODO this should change to give warning message
+//                                                    headerDef.unit = icasa_unit; // TODO this should change to give warning message
                                                     headerDef.unit_error = true;
+                                                } else {
+                                                    delete headerDef.unit_error;
                                                 }
                                             }
                                         );
@@ -610,109 +733,21 @@
                                                 var unitInfo = JSON.parse(jsonStr);
                                                 if (unitInfo.message === "undefined unit expression" && headerDef.unit !== "text" && headerDef.unit !== "code" && headerDef.unit !== "date") {
                                                     headerDef.unit_error = true;
+                                                } else {
+                                                    delete headerDef.unit_error;
                                                 }
                                             }
                                         );
-                                    }
-                                    sheetDef.mappings.push(headerDef);
-                                }
-                                for (let i in roa) {
-                                    while (sheetDef.mappings.length < roa[i].length) {
-                                        sheetDef.mappings.push({column_index : sheetDef.mappings.length, column_index_org : sheetDef.mappings.length});
-                                    }
-                                }
-                            } else {
-                                // check if header is matched with given spreadsheet
-                                let tmpMappings = [];
-                                for (let i in sheetDef.mappings) {
-                                    if (sheetDef.mappings[i].column_header !== headers[i]) {
-                                        tmpMappings[i] = sheetDef.mappings[i];
-                                        delete sheetDef.mappings[i];
-                                    }
-                                }
-                                // check if there is header matched columns
-                                for (let i in tmpMappings) {
-                                    for (let j = 0; j < headers.length; j++) {
-                                        if (tmpMappings[i].column_header === headers[j]) {
-                                            sheetDef.mappings[j] = tmpMappings[i];
-                                            delete tmpMappings[i];
-                                            break;
-                                        }
-                                    }
-                                }
-                                // check if there is undefined columns with matched index
-                                for (let i in tmpMappings) {
-                                    if (!sheetDef.mappings[i]) {
-                                        sheetDef.mappings[i] = tmpMappings[i];
-                                        delete tmpMappings[i];
-                                    }
-                                }
-                                // fill missing column definition with ignored flag
-                                for (let i = 0; i < headers.length; i++) {
-                                    let headerDef = sheetDef.mappings[i];
-                                    if(!headerDef) {
-                                        headerDef = {
-                                            column_header : "",
-                                            column_index : i + 1,
-                                            column_index_org : i + 1,
-                                            ignored_flg : true
-                                        }
-                                        if (headers[i]) {
-                                            headerDef.column_header = headers[i].trim();
-                                        }
-                                        // Load existing template definition
-                                        if (sheetDef.unit_row) {
-                                            headerDef.unit = roa[sheetDef.unit_row - 1][i];
-                                        }
-                                        if (sheetDef.desc_row) {
-                                            headerDef.description = roa[sheetDef.desc_row - 1][i];
-                                        }
-                                        let headerName = String(headerDef.column_header).toUpperCase();
-                                        if (icasaVarMap.getDefinition(headerName)) {
-                                            headerDef.icasa = headerName;
-                                        } else if (icasaVarMap.getDefinition(headerDef.column_header)) {
-                                            headerDef.icasa = headerDef.column_header;
-                                        }
-                                        sheetDef.mappings[i] = headerDef;
-                                    } else if (sheetDef.mappings[i].column_header !== headers[i]) {
-                                        sheetDef.mappings[i].column_header = headers[i].trim();
-                                        // TODO deal with sc2 mappings is not fully matched with given spreadsheet columns
-                                    }
-                                    if (headerDef.icasa) {
-                                        let icasa_unit = icasaVarMap.getUnit(headerDef.icasa);
-                                        if (!headerDef.unit) {
-                                            headerDef.unit_error = true;
-                                        } else if (icasa_unit && headerDef.unit !== icasa_unit) {
-                                            $.get("/data/unit/convert?value_from=1&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
-                                                function (jsonStr) {
-                                                    let ret = JSON.parse(jsonStr);
-                                                    if (ret.status !== "0") {
-//                                                        headerDef.unit = icasa_unit; // TODO this should change to give warning message
-                                                        headerDef.unit_error = true;
-                                                    } else {
-                                                        delete headerDef.unit_error;
-                                                    }
-                                                }
-                                            );
-                                        } else if (!icasa_unit) {
-                                            $.get("/data/unit/lookup?unit=" + encodeURIComponent(headerDef.unit),
-                                                function (jsonStr) {
-                                                    var unitInfo = JSON.parse(jsonStr);
-                                                    if (unitInfo.message === "undefined unit expression" && headerDef.unit !== "text" && headerDef.unit !== "code" && headerDef.unit !== "date") {
-                                                        headerDef.unit_error = true;
-                                                    } else {
-                                                        delete headerDef.unit_error;
-                                                    }
-                                                }
-                                            );
-                                        } else {
-                                             delete headerDef.unit_error;
-                                        }
+                                    } else {
+                                         delete headerDef.unit_error;
                                     }
                                 }
                             }
                         }
                     }
+                });
+                workbook.SheetNames.forEach(function(sheetName) {
+                    shiftRefToKeyIdx(templates[fileName][sheetName]);
                 });
                 return result;
             }
@@ -742,24 +777,18 @@
                 curSheetName = tmp[1];
                 $("#sheet_name_selected").text(" <" + curSheetName + ">");
             }
-            
-//            function getMappings(fileName, sheetName) {
-//                let mappings = [];
-//                let sheetDef = templates[fileName][sheetName];
-//                let i = 0;
-//                for (let j = 0; j < sheetDef.vmappings.length; j++) {
-//                    let vmapping = sheetDef.vmappings[j];
-//                    while (vmapping.prev_column_index >= i + 1 && i < sheetDef.mappings.length) {
-//                        mappings.push(sheetDef.mappings[i]);
-//                        i++;
-//                    }
-//                    mappings.push(vmapping);
-//                }
-//                for (;i < sheetDef.mappings.length; i++) {
-//                    mappings.push(sheetDef.mappings[i]);
-//                }
-//                return mappings;
-//            }
+
+            function getColumnDef(mapping) {
+                if (mapping.unit === "date") {
+                    return {type: 'date', readOnly: true};
+                } else if (mapping.unit === "text" || mapping.unit === "code") {
+                    return {type: 'text', readOnly: true};
+                } else if (mapping.unit !== ""){
+                    return {type: 'numeric', readOnly: true};
+                } else {
+                    return {type: 'text', readOnly: true};
+                }
+            }
             
             function initSpreadsheet(fileName, sheetName, spsContainer) {
                 if (!spsContainer) {
@@ -775,15 +804,7 @@
 //                    data = JSON.parse(JSON.stringify(data)); // TODO set raw data as read only for a temprory solution
 //                }
                 for (let i in mappings) {
-                    if (mappings[i].unit === "date") {
-                        columns.push({type: 'date', readOnly: true});
-                    } else if (mappings[i].unit === "text" || mappings[i].unit === "code") {
-                        columns.push({type: 'text', readOnly: true});
-                    } else if (mappings[i].unit !== ""){
-                        columns.push({type: 'numeric', readOnly: true});
-                    } else {
-                        columns.push({type: 'text', readOnly: true});
-                    }
+                    columns.push(getColumnDef(mappings[i]));
                 }
                 for (let i in data) {
                     while (columns.length < data[i].length) {
@@ -846,19 +867,6 @@
                     dropdownMenu: true,
                     contextMenu: {
                         items: {
-                            "new_column":{
-                                name: "New Column",
-                                hidden: function () { // `hidden` can be a boolean or a function
-                                    // Hide the option when the first column was clicked
-//                                    return this.getSelectedLast()[1] == 0; // `this` === hot3
-                                    return true;
-                                },
-                                callback: function(key, selection, clickEvent) {
-                                    setTimeout(function() {
-                                        alertBox("Functionality under construction...");
-                                    }, 0); // Fire alert after menu close (with timeout)
-                                }
-                            },
                             "define_column":{
                                 name: '<span class="glyphicon glyphicon-edit"></span> Define Column',
                                 disabled: function () {
@@ -932,6 +940,22 @@
                                     }, 0); // Fire alert after menu close (with timeout)
                                 }
                             },
+                            "new_column":{
+                                name: '<span class="glyphicon glyphicon-plus-sign"></span> Add Column',
+//                                hidden: function () { // `hidden` can be a boolean or a function
+//                                    // Hide the option when the first column was clicked
+////                                    return this.getSelectedLast()[1] == 0; // `this` === hot3
+//                                    return true;
+//                                },
+                                callback: function(key, selection, clickEvent) {
+                                    setTimeout(function() {
+                                        let itemData = {
+                                            column_index_prev : selection[0].start.col
+                                        };
+                                        showColDefineDialog(itemData);
+                                    }, 0); // Fire alert after menu close (with timeout)
+                                }
+                            },
                             "edit_row":{
                                 name: '<span class="glyphicon glyphicon-edit"></span> Edit Row Definition',
                                 callback: function(key, selection, clickEvent) {
@@ -945,7 +969,6 @@
                                 hidden: function () { // `hidden` can be a boolean or a function
                                     // Hide the option when it is ignored
                                     let selection = this.getSelected();
-//                                    let mappings = templates[fileName][sheetName].mappings;
                                     for (let i in selection) {
                                         let start = Math.min(selection[i][1], selection[i][3]);
                                         let end = Math.max(selection[i][1], selection[i][3]);
@@ -1136,6 +1159,8 @@
                         return "label label-default";
                     } else if (mappings[col].unit_error) {
                         return "label label-danger";
+                    } else if (!mappings[col].column_index_org) {
+                        return "label label-primary";
                     } else if (mappings[col].icasa) {
                         if (icasaVarMap.getDefinition(mappings[col].icasa)) {
                             return "label label-success";
@@ -1288,10 +1313,48 @@
                                     templates[fileName][sheetName].mappings = [];
                                     templates[fileName][sheetName].references = {};
                                     let mappings = templates[fileName][sheetName].mappings;
+                                    sc2Mappings.sort(function (m1, m2) {
+                                        let idx1 = m1.column_index;
+                                        if (!idx1) {
+                                            idx1 = m1.column_index_vr;
+                                        }
+                                        if (!idx1) {
+                                            idx1 = -1;
+                                        }
+                                        let idx2 = m1.column_index;
+                                        if (!idx2) {
+                                            idx2 = m1.column_index_vr;
+                                        }
+                                        if (!idx2) {
+                                            idx2 = -1;
+                                        }
+                                        return idx1 - idx2;
+                                    });
+                                    let vrColCnt = 0;
                                     for (let j in sc2Mappings) {
-                                        mappings[sc2Mappings[j].column_index - 1] = sc2Mappings[j];
-                                        if (!sc2Mappings[j].column_index_org) {
+                                        j = Number(j);
+                                        if (sc2Mappings[j].column_index_vr) {
+                                            vrColCnt++;
+                                            sc2Mappings[j].column_index = sc2Mappings[j].column_index_vr;
+                                            delete sc2Mappings[j].column_index_vr;
+                                        } else if (sc2Mappings[j].column_index) {
                                             sc2Mappings[j].column_index_org = sc2Mappings[j].column_index;
+                                            sc2Mappings[j].column_index = sc2Mappings[j].column_index + vrColCnt;
+                                        } else {
+                                            vrColCnt++;
+                                            if (j === 0) {
+                                                sc2Mappings[j].column_index = 1;
+                                            } else {
+                                                sc2Mappings[j].column_index = sc2Mappings[j - 1].column_index + 1;
+                                            }
+                                        }
+                                        
+                                        mappings[sc2Mappings[j].column_index - 1] = sc2Mappings[j];
+                                        if (sc2Mappings[j].formula_info) {
+                                            for (let key in sc2Mappings[j].formula_info) {
+                                                sc2Mappings[j][key] = sc2Mappings[j].formula_info[key];
+                                            }
+                                            delete sc2Mappings[j].formula_info;
                                         }
                                     }
                                     let references = templates[fileName][sheetName].references;
@@ -1405,9 +1468,21 @@
                             let mapping = templates[fileName][sheetName].mappings[i];
                             if (!mapping.ignored_flg) {
                                 let mappingCopy = Object.assign({}, mapping);
+                                if (!mappingCopy.column_index_org) {
+                                    mappingCopy.column_index_vr = mappingCopy.column_index;
+                                    delete mappingCopy.column_index;
+                                    mappingCopy.formula_info = {};
+                                    for (let key in mappingCopy) {
+                                        if (key.startsWith("virtual")) {
+                                            mappingCopy.formula_info[key] = mappingCopy[key];
+                                            delete mappingCopy[key];
+                                        }
+                                    }
+                                } else {
                                     mappingCopy.column_index = mappingCopy.column_index_org;
                                     delete mappingCopy.column_index_org;
-                                    tmp.mappings.push(mappingCopy);
+                                }
+                                tmp.mappings.push(mappingCopy);
                                 if (mapping.reference_flg) {
                                     delete mappingCopy.reference_type;
                                     delete mappingCopy.reference_flg;
@@ -1426,7 +1501,7 @@
                                     let refDef = createRefDefObj({file: fileName, sheet: sheetName},
                                         JSON.parse("[" + fromKeyIdxs + "]"),
                                         toRefDef,
-                                        getKeyIdxArr(toRefDef.keys));
+                                        getKeyIdxArr(toRefDef.keys), true);
                                     sc2Obj.agmip_translation_mappings.relations.push(refDef);
                                 }
                             }
@@ -1527,6 +1602,7 @@
                         <label>Column Marker : </label>
                         <span class="label label-success">ICASA Mapped</span>
                         <span class="label label-info">Customized</span>
+                        <span class="label label-primary">Virtual</span>
                         <span class="label label-warning">Undefined</span>
                         <span class="label label-danger"><em>Warning</em></span>
                         <span class="label label-default">Ignored</span>

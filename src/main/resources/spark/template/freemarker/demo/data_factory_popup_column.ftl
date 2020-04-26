@@ -2,7 +2,14 @@
     function showColDefineDialog(itemData, type) {
 //                let promptClass = 'event-input-' + itemData.event;
         let curVarType;
-        let colDef = templates[curFileName][curSheetName].mappings[itemData.column_index - 1];
+        let isVirtual = !itemData.column_index_org;
+//        let colDef = templates[curFileName][curSheetName].mappings[itemData.column_index - 1];
+        let colDef;
+        if (isVirtual && !itemData.column_index) {
+            colDef = itemData;
+        } else {
+            colDef = templates[curFileName][curSheetName].mappings[itemData.column_index - 1];
+        }
         if (!type) {
             if (itemData.icasa) {
                 if (icasaVarMap.getDefinition(itemData.icasa)) {
@@ -66,15 +73,24 @@
                         if (colDef.unit_error) {
                             delete colDef.unit_error;
                         }
-                        $("[name='" + curSheetName + "_" + (itemData.column_index - 1) + "_label']").last().attr("class", getColStatusClass(itemData.column_index - 1));
-                        let columns = spreadsheet.getSettings().columns;
-                        if (colDef.unit === "date") {
+                        
+                        if (!colDef.column_index) {
+                            // handle new virtual column
+                            insertVRData(colDef);
+                            updateVRData(colDef);
+                        } else if (!colDef.column_index_org) {
+                            // handle editted virtual column
+                            updateVRData(colDef);
+                        } else if (colDef.unit === "date") {
+                            // handle data type -> date
+                            let columns = spreadsheet.getSettings().columns;
                             columns[itemData.column_index - 1].type = "date";
-//                            columns[itemData.column_index - 1].dateFormat = "YYYY-MM-DD";
+//                            columns[itemData.column_index - 1].format = "YYYY-MM-DD";
+                            spreadsheet.updateSettings({
+                                columns : columns
+                            });
                         }
-                        spreadsheet.updateSettings({
-                            columns : columns
-                        });
+                        $("[name='" + curSheetName + "_" + (itemData.column_index - 1) + "_label']").last().attr("class", getColStatusClass(itemData.column_index - 1));
                         isChanged = true;
                         isViewUpdated = false;
                         isDebugViewUpdated = false;
@@ -101,9 +117,8 @@
             if (itemData.err_msg) {
                 dialog.find("[name='dialog_msg']").text(itemData.err_msg);
             }
-            dialog.find("[name=column_header]").each(function () {
-                $(this).val(itemData[$(this).attr("name")]);
-            });
+            let colHeaderInput = dialog.find("[name='column_header']");
+            colHeaderInput.val(itemData.column_header);
             dialog.find("[name=other_options]").each(function () {
                 $(this).val([]);
                 if (itemData.formula) {
@@ -179,6 +194,9 @@
                                 sourceUnit.trigger("input");
                             }
                         }
+                        if (isVirtual) {
+                            colHeaderInput.val($(this).val());
+                        }
                     });
                     $(this).trigger("change");
                 });
@@ -231,6 +249,9 @@
 //                                    subDiv.find("[name='unit_validate_result']").html("");
 //                                    delete itemData.err_msg;
 //                                }
+                        if (isVirtual) {
+                            colHeaderInput.val($(this).val());
+                        }
                     });
                 });
                 subDiv.find("[name='unit']").each(function () {
@@ -263,6 +284,34 @@
                     });
                 });
             });
+            dialog.find("[name='virtual_info']").each(function () {
+                let subDiv = $(this);
+                subDiv.on("type_shown", function() {
+                    chosen_init_target(subDiv.find("[name='virtual_val_rule']"), "chosen-select-deselect-single");
+                    
+                    
+                    $(this).find(".col-def-input-item-vr").each(function () {
+                        if ($(this).prop("tagName").toLowerCase() === "select") {
+                            if ($(this).attr("name") === "virtual_val_keys") {
+                                chosen_init_target($(this), "chosen-select-deselect");
+                                initKeySB($(this), {file: curFileName, sheet: curSheetName});
+                                if (itemData.virtual_val_keys) {
+                                    $(this).val(itemData.virtual_val_keys).trigger("chosen:updated");
+                                }
+                            } else {
+                                chosen_init_target($(this), "chosen-select-deselect-single");
+                                $(this).val(itemData[$(this).attr("name")]).trigger("chosen:updated");
+                            }
+                        } else if ($(this).attr("type") === "checkbox") {
+                            $(this).bootstrapToggle({on:"Yes", off:"No", size:"mini"});
+                            $(this).prop("checked", itemData[$(this).attr("name")]).change();
+                        } else {
+                            $(this).val(itemData[$(this).attr("name")]);
+                        }
+                    });
+                });
+                
+            });
             dialog.find("[name='var_type']").each(function () {
                 $(this).on("change", function () {
                     type = $(this).val();
@@ -281,7 +330,160 @@
                 chosen_init_target($(this), "chosen-select");
                 $(this).trigger("change");
             });
+            if (isVirtual) {
+                dialog.find("[name='virtual_info']").fadeIn().trigger("type_shown");
+//                colHeaderInput.attr("readOnly", false);
+            }
         });
+    }
+    
+    function insertVRData(colDef) {
+        let columns = spreadsheet.getSettings().columns;
+        let data = wbObj[curFileName][curSheetName].data;
+        let sheetDef = templates[curFileName][curSheetName];
+        let mappings = sheetDef.mappings;
+
+        // generate column index for the new column
+        let idx = colDef.column_index_prev;
+        colDef.column_index = idx + 1;
+        delete colDef.column_index_prev;
+        if (!idx && idx !== 0) {
+            idx = columns.length;
+        }
+
+        // Shift references index
+        shiftRefFromKeyIdx(sheetDef, idx);
+
+        // shift value component keys
+        let vrKeys = [];
+        for (let i in colDef.virtual_val_keys) {
+            if (colDef.virtual_val_keys[i] > idx) {
+                vrKeys.push(Number(colDef.virtual_val_keys[i]) + 1 + "");
+            } else {
+                vrKeys.push(colDef.virtual_val_keys[i]);
+            }
+        }
+        colDef.virtual_val_keys = vrKeys;
+        
+        // shift mapping and spreadsheet column index
+        shiftRawData(data, idx);
+        for (let i = columns.length; i > idx; i--) {    
+            columns[i] = columns[i - 1];
+            mappings[i] = mappings[i - 1];
+            mappings[i].column_index = mappings[i].column_index + 1;
+        }
+    }
+    
+    function shiftRefFromKeyIdx(sheetDef, idx) {
+        let references = {};
+        for (let keyStr in sheetDef.references) {
+            let keys = JSON.parse("[" + keyStr + "]");
+            let newKeys = [];
+            for (let i in keys) {
+                if (keys[i] > idx) {
+                    newKeys.push(keys[i] + 1);
+                } else {
+                    newKeys.push(keys[i]);
+                }
+            }
+            references[newKeys.join()] = sheetDef.references[keyStr];
+        }
+        sheetDef.references = references;
+    }
+    
+    function shiftRefToKeyIdx(sheetDef) {
+        for (let i in sheetDef.references) {
+            let references = {};
+            for (let keyStr in sheetDef.references[i]) {
+                let refDef = sheetDef.references[i][keyStr];
+                let keys = refDef.keys;
+                let mappings = templates[refDef.file][refDef.sheet].mappings;
+                for (let j in keys) {
+                    for (let k in mappings) {
+                        if (keys[j].column_index === mappings[k].column_index_org) {
+                            keys[j] = mappings[k];
+                            break;
+                        }
+                    }
+                }
+                references[getRefDefKey(refDef, keys)] = sheetDef.references[i][keyStr];
+            }
+            sheetDef.references[i] = references;
+        }
+    }
+    
+    function shiftRawData(data, idx) {
+        for (let j = 0; j < data.length; j++) {
+            for (let i = data[j].length; i > idx; i--) {
+                data[j][i] = data[j][i - 1];
+            }
+        }
+    }
+    
+    function updateRawData(data, sheetDef, colDef) {
+        let idx = colDef.column_index - 1;
+        let vrKeys = colDef.virtual_val_keys;
+        let valSet = {};
+        
+        let dataStartRow = 0;
+        if (sheetDef.data_start_row) {
+            dataStartRow = sheetDef.data_start_row - 1;
+        }
+        for (let j = dataStartRow; j < data.length; j++) {
+            let vals = [];
+            for (let i in vrKeys) {
+                if (colDef.virtual_val_rule) {
+                    vals.push(data[j][Number(vrKeys[i]) - 1].substring(0, Number(colDef.virtual_val_rule)));
+                } else {
+                    vals.push(data[j][Number(vrKeys[i]) - 1]);
+                }
+            }
+            let divider = colDef.virtual_divider;
+            if (!divider) {
+                divider = "";
+            }
+            data[j][idx] = vals.join(divider);
+            if (colDef.virtual_unique_flg) {
+                if (!valSet[data[j][idx]]) {
+                    valSet[data[j][idx]] = 1;
+                } else {
+                    vals.push(valSet[data[j][idx]]);
+                    data[j][idx] = vals.join(divider);
+                    valSet[data[j][idx]]++;
+                }
+            }
+        }
+        if (sheetDef.header_row) {
+            data[sheetDef.header_row - 1][idx] = colDef.column_header;
+        }
+        if (sheetDef.unit_row) {
+            data[sheetDef.unit_row - 1][idx] = colDef.unit;
+        }
+        if (sheetDef.desc_row) {
+            data[sheetDef.desc_row - 1][idx] = colDef.description;
+        }
+    }
+    
+    function updateVRData(colDef) {
+        let idx = colDef.column_index - 1;
+        let data = wbObj[curFileName][curSheetName].data;
+        let isDataOnly = !$('#tableViewSwitch').prop("checked");
+        let sheetDef = templates[curFileName][curSheetName];
+        let mappings = sheetDef.mappings;
+        let columns = spreadsheet.getSettings().columns;
+
+        updateRawData(data, sheetDef, colDef);
+
+        columns[idx] = getColumnDef(colDef);
+        mappings[idx] = colDef;
+        if (isDataOnly) {
+            data = data.slice(sheetDef.data_start_row - 1);
+        }
+        spreadsheet.updateSettings({
+            data : data,
+            columns : columns
+        });
+
     }
     
     function updateData(div, itemData, curVarType) {
@@ -300,6 +502,21 @@
                 delete itemData[$(this).attr("name")];
             }
         });
+        if (!itemData.column_index_org) {
+            div.find(".col-def-input-item-vr").each(function () {
+                if ($(this).attr("type") === "checkbox") {
+                    if ($(this).is(":checked")) {
+                        itemData[$(this).attr("name")] = true;
+                    } else {
+                        delete itemData[$(this).attr("name")];
+                    }
+                } else if ($(this).val()) {
+                    itemData[$(this).attr("name")] = $(this).val();
+                }else {
+                    delete itemData[$(this).attr("name")];
+                }
+            });
+        }
         if (othOpts.length > 0) {
             if (othOpts.includes("fill_with_previous")) {
                 itemData.formula = "fill_with_previous";
@@ -368,7 +585,7 @@
         <div class="form-group col-sm-6">
             <label class="control-label">Column Header</label>
             <div class="input-group col-sm-12">
-                <input type="text" name="column_header" class="form-control col-def-input-item" value="" readonly>
+                <input type="text" name="column_header" class="form-control col-def-input-item-vr" value="" readonly>
             </div>
         </div>
         <div class="form-group col-sm-6">
@@ -379,6 +596,49 @@
                     <option value="icasa">ICASA variable</option>
                     <option value="customized">Customized variable</option>
                 </select>
+            </div>
+        </div>
+        <!-- 1.1st row -->
+        <div name="virtual_info" hidden>
+            <div class="form-group col-sm-12">
+                <label class="control-label">Value From:</label>
+                <div class="input-group col-sm-12">
+                    <select name="virtual_val_keys" class="form-control col-def-input-item-vr" multiple>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col-sm-2">
+                <label class="control-label">Value Rule:</label>
+                <div class="input-group col-sm-12">
+                    <select name="virtual_val_rule" class="form-control col-def-input-item-vr">
+                        <option value="">Use full text</option>
+                        <option value="2">Use first 2-bit characters</option>
+                        <option value="4">Use first 4-bit characters</option>
+                        <option value="8">Use first 8-bit characters</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col-sm-2">
+                <label class="control-label">Divider:</label>
+                <div class="input-group col-sm-12">
+                    <select name="virtual_divider" class="form-control col-def-input-item-vr">
+                        <option value="">None</option>
+                        <option value=".">. (dot)</option>
+                        <option value=",">, (comma)</option>
+                        <option value="_">_ (underscore)</option>
+                        <option value="-">- (dash)</option>
+                        <option value="+">+ (plus)</option>
+                        <option value="|">| (vertical bar)</option>
+                        <option value=";">; (semicolon)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col-sm-2">
+                <label class="control-label">Uniqueness:</label>
+                <div class="input-group col-sm-12">
+                    <input type="checkbox" name="virtual_unique_flg" class="virtual_switch_cb form-control col-def-input-item-vr">
+                </div>
             </div>
         </div>
         <!-- ICASA Management Variable Info -->

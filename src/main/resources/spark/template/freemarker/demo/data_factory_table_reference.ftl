@@ -69,12 +69,26 @@
         return keyIdxs;
     }
     
-    function getKeyArr(keyIdxs, mappings) {
+    function getKeyArr(keyIdxs, mappings, isOrgIdx) {
         let keys = [];
+        if (!mappings) {
+            mappings = templates[curFileName][curSheetName].mappings;
+        }
         for (let i in keyIdxs) {
             for (let j in mappings) {
                 if (Number(keyIdxs[i]) === mappings[j].column_index) {
-                    keys.push(mappings[j]);
+                    if (isOrgIdx) {
+                        let tmp = Object.assign({}, mappings[j]);
+                        if (tmp.column_index_org) {
+                            tmp.column_index = tmp.column_index_org;
+                            delete tmp.column_index_org;
+                        } else {
+                            delete tmp.column_index;
+                        }
+                        keys.push(tmp);
+                    } else {
+                        keys.push(mappings[j]);
+                    }
                     break;
                 }
             }
@@ -250,17 +264,17 @@
         return div;
     }
     
-    function createRefDefObj(fromSheet, fromKeyIdxs, toSheet, toKeyIdxs) {
+    function createRefDefObj(fromSheet, fromKeyIdxs, toSheet, toKeyIdxs, isOrgIdx) {
         return {
             from:{
                 file : fromSheet.file,
                 sheet : fromSheet.sheet,
-                keys : getKeyArr(fromKeyIdxs, templates[fromSheet.file][fromSheet.sheet].mappings)
+                keys : getKeyArr(fromKeyIdxs, templates[fromSheet.file][fromSheet.sheet].mappings, isOrgIdx)
             },
             to:{
                 file : toSheet.file,
                 sheet : toSheet.sheet,
-                keys : getKeyArr(toKeyIdxs, templates[toSheet.file][toSheet.sheet].mappings)
+                keys : getKeyArr(toKeyIdxs, templates[toSheet.file][toSheet.sheet].mappings, isOrgIdx)
             }
         };
     }
