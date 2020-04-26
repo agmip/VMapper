@@ -8,6 +8,7 @@
         <link rel="stylesheet" type="text/css" href="/stylesheets/toggle/bootstrap-toggle.min.css" />
         <link rel="stylesheet" type="text/css" href="/plugins/jsonViewer/jquery.json-viewer.css" />
         <script>
+            const preferColors = ["#33DBFF", "#FF5733", "#33FF57", "#BD33FF", "#802B1A", "#3383FF", "#FFAF33", "#3ADDD6"];
             let wbObj;
 //            let spsContainer;
             let spreadsheet;
@@ -23,6 +24,7 @@
             let workbooks = {};
             let fileTypes = {};
             let userVarMap = {};
+            let fileColors = {};
             let icasaVarMap = {
                 "management" : {
                     <#list icasaMgnVarMap?values?sort_by("code_display")?sort_by("set_group_order") as var>
@@ -363,15 +365,24 @@
             
             function readSpreadSheet(target, sc2Files) {
                 let files = target.files;
+                let colors = [];
+                for (let i = 0; i < files.length; i++) {
+                    if (i < preferColors.length) {
+                        colors.push(preferColors[i]);
+                    } else {
+                        let color = '#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6);
+                        while (colors.includes(color)) {
+                            color = '#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6);
+                        }
+                        colors.push(color);
+                    }
+                }
                 let idx = 0;
-                let f = files[idx];
-                idx++;
-                let fileName = f.name;
                 userVarMap = {};
                 workbooks = {};
                 fileTypes = {};
                 templates = {};
-                fileTypes[fileName] = f.type;
+                fileColors = {};
                 curFileName = null;
                 curSheetName = null;
                 wbObj = null;
@@ -415,6 +426,7 @@
                         f = files[idx];
                         fileName = f.name;
                         fileTypes[fileName] = f.type;
+                        fileColors[fileName] = colors.shift();
                         idx++;
                         loadingDialog.find(".loading-msg").html(' Loading ' + fileName + ' (' + idx + '/' + files.length + ') ...');
                         reader.readAsBinaryString(f);
@@ -429,6 +441,12 @@
                     }
                 };
                 
+                // Start to read the first file
+                let f = files[idx];
+                idx++;
+                let fileName = f.name;
+                fileTypes[fileName] = f.type;
+                fileColors[fileName] = "";
                 let loadingDialog = bootbox.dialog({
                     message: '<h4><span class="glyphicon glyphicon-refresh spinning"></span><span class="loading-msg"> Loading ' + fileName + ' (1/' + files.length + ') ...</span></h4></br><p>P.S. <mark>MS Excel File (> 1 MB)</mark> might experice longer loading time...</p>',
 //                    centerVertical: true,
