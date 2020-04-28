@@ -205,32 +205,58 @@
                     let relations = {};
                     let lastCat;
                     let parentCat;
-                    let trtCat = this.getCategory(this.management["TRTNO"]);
-                    trtCat.child = [];
+                    let trtCat;// = this.getCategory(this.management["TRTNO"]);
                     let fieldCat;
-                    let metaCat = this.getCategory(this.management["EXNAME"]);
+//                    let metaCat = this.getCategory(this.management["EXNAME"]);
+                    let soilProfileCat; // = this.getCategory(this.management["SOIL_NAME"]);
                     let defs = this.getAllDefs();
-                    for (let varName in defs) {
+                    // Put adjusted/preload required categories processing before other categories.
+                    let adjDefs = ["TRTNO", "FL_LAT", "SOIL_NAME", "SL_SOURCE"];
+                    let preProcessOrders = [];
+                    for (let i in adjDefs) {
+                        let varName = adjDefs[i];
                         let order = defs[varName].order;
-                        if (this.icasaDataCatDef[order]) {
-                            continue;
-                        }
-                        this.icasaDataCatDef[order] = this.getCategory(defs[varName]);
-                        let category = this.icasaDataCatDef[order].category;
+                        let curCat = this.getCategory(defs[varName]);
+                        this.icasaDataCatDef[order] = curCat;
+                        let category = curCat.category;
                         if (!relations[category]) {
                             relations[category] = [];
-                        } else {
-                            if (this.icasaDataCatDef[relations[category][0]].parent) {
-                                this.icasaDataCatDef[order].parent = this.icasaDataCatDef[relations[category][0]].parent;
-                            }
                         }
                         relations[category].push(order);
-                        let curCat = this.icasaDataCatDef[order];
-                        if (curCat.rank === 3 && curCat.order === 2031) {
+                        preProcessOrders.push(order);
+                        if (varName === "TRTNO") {
+                            trtCat = curCat;
+                            trtCat.child = [];
+                        } else if (varName === "SOIL_NAME") {
+                            soilProfileCat = curCat;
+                        } else if (varName === "FL_LAT") {
                             fieldCat = curCat;
-                            if (!curCat.child) {
-                                curCat.child = [];
+                        }
+                    }
+                    for (let varName in defs) {
+                        let order = defs[varName].order;
+                        let curCat;
+                        if (preProcessOrders.includes(order)) {
+                            preProcessOrders.splice(preProcessOrders.indexOf(order), 1);
+                            curCat = this.icasaDataCatDef[order];
+                        } else if (this.icasaDataCatDef[order]) {
+                            continue;
+                        } else {
+                            curCat = this.getCategory(defs[varName]);
+                            this.icasaDataCatDef[order] = curCat;
+
+                            let category = curCat.category;
+                            if (!relations[category]) {
+                                relations[category] = [];
+                            } else {
+                                if (this.icasaDataCatDef[relations[category][0]].parent) {
+                                    curCat.parent = this.icasaDataCatDef[relations[category][0]].parent;
+                                }
+                                if (this.icasaDataCatDef[relations[category][0]].child) {
+                                    curCat.child = this.icasaDataCatDef[relations[category][0]].child;
+                                }
                             }
+                            relations[category].push(order);
                         }
 //                        else if (curCat.rank === 1) {
 //                            metaCat = curCat;
@@ -239,34 +265,14 @@
                             parentCat = curCat;
                         } else if (curCat.rank === 4 && curCat.order > 4000) {
                             parentCat = fieldCat;
+                        } else if (curCat.rank === 6 && curCat.order < 3000) {
+                            // Special handling for soil analysis category, and mark it to be child of soil profile meta (4041, 4042)
+                            parentCat = soilProfileCat;
                         } else if (curCat.rank - lastCat.rank === 1) {
                             parentCat = lastCat;
                         }
                         if (curCat.rank - parentCat.rank === 1) {
-                            if (!parentCat.child) {
-                                parentCat.child = [];
-                            }
-                            if (!curCat.parent) {
-                                curCat.parent = [];
-                            }
-                            for (let i in relations[parentCat.category]) {
-                                let parCode = relations[parentCat.category][i];
-                                if (!this.icasaDataCatDef[parCode].child) {
-                                    this.icasaDataCatDef[parCode].child = parentCat.child;
-                                }
-                                if (!curCat.parent.includes(parCode)) {
-                                    curCat.parent.push(parCode);
-                                }
-                            }
-                            for (let i in relations[curCat.category]) {
-                                let chdCode = relations[curCat.category][i];
-                                if (!this.icasaDataCatDef[chdCode].parent) {
-                                    this.icasaDataCatDef[chdCode].parent = curCat.parent;
-                                }
-                                if (!parentCat.child.includes(chdCode)) {
-                                    parentCat.child.push(chdCode);
-                                }
-                            }
+                            this.buildRelation(relations, curCat, parentCat);
                         } else {
                             if (curCat.rank === 3) {
                                 trtCat.child.push(curCat.order);
@@ -288,6 +294,32 @@
 //                            }
                         }
                         lastCat = curCat;
+                    }
+                },
+                "buildRelation" : function(relations, curCat, parentCat) {
+                    if (!parentCat.child) {
+                        parentCat.child = [];
+                    }
+                    if (!curCat.parent) {
+                        curCat.parent = [];
+                    }
+                    for (let i in relations[parentCat.category]) {
+                        let parCode = relations[parentCat.category][i];
+                        if (!this.icasaDataCatDef[parCode].child) {
+                            this.icasaDataCatDef[parCode].child = parentCat.child;
+                        }
+                        if (!curCat.parent.includes(parCode)) {
+                            curCat.parent.push(parCode);
+                        }
+                    }
+                    for (let i in relations[curCat.category]) {
+                        let chdCode = relations[curCat.category][i];
+                        if (!this.icasaDataCatDef[chdCode].parent) {
+                            this.icasaDataCatDef[chdCode].parent = curCat.parent;
+                        }
+                        if (!parentCat.child.includes(chdCode)) {
+                            parentCat.child.push(chdCode);
+                        }
                     }
                 },
                 "getCategory" : function(mapping) {
@@ -312,6 +344,10 @@
                     } else if (order < 3000) {
                         if (order === 2011) {
                             return {rank: 2, category: group, order: order};
+                        } else if (order === 2041) {
+                            return {rank: 6, category: group, order: order};
+                        } else if (order === 2042) {
+                            return {rank: 7, category: subgroup, order: order};
                         } else if (order > 2500) {
                             return {rank: 3, category: subset, order: order};
                         } else {
