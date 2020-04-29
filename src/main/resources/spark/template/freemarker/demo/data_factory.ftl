@@ -1421,13 +1421,28 @@
                                             }
                                         }
                                         
-                                        mappings[sc2Mappings[j].column_index - 1] = sc2Mappings[j];
+                                        let colIdx = Number(sc2Mappings[j].column_index);
+                                        for (let k = mappings.length; k < colIdx - 1; k++) {
+                                            if (!mappings[k]) {
+                                                mappings.push({
+                                                    column_index : k + 1,
+                                                    column_index_org : k + 1,
+                                                    ignored_flg : true
+                                                });
+                                            }
+                                        }
+                                        mappings[colIdx - 1] = sc2Mappings[j];
+                                        
+//                                        mappings[sc2Mappings[j].column_index - 1] = sc2Mappings[j];
                                         if (sc2Mappings[j].formula_info) {
                                             for (let key in sc2Mappings[j].formula_info) {
                                                 sc2Mappings[j][key] = sc2Mappings[j].formula_info[key];
                                             }
                                             delete sc2Mappings[j].formula_info;
                                         }
+                                    }
+                                    if (vrColCnt > 0) {
+                                        virColCnt[fileName][sheetName] = vrColCnt;
                                     }
                                     let references = templates[fileName][sheetName].references;
                                     for (let j in refConfig) {
