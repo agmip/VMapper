@@ -175,7 +175,7 @@
                 });
                 subDiv.find("[name='format']").each(function () {
                     $(this).on("change", function () {
-                        if ($(this).val() !== "ISO") {
+                        if ($(this).val() !== "customized") {
                             subDiv.find("[name='format_customized']").prop("disabled", true).val($(this).val()).trigger("change");
                         } else {
                             subDiv.find("[name='format_customized']").prop("disabled", false).trigger("change");
@@ -276,7 +276,7 @@
                 });
                 subDiv.find("[name='format']").each(function () {
                     $(this).on("change", function () {
-                        if ($(this).val() !== "ISO") {
+                        if ($(this).val() !== "customized") {
                             subDiv.find("[name='format_customized']").prop("disabled", true).val($(this).val()).trigger("change");
                         } else {
                             subDiv.find("[name='format_customized']").prop("disabled", false).trigger("change");
@@ -671,12 +671,12 @@
                     <select name="format" class="form-control col-def-input-item" value="" disabled>
                         <option value="">MS Excel Default</option>
                         <option value="yyyyDDD">Year + DOY</option>
-                        <option value="ISO">Customized ISO format</option>
+                        <option value="customized">Customized format</option>
                     </select>
                 </div>
             </div>
             <div class="form-group col-sm-3">
-                <label class="control-label">&nbsp;</label>
+                <label class="control-label">Standardized Expression</label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="format_customized" class="form-control col-def-input-item" value="" disabled>
                 </div>
@@ -730,7 +730,7 @@
                     <select name="format" class="form-control col-def-input-item" value="" disabled>
                         <option value="">MS Excel Default</option>
                         <option value="yyyyDDD">Year + DOY</option>
-                        <option value="ISO">Customized ISO format</option>
+                        <option value="customized">Customized format</option>
                     </select>
                 </div>
             </div>
