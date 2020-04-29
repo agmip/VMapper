@@ -529,7 +529,7 @@
         for (let i in to.mappings) {
             let toIcasa = to.mappings[i].icasa;
             let toHeader = to.mappings[i].column_header;
-            if (!toIcasa && !toHeader) {
+            if (!toIcasa && !toHeader || !to.mappings[i].column_index_org) {
                 continue;
             }
             for (let j in from.mappings) {
@@ -583,7 +583,7 @@
     function getTableCategory(mappings) {
         let ret = {rank : -1, category : "unknown"};
         for (let i in mappings) {
-            if (mappings[i].ignored_flg || (mappings[i].icasa && ["exname", "soil_id", "wst_id"].includes(mappings[i].icasa.toLowerCase()))) {
+            if (mappings[i].ignored_flg || !mappings[i].column_index_org || (mappings[i].icasa && ["exname", "soil_id", "wst_id"].includes(mappings[i].icasa.toLowerCase()))) {
                 continue;
             }
             let retCat = icasaVarMap.getCategory(mappings[i]);
