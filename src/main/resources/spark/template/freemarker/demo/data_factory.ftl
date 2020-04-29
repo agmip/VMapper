@@ -25,6 +25,7 @@
             let fileTypes = {};
             let userVarMap = {};
             let fileColors = {};
+            let virColCnt = {};
             let icasaVarMap = {
                 "management" : {
                     <#list icasaMgnVarMap?values?sort_by("code_display")?sort_by("set_group_order") as var>
@@ -419,6 +420,7 @@
                 fileTypes = {};
                 templates = {};
                 fileColors = {};
+                virColCnt = {};
                 curFileName = null;
                 curSheetName = null;
                 wbObj = null;
@@ -596,7 +598,9 @@
                     if ((curFileName && curFileName !== fileName) || 
                             (curSheetName && sheetName !== curSheetName)) {
                         result[sheetName] = wbObj[fileName][sheetName];
-                        return;
+                        if (isChanged) {
+                            return;
+                        }
                     }
                     let roa;
                     let sheetDef = templates[fileName][sheetName];
@@ -606,7 +610,8 @@
                         roa = result[sheetName].data;
                         headers = result[sheetName].header;
                     }
-                    if (!roa) {
+                    // Do re-read data when 1, no data loaded; 2, load SC2 file with virtual column but not the case of change row define
+                    if (!roa || (virColCnt[fileName][sheetName] && !isChanged)) {
                         roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1, raw: false});
                         for (let i = roa.length; i >= 0; i--) {
                             if (roa[i] && roa[i].length > 0) {
@@ -629,7 +634,7 @@
                     
                     if (roa.length && roa.length > 0) {
                         // init template structure
-                        if (!sheetDef.mappings || curSheetName) {
+                        if (!sheetDef.mappings || isChanged) {
                             if (!sheetDef.mappings) {
                                 sheetDef.mappings = [];
                             }
@@ -653,17 +658,22 @@
                                 if (headers[i]) {
                                     headerDef.column_header = headers[i].trim();
                                 }
-                                if (sheetDef.unit_row) {
+                                if (!headerDef.unit && sheetDef.unit_row) {
                                     headerDef.unit = roa[sheetDef.unit_row - 1][i];
                                 }
-                                if (sheetDef.desc_row) {
+                                if (!headerDef.description && sheetDef.desc_row) {
                                     headerDef.description = roa[sheetDef.desc_row - 1][i];
                                 }
-                                let headerName = String(headerDef.column_header).toUpperCase();
-                                if (icasaVarMap.getDefinition(headerName)) {
-                                    headerDef.icasa = headerName;
-                                } else if (icasaVarMap.getDefinition(headerDef.column_header)) {
-                                    headerDef.icasa = headerDef.column_header;
+                                if (!headerDef.icasa) {
+                                    let headerName = String(headerDef.column_header).toUpperCase();
+                                    if (icasaVarMap.getDefinition(headerName)) {
+                                        headerDef.icasa = headerName;
+                                    } else if (icasaVarMap.getDefinition(headerDef.column_header)) {
+                                        headerDef.icasa = headerDef.column_header;
+                                    }
+                                }
+                                if (headerDef.icasa && primaryVarExisted[headerDef.icasa] !== undefined) {
+                                    primaryVarExisted[headerDef.icasa] = true;
                                 }
                                 let icasa_unit = icasaVarMap.getUnit(headerDef.icasa);
                                 if (!headerDef.unit) {
@@ -1257,6 +1267,11 @@
             }
 
             function readSC2Json(target) {
+                // reset part of the flags for the case of only loading template
+                isChanged = false;
+                isViewUpdated = false;
+                isDebugViewUpdated = false;
+
                 var files = target.files;
                 if (files.length !== 1) {
                     alertBox('Please select one file!');
@@ -1366,6 +1381,9 @@
                                     let sc2Mappings = fileConfig.file.sheets[i].mappings;
                                     templates[fileName][sheetName].mappings = [];
                                     templates[fileName][sheetName].references = {};
+                                    if (!virColCnt[fileName]) {
+                                        virColCnt[fileName] = {};
+                                    }
                                     let mappings = templates[fileName][sheetName].mappings;
                                     sc2Mappings.sort(function (m1, m2) {
                                         let idx1 = m1.column_index;

@@ -21,7 +21,7 @@ public class Path {
         @Getter public static final String UPLOAD = "/upload";
         
         public static class Demo {
-            private static final String PACKAGE = Demo.class.getSimpleName().toLowerCase();
+            private static final String PACKAGE = "/" + Demo.class.getSimpleName().toLowerCase();
             public static final String IRRLIST = PACKAGE + "/irrlist";
             public static final String AUTOMAIL = PACKAGE + "/automail";
             public static final String GBUILDER1D = PACKAGE + "/gbuilder1d";
@@ -34,14 +34,14 @@ public class Path {
         }
         
         public static class Data {
-            private static final String PACKAGE = Data.class.getSimpleName().toLowerCase();
+            private static final String PACKAGE = "/" + Data.class.getSimpleName().toLowerCase();
             public static final String CULTIVAR = PACKAGE + "/cultivar";
             public static final String UNIT_LOOKUP = PACKAGE + "/unit/lookup";
             public static final String UNIT_CONVERT = PACKAGE + "/unit/convert";
         }
         
         public static class Translator {
-            private static final String PACKAGE = Translator.class.getSimpleName().toLowerCase();
+            private static final String PACKAGE = "/" + Translator.class.getSimpleName().toLowerCase();
             public static final String DSSAT = PACKAGE + "/dssat";
             public static final String DSSAT_EXP = PACKAGE + "/dssat_exp";
             public static final String XML = PACKAGE + "/xml";
