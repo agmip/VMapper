@@ -672,9 +672,6 @@
                                         headerDef.icasa = headerDef.column_header;
                                     }
                                 }
-                                if (headerDef.icasa && primaryVarExisted[headerDef.icasa] !== undefined) {
-                                    primaryVarExisted[headerDef.icasa] = true;
-                                }
                                 let icasa_unit = icasaVarMap.getUnit(headerDef.icasa);
                                 if (!headerDef.unit) {
                                     headerDef.unit_error = true;
