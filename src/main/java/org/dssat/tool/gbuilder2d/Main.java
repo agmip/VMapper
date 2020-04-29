@@ -156,6 +156,11 @@ public class Main {
                 });
         
         get(Path.Web.Demo.DATA_FACTORY, (Request request, Response response) -> {
+            response.redirect(Path.Web.Demo.VMAPPER);
+            return "Redirect to " + Path.Web.Demo.VMAPPER;
+                });
+        
+        get(Path.Web.Demo.VMAPPER, (Request request, Response response) -> {
             HashMap data = new HashMap();
             data.put("icasaMgnVarMap", DataUtil.getICASAMgnVarMap());
             data.put("icasaObvVarMap", DataUtil.getICASAObvVarMap());

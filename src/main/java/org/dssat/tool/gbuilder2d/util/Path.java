@@ -31,6 +31,7 @@ public class Path {
             public static final String XML_EDITOR = PACKAGE + "/xmleditor";
             public static final String UNIT_MASTER = PACKAGE + "/unit";
             public static final String DATA_FACTORY = PACKAGE + "/data_factory";
+            public static final String VMAPPER = PACKAGE + "/vmapper";
         }
         
         public static class Data {
