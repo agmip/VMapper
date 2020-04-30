@@ -300,6 +300,9 @@
                                 if (itemData.virtual_val_keys) {
                                     $(this).val(itemData.virtual_val_keys).trigger("chosen:updated");
                                 }
+                            } else if ($(this).attr("name") === "virtual_val_type") {
+                                chosen_init_target($(this), "chosen-select-deselect-single");
+                                $(this).val("string").trigger("chosen:updated");
                             } else {
                                 chosen_init_target($(this), "chosen-select-deselect-single");
                                 $(this).val(itemData[$(this).attr("name")]).trigger("chosen:updated");
