@@ -403,6 +403,7 @@
             function readSpreadSheet(target, sc2Files) {
                 let files = target.files;
                 let colors = [];
+                virColCnt = {};
                 for (let i = 0; i < files.length; i++) {
                     if (i < preferColors.length) {
                         colors.push(preferColors[i]);
@@ -413,6 +414,7 @@
                         }
                         colors.push(color);
                     }
+                    virColCnt[files[i].name] = {};
                 }
                 let idx = 0;
                 userVarMap = {};
@@ -420,7 +422,6 @@
                 fileTypes = {};
                 templates = {};
                 fileColors = {};
-                virColCnt = {};
                 curFileName = null;
                 curSheetName = null;
                 wbObj = null;
@@ -507,6 +508,13 @@
 
                 if (!curFileName || !curSheetName) {
                     wbObj = {};
+                }
+                for (let fileName in templates) {
+                    for (let sheetName in templates[fileName]) {
+                        if (!virColCnt[fileName][sheetName]) {
+                            virColCnt[fileName][sheetName] = 0;
+                        }
+                    }
                 }
                 for (let name in workbooks) {
                     if (workbooks[name]) {
@@ -621,15 +629,17 @@
                         }
 //                        let roa = sheet_to_json(sheet);
                         
+                        result[sheetName] = {};
+                        result[sheetName].data = roa;
+                    }
+                    if (isChanged) {
                         // store sheet data
                         if (sheetDef.header_row) {
                             headers = roa[sheetDef.header_row - 1];
                         } else {
                             headers = [];
                         }
-                        result[sheetName] = {};
                         result[sheetName].header = headers;
-                        result[sheetName].data = roa;
                     }
                     
                     if (roa.length && roa.length > 0) {
@@ -698,7 +708,7 @@
                             }
                             for (let i in roa) {
                                 while (sheetDef.mappings.length < roa[i].length) {
-                                    sheetDef.mappings.push({column_index : sheetDef.mappings.length, column_index_org : sheetDef.mappings.length});
+                                    sheetDef.mappings.push({column_index : sheetDef.mappings.length + 1, column_index_org : sheetDef.mappings.length + 1});
                                 }
                             }
                         } else {
