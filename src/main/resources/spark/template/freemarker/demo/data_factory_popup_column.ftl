@@ -74,6 +74,7 @@
                             delete colDef.unit_error;
                         }
                         
+                        let columns = spreadsheet.getSettings().columns;
                         if (!colDef.column_index) {
                             // handle new virtual column
                             insertVRData(colDef);
@@ -83,14 +84,14 @@
                             updateVRData(colDef);
                         } else if (colDef.unit === "date") {
                             // handle data type -> date
-                            let columns = spreadsheet.getSettings().columns;
+                            
                             columns[itemData.column_index - 1].type = "date";
 //                            columns[itemData.column_index - 1].format = "YYYY-MM-DD";
-                            spreadsheet.updateSettings({
-                                columns : columns
-                            });
                         }
-                        $("[name='" + curSheetName + "_" + (itemData.column_index - 1) + "_label']").last().attr("class", getColStatusClass(itemData.column_index - 1));
+                        $("[name='" + curFileName + "_" + curSheetName + "_" + (itemData.column_index - 1) + "_label']").last().attr("class", getColStatusClass(itemData.column_index - 1));
+                        spreadsheet.updateSettings({
+                            columns : columns
+                        });
                         isChanged = true;
                         isViewUpdated = false;
                         isDebugViewUpdated = false;
