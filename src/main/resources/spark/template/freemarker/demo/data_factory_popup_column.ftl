@@ -587,13 +587,13 @@
     <p name="dialog_msg"></p>
     <div class="col-sm-12">
         <!-- 1st row -->
-        <div class="form-group col-sm-6">
+        <div class="form-group col-sm-4">
             <label class="control-label">Column Header</label>
             <div class="input-group col-sm-12">
                 <input type="text" name="column_header" class="form-control col-def-input-item-vr" value="" readonly>
             </div>
         </div>
-        <div class="form-group col-sm-6">
+        <div class="form-group col-sm-4">
             <label class="control-label">Variable Type</label>
             <div class="input-group col-sm-12">
                 <select name="var_type" class="form-control" data-placeholder="Choose a variable type...">
@@ -605,6 +605,17 @@
         </div>
         <!-- 1.1st row -->
         <div name="virtual_info" hidden>
+            <div class="form-group col-sm-4">
+                <label class="control-label">Value Type:</label>
+                <div class="input-group col-sm-12">
+                    <select name="virtual_val_type" class="form-control col-def-input-item-vr">
+                        <option value=""></option>
+                        <option value="string" checked>Compound String</option>
+                        <option value="number" disabled>Calculated Number</option>
+                        <option value="fixed" disabled>Fixed Content</option>
+                    </select>
+                </div>
+            </div>
             <div class="form-group col-sm-12">
                 <label class="control-label">Value From:</label>
                 <div class="input-group col-sm-12">
