@@ -79,6 +79,7 @@
                             // handle new virtual column
                             insertVRData(colDef);
                             updateVRData(colDef);
+                            virColCnt[curFileName][curSheetName]++;
                         } else if (!colDef.column_index_org) {
                             // handle editted virtual column
                             updateVRData(colDef);
@@ -375,14 +376,17 @@
         }
     }
     
-    function shiftRefFromKeyIdx(sheetDef, idx) {
+    function shiftRefFromKeyIdx(sheetDef, idx, shiftVal) {
         let references = {};
+        if (!shiftVal) {
+            shiftVal = 1;
+        }
         for (let keyStr in sheetDef.references) {
             let keys = JSON.parse("[" + keyStr + "]");
             let newKeys = [];
             for (let i in keys) {
                 if (keys[i] > idx) {
-                    newKeys.push(keys[i] + 1);
+                    newKeys.push(keys[i] + shiftVal);
                 } else {
                     newKeys.push(keys[i]);
                 }

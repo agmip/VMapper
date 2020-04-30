@@ -1017,6 +1017,57 @@
                                     }, 0); // Fire alert after menu close (with timeout)
                                 }
                             },
+                            "remove_column":{
+                                name: '<span class="glyphicon glyphicon-minus-sign"></span> Remove Column',
+                                hidden: function () { // `hidden` can be a boolean or a function
+                                    let selection = this.getSelected();
+                                    for (let i in selection) {
+                                        let start = Math.min(selection[i][1], selection[i][3]);
+                                        let end = Math.max(selection[i][1], selection[i][3]);
+                                        for (let j = start; j <= end; j++) {
+                                            if (!mappings[j].column_index_org) {
+                                                return false;
+                                            }
+                                        }
+                                    }
+                                    return true;
+                                },
+                                callback: function(key, selection, clickEvent) {
+                                    setTimeout(function() {
+                                        let columns = spreadsheet.getSettings().columns;
+                                        selection.sort(function (s1, s2) {
+                                            return s2.start.col - s1.start.col;
+                                        });
+                                        for (let i in selection) {
+                                            let first = Math.min(selection[i].start.col, selection[i].end.col);
+                                            let last = Math.max(selection[i].start.col, selection[i].end.col);
+                                            for (let j = last; j >= first; j--) {
+                                                if (!mappings[j].column_index_org) {
+                                                    // remove mapping
+                                                    for (let k = j + 1; k < mappings.length; k++) {
+                                                        mappings[k].column_index--;
+                                                    }
+                                                    mappings.splice(j, 1);
+                                                    // Shift references index
+                                                    shiftRefFromKeyIdx(sheetDef, j, -1);
+                                                    // remove data
+                                                    for (let k in data) {
+                                                        data[k].splice(j, 1);
+                                                    }
+                                                    // remove column def
+                                                    columns.splice(j, 1);
+                                                    // reduce virtual column count
+                                                    virColCnt[fileName][sheetName]--;
+                                                }
+                                            }
+                                        }
+                                        spreadsheet.updateSettings({
+                                            columns : columns
+                                        });
+//                                        console.log(virColCnt);
+                                    }, 0); // Fire alert after menu close (with timeout)
+                                }
+                            },
                             "edit_row":{
                                 name: '<span class="glyphicon glyphicon-edit"></span> Edit Row Definition',
                                 callback: function(key, selection, clickEvent) {
@@ -1380,6 +1431,9 @@
                                     templates[fileName][sheetName].references = {};
                                     if (!virColCnt[fileName]) {
                                         virColCnt[fileName] = {};
+                                    }
+                                    if (!virColCnt[fileName][sheetName]) {
+                                        virColCnt[fileName][sheetName] = 0;
                                     }
                                     let mappings = templates[fileName][sheetName].mappings;
                                     sc2Mappings.sort(function (m1, m2) {
