@@ -597,7 +597,7 @@
 
 <div id="template" hidden>
     <div name="template_ref_table">
-        <div class="row text-right">
+        <div class="row text-left">
             <div class="col-sm-12 ">
                 <button type="button" class="btn btn-primary" name="auto_detect_btn">
                     <span class="glyphicon glyphicon-search"></span> Auto Detect Reference 
