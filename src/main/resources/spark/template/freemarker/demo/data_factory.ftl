@@ -632,7 +632,7 @@
                         result[sheetName] = {};
                         result[sheetName].data = roa;
                     }
-                    if (isChanged) {
+                    if (isChanged || !headers || headers.length === 0) {
                         // store sheet data
                         if (sheetDef.header_row) {
                             headers = roa[sheetDef.header_row - 1];
@@ -720,6 +720,12 @@
                                     updateRawData(roa, sheetDef, mapping);
                                 }
                             }
+                            if (sheetDef.header_row) {
+                                headers = roa[sheetDef.header_row - 1];
+                            } else {
+                                headers = [];
+                            }
+                            result[sheetName].header = headers;
                             // check if header is matched with given spreadsheet
                             let tmpMappings = [];
                             for (let i in sheetDef.mappings) {
