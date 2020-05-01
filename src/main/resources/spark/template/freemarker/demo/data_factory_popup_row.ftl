@@ -204,7 +204,7 @@
 
     function showSheetDefPrompt(callback) {
         bootbox.confirm({
-            message: "The raws of the sheet has not been defined yet, do you want to do that?",
+            message: "The rows of the sheet has not been defined yet, do you want to do that?",
             buttons: {
                 confirm: {
                     label: 'Confirm',
