@@ -668,8 +668,12 @@
                                 if (headers[i]) {
                                     headerDef.column_header = headers[i].trim();
                                 }
-                                if (!headerDef.unit && sheetDef.unit_row) {
-                                    headerDef.unit = roa[sheetDef.unit_row - 1][i];
+                                if (!headerDef.unit || headerDef.unit_error || !headerDef.icasa) {
+                                    if (sheetDef.unit_row) {
+                                        headerDef.unit = roa[sheetDef.unit_row - 1][i];
+                                    } else {
+                                        delete headerDef.unit;
+                                    }
                                 }
                                 if (!headerDef.description && sheetDef.desc_row) {
                                     headerDef.description = roa[sheetDef.desc_row - 1][i];
@@ -683,7 +687,9 @@
                                     }
                                 }
                                 let icasa_unit = icasaVarMap.getUnit(headerDef.icasa);
-                                if (!headerDef.unit) {
+                                if (!headerDef.icasa) {
+                                    continue;
+                                } else if (!headerDef.unit) {
                                     headerDef.unit_error = true;
                                 } else if (icasa_unit && headerDef.unit !== icasa_unit) {
                                     $.get("/data/unit/convert?value_from=2&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
