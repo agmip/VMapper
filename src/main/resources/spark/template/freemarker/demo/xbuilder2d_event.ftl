@@ -70,6 +70,10 @@
         events = managements[target.id].data;
         eventData = managements[target.id].tmlData;
         mgnId = target.id;
+        eventId = 1;
+        for (let i in events) {
+            eventId = Math.max(events[i].id + 1, eventId);
+        }
         $('#mgn_name').val(managements[target.id]['mgn_name']);
     }
     
