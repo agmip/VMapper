@@ -121,6 +121,14 @@
                         return null;
                     }
                 },
+                "getDesc" : function(varName) {
+                    let group = this.getPrimaryGroup(varName);
+                    if (group) {
+                        return group[varName].description;
+                    } else {
+                        return null;
+                    }
+                },
                 "getDataset" : function(varName, isLower) {
                     let group = this.getPrimaryGroup(varName);
                     if (group) {
@@ -1507,6 +1515,9 @@
                                         mappings[colIdx - 1] = sc2Mappings[j];
                                         
 //                                        mappings[sc2Mappings[j].column_index - 1] = sc2Mappings[j];
+                                        if (sc2Mappings[j].icasa && primaryVarExisted[sc2Mappings[j].icasa] !== undefined) {
+                                            primaryVarExisted[sc2Mappings[j].icasa] = true;
+                                        }
                                         if (sc2Mappings[j].formula_info) {
                                             for (let key in sc2Mappings[j].formula_info) {
                                                 sc2Mappings[j][key] = sc2Mappings[j].formula_info[key];
