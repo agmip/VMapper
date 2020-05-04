@@ -55,7 +55,7 @@
             let toKeyIdxs = getKeyIdxArr(refDef.to.keys);
             let references = templates[refDef.from.file][refDef.from.sheet].references;
             delete references[fromKeyIdxs][getRefDefKey(refDef.to, toKeyIdxs)];
-            if (Object.keys(references[fromKeyIdxs])) {
+            if (Object.keys(references[fromKeyIdxs]).length === 0) {
                 delete references[fromKeyIdxs];
             }
             isChanged = true;
