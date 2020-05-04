@@ -1132,6 +1132,9 @@
                                                     if (icasaUnit) {
                                                         mappings[j].unit = icasaUnit;
                                                         delete mappings[j].unit_error;
+                                                        if (!mappings[j].description) {
+                                                            mappings[j].description = icasaVarMap.getDesc(mappings[j].icasa);
+                                                        }
                                                         let newHeader = getColHeaderComp(mappings, j);
                                                         let header = $("[name='" + fileName + "_" + sheetName + "_" + j + "_label']").last();
                                                         header.attr("class", newHeader.attr("class"));
@@ -1515,9 +1518,6 @@
                                         mappings[colIdx - 1] = sc2Mappings[j];
                                         
 //                                        mappings[sc2Mappings[j].column_index - 1] = sc2Mappings[j];
-                                        if (sc2Mappings[j].icasa && primaryVarExisted[sc2Mappings[j].icasa] !== undefined) {
-                                            primaryVarExisted[sc2Mappings[j].icasa] = true;
-                                        }
                                         if (sc2Mappings[j].formula_info) {
                                             for (let key in sc2Mappings[j].formula_info) {
                                                 sc2Mappings[j][key] = sc2Mappings[j].formula_info[key];
