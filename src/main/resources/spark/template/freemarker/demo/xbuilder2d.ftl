@@ -897,7 +897,7 @@
         </div>
 
         <#include "../footer.ftl">
-        <script type="text/javascript" src='/plugins/FileSaver/FileSaver.js'></script>
+        <script type="text/javascript" src='/plugins/FileSaver/FileSaver.min.js'></script>
         <script type="text/javascript" src="/js/util/dateUtil.js" charset="utf-8"></script>
         <script type="text/javascript" src="/plugins/chosen/chosen.jquery.min.js" ></script>
         <script type="text/javascript" src="/plugins/chosen/prism.js" charset="utf-8"></script>

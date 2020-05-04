@@ -239,7 +239,7 @@
         </div>
 
         <#include "../footer.ftl">
-        <script type="text/javascript" src='/plugins/FileSaver/FileSaver.js'></script>
+        <script type="text/javascript" src='/plugins/FileSaver/FileSaver.min.js'></script>
         <script type="text/javascript" src="/js/dataReader/BufferedFileReader.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.js"></script>
         <script type="text/javascript">
