@@ -1829,7 +1829,7 @@
         <#include "data_factory_popup_column.ftl">
         <#include "data_factory_table_reference.ftl">
         <#include "../footer.ftl">
-        <script type="text/javascript" src='/plugins/FileSaver/FileSaver.js'></script>
+        <script type="text/javascript" src='/plugins/FileSaver/FileSaver.min.js'></script>
         <script type="text/javascript" src="/js/sheetjs/shim.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/sheetjs/xlsx.full.min.js"></script>
         <script type="text/javascript" src="/plugins/filestyle/bootstrap-filestyle.min.js"></script>
