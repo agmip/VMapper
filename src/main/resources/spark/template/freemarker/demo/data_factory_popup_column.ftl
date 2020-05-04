@@ -539,26 +539,20 @@
     function initIcasaLookupSB() {
         let varSB = $("[name='icasa_info']").find("[name='icasa']");
         varSB.append('<option value=""></option>');
-        let mgnOptgroup = $('<optgroup label="Management variable"></optgroup>');
-        varSB.append(mgnOptgroup);
-//                let category = "";
-//                let optgroup;
-        let mgnVarMap = icasaVarMap.management;
-        for (let varName in mgnVarMap) {
-//                    if (!optgroup || mgnVarMap[varName].category !== category) {
-//                        optgroup = $('<optgroup label="' + mgnVarMap[varName].category + '"></optgroup>');
-//                        mgnOptgroup.append(optgroup);
-//                        category = mgnVarMap[varName].category;
-//                    }
-//                    mgnOptgroup.append('<option value="' + varName + '">' + mgnVarMap[varName].category + " : " + mgnVarMap[varName].description + ' - ' + varName + ' (' + mgnVarMap[varName].unit_or_type +  ')</option>');
-            mgnOptgroup.append('<option value="' + varName + '">' + mgnVarMap[varName].description + ' - ' + varName + ' (' + mgnVarMap[varName].unit_or_type +  ')</option>');
-        }
-
-        let obvOptgroup = $('<optgroup label="Observation variable"></optgroup>');
-        varSB.append(obvOptgroup);
-        let obvVarMap = icasaVarMap.observation;
-        for (let varName in obvVarMap) {
-            obvOptgroup.append('<option value="' + varName + '">' + obvVarMap[varName].description + ' - ' + varName + ' (' + obvVarMap[varName].unit_or_type +  ')</option>');
+        let optGroups = {};
+        createOpt(icasaVarMap.management, optGroups, varSB);
+        createOpt(icasaVarMap.observation, optGroups, varSB);
+    }
+    
+    function createOpt(varMap, optGroups, varSB) {
+        for (let varName in varMap) {
+            let order = icasaVarMap.getOrder(varName);
+            let category = icasaVarMap.getIicasaDataCatDef(order).category;
+            if (!optGroups[category]) {
+                optGroups[category] = $('<optgroup label="' + category.toUpperCase() + '"></optgroup>');
+                varSB.append(optGroups[category]);
+            }
+            optGroups[category].append('<option value="' + varName + '">' + varMap[varName].description + ' - ' + varName + ' (' + varMap[varName].unit_or_type +  ')</option>');
         }
     }
     
