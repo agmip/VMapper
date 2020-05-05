@@ -26,6 +26,7 @@
             let userVarMap = {};
             let fileColors = {};
             let virColCnt = {};
+            let lastHeaderRow = {};
             let icasaVarMap = {
                 "management" : {
                     <#list icasaMgnVarMap?values?sort_by("code_display")?sort_by("set_group_order") as var>
@@ -412,6 +413,7 @@
                 let files = target.files;
                 let colors = [];
                 virColCnt = {};
+                lastHeaderRow = {};
                 for (let i = 0; i < files.length; i++) {
                     if (i < preferColors.length) {
                         colors.push(preferColors[i]);
@@ -423,6 +425,7 @@
                         colors.push(color);
                     }
                     virColCnt[files[i].name] = {};
+                    lastHeaderRow[files[i].name] = {};
                 }
                 let idx = 0;
                 userVarMap = {};
@@ -464,6 +467,9 @@
                     let data = e.target.result;
 //                    data = new Uint8Array(data);
 //                    console.time();
+                    if (fileName.toLowerCase().endsWith(".csv")) {
+                        data = data.replace(/\t/gi, "    ");
+                    }
                     workbook = XLSX.read(data, {type: 'binary'});
                     workbooks[fileName] = workbook;
 //                    workbook = XLSX.read(data, {type: 'array'});
@@ -640,10 +646,11 @@
                         result[sheetName] = {};
                         result[sheetName].data = roa;
                     }
-                    if (isChanged || !headers || headers.length === 0) {
+                    if (sheetDef.header_row !== lastHeaderRow[fileName][sheetName] || !headers || headers.length === 0) {
                         // store sheet data
                         if (sheetDef.header_row) {
                             headers = roa[sheetDef.header_row - 1];
+                            lastHeaderRow[fileName][sheetName] = sheetDef.header_row;
                         } else {
                             headers = [];
                         }
@@ -1467,6 +1474,14 @@
                                     }
                                     if (!virColCnt[fileName][sheetName]) {
                                         virColCnt[fileName][sheetName] = 0;
+                                    }
+                                    if (lastHeaderRow[fileName]) {
+                                        lastHeaderRow[fileName] = {};
+                                    }
+                                    if (templates[fileName][sheetName].header_row) {
+                                        lastHeaderRow[fileName][sheetName] = templates[fileName][sheetName].header_row;
+                                    } else {
+                                        lastHeaderRow[fileName][sheetName] = 1;
                                     }
                                     let mappings = templates[fileName][sheetName].mappings;
                                     sc2Mappings.sort(function (m1, m2) {
