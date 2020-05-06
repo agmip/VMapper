@@ -50,7 +50,7 @@
 
 <!-- popup page for define sheet -->
 <div id="loadFile_popup" hidden>
-    <p name="dialog_msg"></p>
+    <p name="dialog_msg" class="label label-danger"></p>
     <div class="col-sm-12">
         <!-- 1st row -->
         <div class="form-group col-sm-12">

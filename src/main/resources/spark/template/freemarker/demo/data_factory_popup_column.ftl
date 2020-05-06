@@ -581,7 +581,7 @@
 </script>
 <!-- popup page for define column -->
 <div id="col_define_popup" hidden>
-    <p name="dialog_msg"></p>
+    <p name="dialog_msg" class="label label-danger"></p>
     <div class="col-sm-12">
         <!-- 1st row -->
         <div class="form-group col-sm-4">
