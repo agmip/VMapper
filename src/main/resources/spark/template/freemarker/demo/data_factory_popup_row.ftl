@@ -126,6 +126,7 @@
             message: $("#sheet_define_popup").html(),
             buttons: buttons
         });
+        dialog.find(".modal-content").drags();
         dialog.on("shown.bs.modal", function() {
             if (errMsg) {
                 dialog.find("[name='dialog_msg']").text(errMsg);
