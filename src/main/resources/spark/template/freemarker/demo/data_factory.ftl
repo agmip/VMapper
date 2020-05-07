@@ -845,7 +845,9 @@
                     }
                 });
                 workbook.SheetNames.forEach(function(sheetName) {
-                    shiftRefToKeyIdx(templates[fileName][sheetName]);
+                    if (templates[fileName][sheetName]) {
+                        shiftRefToKeyIdx(templates[fileName][sheetName]);
+                    }
                 });
                 return result;
             }
