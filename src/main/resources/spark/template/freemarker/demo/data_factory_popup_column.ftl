@@ -115,7 +115,7 @@
             message: $("#col_define_popup").html(),
             buttons: buttons
         });
-        dialog.find(".modal-content").drags();
+//        dialog.find(".modal-content").drags();
         dialog.on("shown.bs.modal", function() {
             if (itemData.err_msg) {
                 dialog.find("[name='dialog_msg']").text(itemData.err_msg);
