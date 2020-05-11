@@ -1,7 +1,9 @@
 <script>
     function showSheetDefDialog(callback, errMsg, editFlg) {
         let sheets = {};
+        let headerStr;
         if (editFlg) {
+            headerStr = "<h2>Row Definition</h2>";
             sheets = JSON.parse(JSON.stringify(templates));
             if (!sheets[curFileName][curSheetName].header_row) {
                 sheets[curFileName][curSheetName].header_row = 1;
@@ -10,10 +12,11 @@
                 sheets[curFileName][curSheetName].data_start_row = sheets[curFileName][curSheetName].header_row + 1;
             }
         } else {
+            headerStr = "<h2>Sheet Definition</h2>";
             for (let fileName in workbooks) {
                 let workbook = workbooks[fileName];
                 sheets[fileName] = {};
-                workbook.SheetNames.forEach(function(sheetName) {1
+                workbook.SheetNames.forEach(function(sheetName) {
 //                workbook.worksheets.forEach(function(sheet) {
 //                    let sheetName = sheet.name;
                     sheets[fileName][sheetName] = {};
@@ -121,7 +124,7 @@
             }
         };
         let dialog = bootbox.dialog({
-            title: "<h2>Row Definition</h2>",
+            title: headerStr,
             size: 'large',
             message: $("#sheet_define_popup").html(),
             buttons: buttons
