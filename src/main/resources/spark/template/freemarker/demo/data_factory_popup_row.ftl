@@ -162,47 +162,47 @@
                 }
             }
             let spsOptions = {
-                    licenseKey: 'non-commercial-and-evaluation',
-                    data: data,
-                    columns : columns,
-                    stretchH: 'all',
-                    autoWrapRow: true,
-                    height: 300,
-                    minRows: 1,
-                    maxRows: 365 * 30,
-                    manualRowResize: false,
-                    manualColumnResize: false,
-                    rowHeaders: false,
-                    colHeaders: colHeaders,
-                    manualRowMove: false,
-                    manualColumnMove: false,
-                    filters: true,
-                    dropdownMenu: true,
-                    contextMenu: false,
-                    mergeCells: mergeCells
-                };
-                $(this).find("[name='rowDefSheet']").each(function () {
-                    $(this).handsontable(spsOptions);
-                    let popSpreadsheet = $(this).handsontable('getInstance');
-                    
-                    popSpreadsheet.updateSettings({
-                        cells: function(row, col, prop) {
-                            var cell = popSpreadsheet.getCell(row,col);
-                            if (!cell) {
-                                return;
-                            }
-                            if (curSheetName === data[row].sheet_name) {
-                                cell.style.backgroundColor = "yellow";
-                            } else if (data[row].flie_name_row) {
-                                cell.style.color = "white";
-                                cell.style.fontWeight = "bold";
-                                cell.style.backgroundColor = "grey";
-                            } else if (curSheetName) {
-                                return {readOnly : true};
-                            }
+                licenseKey: 'non-commercial-and-evaluation',
+                data: data,
+                columns : columns,
+                stretchH: 'all',
+                autoWrapRow: true,
+                height: 300,
+                minRows: 1,
+                maxRows: 365 * 30,
+                manualRowResize: false,
+                manualColumnResize: false,
+                rowHeaders: false,
+                colHeaders: colHeaders,
+                manualRowMove: false,
+                manualColumnMove: false,
+                filters: true,
+                dropdownMenu: true,
+                contextMenu: false,
+                mergeCells: mergeCells
+            };
+            $(this).find("[name='rowDefSheet']").each(function () {
+                $(this).handsontable(spsOptions);
+                let popSpreadsheet = $(this).handsontable('getInstance');
+
+                popSpreadsheet.updateSettings({
+                    cells: function(row, col, prop) {
+                        var cell = popSpreadsheet.getCell(row,col);
+                        if (!cell) {
+                            return;
                         }
-                    });
+                        if (curSheetName === data[row].sheet_name) {
+                            cell.style.backgroundColor = "yellow";
+                        } else if (data[row].flie_name_row) {
+                            cell.style.color = "white";
+                            cell.style.fontWeight = "bold";
+                            cell.style.backgroundColor = "grey";
+                        } else if (curSheetName) {
+                            return {readOnly : true};
+                        }
+                    }
                 });
+            });
         });
     }
 
