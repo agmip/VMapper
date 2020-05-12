@@ -284,7 +284,7 @@ public class UnitConverter {
     public static boolean isValid(String unitStr) {
         try {
             return PARSER.parse(preParsing(unitStr)) != null;
-        } catch (SpecificationException ex) {
+        } catch (SpecificationException | StringIndexOutOfBoundsException ex) {
             System.err.println(ex.getMessage());
             return false;
         } catch (PrefixDBException | UnitDBException | UnitSystemException ex) {
@@ -317,7 +317,7 @@ public class UnitConverter {
                 ret = "";
             }
             return ret;
-        } catch (SpecificationException ex) {
+        } catch (SpecificationException | StringIndexOutOfBoundsException ex) {
             System.err.println(ex.getMessage());
             return "";
         } catch (PrefixDBException | UnitDBException | UnitSystemException ex) {
@@ -344,7 +344,7 @@ public class UnitConverter {
                 return "unitless";
             }
             return ret;
-        } catch (SpecificationException ex) {
+        } catch (SpecificationException | StringIndexOutOfBoundsException ex) {
             System.err.println(ex.getMessage());
             return "";
         } catch (PrefixDBException | UnitDBException | UnitSystemException ex) {
