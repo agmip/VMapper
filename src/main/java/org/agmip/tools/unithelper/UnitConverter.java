@@ -254,6 +254,12 @@ public class UnitConverter {
 
     protected static String preParsing(String unit) {
         String ret = unit.replaceAll(" per ", "/").replaceAll("\\[[^\\]]*\\]", "").replaceAll("\\s", "");
+        if (ret.toLowerCase().contains("p2o5") || ret.toLowerCase().contains("p2o") || ret.toLowerCase().contains("k2o")) {
+            ret = ret.replaceAll("[Pp]2[Oo]5?", "p2o");
+//            if (!getCategory(ret, true).contains("M")) {
+//                return "!" + ret;
+//            }
+        }
         // Remove extra splitter used by comment expression
         for (String s1 : SPLITTER) {
             for (String s2 : SPLITTER) {
@@ -328,9 +334,16 @@ public class UnitConverter {
             return "";
         }
     }
-
+    
     public static String getCategory(String unitStr) {
-        String unitStrNoComment = preParsing(unitStr);
+        return getCategory(unitStr, false);
+    }
+
+    public static String getCategory(String unitStr, boolean skipPreParsing) {
+        String unitStrNoComment = unitStr;
+        if (!skipPreParsing) {
+            unitStrNoComment = preParsing(unitStr);
+        }
         if (AGMIP_UNIT.containsKey(unitStrNoComment)) {
             String agmipRet = AGMIP_UNIT.get(unitStrNoComment);
             if (agmipRet.equals("1")) {
@@ -406,7 +419,12 @@ public class UnitConverter {
     
     private static PrefixDB initPrefixDB() {
         try {
-            return PrefixDBManager.instance();
+            PrefixDB db = PrefixDBManager.instance();
+            db.addName("p2o5", 1/2.29);
+            db.addSymbol("p2o", 1/2.29);
+            db.addName("k2o", 1/1.21);
+            db.addSymbol("k2o", 1/1.21);
+            return db;
         } catch (PrefixDBException ex) {
             System.err.println(ex.getMessage());
             return null;
