@@ -10,7 +10,6 @@
         }
 
         return $el.css('cursor', opt.cursor).on("mousedown", function(e) {
-            console.log(e.target);
             if (["TD", "INPUT", "TEXTAREA", "SELECT", "OPTION", "BUTTON"].includes(e.target.tagName)) {
                 return;
             }
