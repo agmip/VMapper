@@ -34,7 +34,7 @@
             const soilInfoMap = {
                 <#list soils as soilFile>
                 <#list soilFile.soils as soil>
-                '${soil.soil_id!}' : {sllb : [<#if soil.soilLayer??><#list soil.soilLayer as layer>${layer.sllb}<#sep>,</#sep></#list></#if>]},
+                '${soil.soil_id?js_string!}' : {sllb : [<#if soil.soilLayer??><#list soil.soilLayer as layer>${layer.sllb?js_string}<#sep>,</#sep></#list></#if>]},
                 </#list>
                 </#list>
             };
@@ -43,11 +43,11 @@
             const soilFileInfoList = [
                 <#list soils as soilFile>
                 {
-                    sl_notes : '${soilFile.sl_notes!}',
-                    file_name : '${soilFile.file_name!}',
+                    sl_notes : '${soilFile.sl_notes!?js_string}',
+                    file_name : '${soilFile.file_name!?js_string}',
                     soils : [
                         <#list soilFile.soils as soil>
-                        {soil_id : '${soil.soil_id!}', soil_name : '${soil.soil_name!}'}<#sep>,</#sep>
+                        {soil_id : '${soil.soil_id?js_string!}', soil_name : '${soil.soil_name!}'}<#sep>,</#sep>
                         </#list>
                     ]
                 }<#sep>,</#sep>
@@ -57,9 +57,9 @@
             const wstInfoMap = {
                 <#list weathers as wth>
                 '${wth.wst_id!}' : {
-                    wst_notes : "${wth.wst_notes!'Unknown name'}",
-                    first_year : ${wth.wst_years?first},
-                    last_year : ${wth.wst_years?last}
+                    wst_notes : "${wth.wst_notes!'Unknown name'?js_string}",
+                    first_year : ${wth.wst_years?first?js_string},
+                    last_year : ${wth.wst_years?last?js_string}
                 }<#sep>,</#sep>
                 </#list>
             };
@@ -68,14 +68,14 @@
             const culInfoMap = {
                 <#list culMetaList as culMeta>
                 "${culMeta.agmip_code!}" : {
-                    crop_name : "${culMeta.name!}",
-                    crid_dssat : "${culMeta.dssat_code!}",
-                    category : "${culMeta.category!}",
+                    crop_name : "${culMeta.name?js_string!}",
+                    crid_dssat : "${culMeta.dssat_code?js_string!}",
+                    category : "${culMeta.category?js_string!}",
                     cultivars : {
                         <#list culMeta.cultivars?keys?sort as culId>
                         "${culId!}" : {
-                            cul_name : "${culMeta.cultivars[culId].cul_name!}",
-                            cul_id : "${culId!}"
+                            cul_name : "${culMeta.cultivars[culId].cul_name?js_string!}",
+                            cul_id : "${culId?js_string!}"
                         }<#sep>,</#sep>
                         </#list>
                     }
@@ -88,7 +88,7 @@
                 <#list icasaMgnCodeMap?keys as key>
                 ${key}:{
                 <#list icasaMgnCodeMap[key]?keys as code>
-                    ${code} : "${icasaMgnCodeMap[key][code]}"<#sep>,</#sep>
+                    ${code?js_string} : "${icasaMgnCodeMap[key][code]?js_string}"<#sep>,</#sep>
                 </#list>
                 }<#sep>,</#sep>
                 </#list>
@@ -98,7 +98,7 @@
                 <#list icasaMgnCodeMap?keys as key>
                 ${key}:{
                 <#list icasaMgnCodeMap[key]?keys as code>
-                    "${icasaMgnCodeMap[key][code]}" : "${code}"<#sep>,</#sep>
+                    "${icasaMgnCodeMap[key][code]?js_string}" : "${code?js_string}"<#sep>,</#sep>
                 </#list>
                 }<#sep>,</#sep>
                 </#list>
@@ -119,10 +119,10 @@
                         {type: 'date', data: 'date', dateFormat: 'YYYY-MM-DD'},
                         {type: 'date', data: 'edate', dateFormat: 'YYYY-MM-DD'},
                         {type: 'dropdown', data: 'plma_text',
-                            source: [<#list icasaMgnCodeMap.plma?keys?sort as code>"${icasaMgnCodeMap.plma[code]}"<#sep>,</#sep></#list>]
+                            source: [<#list icasaMgnCodeMap.plma?keys?sort as code>"${icasaMgnCodeMap.plma[code]?js_string}"<#sep>,</#sep></#list>]
                         },
                         {type: 'dropdown', data: 'plds_text',
-                            source: [<#list icasaMgnCodeMap.plds?keys?sort as code>"${icasaMgnCodeMap.plds[code]}"<#sep>,</#sep></#list>]
+                            source: [<#list icasaMgnCodeMap.plds?keys?sort as code>"${icasaMgnCodeMap.plds[code]?js_string}"<#sep>,</#sep></#list>]
                         },
                         {type: 'numeric', data: 'plrs'},
                         {type: 'numeric', data: 'plrd',
@@ -155,7 +155,7 @@
                             }
                         },
                         {type: 'dropdown', data: 'irop_text',
-                            source: [<#list icasaMgnCodeMap.irop?keys?sort as code>"${icasaMgnCodeMap.irop[code]}"<#sep>,</#sep></#list>]
+                            source: [<#list icasaMgnCodeMap.irop?keys?sort as code>"${icasaMgnCodeMap.irop[code]?js_string}"<#sep>,</#sep></#list>]
                         },
                         {type: 'numeric', data: 'irval'},
                         {type: 'numeric', data: 'irrat'},
@@ -173,10 +173,10 @@
                         {type: 'text', data: 'content'},
                         {type: 'date', data: 'date', dateFormat: 'YYYY-MM-DD'},
                         {type: 'dropdown', data: 'fecd_text',
-                            source: [<#list icasaMgnCodeMap.fecd?keys?sort as code>"${icasaMgnCodeMap.fecd[code]}"<#sep>,</#sep></#list>]
+                            source: [<#list icasaMgnCodeMap.fecd?keys?sort as code>"${icasaMgnCodeMap.fecd[code]?js_string}"<#sep>,</#sep></#list>]
                         },
                         {type: 'dropdown', data: 'feacd_text',
-                            source: [<#list icasaMgnCodeMap.feacd?keys?sort as code>"${icasaMgnCodeMap.feacd[code]}"<#sep>,</#sep></#list>]
+                            source: [<#list icasaMgnCodeMap.feacd?keys?sort as code>"${icasaMgnCodeMap.feacd[code]?js_string}"<#sep>,</#sep></#list>]
                         },
                         {type: 'numeric', data: 'fedep'},
                         {type: 'numeric', data: 'feamn'},
@@ -185,7 +185,7 @@
                         {type: 'numeric', data: 'feamc'},
                         {type: 'numeric', data: 'feamo'},
                         {type: 'dropdown', data: 'feocd_text',
-                            source: [<#list icasaMgnCodeMap.feocd?keys?sort as code>"${icasaMgnCodeMap.feocd[code]}"<#sep>,</#sep></#list>]
+                            source: [<#list icasaMgnCodeMap.feocd?keys?sort as code>"${icasaMgnCodeMap.feocd[code]?js_string}"<#sep>,</#sep></#list>]
                         }
                     ],
                     headers: ['Name', 'Date','Fertilizer Material', 'Fertilizer Applications', 'Depth', 'Nitrogen', 'Phosphorus', 'Potassium', 'Calcium',
@@ -197,10 +197,10 @@
                         {type: 'date', data: 'date', dateFormat: 'YYYY-MM-DD'},
                         {type: 'text', data: 'hastg'},
                         {type: 'dropdown', data: 'hacom_text',
-                            source: [<#list icasaMgnCodeMap.hacom?keys?sort as code>"${icasaMgnCodeMap.hacom[code]}"<#sep>,</#sep></#list>]
+                            source: [<#list icasaMgnCodeMap.hacom?keys?sort as code>"${icasaMgnCodeMap.hacom[code]?js_string}"<#sep>,</#sep></#list>]
                         },
                         {type: 'dropdown', data: 'hasiz_text',
-                            source: [<#list icasaMgnCodeMap.hasiz?keys?sort as code>"${icasaMgnCodeMap.hasiz[code]}"<#sep>,</#sep></#list>]
+                            source: [<#list icasaMgnCodeMap.hasiz?keys?sort as code>"${icasaMgnCodeMap.hasiz[code]?js_string}"<#sep>,</#sep></#list>]
                         },
                         {type: 'numeric', data: 'happc',
                             validator: function (value, callback) {
