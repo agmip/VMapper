@@ -31,12 +31,12 @@
                 "management" : {
                     <#list icasaMgnVarMap?values?sort_by("code_display")?sort_by("set_group_order") as var>
                     "${var.code_display}" : {
-                        code_display : "${var.code_display}",
-                        description : '${var.description}',
-                        unit_or_type : "${var.unit_or_type}",
-                        dataset : "${var.dataset}",
-                        subset : "${var.subset}",
-                        group : "${var.group}",
+                        code_display : "${var.code_display?js_string}",
+                        description : '${var.description?js_string}',
+                        unit_or_type : "${var.unit_or_type?js_string}",
+                        dataset : "${var.dataset?js_string}",
+                        subset : "${var.subset?js_string}",
+                        group : "${var.group?js_string}",
                         <#if var.subgroup??>subgroup : "${var.subgroup}",</#if>
                         order : ${var.set_group_order},
                         agmip_data_entry : "${var.agmip_data_entry}",
@@ -47,12 +47,12 @@
                 "observation" : {
                     <#list icasaObvVarMap?values?sort_by("code_display")?sort_by("set_group_order") as var>
                     "${var.code_display}" : {
-                        code_display : "${var.code_display}",
-                        description : "${var.description}",
-                        unit_or_type : "${var.unit_or_type}",
-                        dataset : "${var.dataset}",
-                        subset : "${var.subset}",
-                        group : "${var.group}",
+                        code_display : "${var.code_display?js_string}",
+                        description : "${var.description?js_string}",
+                        unit_or_type : "${var.unit_or_type?js_string}",
+                        dataset : "${var.dataset?js_string}",
+                        subset : "${var.subset?js_string}",
+                        group : "${var.group?js_string}",
                         <#if var['sub-group']??>subgroup : "${var['sub-group']}",</#if>
                         order : ${var.set_group_order},
                         agmip_data_entry : "${var.agmip_data_entry}",
