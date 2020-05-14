@@ -33,16 +33,22 @@ function chosen_init_name(name, className) {
 }
 
 function chosen_init_target(target, className) {
-    target.chosen("destroy");
-    if (className === undefined) {
-        for (let selector in chonsenConfigs) {
-            if (target.hasClass(selector)) {
-                target.chosen(chonsenConfigs[selector]);
-                return;
-            }
-        }
-        target.chosen(chonsenConfigs["chosen-select"]);
+    if (target.length > 1) {
+        target.each(function () {
+           chosen_init_target($(this), className) ;
+        });
     } else {
-        target.chosen(chonsenConfigs[className]);
+        target.chosen("destroy");
+        if (className === undefined) {
+            for (let selector in chonsenConfigs) {
+                if (target.hasClass(selector)) {
+                    target.chosen(chonsenConfigs[selector]);
+                    return;
+                }
+            }
+            target.chosen(chonsenConfigs["chosen-select"]);
+        } else {
+            target.chosen(chonsenConfigs[className]);
+        }
     }
 }
