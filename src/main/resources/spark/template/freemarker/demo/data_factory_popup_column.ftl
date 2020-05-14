@@ -65,6 +65,11 @@
                     }
                     if (!itemData.err_msg) {
                         updateData($(this), colDef, curVarType);
+                        if (itemData.code_mappings) {
+                            colDef.code_mappings = itemData.code_mappings;
+                        } else if (colDef.code_mappings) {
+                            delete colDef.code_mappings;
+                        }
                         
                         let varDef = icasaVarMap.getDefinition(colDef.icasa);
                         if (varDef) {
@@ -185,6 +190,11 @@
                         }
                     });
                 });
+                subDiv.find("[name='icasa_code_mapping_btn']").each(function () {
+                    $(this).on("click", function () {
+                        showCodeMappingDialog(itemData, icasaVarMap.getCodeMap(subDiv.find("[name='icasa']").val())); 
+                    });
+                });
                 subDiv.find("[name='icasa']").each(function () {
                     $(this).on("change", function () {
                         let unit = icasaVarMap.getUnit($(this).val());
@@ -195,6 +205,12 @@
                                 sourceUnit.val(unit);
                             } else {
                                 sourceUnit.trigger("input");
+                            }
+                            if (unit === "code") {
+                                subDiv.find("[name='icasa_code_mapping_btn']").fadeIn();
+                                subDiv.find("[name='icasa_code_mapping_btn']").prop("disabled", !icasaVarMap.isCodeDefExisted(icasa));
+                            } else {
+                                subDiv.find("[name='icasa_code_mapping_btn']").fadeOut();
                             }
                         }
                         if (isVirtual) {
@@ -677,6 +693,7 @@
                 <label class="control-label">ICASA Unit</label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="icasa_unit" class="form-control" value="" readonly>
+                    <span class="input-group-addon btn btn-primary" name="icasa_code_mapping_btn"><span class="glyphicon glyphicon-edit"></span></span>
                 </div>
             </div>
             <div class="form-group col-sm-3">

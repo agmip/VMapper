@@ -394,9 +394,36 @@
                     } else {
                         return {rank: -1, category: "unknown", order: order};
                     }
+                },
+                "icasaCode" : {
+                    <#list icasaMgnCodeMap?keys as key>
+                    ${key}:{
+                    <#list icasaMgnCodeMap[key]?keys as code>
+                        ${code?js_string} : "${icasaMgnCodeMap[key][code]?js_string}"<#sep>,</#sep>
+                    </#list>
+                    }<#sep>,</#sep>
+                    </#list>
+                },
+                "getCodeMap" : function(icasa, defRet) {
+                    if (!icasa) {
+                        return defRet;
+                    }
+                    icasa = icasa.toLowerCase();
+                    if (this.icasaCode[icasa]) {
+                        return this.icasaCode[icasa];
+                    } else {
+                        return defRet;
+                    }
+                },
+                "isCodeDefExisted" : function (icasa) {
+                    if (!icasa) {
+                        return false;
+                    }
+                    icasa = icasa.toLowerCase();
+                    return !!this.icasaCode[icasa];
                 }
             };
-            
+
             function getFileName(fileFullName) {
                 if (!fileFullName) {
                     return fileFullName;
@@ -1843,6 +1870,7 @@
         <#include "data_factory_popup_loadFile.ftl">
         <#include "data_factory_popup_row.ftl">
         <#include "data_factory_popup_column.ftl">
+        <#include "data_factory_popup_codeMapping.ftl">
         <#include "data_factory_table_reference.ftl">
         <#include "../footer.ftl">
         <script type="text/javascript" src="/js/bootbox/dragable.js" charset="utf-8"></script>
