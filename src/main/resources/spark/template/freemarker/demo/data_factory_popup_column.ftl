@@ -602,7 +602,7 @@
     <div class="col-sm-12">
         <!-- 1st row -->
         <div class="form-group col-sm-4">
-            <label class="control-label">Column Header</label>
+            <label class="control-label">Raw Data Header</label>
             <div class="input-group col-sm-12">
                 <input type="text" name="column_header" class="form-control col-def-input-item-vr" value="" readonly>
             </div>
@@ -683,7 +683,7 @@
             </div>
             <!-- 3rd row -->
             <div class="form-group col-sm-3">
-                <label class="control-label">Data Unit</label>
+                <label class="control-label">Raw Data Unit</label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="unit" class="form-control col-def-input-item" value="">
                     <div class="label label-danger" name="unit_validate_result"></div>
