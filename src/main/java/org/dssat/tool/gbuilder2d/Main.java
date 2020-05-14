@@ -164,6 +164,7 @@ public class Main {
             HashMap data = new HashMap();
             data.put("icasaMgnVarMap", DataUtil.getICASAMgnVarMap());
             data.put("icasaObvVarMap", DataUtil.getICASAObvVarMap());
+            data.put("icasaMgnCodeMap", DataUtil.getICASAMgnCodeMap());
             return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.DATA_FACTORY));
                 });
         
