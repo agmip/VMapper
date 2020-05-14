@@ -977,11 +977,10 @@
                                 },
                                 callback: function(key, selection, clickEvent) {
                                     setTimeout(function() {
-                                        let itemData = {};
                                         let colIdx = selection[0].start.col;
 //                                        data.column_header = spreadsheet.getColHeader(data.colIdx);
                                         let colDef = mappings[colIdx];
-                                        Object.assign(itemData, colDef);
+                                        let itemData = JSON.parse(JSON.stringify(colDef));
                                         showColDefineDialog(itemData);
                                     }, 0); // Fire alert after menu close (with timeout)
                                 }
@@ -1655,7 +1654,7 @@
                         for (let i in templates[fileName][sheetName].mappings) {
                             let mapping = templates[fileName][sheetName].mappings[i];
                             if (!mapping.ignored_flg) {
-                                let mappingCopy = Object.assign({}, mapping);
+                                let mappingCopy = JSON.parse(JSON.stringify(mapping));
                                 if (!mappingCopy.column_index_org) {
                                     mappingCopy.column_index_vr = mappingCopy.column_index;
                                     delete mappingCopy.column_index;
