@@ -5,19 +5,27 @@
         }
         spsContainer.html("");
         let refDefList = getRefDefList();
-        let tableDiv = createRefTableDiv(refDefList);
-        spsContainer.append(tableDiv);
+        createRefTableDiv(spsContainer, refDefList);
         spsContainer.find("select").each(function () {
             chosen_init_target($(this), "chosen-select-deselect");
         });
     }
 
-    function createRefTableDiv(refDefList) {
+    function createRefTableDiv(spsContainer, refDefList) {
         let ret = $("#template").find("[name='template_ref_table']").clone();
+        spsContainer.append(ret);
         let defListDiv = ret.find("[name='ref_def_list']");
+        defListDiv.on("change", function(){
+//            if ($(this).height() > window.innerHeight*0.45) {
+//                $(this).css("max-height", window.innerHeight*0.45 + "px");
+//                $(this).css("overflow-y", "scroll");
+//            } else {
+//                $(this).css("max-height", undefined);
+//                $(this).css("overflow-y", "visible");
+//            }
+        });
         for (let i in refDefList) {
-            let refDefDiv = creatRefDefDiv(refDefList[i]);
-            defListDiv.append(refDefDiv);
+            creatRefDefDiv(refDefList[i], defListDiv);
         }
         initRefDefDiv(ret.find("[name='template_ref_def_new']"));
         ret.find("[name='auto_detect_btn']").on("click", function() {
@@ -26,7 +34,7 @@
         return ret;
     }
     
-    function creatRefDefDiv(refDef) {
+    function creatRefDefDiv(refDef, defListDiv) {
 //        return initRefDefDiv(null, refDef);
         let div = $("#template").find("[name='template_ref_def_readonly']").clone();
         let editBtn = div.find("[name='edit_btn']");
@@ -51,6 +59,7 @@
         div.find("[name='ref_def_json']").val(JSON.stringify(refDef));
         editBtn.on("click", function() {
             div.remove();
+            defListDiv.trigger("change");
             let fromKeyIdxs = getKeyIdxArr(refDef.from.keys);
             let toKeyIdxs = getKeyIdxArr(refDef.to.keys);
             let references = templates[refDef.from.file][refDef.from.sheet].references;
@@ -62,6 +71,7 @@
             isViewUpdated = false;
             isDebugViewUpdated = false;
         });
+        defListDiv.append(div).trigger("change");
         return div;
     }
     
@@ -250,7 +260,7 @@
                 }
                 references[fromKeyIdxs][getRefDefKey(toSheet, toKeyIdxs)] = newRefDef.to;
                 
-                defListDiv.append(creatRefDefDiv(newRefDef));
+                creatRefDefDiv(newRefDef, defListDiv);
                 fromSheetSB.val([]).trigger("chosen:updated").trigger("change");
                 toSheetSB.val([]).trigger("chosen:updated").trigger("change");
                 isChanged = true;
@@ -425,7 +435,7 @@
                     templates[fileName][sheetName].references = {};
                 }
             }
-            defListDiv.html("");
+            defListDiv.html("").trigger("change");
             let tableRanks = getTableRanks();
             let rootRankArr;
             // Check general references from lowest rank to highest rank
@@ -439,7 +449,7 @@
                     let tableRank = tableRankArr[j];
                     let newRefDef= detectReference(tableRanks, tableRank, tableRank.order, true);
                     if (newRefDef && newRefDef !== true) {
-                        defListDiv.append(creatRefDefDiv(newRefDef));
+                        creatRefDefDiv(newRefDef, defListDiv);
                     }
                 }
             }
@@ -453,13 +463,14 @@
                     let tableRank = tableRankArr[j];
                     let newRefDef= detectReference(tableRanks, tableRank, tableRank.order, false);
                     if (newRefDef && newRefDef !== true) {
-                        defListDiv.append(creatRefDefDiv(newRefDef));
+                        creatRefDefDiv(newRefDef, defListDiv);
                     }
                 }
             }
         });
     }
-    
+
+//    function detectReference(tableRank, order, lookForParent) {
     function detectReference(tableRanks, tableRank, order, lookForParent) {
         let newRefDef = null;
         let catDef = icasaVarMap.getIicasaDataCatDef(order);
