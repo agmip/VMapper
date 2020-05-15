@@ -134,6 +134,10 @@ function readXFileData(rawData, fileName) {
                     for (let key in irrProfileRaw) {
                         tmpData[key] = irrProfileRaw[key];
                     }
+                    if (tmpData.sub_name && tmpData.sub_name.startsWith("!")) {
+                        tmpData.name = tmpData.sub_name.substring(1);
+                        delete tmpData.sub_name;
+                    }
                     if (tmpData.irln && dripDataRaw[tmpData.irln]) {
                         for (let key in dripDataRaw[tmpData.irln]) {
                             tmpData[key] = dripDataRaw[tmpData.irln][key];
@@ -146,7 +150,6 @@ function readXFileData(rawData, fileName) {
                         } else {
                             tmpData.name =  "Irr:" + tmpData.irval + "--Irrigation" + tmpData.id;
                         }
-                        
                     }
                     cacheMgnData(tmpData, mgnDataLinkRaw, mgnDataRaw, "irrigation");
                 }
@@ -161,6 +164,14 @@ function readXFileData(rawData, fileName) {
             }
         } // end of symbol if
     } // end of loop
+
+    // remove id_x
+    for (let key in mgnDataRaw) {
+        let id = "mgn_" + Object.keys(mgnData).length;
+        for (let i in mgnDataRaw[key].data) {
+            delete mgnDataRaw[key].data[i].id_x;
+        }
+    }
 
     // Build data structure for management events
     for (let key in mgnDataRaw) {
@@ -450,7 +461,8 @@ function readIrrigationLine(line, headerLine) {
             "irrat" : 6,
             "irstr" : 6,
             "irdur" : 6,
-            "irln" : 6
+            "irln" : 6,
+            "sub_name" : line.length
         };
         tmpData.event = "irrigation";
     } else if (headerLine.startsWith("I IDATE  IROP IRVAL")) {
@@ -458,7 +470,8 @@ function readIrrigationLine(line, headerLine) {
             "id" :  2,
             "date" : 6,
             "irop" : 6,
-            "irval" : 6
+            "irval" : 6,
+            "sub_name" : line.length
         };
         tmpData.event = "irrigation";
     }
@@ -530,8 +543,34 @@ function cacheMgnData(tmpData, mgnDataLinkRaw, mgnDataRaw, eventType) {
     if (!mgnDataRaw[mgnName]) {
         mgnDataRaw[mgnName] = {mgn_name : mgnName, data : []};
     }
-    mgnDataRaw[mgnName].data.push(tmpData);
+    tmpData.id_x = tmpData.id;
+    addEvent(mgnDataRaw[mgnName].data, tmpData);
     tmpData.id = mgnDataRaw[mgnName].data.length;
+}
+
+function addEvent(arr, evt) {
+    for (let i in arr) {
+        if (isSameEvent(evt, arr[i])) {
+            return;
+        }
+    }
+    arr.push(evt);
+}
+
+function isSameEvent(ev1, ev2) {
+    // if belongs to the same index group, then considered they are different event input
+    if (ev1.id_x === ev2.id_x) {
+        return false;
+    }
+    // if do not belongs to the same index group, then check the internal property to see if they are same
+    for (let key in ev1) {
+        if (key !== "id_x" && key !== "id") {
+            if (ev2[key] !== ev1[key]) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 function readLine(ret, line, formats, defVal) {

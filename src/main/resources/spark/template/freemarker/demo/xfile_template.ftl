@@ -85,7 +85,7 @@ ${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['eda
 </#if>
 <#list managements.irrigation as eventArr>
 @I  EFIR  IDEP  ITHR  IEPT  IOFF  IAME  IAMT IRNAME
-${eventArr?counter?left_pad(2)} <#if eventArr[0]??>${(eventArr[0].ireff!-99)?left_pad(5)}</#if>   -99   -99   -99   -99   -99   -99 <#if eventArr[0]??>${eventArr[0].ir_name!-99}--${eventArr[0].mgn_name!}</#if>
+${eventArr?counter?left_pad(2)} <#if eventArr[0]??>${(eventArr[0].ireff!-99)?left_pad(5)}</#if>   -99   -99   -99   -99   -99   -99 <#if eventArr[0]??>${eventArr[0].ir_name!-99}--${eventArr[0].full_mgn_name!}</#if>
 <#if eventArr[0]?? && eventArr[0].irln??>
 @I  IRLN IRSPC IROFS IRDEP
 <#list eventArr as event>
@@ -99,9 +99,9 @@ ${eventArr?counter?left_pad(2)} ${(event['irln']!-99)?left_pad(5)} ${(event['irs
 </#if>
 <#list eventArr as event>
 <#if event.irrat??>
-${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['irop']!-99)?left_pad(5)} ${(event['irrat']!-99)?left_pad(5)} ${(event['irstr']!-99)?left_pad(5)} ${(event['irdur']!-99)?left_pad(5)} ${(event['irln']!-99)?left_pad(5)}
+${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['irop']!-99)?left_pad(5)} ${(event['irrat']!-99)?left_pad(5)} ${(event['irstr']!-99)?left_pad(5)} ${(event['irdur']!-99)?left_pad(5)} ${(event['irln']!-99)?left_pad(5)}<#if event.mgn_name != event.full_mgn_name>  !${event.ir_name!-99}--${event.mgn_name!}</#if>
 <#else>
-${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['irop']!-99)?left_pad(5)} ${(event['irval']!-99)?left_pad(5)}
+${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['irop']!-99)?left_pad(5)} ${(event['irval']!-99)?left_pad(5)}<#if event.mgn_name != event.full_mgn_name>                    !${event.ir_name!-99}--${event.mgn_name!}</#if>
 </#if>
 </#list>
 </#list>

@@ -160,6 +160,7 @@ public class DssatDataUtil {
                     arr.add(mgnId);
                     eventIds.put(eventType, arr);
                     eventFullData.get(eventType).add(event);
+                    event.put("mgn_name", mgnName);
                 }
             }
             for (String eventType : eventIds.keySet()) {
@@ -220,7 +221,7 @@ public class DssatDataUtil {
                 }
                 for (JSONObject event : (ArrayList<JSONObject>) eventArr) {
                     event.put(eventType.substring(0, 2) + "_name", event.get("content"));
-                    event.put("mgn_name", eventName);
+                    event.put("full_mgn_name", eventName);
                 }
             } else {
                 eventArr = eventList.get(eventIdList.indexOf(eventId));
