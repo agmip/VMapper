@@ -401,8 +401,13 @@
                     <#list icasaMgnCodeMap[key]?keys as code>
                         ${code?js_string} : "${icasaMgnCodeMap[key][code]?js_string}"<#sep>,</#sep>
                     </#list>
-                    }<#sep>,</#sep>
+                    },
                     </#list>
+                    "crid" : {
+                    <#list culMetaList as culMeta>
+                        "${culMeta.agmip_code!}" : "${culMeta.name?js_string!?js_string}"<#sep>,</#sep>
+                    </#list>
+                    }
                 },
                 "getCodeMap" : function(icasa, defRet) {
                     if (!icasa) {
