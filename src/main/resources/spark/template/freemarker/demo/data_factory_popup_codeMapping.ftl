@@ -34,6 +34,7 @@
                                 delete mapping.code_mappings;
                             }
                         });
+                        delete mapping.code_mappings_undefined_flg;
                     } else {
                         showCodeMappingDialog(mapping, "[Warn] Fix the error");
                     }

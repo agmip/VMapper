@@ -65,7 +65,7 @@
                     }
                     if (!itemData.err_msg) {
                         updateData($(this), colDef, curVarType);
-                        if (itemData.code_mappings) {
+                        if (itemData.code_mappings && colDef.unit === "code" && !itemData.code_mappings_undefined_flg) {
                             colDef.code_mappings = itemData.code_mappings;
                         } else if (colDef.code_mappings) {
                             delete colDef.code_mappings;
@@ -201,6 +201,9 @@
                         if (unit) {
                             subDiv.find("[name='icasa_unit']").val(unit);
                             let sourceUnit = subDiv.find("[name='unit']");
+                            if (unit === "code" && itemData.icasa !== icasa) {
+                                itemData.code_mappings_undefined_flg = true;
+                            }
                             if (subDiv.find("[name='same_unit_flg']").is(':checked')) {
                                 sourceUnit.val(unit);
                             } else {
