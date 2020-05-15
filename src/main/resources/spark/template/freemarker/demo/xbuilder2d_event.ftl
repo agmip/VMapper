@@ -297,7 +297,7 @@
             
             // remove deleted events
             let delIdx = [];
-            for (let i in events) {
+            for (let i = events.length - 1; i > -1; i --) {
                 if (events[i].event !== eventType) {
                     continue;
                 }
