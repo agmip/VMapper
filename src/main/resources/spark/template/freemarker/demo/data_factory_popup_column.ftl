@@ -179,7 +179,11 @@
                                 }
                             );
                         }
-                        subDiv.find("[name='format']").prop("disabled", $(this).val().toLowerCase() !== "date").trigger("change");
+                        if ($(this).val().toLowerCase() !== "date") {
+                            subDiv.find("[name='format']").val("").prop("disabled", true).trigger("change");
+                        } else {
+                            subDiv.find("[name='format']").prop("disabled", false).trigger("change");
+                        }
                     });
                 });
                 subDiv.find("[name='format']").each(function () {
@@ -198,24 +202,35 @@
                 });
                 subDiv.find("[name='icasa']").each(function () {
                     $(this).on("change", function () {
-                        let unit = icasaVarMap.getUnit($(this).val());
+                        let icasa = $(this).val();
+                        let unit = icasaVarMap.getUnit(icasa);
+                        let sourceUnit = subDiv.find("[name='unit']");
                         if (unit) {
                             subDiv.find("[name='icasa_unit']").val(unit);
-                            let sourceUnit = subDiv.find("[name='unit']");
                             if (unit === "code" && itemData.icasa !== icasa) {
                                 itemData.code_mappings_undefined_flg = true;
+                            }
+                            if (["text", "code", "date", "number"].includes(unit)) {
+                                subDiv.find(".value-type-control").fadeOut(0);
+                                subDiv.find(".value-type-" + unit).fadeIn(0);
+                                sourceUnit.val(unit).trigger("input");
+                            } else {
+                                subDiv.find(".value-type-control").fadeOut(0);
+                                subDiv.find(".value-type-numeric").fadeIn(0);
                             }
                             if (subDiv.find("[name='same_unit_flg']").is(':checked')) {
                                 sourceUnit.val(unit);
                             } else {
                                 sourceUnit.trigger("input");
                             }
-                            if (unit === "code") {
-                                subDiv.find("[name='icasa_code_mapping_btn']").fadeIn();
-                                subDiv.find("[name='icasa_code_mapping_btn']").prop("disabled", !icasaVarMap.isCodeDefExisted(icasa));
-                            } else {
-                                subDiv.find("[name='icasa_code_mapping_btn']").fadeOut();
-                            }
+//                            if (unit === "code") {
+//                                subDiv.find("[name='icasa_code_mapping_btn']").fadeIn();
+//                                subDiv.find("[name='icasa_code_mapping_btn']").prop("disabled", !icasaVarMap.isCodeDefExisted(icasa));
+//                            } else {
+//                                subDiv.find("[name='icasa_code_mapping_btn']").fadeOut();
+//                            }
+                        } else {
+                            subDiv.find(".value-type-control").fadeOut(0);
                         }
                         if (isVirtual) {
                             colHeaderInput.val($(this).val());
@@ -276,6 +291,12 @@
                         }
                     });
                 });
+                subDiv.find("[name='val_type']").each(function () {
+                    $(this).on("change", function () {
+                        subDiv.find(".value-type-control").fadeOut(0);
+                        subDiv.find(".value-type-" + $(this).val()).fadeIn(0);
+                    });
+                });
                 subDiv.find("[name='unit']").each(function () {
                     $(this).on("input", function () {
                         let unit = $(this).val().toLowerCase();
@@ -293,7 +314,16 @@
                                 }
                             }
                         );
-                        subDiv.find("[name='format']").prop("disabled", $(this).val().toLowerCase() !== "date").trigger("change");
+                        if (["text", "code", "date", "number"].includes(unit)) {
+                            subDiv.find("[name='val_type']").val(unit).trigger("change");
+                        } else {
+                            subDiv.find("[name='val_type']").val("numeric").trigger("change");
+                        }
+                        if ($(this).val().toLowerCase() !== "date") {
+                            subDiv.find("[name='format']").val("").prop("disabled", true).trigger("change");
+                        } else {
+                            subDiv.find("[name='format']").prop("disabled", false).trigger("change");
+                        }
                     });
                 });
                 subDiv.find("[name='format']").each(function () {
@@ -685,21 +715,25 @@
                 </div>
             </div>
             <!-- 3rd row -->
-            <div class="form-group col-sm-3">
+            <div class="form-group col-sm-3 value-type-control value-type-numeric">
                 <label class="control-label">Raw Data Unit</label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="unit" class="form-control col-def-input-item" value="">
                     <div class="label label-danger" name="unit_validate_result"></div>
                 </div>
             </div>
-            <div class="form-group col-sm-3">
+            <div class="form-group col-sm-3 value-type-control value-type-numeric">
                 <label class="control-label">ICASA Unit</label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="icasa_unit" class="form-control" value="" readonly>
-                    <span class="input-group-addon btn btn-primary" name="icasa_code_mapping_btn"><span class="glyphicon glyphicon-edit"></span></span>
                 </div>
             </div>
-            <div class="form-group col-sm-3">
+            <div class="form-group col-sm-3 value-type-control value-type-code">
+                <div class="input-group col-sm-12">
+                    <span class="btn btn-primary" name="icasa_code_mapping_btn"><span class="glyphicon glyphicon-edit"></span> Edit Code Mapping</span>
+                </div>
+            </div>
+            <div class="form-group col-sm-3 value-type-control value-type-date">
                 <label class="control-label">Format</label>
                 <div class="input-group col-sm-12">
                     <select name="format" class="form-control col-def-input-item" value="" disabled>
@@ -709,7 +743,7 @@
                     </select>
                 </div>
             </div>
-            <div class="form-group col-sm-3">
+            <div class="form-group col-sm-3 value-type-control value-type-date">
                 <label class="control-label">Standardized Expression</label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="format_customized" class="form-control col-def-input-item" value="" disabled>
@@ -751,14 +785,26 @@
                 </div>
             </div>
             <!-- 5th row -->
-            <div class="form-group col-sm-4">
+            <div class="form-group col-sm-3">
+                <label class="control-label">Value Type</label>
+                <div class="input-group col-sm-12">
+                    <select name="val_type" class="form-control col-def-input-item">
+                        <option value="numeric" checked>Numeric</option>
+                        <option value="date">Date</option>
+                        <option value="code">Code</option>
+                        <option value="text">Text</option>
+                        <option value="number">Number/Index</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col-sm-3 value-type-control value-type-numeric">
                 <label class="control-label">Unit</label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="unit" class="form-control col-def-input-item" value="">
                     <div class="label label-danger" name="unit_validate_result"></div>
                 </div>
             </div>
-            <div class="form-group col-sm-4">
+            <div class="form-group col-sm-3 value-type-control value-type-date">
                 <label class="control-label">Format</label>
                 <div class="input-group col-sm-12">
                     <select name="format" class="form-control col-def-input-item" value="" disabled>
@@ -768,7 +814,7 @@
                     </select>
                 </div>
             </div>
-            <div class="form-group col-sm-4">
+            <div class="form-group col-sm-3 value-type-control value-type-date">
                 <label class="control-label">Standardized Expression</label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="format_customized" class="form-control col-def-input-item" value="" disabled>
