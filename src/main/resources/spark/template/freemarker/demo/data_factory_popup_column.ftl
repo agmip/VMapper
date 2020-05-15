@@ -154,6 +154,7 @@
                             $(this).val(itemData[$(this).attr("name")]);
                         }
                     });
+                    $(this).find("[name='icasa']").trigger("change");
                 });
                 subDiv.find("[name='unit']").each(function () {
                     
@@ -220,7 +221,6 @@
                             colHeaderInput.val($(this).val());
                         }
                     });
-                    $(this).trigger("change");
                 });
                 subDiv.find("[name='same_unit_flg']").each(function () {
                     $(this).on("change", function () {
