@@ -70,11 +70,7 @@
                         } else if (colDef.code_mappings) {
                             delete colDef.code_mappings;
                         }
-                        
-                        let varDef = icasaVarMap.getDefinition(colDef.icasa);
-                        if (varDef) {
-                            colDef.description = varDef.description;
-                        }
+
                         if (colDef.unit_error) {
                             delete colDef.unit_error;
                         }
@@ -203,6 +199,12 @@
                 subDiv.find("[name='icasa']").each(function () {
                     $(this).on("change", function () {
                         let icasa = $(this).val();
+                        let desc = icasaVarMap.getDesc(icasa);
+                        if (!itemData.description || itemData.icasa !== icasa) {
+                            subDiv.find("[name='description']").val(desc);
+                        } else if (itemData.description !== desc) {
+                            subDiv.find("[name='description']").val(itemData.description);
+                        }
                         let unit = icasaVarMap.getUnit(icasa);
                         let sourceUnit = subDiv.find("[name='unit']");
                         if (unit) {
@@ -747,6 +749,13 @@
                 <label class="control-label">Standardized Expression</label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="format_customized" class="form-control col-def-input-item" value="" disabled>
+                </div>
+            </div>
+            <!-- 4th row -->
+            <div class="form-group col-sm-12">
+                <label class="control-label">Description</label>
+                <div class="input-group col-sm-12">
+                    <input type="text" name="description" class="form-control col-def-input-item" value="">
                 </div>
             </div>
         </div>
