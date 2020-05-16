@@ -197,6 +197,11 @@
                     });
                 });
                 subDiv.find("[name='icasa']").each(function () {
+                    $(this).on("chosen:showing_dropdown", function() {
+                        if (!$(this).val()) {
+                            subDiv.find(".chosen-search-input").val(itemData.column_header).trigger("paste");
+                        }
+                    });
                     $(this).on("change", function () {
                         let icasa = $(this).val();
                         let desc = icasaVarMap.getDesc(icasa);
