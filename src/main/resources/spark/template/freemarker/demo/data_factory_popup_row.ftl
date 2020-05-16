@@ -207,23 +207,76 @@
     }
 
     function showSheetDefPrompt(callback) {
-        bootbox.confirm({
-            message: "The rows of the sheet has not been defined yet, do you want to do that?",
+        let dialog = bootbox.dialog({
+            message: $("#sheet_define_init_popup").html(),
             buttons: {
                 confirm: {
                     label: 'Confirm',
-                    className: 'btn-primary'
+                    className: 'btn-primary',
+                    callback: function() {
+                        showSheetDefDialog(callback, null, true);
+                    }
+                },
+                copy: {
+                    label: 'Copy',
+                    className: 'btn-info',
+                    callback: function() {
+                        showSheetDefCopyPrompt(callback);
+                    }
                 },
                 cancel: {
                     label: 'Later',
-                    className: 'btn-default'
-                }
-            },
-            callback: function (result) {
-                if (result) {
-                    showSheetDefDialog(callback, null, true);
+                    className: 'btn-default',
+                    callback: function() {}
                 }
             }
+        });
+        dialog.find(".modal-content").drags();
+    }
+    
+    function showSheetDefCopyPrompt(callback, errMsg) {
+        let dialog = bootbox.dialog({
+            message: $("#sheet_define_copy_popup").html(),
+            buttons: {
+                confirm: {
+                    label: 'Confirm',
+                    className: 'btn-primary',
+                    callback: function() {
+                        let ret = $(this).find("[name='sheet_def_from']").val();
+                        if (ret) {
+                            let tmp = ret.split("__");
+                            let sheetDef = JSON.parse(JSON.stringify(templates[tmp[0]][tmp[1]]));
+                            templates[curFileName][curSheetName] = sheetDef;
+                            sheetDef.references = {};
+                            callback();
+                        } else {
+                            showSheetDefCopyPrompt(callback, "error message");
+                        }
+                    }
+                },
+                cancel: {
+                    label: 'Later',
+                    className: 'btn-default',
+                    callback: function() {}
+                }
+            }
+        });
+        dialog.find(".modal-content").drags();
+        dialog.on("shown.bs.modal", function() {
+            if (errMsg) {
+                dialog.find("[name='dialog_msg']").text(errMsg);
+            }
+            let sb = dialog.find("[name='sheet_def_from']");
+            for (let fileName in templates) {
+                let optgrp = $('<optgroup label="' + fileName + '"></optgroup>');
+                sb.append(optgrp);
+                for (let sheetName in templates[fileName]) {
+                    if (sheetName !== curSheetName || fileName !== curFileName) {
+                        optgrp.append($('<option value="' + fileName + '__' + sheetName + '">' + sheetName + '</option>'));
+                    }
+                }
+            }
+            chosen_init_target(sb, "chosen-select-deselect-single");
         });
     }
 </script>
@@ -235,6 +288,26 @@
         <!-- 1st row -->
         <div class="form-group col-sm-12">
             <div name="rowDefSheet"></div>
+        </div>
+    </div>
+    <p>&nbsp;</p>
+</div>
+<!-- popup page for initial define sheet -->
+<div id="sheet_define_init_popup" hidden>
+    <p>
+        <h3>The rows of the sheet has not been defined yet, you could ...</h3>
+        <li>Click confirm to manually do the definition</li>
+        <li>Click copy to apply the definition from another sheet to the current one</li>
+    </p>
+</div>
+<!-- popup page for copy sheet definition -->
+<div id="sheet_define_copy_popup" hidden>
+    <p name="dialog_msg" class="label label-danger"></p>
+    <p>By clicking the confirm button, this will overwrite the existing mapping configuration</p>
+    <div class="col-sm-12">
+        <!-- 1st row -->
+        <div class="form-group col-sm-12">
+            <select name="sheet_def_from" class="form-control"></select>
         </div>
     </div>
     <p>&nbsp;</p>
