@@ -16,7 +16,7 @@
         spsContainer.append(ret);
         let defListDiv = ret.find("[name='ref_def_list']");
         defListDiv.on("change", function(){
-//            if ($(this).height() > window.innerHeight*0.45) {
+//            if ($(this).height() >= window.innerHeight*0.45) {
 //                $(this).css("max-height", window.innerHeight*0.45 + "px");
 //                $(this).css("overflow-y", "scroll");
 //            } else {

@@ -65,10 +65,17 @@
                     }
                     if (!itemData.err_msg) {
                         updateData($(this), colDef, curVarType);
-                        if (itemData.code_mappings && colDef.unit === "code" && !itemData.code_mappings_undefined_flg) {
-                            colDef.code_mappings = itemData.code_mappings;
-                        } else if (colDef.code_mappings) {
-                            delete colDef.code_mappings;
+                        if (colDef.unit === "code" && !itemData.code_mappings_undefined_flg) {
+                            if (itemData.code_mappings) {
+                                colDef.code_mappings = itemData.code_mappings;
+                            } else if (colDef.code_mappings) {
+                                delete colDef.code_mappings;
+                            }
+                            if (itemData.code_descriptions) {
+                                colDef.code_descriptions = itemData.code_descriptions;
+                            } else if (colDef.code_descriptions) {
+                                delete colDef.code_descriptions;
+                            }
                         }
 
                         if (colDef.unit_error) {
@@ -855,6 +862,12 @@
                 <div class="input-group col-sm-12">
                     <input type="text" name="unit" class="form-control col-def-input-item" value="">
                     <div class="label label-danger" name="unit_validate_result"></div>
+                </div>
+            </div>
+            <div class="form-group col-sm-3 value-type-control value-type-code">
+                <label class="control-label">&nbsp;</label>
+                <div class="input-group col-sm-12">
+                    <span class="btn btn-primary" name="customized_code_mapping_btn"><span class="glyphicon glyphicon-edit"></span> Edit Code Description</span>
                 </div>
             </div>
             <div class="form-group col-sm-3 value-type-control value-type-date">
