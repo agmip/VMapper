@@ -163,6 +163,28 @@
                 }
             }
         }
+        for (let key in codeMappings) {
+            if (!ret[key]) {
+                ret[key] = {user_code : key};
+                if (codeMappings[key]) {
+                    ret[key].icasa_code = codeMappings[key];
+                }
+                if (codeDescs[key]) {
+                    ret[key].user_code_desc = codeDescs[key];
+                }
+            }
+        }
+        for (let key in codeDescs) {
+            if (!ret[key]) {
+                ret[key] = {user_code : key};
+                if (codeMappings[key]) {
+                    ret[key].icasa_code = codeMappings[key];
+                }
+                if (codeDescs[key]) {
+                    ret[key].user_code_desc = codeDescs[key];
+                }
+            }
+        }
         return ret;
     }
     
@@ -243,7 +265,7 @@
                             </select>
                         </div>
                         <div class="col-sm-4">
-                            <input type="text" class="form-control" name="user_code_desc" data-placeholder="User Code Description...">
+                            <input type="text" class="form-control code-mapping-input" name="user_code_desc" data-placeholder="User Code Description...">
                         </div>
                     </div>
                     <div class="col-sm-1">
@@ -282,7 +304,7 @@
                             <input type="text" class="form-control code-mapping-input" name="user_code" data-placeholder="User Code...">
                         </div>
                         <div class="col-sm-6">
-                            <input type="text" class="form-control" name="user_code_desc" data-placeholder="User Code Description...">
+                            <input type="text" class="form-control code-mapping-input" name="user_code_desc" data-placeholder="User Code Description...">
                         </div>
                     </div>
                     <div class="col-sm-1">
