@@ -309,6 +309,10 @@
                     $(this).on("change", function () {
                         subDiv.find(".value-type-control").fadeOut(0);
                         subDiv.find(".value-type-" + $(this).val()).fadeIn(0);
+                        let valType = $(this).val();
+                        if (valType !== "numeric") {
+                            subDiv.find("[name='unit']").val(valType);
+                        }
                     });
                 });
                 subDiv.find("[name='unit']").each(function () {
@@ -338,6 +342,11 @@
                         } else {
                             subDiv.find("[name='format']").prop("disabled", false).trigger("change");
                         }
+                    });
+                });
+                subDiv.find("[name='customized_code_mapping_btn']").each(function () {
+                    $(this).on("click", function () {
+                        showCodeMappingDialog(itemData, icasaVarMap.getCodeMap(subDiv.find("[name='icasa']").val()), true); 
                     });
                 });
                 subDiv.find("[name='format']").each(function () {
