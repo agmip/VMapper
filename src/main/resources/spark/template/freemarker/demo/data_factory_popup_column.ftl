@@ -633,8 +633,13 @@
         for (let varName in varMap) {
             let order = icasaVarMap.getOrder(varName);
             let category = icasaVarMap.getIcasaDataCatDef(order).category;
+            if (category.toUpperCase() === "MEASURED_DATA") {
+                category = category.capitalize() + " - " + icasaVarMap.getGroup(varName).capitalize() + " - " + icasaVarMap.getSubGroup(varName).capitalize();
+            } else {
+                category = category.capitalize();
+            }
             if (!optGroups[category]) {
-                optGroups[category] = $('<optgroup label="' + category.toUpperCase() + '"></optgroup>');
+                optGroups[category] = $('<optgroup label="' + category + '"></optgroup>');
                 varSB.append(optGroups[category]);
             }
             optGroups[category].append('<option value="' + varName + '">' + varMap[varName].description + ' - ' + varName + ' (' + varMap[varName].unit_or_type +  ')</option>');
