@@ -632,7 +632,7 @@
     function createOpt(varMap, optGroups, varSB) {
         for (let varName in varMap) {
             let order = icasaVarMap.getOrder(varName);
-            let category = icasaVarMap.getIicasaDataCatDef(order).category;
+            let category = icasaVarMap.getIcasaDataCatDef(order).category;
             if (!optGroups[category]) {
                 optGroups[category] = $('<optgroup label="' + category.toUpperCase() + '"></optgroup>');
                 varSB.append(optGroups[category]);

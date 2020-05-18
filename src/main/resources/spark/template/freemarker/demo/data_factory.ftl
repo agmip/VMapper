@@ -197,10 +197,10 @@
                     return this.getOrder(icasa);
                 },
                 "icasaDataCatDef" : null,
-                "getIicasaDataCatDefMapping" : function(mapping) {
-                    return this.getIicasaDataCatDef(this.getMappingOrder(mapping));
+                "getIcasaDataCatDefMapping" : function(mapping) {
+                    return this.getIcasaDataCatDef(this.getMappingOrder(mapping));
                 },
-                "getIicasaDataCatDef" : function(order) {
+                "getIcasaDataCatDef" : function(order) {
                     if (!this.icasaDataCatDef) {
                         this.initIcasaDataCatDef();
 //                        console.log(this.icasaDataCatDef);

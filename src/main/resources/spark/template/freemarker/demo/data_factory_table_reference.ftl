@@ -473,7 +473,7 @@
 //    function detectReference(tableRank, order, lookForParent) {
     function detectReference(tableRanks, tableRank, order, lookForParent) {
         let newRefDef = null;
-        let catDef = icasaVarMap.getIicasaDataCatDef(order);
+        let catDef = icasaVarMap.getIcasaDataCatDef(order);
         let lookupOrders;
         if (lookForParent) {
             lookupOrders = catDef.parent;
