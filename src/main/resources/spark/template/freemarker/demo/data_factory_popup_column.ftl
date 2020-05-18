@@ -346,8 +346,25 @@
             dialog.find("[name='virtual_info']").each(function () {
                 let subDiv = $(this);
                 subDiv.on("type_shown", function() {
-                    chosen_init_target(subDiv.find("[name='virtual_val_rule']"), "chosen-select-deselect-single");
+                    chosen_init_target(subDiv.find("[name='virtual_val_rule']"), "chosen-select");
+                    let vrValType = $(this).find("[name='virtual_val_type']");
+                    vrValType.on("change", function () {
+                        subDiv.find(".col-def-input-item-vr-control").fadeOut(0);
+                        subDiv.find(".col-def-input-item-vr-" + $(this).val()).fadeIn(0);
+                    });
                     
+                    subDiv.find(".col-def-input-item-vr-control").on("type_shown", function() {
+                        chosen_init($(this).find("select"), "chosen-select-deselect");
+                        $(this).find("input[type='checkbox']"),bootstrapToggle({on:"Yes", off:"No", size:"mini"});
+                    });
+                    
+                    if (itemData.virtual_val_fixed) {
+                        vrValType.val("fixed").trigger("change");
+                    } else if (itemData.virtual_val_keys) {
+                        vrValType.val("string").trigger("change");
+                    } else {
+                        vrValType.val("string").trigger("change");
+                    }
                     
                     $(this).find(".col-def-input-item-vr").each(function () {
                         if ($(this).prop("tagName").toLowerCase() === "select") {
@@ -358,10 +375,10 @@
                                     $(this).val(itemData.virtual_val_keys).trigger("chosen:updated");
                                 }
                             } else if ($(this).attr("name") === "virtual_val_type") {
-                                chosen_init_target($(this), "chosen-select-deselect-single");
+                                chosen_init_target($(this), "chosen-select-deselect");
                                 $(this).val("string").trigger("chosen:updated");
                             } else {
-                                chosen_init_target($(this), "chosen-select-deselect-single");
+                                chosen_init_target($(this), "chosen-select-deselect");
                                 $(this).val(itemData[$(this).attr("name")]).trigger("chosen:updated");
                             }
                         } else if ($(this).attr("type") === "checkbox") {
@@ -417,15 +434,17 @@
         shiftRefFromKeyIdx(sheetDef, idx);
 
         // shift value component keys
-        let vrKeys = [];
-        for (let i in colDef.virtual_val_keys) {
-            if (colDef.virtual_val_keys[i] > idx) {
-                vrKeys.push(Number(colDef.virtual_val_keys[i]) + 1 + "");
-            } else {
-                vrKeys.push(colDef.virtual_val_keys[i]);
+        if (colDef.virtual_val_keys) {
+            let vrKeys = [];
+            for (let i in colDef.virtual_val_keys) {
+                if (colDef.virtual_val_keys[i] > idx) {
+                    vrKeys.push(Number(colDef.virtual_val_keys[i]) + 1 + "");
+                } else {
+                    vrKeys.push(colDef.virtual_val_keys[i]);
+                }
             }
+            colDef.virtual_val_keys = vrKeys;
         }
-        colDef.virtual_val_keys = vrKeys;
         
         // shift mapping and spreadsheet column index
         shiftRawData(data, idx);
@@ -488,6 +507,7 @@
     function updateRawData(data, sheetDef, colDef) {
         let idx = colDef.column_index - 1;
         let vrKeys = colDef.virtual_val_keys;
+        let vrValFixed = colDef.virtual_val_fixed;
         let valSet = {};
         
         let dataStartRow = 0;
@@ -496,11 +516,15 @@
         }
         for (let j = dataStartRow; j < data.length; j++) {
             let vals = [];
-            for (let i in vrKeys) {
-                if (colDef.virtual_val_rule) {
-                    vals.push(data[j][Number(vrKeys[i]) - 1].substring(0, Number(colDef.virtual_val_rule)));
-                } else {
-                    vals.push(data[j][Number(vrKeys[i]) - 1]);
+            if (vrValFixed) {
+                vals.push(vrValFixed);
+            } else if (vrKeys) {
+                for (let i in vrKeys) {
+                    if (colDef.virtual_val_rule) {
+                        vals.push(data[j][Number(vrKeys[i]) - 1].substring(0, Number(colDef.virtual_val_rule)));
+                    } else {
+                        vals.push(data[j][Number(vrKeys[i]) - 1]);
+                    }
                 }
             }
             let divider = colDef.virtual_divider;
@@ -568,18 +592,22 @@
             }
         });
         if (!itemData.column_index_org) {
-            div.find(".col-def-input-item-vr").each(function () {
-                if ($(this).attr("type") === "checkbox") {
-                    if ($(this).is(":checked")) {
-                        itemData[$(this).attr("name")] = true;
-                    } else {
+            let valType = div.find("[name='virtual_val_type']").val();
+            itemData.column_header = div.find("[name='column_header']").val();
+            div.find(".col-def-input-item-vr-" + valType).each(function () {
+                $(this).find(".col-def-input-item-vr").each(function () {
+                    if ($(this).attr("type") === "checkbox") {
+                        if ($(this).is(":checked")) {
+                            itemData[$(this).attr("name")] = true;
+                        } else {
+                            delete itemData[$(this).attr("name")];
+                        }
+                    } else if ($(this).val()) {
+                        itemData[$(this).attr("name")] = $(this).val();
+                    }else {
                         delete itemData[$(this).attr("name")];
                     }
-                } else if ($(this).val()) {
-                    itemData[$(this).attr("name")] = $(this).val();
-                }else {
-                    delete itemData[$(this).attr("name")];
-                }
+                });
             });
         }
         if (othOpts.length > 0) {
@@ -644,7 +672,7 @@
         <div class="form-group col-sm-4">
             <label class="control-label">Raw Data Header</label>
             <div class="input-group col-sm-12">
-                <input type="text" name="column_header" class="form-control col-def-input-item-vr" value="" readonly>
+                <input type="text" name="column_header" class="form-control" value="" readonly>
             </div>
         </div>
         <div class="form-group col-sm-4">
@@ -663,14 +691,14 @@
                 <label class="control-label">Value Type:</label>
                 <div class="input-group col-sm-12">
                     <select name="virtual_val_type" class="form-control col-def-input-item-vr">
-                        <option value=""></option>
+                        <!--<option value=""></option>-->
                         <option value="string" checked>Compound String</option>
                         <option value="number" disabled>Calculated Number</option>
-                        <option value="fixed" disabled>Fixed Content</option>
+                        <option value="fixed">Fixed Content</option>
                     </select>
                 </div>
             </div>
-            <div class="form-group col-sm-12">
+            <div class="form-group col-sm-12 col-def-input-item-vr-control col-def-input-item-vr-string">
                 <label class="control-label">Value From:</label>
                 <div class="input-group col-sm-12">
                     <select name="virtual_val_keys" class="form-control col-def-input-item-vr" multiple>
@@ -678,7 +706,7 @@
                     </select>
                 </div>
             </div>
-            <div class="form-group col-sm-2">
+            <div class="form-group col-sm-2 col-def-input-item-vr-control col-def-input-item-vr-string">
                 <label class="control-label">Value Rule:</label>
                 <div class="input-group col-sm-12">
                     <select name="virtual_val_rule" class="form-control col-def-input-item-vr">
@@ -689,7 +717,7 @@
                     </select>
                 </div>
             </div>
-            <div class="form-group col-sm-2">
+            <div class="form-group col-sm-2 col-def-input-item-vr-control col-def-input-item-vr-string">
                 <label class="control-label">Divider:</label>
                 <div class="input-group col-sm-12">
                     <select name="virtual_divider" class="form-control col-def-input-item-vr">
@@ -704,10 +732,16 @@
                     </select>
                 </div>
             </div>
-            <div class="form-group col-sm-2">
+            <div class="form-group col-sm-2 col-def-input-item-vr-control col-def-input-item-vr-string">
                 <label class="control-label">Uniqueness:</label>
                 <div class="input-group col-sm-12">
                     <input type="checkbox" name="virtual_unique_flg" class="virtual_switch_cb form-control col-def-input-item-vr">
+                </div>
+            </div>
+            <div class="form-group col-sm-12 col-def-input-item-vr-control col-def-input-item-vr-fixed">
+                <label class="control-label">Variable Value:</label>
+                <div class="input-group col-sm-12">
+                    <input type="text" name="virtual_val_fixed" class="form-control col-def-input-item-vr">
                 </div>
             </div>
         </div>

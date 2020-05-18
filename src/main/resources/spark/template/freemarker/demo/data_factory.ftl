@@ -1572,6 +1572,10 @@
                                             }
                                             delete sc2Mappings[j].formula_info;
                                         }
+                                        if (sc2Mappings[j].value) {
+                                            sc2Mappings[j].virtual_val_fixed = sc2Mappings[j].value;
+                                            delete sc2Mappings[j].value;
+                                        }
                                     }
                                     if (vrColCnt > 0) {
                                         virColCnt[fileName][sheetName] = vrColCnt;
@@ -1693,6 +1697,9 @@
                                     mappingCopy.formula_info = {};
                                     for (let key in mappingCopy) {
                                         if (key.startsWith("virtual")) {
+                                            if (key === "virtual_val_fixed") {
+                                                mappingCopy.value = mappingCopy[key];
+                                            }
                                             mappingCopy.formula_info[key] = mappingCopy[key];
                                             delete mappingCopy[key];
                                         }
