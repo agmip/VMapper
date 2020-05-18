@@ -219,7 +219,7 @@
                 },
                 copy: {
                     label: 'Copy',
-                    className: 'btn-info',
+                    className: 'btn-success',
                     callback: function() {
                         showSheetDefCopyPrompt(callback);
                     }
