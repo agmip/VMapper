@@ -751,7 +751,7 @@
                                 } else if (!icasa_unit) {
                                     $.get("/data/unit/lookup?unit=" + encodeURIComponent(headerDef.unit),
                                         function (jsonStr) {
-                                            var unitInfo = JSON.parse(jsonStr);
+                                            let unitInfo = JSON.parse(jsonStr);
                                             if (unitInfo.message === "undefined unit expression" && headerDef.unit !== "text" && headerDef.unit !== "code" && headerDef.unit !== "date") {
                                                 headerDef.unit_error = true;
                                             }
@@ -860,7 +860,7 @@
                                     } else if (!icasa_unit) {
                                         $.get("/data/unit/lookup?unit=" + encodeURIComponent(headerDef.unit),
                                             function (jsonStr) {
-                                                var unitInfo = JSON.parse(jsonStr);
+                                                let unitInfo = JSON.parse(jsonStr);
                                                 if (unitInfo.message === "undefined unit expression" && headerDef.unit !== "text" && headerDef.unit !== "code" && headerDef.unit !== "date") {
                                                     headerDef.unit_error = true;
                                                 } else {
@@ -891,7 +891,7 @@
                     result.push("");
                     let workbook = workbooks[name];
                     workbook.SheetNames.forEach(function(sheetName) {
-                        var csv = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName], {raw: false});
+                        let csv = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName], {raw: false});
                         if(csv.length){
                             result.push("SHEET: " + sheetName);
                             result.push("");
@@ -1219,7 +1219,7 @@
                 if ($('#tableViewSwitch').prop("checked")) {
                     spreadsheet.updateSettings({
                         cells: function(row, col, prop) {
-                            var cell = spreadsheet.getCell(row,col);
+                            let cell = spreadsheet.getCell(row,col);
                             if (!cell) {
                                 return;
                             }
@@ -1393,21 +1393,21 @@
                 isViewUpdated = false;
                 isDebugViewUpdated = false;
 
-                var files = target.files;
+                let files = target.files;
                 if (files.length !== 1) {
                     alertBox('Please select one file!');
                     return;
                 }
-                var file = files[0];
-                var start = 0;
-                var stop = file.size - 1;
-                var reader = new FileReader();
+                let file = files[0];
+                let start = 0;
+                let stop = file.size - 1;
+                let reader = new FileReader();
                 reader.onloadend = function (evt) {
                     if (evt.target.readyState === FileReader.DONE) { // DONE == 2
-                        var jsonStr = evt.target.result;
+                        let jsonStr = evt.target.result;
 //                        readSoilData(jsonStr);
                         
-                        var sc2Obj = JSON.parse(jsonStr);
+                        let sc2Obj = JSON.parse(jsonStr);
                         $(".mapping_gengeral_info").val("");
                         if (sc2Obj.mapping_info) {
                             for (let key in sc2Obj.mapping_info) {

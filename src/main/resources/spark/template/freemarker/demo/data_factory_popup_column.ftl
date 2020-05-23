@@ -168,7 +168,7 @@
                         } else {
                             $.get("/data/unit/convert?value_from=3&unit_to=" + encodeURIComponent(subDiv.find("[name='icasa_unit']").val()) + "&unit_from="+ encodeURIComponent($(this).val()),
                                 function (jsonStr) {
-                                    var result = JSON.parse(jsonStr);
+                                    let result = JSON.parse(jsonStr);
                                     if (result.status !== "0") {
                                         subDiv.find("[name='unit_validate_result']").html("Incompatiable unit");
                                         itemData.err_msg = "Please fix source unit expression";
@@ -320,7 +320,7 @@
                         let unit = $(this).val().toLowerCase();
                         $.get("/data/unit/lookup?unit=" + encodeURIComponent(unit),
                             function (jsonStr) {
-                                var unitInfo = JSON.parse(jsonStr);
+                                let unitInfo = JSON.parse(jsonStr);
                                 if (unitInfo.message === "undefined unit expression" && unit !== "text" && unit !== "code" && unit !== "date") {
                                     subDiv.find("[name='unit_validate_result']").html("Incompatiable unit");
                                     itemData.err_msg = "Please fix source unit expression";

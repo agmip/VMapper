@@ -187,7 +187,7 @@
 
                 popSpreadsheet.updateSettings({
                     cells: function(row, col, prop) {
-                        var cell = popSpreadsheet.getCell(row,col);
+                        let cell = popSpreadsheet.getCell(row,col);
                         if (!cell) {
                             return;
                         }
