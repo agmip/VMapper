@@ -239,12 +239,12 @@
                         </div>
                         <div class="col-sm-4 text-left">
                             <div class="row" style="padding: 0px">
-                                <div class="col-sm-12 text-left"><span class="label label-primary">ICASA Code</span></div>
+                                <div class="col-sm-12 text-left"><span class="label label-primary">ICASA Definition</span></div>
                             </div>
                         </div>
                         <div class="col-sm-4 text-left">
                             <div class="row" style="padding: 0px">
-                                <div class="col-sm-12 text-left"><span class="label label-primary">Description</span></div>
+                                <div class="col-sm-12 text-left"><span class="label label-primary">User Description</span></div>
                             </div>
                         </div>
                     </div>
@@ -287,7 +287,7 @@
                         </div>
                         <div class="col-sm-6 text-left">
                             <div class="row" style="padding: 0px">
-                                <div class="col-sm-12 text-left"><span class="label label-primary">Description</span></div>
+                                <div class="col-sm-12 text-left"><span class="label label-primary">User Description</span></div>
                             </div>
                         </div>
                     </div>
