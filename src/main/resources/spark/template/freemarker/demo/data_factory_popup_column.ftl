@@ -536,10 +536,17 @@
                 vals.push(vrValFixed);
             } else if (vrKeys) {
                 for (let i in vrKeys) {
-                    if (colDef.virtual_val_rule) {
-                        vals.push(data[j][Number(vrKeys[i]) - 1].substring(0, Number(colDef.virtual_val_rule)));
+                    let vrKey = vrKeys[i];
+                    for (let k in sheetDef.mappings) {
+                        if (sheetDef.mappings[k].column_index_org === vrKeys[i]) {
+                            vrKey = sheetDef.mappings[k].column_index;
+                            break;
+                        }
+                    }
+                    if (colDef.virtual_val_rule && data[j][Number(vrKey) - 1]) {
+                        vals.push(data[j][Number(vrKey) - 1].substring(0, Number(colDef.virtual_val_rule)));
                     } else {
-                        vals.push(data[j][Number(vrKeys[i]) - 1]);
+                        vals.push(data[j][Number(vrKey) - 1]);
                     }
                 }
             }

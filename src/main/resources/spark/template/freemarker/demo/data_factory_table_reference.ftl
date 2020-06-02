@@ -75,10 +75,30 @@
         return div;
     }
     
-    function getKeyIdxArr(keys) {
+    function getKeyIdxArr(keys, mappings) {
         let keyIdxs = [];
-        for (let i in keys) {
-            keyIdxs.push(Number(keys[i].column_index));
+        if (mappings) {
+            for (let i in keys) {
+                if (keys[i].column_header) {
+                    let found = false;
+                    for (let j in mappings) {
+                        if (mappings[j].column_header === keys[i].column_header) {
+                            keyIdxs.push(Number(mappings[j].column_index));
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        keyIdxs.push(Number(keys[i].column_index));
+                    }
+                } else {
+                    keyIdxs.push(Number(keys[i].column_index));
+                }
+            }
+        } else {
+            for (let i in keys) {
+                keyIdxs.push(Number(keys[i].column_index));
+            }
         }
         return keyIdxs;
     }

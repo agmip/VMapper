@@ -1,5 +1,61 @@
 <script>
-    function showSheetDefDialog(callback, errMsg, editFlg) {
+    function showSheetDefDialog(callback, errMsg, editFlg, sc2Obj) {
+        let fileMap;
+        if (callback.name === "loadSC2Obj") {
+            templates = {};
+            if (sc2Obj.agmip_translation_mappings) {
+                let isFullyMatched = true;
+                
+                let files = sc2Obj.agmip_translation_mappings.files;
+                if (!files || files.length === 0) {
+                    callback(sc2Obj);
+                }
+                for (let i in files) {
+                    
+                    let fileConfig = files[i];
+                    // Load mapping for each sheet and fill missing column with ignore flag
+                    let fileName = fileConfig.file.file_metadata.file_name;
+                    if (!fileTypes[fileName]) {
+//                        let contentType = fileConfig.file.file_metadata["content-type"];
+                        for (let name in fileTypes) {
+                            if (Object.keys(fileTypes).length === 1
+//                                || name.startsWith(fileName) && (!contentType || fileTypes[name] === contentType)
+                                ) {
+                                // TODO need to revise the file auto-mapping
+                                fileMap = fileName;
+//                                fileName = name;
+                            }
+                        }
+                    }
+                    if (!templates[fileName]) {
+                        templates[fileName] = {};
+                    }
+                    for (let i in fileConfig.file.sheets) {
+                        let sheetName = fileConfig.file.sheets[i].sheet_name;
+                        templates[fileName][sheetName] = {};
+                    }
+                }
+                for (let fileName in workbooks) {
+                    let workbook = workbooks[fileName];
+                    if (templates[fileName]) {
+                        workbook.SheetNames.forEach(function(sheetName) {
+                            if (!templates[fileName][sheetName]) {
+                                isFullyMatched = false;
+                            }
+                        });
+                    } else {
+                        isFullyMatched = false;
+                    }
+                }
+                if (isFullyMatched) {
+                    callback(sc2Obj);
+                    return;
+                }
+            } else {
+                callback(sc2Obj);
+                return;
+            }
+        }
         let sheets = {};
         let headerStr;
         if (editFlg) {
@@ -21,7 +77,7 @@
 //                    let sheetName = sheet.name;
                     sheets[fileName][sheetName] = {};
 
-//                    sheets[fileName][sheetName].file_name = fileName;
+                    sheets[fileName][sheetName].file_name = fileName;
                     sheets[fileName][sheetName].sheet_name = sheetName;
                     sheets[fileName][sheetName].included_flg = true;
                     sheets[fileName][sheetName].single_flg = false;
@@ -111,14 +167,19 @@
 //                        showSheetDefDialog(callback, "[warning] Please provide header row number and data start row number.", editFlg);
 //                    } else
                     if (includedCnt === 0) {
-                        showSheetDefDialog(callback, "[warning] Please select at least one sheet for reading in.", editFlg);
+                        showSheetDefDialog(callback, "[warning] Please select at least one sheet for reading in.", editFlg, sc2Obj);
                     } else if (repeatedErrFlg) {
-                        showSheetDefDialog(callback, "[warning] Please select different raw for each definition.", editFlg);
+                        showSheetDefDialog(callback, "[warning] Please select different raw for each definition.", editFlg, sc2Obj);
                     }  else {
-                        isChanged = true;
                         isViewUpdated = false;
                         isDebugViewUpdated = false;
-                        callback(sheets);
+                        if (callback.name === "loadSC2Obj") {
+                            isChanged = false;
+                            callback(sc2Obj, sheets);
+                        } else {
+                            isChanged = true;
+                            callback(sheets, editFlg);
+                        }
                     }
                 }
             }
@@ -145,20 +206,55 @@
                 {type: 'numeric', data : "desc_row"},
                 {type: 'checkbox', data : "included_flg"}
             ];
-            let colHeaders = ["Sheet", "Header Row #", "Data start Row #", "Unit Row #", "Description Row #", "Included"];
+            let colHeaders = ["Sheet", "Header Row #", "Data start Row #", "Unit Row #", "Description Row #"];
             if (!editFlg) {
-                columns = [
-                    {type: 'text', data : "sheet_name", readOnly: true},
-                    {type: 'checkbox', data : "included_flg"}
-                ];
-                colHeaders = ["Sheet","Included"];
+                if (Object.keys(templates).length === 0) {
+                    columns = [
+                        {type: 'text', data : "sheet_name", readOnly: true},
+                        {type: 'checkbox', data : "included_flg"}
+                    ];
+                    colHeaders = ["Sheet", "Included"];
+                } else {
+                    if (Object.keys(templates).length > 1) {
+                        columns = [
+                            {type: 'text', data : "sheet_name", readOnly: true},
+                            {type: 'dropdown', data : "file_def", source : []},
+                            {type: 'dropdown', data : "sheet_def", source : []},
+                            {type: 'checkbox', data : "included_flg"}
+                        ];
+                        colHeaders = ["Sheet", "Read Mapping From", "Predefinied Mapping Definition", "Included"];
+                    } else {
+                        columns = [
+                            {type: 'text', data : "sheet_name", readOnly: true},
+                            {type: 'dropdown', data : "sheet_def", source : []},
+                            {type: 'checkbox', data : "included_flg"}
+                        ];
+                        colHeaders = ["Sheet", "Predefinied Mapping Definition", "Included"];
+                    }
+                    
+                }
             }
             for (let fileName in sheets) {
-                data.push({sheet_name: fileName, flie_name_row:true});
+                data.push({sheet_name: fileName, file_name_row:true});
                 mergeCells.push({row: data.length - 1, col: 0, rowspan: 1, colspan: columns.length});
                 for (let sheetName in sheets[fileName]) {
                     data.push(sheets[fileName][sheetName]);
                     data[data.length - 1].included_flg = true;
+                    data[data.length - 1].file_name = fileName;
+                    if (templates[fileName]) {
+                        data[data.length - 1].file_def = fileName;
+                        if (templates[fileName][sheetName]) {
+                            data[data.length - 1].sheet_def = sheetName;
+                        }
+                    } else if (templates[fileMap]) {
+                        data[data.length - 1].file_def = fileMap;
+                        if (templates[fileMap][sheetName]) {
+                            data[data.length - 1].sheet_def = sheetName;
+                        }
+                    }
+                    if (!data[data.length - 1].sheet_def) {
+                        data[data.length - 1].included_flg = callback.name !== "loadSC2Obj";
+                    }
                 }
             }
             let spsOptions = {
@@ -193,14 +289,47 @@
                         }
                         if (curSheetName === data[row].sheet_name) {
                             cell.style.backgroundColor = "yellow";
-                        } else if (data[row].flie_name_row) {
+                        } else if (data[row].file_name_row) {
                             cell.style.color = "white";
                             cell.style.fontWeight = "bold";
                             cell.style.backgroundColor = "grey";
-                        } else if (curSheetName) {
+                        } else if (editFlg) {
                             return {readOnly : true};
                         }
+                        if (Object.keys(templates).length > 1) {
+                            if (col === popSpreadsheet.propToCol('file_def') && !data[row].file_name_row) {
+                                popSpreadsheet.setCellMeta(row, col, 'source', Object.keys(templates));
+                            }
+                        } else {
+                            if (col === popSpreadsheet.propToCol('sheet_def') && !data[row].file_name_row) {
+                                if (templates[data[row].file_def]) {
+                                    popSpreadsheet.setCellMeta(row, col, 'source', Object.keys(templates[data[row].file_def]));
+                                }
+                            }
+                        }
                     }
+                });
+                popSpreadsheet.addHook('beforeChange', function(changes, source) {
+                    if (source === 'loadData' || source === 'internal') {
+                        return;
+                    }
+                    for (let i in changes) {
+                        let row = changes[i][0];
+                        let prop = changes[i][1];
+                        let value = changes[i][3];
+                        if (prop === 'file_def') {
+                            if (value && templates[value]) {
+                                this.setCellMeta(row, this.propToCol('sheet_def'), 'source', Object.keys(templates[value]));
+                            } else if (value !== null) {
+                                this.setCellMeta(row, this.propToCol('sheet_def'), 'source', []);
+                                this.setDataAtRowProp(row, 'sheet_def', "");
+                                this.setDataAtRowProp(row, 'included_flg', false);
+                            }
+                        } else if (prop === 'sheet_def') {
+                            this.setDataAtRowProp(row, 'included_flg', !!value);
+                        }
+                    }
+
                 });
             });
         });
