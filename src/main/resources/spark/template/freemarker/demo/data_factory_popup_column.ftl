@@ -246,6 +246,23 @@
                         } else {
                             subDiv.find(".value-type-control").fadeOut(0);
                         }
+                        if (["FEAMP", "FEP_TOT"].includes(icasa)) {
+                            subDiv.find("[name='fert_amnt_unit_pk_cb']").data("on", "P2O5").fadeIn(0).bootstrapToggle({on:"P2O5", off:"P", size:"mini"});
+                            if (sourceUnit.val().replace(/\[.*[Pp]2[Oo]5.*\]/g, "").toLowerCase().includes("p2o5")) {
+                                subDiv.find("[name='fert_amnt_unit_pk_cb']").bootstrapToggle("on");
+                            } else {
+                                subDiv.find("[name='fert_amnt_unit_pk_cb']").bootstrapToggle("off");
+                            }
+                        } else if (["FEAMK", "FEK_TOT"].includes(icasa)) {
+                            subDiv.find("[name='fert_amnt_unit_pk_cb']").data("on", "K2O").fadeIn(0).bootstrapToggle({on:"K2O", off:"K", size:"mini"});
+                            if (sourceUnit.val().replace(/\[.*[Kk]2[Oo].*\]/g, "").toLowerCase().includes("k2o")) {
+                                subDiv.find("[name='fert_amnt_unit_pk_cb']").bootstrapToggle("on");
+                            } else {
+                                subDiv.find("[name='fert_amnt_unit_pk_cb']").bootstrapToggle("off")
+                            }
+                        } else {
+                            subDiv.find("[name='fert_amnt_unit_pk_cb']").data("on", "").fadeOut(0);
+                        }
                         if (isVirtual) {
                             colHeaderInput.val($(this).val());
                         }
@@ -614,6 +631,18 @@
                 delete itemData[$(this).attr("name")];
             }
         });
+        let unitPKCB = subDiv.find("[name='fert_amnt_unit_pk_cb']");
+        if (unitPKCB.data("on")) {
+            if (unitPKCB.prop("checked")) {
+                if (!itemData.unit.toUpperCase().startsWith(unitPKCB.data("on"))) {
+                    itemData.unit = unitPKCB.data("on") + itemData.unit;
+                }
+            } else {
+                if (itemData.unit.toUpperCase().startsWith(unitPKCB.data("on"))) {
+                    itemData.unit = itemData.unit.replace(unitPKCB.data("on"), "");
+                }
+            }
+        }
         if (!itemData.column_index_org) {
             let valType = div.find("[name='virtual_val_type']").val();
             itemData.column_header = div.find("[name='column_header']").val();
@@ -785,7 +814,10 @@
             </div>
             <!-- 3rd row -->
             <div class="form-group col-sm-3 value-type-control value-type-numeric">
-                <label class="control-label">Raw Data Unit</label>
+                <label class="control-label">
+                    Raw Data Unit&nbsp;
+                    <input type="checkbox" name="fert_amnt_unit_pk_cb">
+                </label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="unit" class="form-control col-def-input-item" value="">
                     <div class="label label-danger" name="unit_validate_result"></div>

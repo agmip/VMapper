@@ -1478,9 +1478,9 @@
                     if (varDef) {
                         tooltip = "<" + mapping.icasa + "> " + varDef.description + " [" + varDef.unit_or_type + "]";
                         if (!mapping.unit) {
-                            text += "<br/><em>[?->" + varDef.unit_or_type + "]</em>"
+                            text += "<br/><em>?->" + varDef.unit_or_type + "</em>"
                         } else if (mapping.unit.toLowerCase() !== varDef.unit_or_type.toLowerCase()) {
-                            text += "<br/><em>[" + mapping.unit + "->" + varDef.unit_or_type + "]</em>"
+                            text += "<br/><em>" + mapping.unit + "->" + varDef.unit_or_type + "</em>"
                         } else {
 //                            text += " [" + varDef.unit_or_type + "]'>";
                         }
