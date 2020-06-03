@@ -195,6 +195,11 @@
             if (errMsg) {
                 dialog.find("[name='dialog_msg']").text(errMsg);
             }
+            if (callback.name === "loadSC2Obj") {
+                dialog.find("[name='mapping_def_desc']").fadeIn(0);
+            } else {
+                dialog.find("[name='mapping_def_desc']").fadeOut(0);
+            }
             let data = [];
             let mergeCells = [];
             let columns = [
@@ -222,14 +227,14 @@
                             {type: 'dropdown', data : "sheet_def", source : []},
                             {type: 'checkbox', data : "included_flg"}
                         ];
-                        colHeaders = ["Sheet", "Read Mapping From", "Predefinied Mapping Definition", "Included"];
+                        colHeaders = ["Sheet", "Predefined File", "Predefinied Sheet", "Included"];
                     } else {
                         columns = [
                             {type: 'text', data : "sheet_name", readOnly: true},
                             {type: 'dropdown', data : "sheet_def", source : []},
                             {type: 'checkbox', data : "included_flg"}
                         ];
-                        colHeaders = ["Sheet", "Predefinied Mapping Definition", "Included"];
+                        colHeaders = ["Sheet", "Predefinied Sheet", "Included"];
                     }
                     
                 }
@@ -413,6 +418,7 @@
 <!-- popup page for define sheet -->
 <div id="sheet_define_popup" hidden>
     <p name="dialog_msg" class="label label-danger"></p>
+    <p name="mapping_def_desc" hidden>Your spreadsheet is not fully matched with the loaded SC2 file,<br/>please make correction on the relationship between your sheets and the sheets stored in the SC2 file.</p>
     <div class="col-sm-12">
         <!-- 1st row -->
         <div class="form-group col-sm-12">
