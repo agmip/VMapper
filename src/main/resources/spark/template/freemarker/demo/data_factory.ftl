@@ -1062,6 +1062,9 @@
                                     }
                                 }
                             }
+                            if (!isFullyMatched) {
+                                sheetDef.unfully_matched_flg = true;
+                            }
                         }
                     }
                 });
@@ -2215,6 +2218,10 @@
                 $('.nav-tabs #sheetTab').on('shown.bs.tab', function(){
                     $('.table_switch_cb').bootstrapToggle('enable');
                     if (templates[curFileName][curSheetName].data_start_row) {
+                        if (templates[curFileName][curSheetName].unfully_matched_flg) {
+                            alertBox("Please double check the mappings for each column and make any correction as needed.");
+                            delete templates[curFileName][curSheetName].unfully_matched_flg;
+                        }
                         $('#tableViewSwitch').bootstrapToggle('off');
                     } else {
                         showSheetDefPrompt(processData);
