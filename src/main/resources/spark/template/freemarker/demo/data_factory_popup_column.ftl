@@ -371,7 +371,7 @@
                     
                     subDiv.find(".col-def-input-item-vr-control").on("type_shown", function() {
                         chosen_init($(this).find("select"), "chosen-select-deselect");
-                        $(this).find("input[type='checkbox']"),bootstrapToggle({on:"Yes", off:"No", size:"mini"});
+                        $(this).find("input[type='checkbox']").bootstrapToggle({on:"Yes", off:"No", size:"mini"});
                     });
                     
                     if (itemData.virtual_val_fixed) {
