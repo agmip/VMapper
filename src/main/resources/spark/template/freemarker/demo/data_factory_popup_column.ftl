@@ -247,21 +247,24 @@
                             subDiv.find(".value-type-control").fadeOut(0);
                         }
                         if (["FEAMP", "FEP_TOT"].includes(icasa)) {
-                            subDiv.find("[name='fert_amnt_unit_pk_cb']").data("on", "P2O5").fadeIn(0).bootstrapToggle({on:"P2O5", off:"P", size:"mini"});
+                            subDiv.find("[name='fert_amnt_unit_pk_div']").fadeIn(0);
+                            subDiv.find("[name='fert_amnt_unit_pk_cb']").data("on", "P2O5").bootstrapToggle({on:"P2O5", off:"P", offstyle:"success", size:"mini"});
                             if (sourceUnit.val().replace(/\[.*[Pp]2[Oo]5.*\]/g, "").toLowerCase().includes("p2o5")) {
                                 subDiv.find("[name='fert_amnt_unit_pk_cb']").bootstrapToggle("on");
                             } else {
                                 subDiv.find("[name='fert_amnt_unit_pk_cb']").bootstrapToggle("off");
                             }
                         } else if (["FEAMK", "FEK_TOT"].includes(icasa)) {
-                            subDiv.find("[name='fert_amnt_unit_pk_cb']").data("on", "K2O").fadeIn(0).bootstrapToggle({on:"K2O", off:"K", size:"mini"});
+                            subDiv.find("[name='fert_amnt_unit_pk_div']").fadeIn(0);
+                            subDiv.find("[name='fert_amnt_unit_pk_cb']").data("on", "K2O").bootstrapToggle({on:"K2O", off:"K", offstyle:"success", size:"mini"});
                             if (sourceUnit.val().replace(/\[.*[Kk]2[Oo].*\]/g, "").toLowerCase().includes("k2o")) {
                                 subDiv.find("[name='fert_amnt_unit_pk_cb']").bootstrapToggle("on");
                             } else {
                                 subDiv.find("[name='fert_amnt_unit_pk_cb']").bootstrapToggle("off")
                             }
                         } else {
-                            subDiv.find("[name='fert_amnt_unit_pk_cb']").data("on", "").fadeOut(0);
+                            subDiv.find("[name='fert_amnt_unit_pk_div']").fadeOut(0);
+                            subDiv.find("[name='fert_amnt_unit_pk_cb']").data("on", "");
                         }
                         if (isVirtual) {
                             colHeaderInput.val($(this).val());
@@ -814,10 +817,7 @@
             </div>
             <!-- 3rd row -->
             <div class="form-group col-sm-3 value-type-control value-type-numeric">
-                <label class="control-label">
-                    Raw Data Unit&nbsp;
-                    <input type="checkbox" name="fert_amnt_unit_pk_cb">
-                </label>
+                <label class="control-label">Raw Data Unit</label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="unit" class="form-control col-def-input-item" value="">
                     <div class="label label-danger" name="unit_validate_result"></div>
@@ -827,6 +827,12 @@
                 <label class="control-label">ICASA Unit</label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="icasa_unit" class="form-control" value="" readonly>
+                </div>
+            </div>
+            <div class="form-group col-sm-3 value-type-control value-type-numeric" name="fert_amnt_unit_pk_div">
+                <label class="control-label">Element Measured by</label>
+                <div class="input-group col-sm-12">
+                    <input type="checkbox" name="fert_amnt_unit_pk_cb">
                 </div>
             </div>
             <div class="form-group col-sm-3 value-type-control value-type-code">
