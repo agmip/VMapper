@@ -847,7 +847,7 @@
                                     $.get("/data/unit/lookup?unit=" + encodeURIComponent(headerDef.unit),
                                         function (jsonStr) {
                                             let unitInfo = JSON.parse(jsonStr);
-                                            if (unitInfo.message === "undefined unit expression" && headerDef.unit !== "text" && headerDef.unit !== "code" && headerDef.unit !== "date") {
+                                            if (unitInfo.message === "undefined unit expression" && isNumericUnit(headerDef.unit)) {
                                                 headerDef.unit_error = true;
                                             }
                                         }
@@ -1050,7 +1050,7 @@
                                         $.get("/data/unit/lookup?unit=" + encodeURIComponent(headerDef.unit),
                                             function (jsonStr) {
                                                 let unitInfo = JSON.parse(jsonStr);
-                                                if (unitInfo.message === "undefined unit expression" && headerDef.unit !== "text" && headerDef.unit !== "code" && headerDef.unit !== "date") {
+                                                if (unitInfo.message === "undefined unit expression" && isNumericUnit(headerDef.unit)) {
                                                     headerDef.unit_error = true;
                                                 } else {
                                                     delete headerDef.unit_error;
@@ -1564,6 +1564,10 @@
             
             function saveAcebFile() {
                 alertBox("Functionality under construction...");
+            }
+            
+            function isNumericUnit(unit) {
+                return !["text", "code", "date", "number"].includes(unit);
             }
             
             function openTemplateFile() {

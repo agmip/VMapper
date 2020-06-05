@@ -224,7 +224,7 @@
                             if (unit === "code" && itemData.icasa !== icasa) {
                                 itemData.code_mappings_undefined_flg = true;
                             }
-                            if (["text", "code", "date", "number"].includes(unit)) {
+                            if (!isNumericUnit(unit)) {
                                 subDiv.find(".value-type-control").fadeOut(0);
                                 subDiv.find(".value-type-" + unit).fadeIn(0);
                                 sourceUnit.val(unit).trigger("input");
@@ -237,12 +237,6 @@
                             } else {
                                 sourceUnit.trigger("input");
                             }
-//                            if (unit === "code") {
-//                                subDiv.find("[name='icasa_code_mapping_btn']").fadeIn();
-//                                subDiv.find("[name='icasa_code_mapping_btn']").prop("disabled", !icasaVarMap.isCodeDefExisted(icasa));
-//                            } else {
-//                                subDiv.find("[name='icasa_code_mapping_btn']").fadeOut();
-//                            }
                         } else {
                             subDiv.find(".value-type-control").fadeOut(0);
                         }
@@ -341,7 +335,7 @@
                         $.get("/data/unit/lookup?unit=" + encodeURIComponent(unit),
                             function (jsonStr) {
                                 let unitInfo = JSON.parse(jsonStr);
-                                if (unitInfo.message === "undefined unit expression" && unit !== "text" && unit !== "code" && unit !== "date") {
+                                if (unitInfo.message === "undefined unit expression" && isNumericUnit(unit)) {
                                     subDiv.find("[name='unit_validate_result']").html("Incompatiable unit");
                                     itemData.err_msg = "Please fix source unit expression";
                                 } else {
@@ -352,7 +346,7 @@
                                 }
                             }
                         );
-                        if (["text", "code", "date", "number"].includes(unit)) {
+                        if (!isNumericUnit(unit)) {
                             subDiv.find("[name='val_type']").val(unit).trigger("change");
                         } else {
                             subDiv.find("[name='val_type']").val("numeric").trigger("change");
