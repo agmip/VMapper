@@ -141,8 +141,13 @@ public class UnitConverter {
     public static BigDecimal convert(String fromUnit, String toUnit, BigDecimal val) throws UnitParseException, SpecificationException, NoSuchUnitException, UnitDBException, PrefixDBException, UnitSystemException, ConversionException {
         Unit from = PARSER.parse(preParsing(fromUnit));
         Unit to = PARSER.parse(preParsing(toUnit));
-        BigDecimal ret = new BigDecimal(from.convertTo(val.doubleValue(), to));
-        int scale = ret.scale() + val.precision() - ret.precision();
+        BigDecimal ret = new BigDecimal(Double.toString(from.convertTo(val.doubleValue(), to)));
+        int scale;
+        if (ret.precision() - ret.scale() >= val.precision() - val.scale()) {
+            scale = val.scale();
+        } else {
+            scale = ret.scale() + val.precision() - ret.precision();
+        }
         ret = ret.setScale(scale + 1, RoundingMode.HALF_UP);
         BigDecimal alt = ret.setScale(scale, RoundingMode.HALF_UP);
         while (ret.doubleValue() == alt.doubleValue()) {
