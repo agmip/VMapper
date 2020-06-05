@@ -502,7 +502,7 @@
                     if (fileName.toLowerCase().endsWith(".csv")) {
                         data = data.replace(/\t/gi, "    ");
                     }
-                    workbook = XLSX.read(data, {type: 'binary'});
+                    workbook = XLSX.read(data, {type: 'binary', dateNF: "yyyy-MM-dd"});
                     workbooks[fileName] = workbook;
 //                    workbook = XLSX.read(data, {type: 'array'});
 //                    console.timeEnd();
@@ -754,7 +754,7 @@
                     }
                     // Do re-read data when 1, no data loaded; 2, load SC2 file with virtual column but not the case of change row define
                     if (!roa || (virColCnt[fileName][sheetName] && !isChanged)) {
-                        roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1, raw: false});
+                        roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1, raw: false, dateNF: "yyyy-MM-dd"});
                         for (let i = roa.length; i >= 0; i--) {
                             if (roa[i] && roa[i].length > 0) {
                                 roa.splice(i + 1, roa.length - i);
@@ -1078,7 +1078,7 @@
                     result.push("");
                     let workbook = workbooks[name];
                     workbook.SheetNames.forEach(function(sheetName) {
-                        let csv = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName], {raw: false});
+                        let csv = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName], {raw: false, dateNF: "yyyy-MM-dd"});
                         if(csv.length){
                             result.push("SHEET: " + sheetName);
                             result.push("");
