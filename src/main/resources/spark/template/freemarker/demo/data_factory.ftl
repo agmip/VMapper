@@ -1569,7 +1569,7 @@
             function createCsvSheet(fileName, sheetName) {
                 let wb = XLSX.utils.book_new();
                 let agmipData = JSON.parse(JSON.stringify(wbObj[fileName][sheetName].data));
-                let sheedDef = templates[fileName][sheetName];
+                let sheetDef = templates[fileName][sheetName];
                 if (sheetDef.data_start_row) {
                     agmipData = agmipData.slice(sheetDef.data_start_row - 2);
                 }
