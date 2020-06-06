@@ -1566,6 +1566,74 @@
                 alertBox("Functionality under construction...");
             }
             
+            function createCsvSheet(fileName, sheetName) {
+                let wb = XLSX.utils.book_new();
+                let agmipData = JSON.parse(JSON.stringify(wbObj[fileName][sheetName].data));
+                let sheedDef = templates[fileName][sheetName];
+                if (sheetDef.data_start_row) {
+                    agmipData = agmipData.slice(sheetDef.data_start_row - 2);
+                }
+                for (let j in agmipData) {
+                    if ( j == 0) {
+                        agmipData[j].unshift("#");
+                    } else {
+                        agmipData[j].unshift(j);
+                    }
+                }
+                if (agmipData.length > 1) {
+                    for (let i = sheetDef.mappings.length - 1; i > -1; i--) {
+                        let mapping = sheetDef.mappings[i];
+                        if (!mapping) {
+                            continue;
+                        }
+                        if (mapping.ignored_flg) {
+                            agmipData[0][mapping.column_index] = "!" + mapping.icasa;
+                        } else if (mapping.icasa) {
+                            agmipData[0][mapping.column_index] = mapping.icasa;
+                            let icasaUnit = icasaVarMap.getUnit(mapping.icasa);
+                            if (mapping.unit) {
+                                if (mapping.unit === "date") {
+                                    if (mapping.format) {
+//                                        for (let j in agmipData) {
+//                                            if (j > 0) {
+//                                                agmipData[j][mapping.column_index] = dateUtil.toYYYYMMDDStr(agmipData[j][mapping.column_index]);
+//                                            }
+//                                        }
+                                    }
+                                } else if (mapping.unit === "code") {
+                                    if (mapping.code_mappings) {
+                                        for (let j in agmipData) {
+                                            if (j > 0 && mapping.code_mappings[agmipData[j][mapping.column_index]]) {
+                                                agmipData[j][mapping.column_index] = mapping.code_mappings[agmipData[j][mapping.column_index]];
+                                            }
+                                        }
+                                    }
+                                } else if (isNumericUnit(mapping.unit) && mapping.unit !== icasaUnit) {
+                                    $.ajax({
+                                        url:"/data/unit/convert?value_from=1&unit_to=" + encodeURIComponent(icasaUnit) + "&unit_from="+ encodeURIComponent(mapping.unit),
+                                        async:false
+                                    }).done(function (jsonStr) {
+                                        let ret = JSON.parse(jsonStr);
+                                        if (ret.status === "0") {
+                                            for (let j in agmipData) {
+                                                if (j > 0 && agmipData[j][mapping.column_index] && !Number.isNaN(agmipData[j][mapping.column_index])) {
+                                                    agmipData[j][mapping.column_index] *= Number(ret.value_to);
+                                                }
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        } else {
+                            agmipData[0][mapping.column_index] = mapping.column_header;
+                        }
+                    }
+                }
+                let ws = XLSX.utils.aoa_to_sheet(agmipData);
+                XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
+                return XLSX.write(wb, {bookType:"csv", type: 'string'});
+            }
+            
             function isNumericUnit(unit) {
                 return !["text", "code", "date", "number"].includes(unit);
             }
@@ -2197,6 +2265,7 @@
         <script type="text/javascript" src="/plugins/jsonViewer/jquery.json-viewer.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/chosen/init.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/dataReader/BufferedFileReader.js"></script>
+        <script type="text/javascript" src="/js/util/dateUtil.js"></script>
         <script type="text/javascript" src="/js/bootbox/bootbox.all.min.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/toggle/bootstrap-toggle.min.js" charset="utf-8"></script>
         <script src="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.js"></script>
