@@ -406,7 +406,11 @@
                                 }
                             } else if ($(this).attr("name") === "virtual_val_type") {
                                 chosen_init_target($(this), "chosen-select-deselect");
-                                $(this).val("string").trigger("chosen:updated");
+                                if (itemData.virtual_val_fixed !== undefined && itemData.virtual_val_fixed !== null) {
+                                    $(this).val("fixed").trigger("chosen:updated");
+                                } else {
+                                    $(this).val("string").trigger("chosen:updated");
+                                }
                             } else {
                                 chosen_init_target($(this), "chosen-select-deselect");
                                 $(this).val(itemData[$(this).attr("name")]).trigger("chosen:updated");
@@ -624,7 +628,7 @@
                 }
             } else if ($(this).val()) {
                 itemData[$(this).attr("name")] = $(this).val();
-            }else {
+            } else {
                 delete itemData[$(this).attr("name")];
             }
         });
@@ -653,7 +657,7 @@
                         }
                     } else if ($(this).val()) {
                         itemData[$(this).attr("name")] = $(this).val();
-                    }else {
+                    } else {
                         delete itemData[$(this).attr("name")];
                     }
                 });

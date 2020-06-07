@@ -2069,6 +2069,10 @@
                                         if (key.startsWith("virtual")) {
                                             if (key === "virtual_val_fixed") {
                                                 mappingCopy.value = mappingCopy[key];
+                                            } else if (key === "virtual_val_keys") {
+                                                if (mappingCopy[key].length === 0) {
+                                                    continue;
+                                                }
                                             }
                                             mappingCopy.formula_info[key] = mappingCopy[key];
                                             delete mappingCopy[key];
