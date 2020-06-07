@@ -607,7 +607,7 @@
                 for (let fileName in templates) {
                     $('#sheet_tab_list').append('<li class="dropdown-header"><strong>' + fileName + '</strong></li>');
                     for (let sheetName in templates[fileName]) {
-                        let cntUndefined = countUndefinedColumns(templates[fileName][sheetName].mappings);
+                        let cntUndefined = countUndefinedColumns(templates[fileName][sheetName]);
                         if (cntUndefined > 0) {
                             $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + fileName + '__' + sheetName + '" onclick="setSpreadsheet(this);">' + sheetName + '&nbsp;&nbsp;<span class="label label-danger label-as-badge">' + cntUndefined + '</span></a></li>');
                         } else {
@@ -655,12 +655,17 @@
                 }
             }
             
-            function countUndefinedColumns(mappings) {
+            function countUndefinedColumns(sheetDef) {
                 let ret = 0;
-                for (let i in mappings) {
-                    let classNames = getColStatusClass(i, mappings);
-                    if (classNames.includes("warning") || classNames.includes("danger")) {
-                        ret++;
+                if (!sheetDef.data_start_row) {
+                    ret = 1;
+                } else {
+                    let mappings = sheetDef.mappings;
+                    for (let i in mappings) {
+                        let classNames = getColStatusClass(i, mappings);
+                        if (classNames.includes("warning") || classNames.includes("danger")) {
+                            ret++;
+                        }
                     }
                 }
                 return ret;
@@ -2349,7 +2354,7 @@
                 $('#sheetTab').on("click", function() {
                     $('#sheet_tab_list').find("a").each(function () {
                         let tmp = $(this).attr('id').split("__");
-                        let cntUndefined = countUndefinedColumns(templates[tmp[0]][tmp[1]].mappings);
+                        let cntUndefined = countUndefinedColumns(templates[tmp[0]][tmp[1]]);
                         if (cntUndefined > 0) {
                             $(this).find("span").html(cntUndefined).removeClass("invisible");
                         } else {
