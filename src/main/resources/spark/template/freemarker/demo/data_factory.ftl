@@ -1570,37 +1570,166 @@
             function saveAcebFile() {
                 alertBox("Functionality under construction...");
             }
+
+            function saveAgMIPZip() {
+                // check if mappings are completed
+                for (let fileName in templates) {
+                    for (let sheetName in templates[fileName]) {
+                        let cntUndefined = countUndefinedColumns(templates[fileName][sheetName]);
+                        if (cntUndefined > 0) {
+                            alertBox("There are undefined/error mappings left here...", function () {
+                                $('#sheet_tab_list').find("a").each(function () {
+                                    if ($(this).attr('id') === fileName + '__' + sheetName) {
+                                        $(this).click();
+                                        return false;
+                                    }
+                                 });
+                            });
+                            return;
+                        }
+                    }
+                }
+                // check the relationship among tables and determine the data structure
+                let rootTables = {};
+                let toRefs = [];
+                for (let fileName in templates) {
+                    for (let sheetName in templates[fileName]) {
+                        if (!rootTables[fileName]) {
+                            rootTables[fileName] = {};
+                        }
+                        rootTables[fileName][sheetName] = true;
+                        if (Object.keys(templates[fileName][sheetName].references).length > 0) {
+                            toRefs.push(templates[fileName][sheetName].references);
+                        }
+                    }
+                }
+                // mark all the been related table as non-root tables
+                for (let i in toRefs) {
+                    for (let fromKeyIdx in toRefs[i]) {
+                        for (let toKeyIdx in toRefs[i][fromKeyIdx]) {
+                            let refDef = toRefs[i][fromKeyIdx][toKeyIdx];
+                            let tableCat = getTableCategory(templates[refDef.file][refDef.sheet].mappings);
+                            if ((tableCat.order < 4000 || tableCat.order > 4051) &&
+                                (tableCat.order < 5000 || tableCat.order > 5051)) {
+                                // If reference target is not soil/weather meta/profile table, then mark it as non-root table
+                                rootTables[refDef.file][refDef.sheet] = false;
+                            }
+                        }
+                    }
+                }
+                // loop the root tables to create csv file for each related group of tables
+                let zip = new JSZip();
+                let fileMap = {};
+                for (let fileName in rootTables) {
+                    for (let sheetName in rootTables[fileName]) {
+                        if (rootTables[fileName][sheetName] && templates[fileName][sheetName]) {
+                            let csvData = createCsvSheet(fileName, sheetName);
+                            let cnt = 1;
+                            let csvFileName = sheetName;
+                            while (fileMap[csvFileName]) {
+                                csvFileName = sheetName + "_" + cnt;
+                            }
+                            fileMap[csvFileName] = true;
+                            zip.file(csvFileName + ".csv", csvData);
+                        }
+                    }
+                }
+                zip.generateAsync({type:"blob"}).then(function(content) {
+                    saveAs(content, "AgMIP_Input.zip");
+                });
+            }
             
             function createCsvSheet(fileName, sheetName) {
                 let wb = XLSX.utils.book_new();
+                let ws = XLSX.utils.aoa_to_sheet(createCsvSheetArr(fileName, sheetName) );
+                XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
+                return XLSX.write(wb, {bookType:"csv", type: 'string'});
+            }
+
+            function createCsvSheetArr(fileName, sheetName, parentIdxInfo) {
                 let agmipData = JSON.parse(JSON.stringify(wbObj[fileName][sheetName].data));
                 let sheetDef = templates[fileName][sheetName];
                 if (sheetDef.data_start_row) {
                     agmipData = agmipData.slice(sheetDef.data_start_row - 2);
                 }
-                for (let j in agmipData) {
-                    if ( j == 0) {
-                        agmipData[j].unshift("#");
+                
+                let headerRow = agmipData.length;
+                agmipData.unshift(["!", sheetName]);
+                agmipData.unshift(["!", fileName]);
+                headerRow = agmipData.length - headerRow;
+                if (isArrayData(sheetDef.mappings)) {
+                    agmipData[headerRow].unshift("%");
+                } else {
+                    agmipData[headerRow].unshift("#");
+                }
+                if (parentIdxInfo) {
+                    if (parentIdxInfo.refDef.keys.length === 0) {
+                        // create sub data table for meta case
+                        if (agmipData.length > headerRow + 1) {
+                            let j = headerRow + 1;
+                            // duplicate it self for single record meta table reference
+                            agmipData[j].unshift("!");
+                            let metaNum = Object.keys(parentIdxInfo.indexing).length;
+                            let cnt = 1;
+                            for (let idx in parentIdxInfo.indexing) {
+                                agmipData[j][0] = idx;
+                                if (cnt < metaNum) {
+                                    agmipData.push(JSON.parse(JSON.stringify(agmipData[j])));
+                                    j++;
+                                }
+                                cnt++;
+                            }
+                        }
                     } else {
-                        agmipData[j].unshift(j);
+                        // create sub data table for regular case
+                        agmipDataCache = agmipData.splice(headerRow + 1);
+                        for (let i in agmipDataCache) {
+                            agmipDataCache[i].unshift("!");
+                        }
+                        let metaNum = Object.keys(parentIdxInfo.indexing).length;
+                        for (let idx in parentIdxInfo.indexing) {
+                            for (let i in agmipDataCache) {
+                                let found = true;
+                                for (let toKey in parentIdxInfo.indexing[idx]) {
+                                    if (agmipDataCache[i][toKey] != parentIdxInfo.indexing[idx][toKey]) {
+                                        found = false;
+                                        break;
+                                    }
+                                }
+                                if (found) {
+                                    agmipDataCache[i][0] = idx;
+                                    agmipData.push(JSON.parse(JSON.stringify(agmipDataCache[i])));
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // create primary table index
+                    for (let j in agmipData) {
+                        j = Number(j);
+                        if ( j <= headerRow) {
+                            continue;
+                        }
+                        agmipData[j].unshift(j - headerRow);
                     }
                 }
-                if (agmipData.length > 1) {
+
+                if (agmipData.length > headerRow + 1) {
                     for (let i = sheetDef.mappings.length - 1; i > -1; i--) {
                         let mapping = sheetDef.mappings[i];
                         if (!mapping) {
                             continue;
                         }
                         if (mapping.ignored_flg) {
-                            agmipData[0][mapping.column_index] = "!" + mapping.icasa;
+                            agmipData[headerRow][mapping.column_index] = "!" + mapping.icasa;
                         } else if (mapping.icasa) {
-                            agmipData[0][mapping.column_index] = mapping.icasa;
+                            agmipData[headerRow][mapping.column_index] = mapping.icasa;
                             let icasaUnit = icasaVarMap.getUnit(mapping.icasa);
                             if (mapping.unit) {
                                 if (mapping.unit === "date") {
                                     if (mapping.format) {
 //                                        for (let j in agmipData) {
-//                                            if (j > 0) {
+//                                            if (j > headerRow) {
 //                                                agmipData[j][mapping.column_index] = dateUtil.toYYYYMMDDStr(agmipData[j][mapping.column_index]);
 //                                            }
 //                                        }
@@ -1608,7 +1737,7 @@
                                 } else if (mapping.unit === "code") {
                                     if (mapping.code_mappings) {
                                         for (let j in agmipData) {
-                                            if (j > 0 && mapping.code_mappings[agmipData[j][mapping.column_index]]) {
+                                            if (j > headerRow && mapping.code_mappings[agmipData[j][mapping.column_index]]) {
                                                 agmipData[j][mapping.column_index] = mapping.code_mappings[agmipData[j][mapping.column_index]];
                                             }
                                         }
@@ -1621,7 +1750,7 @@
                                         let ret = JSON.parse(jsonStr);
                                         if (ret.status === "0") {
                                             for (let j in agmipData) {
-                                                if (j > 0 && agmipData[j][mapping.column_index] && !Number.isNaN(agmipData[j][mapping.column_index])) {
+                                                if (j > headerRow && agmipData[j][mapping.column_index] && !Number.isNaN(agmipData[j][mapping.column_index])) {
                                                     agmipData[j][mapping.column_index] *= Number(ret.value_to);
                                                 }
                                             }
@@ -1630,13 +1759,71 @@
                                 }
                             }
                         } else {
-                            agmipData[0][mapping.column_index] = mapping.column_header;
+                            agmipData[headerRow][mapping.column_index] = mapping.column_header;
                         }
                     }
                 }
-                let ws = XLSX.utils.aoa_to_sheet(agmipData);
-                XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
-                return XLSX.write(wb, {bookType:"csv", type: 'string'});
+                
+                let refDefs = templates[fileName][sheetName].references;
+                let subDatas = [];
+                for (let fromKeyIdx in refDefs) {
+                    for (let toKeyIdx in refDefs[fromKeyIdx]) {
+                        let refDef = refDefs[fromKeyIdx][toKeyIdx];
+                        let tableCat = getTableCategory(templates[refDef.file][refDef.sheet].mappings);
+                        if ((tableCat.order > 4000 && tableCat.order < 4052) ||
+                            (tableCat.order > 5000 && tableCat.order < 5052)) {
+                            // If it is soil/weather meta/profile table, then skip as sub table.
+                            continue;
+                        }
+                        
+                        let idxInfo = {refDef : refDef, indexing : {}};
+                        let data = wbObj[fileName][sheetName].data;
+                        let fromKeyIdxs = JSON.parse("[" + fromKeyIdx + "]");
+                        if (fromKeyIdxs.length === 0) {
+                            for (let i in agmipData) {
+                                if (i > headerRow) {
+                                    idxInfo.indexing[agmipData[i][0]] = {};
+                                }
+                            }
+                        } else {
+                            for (let j in fromKeyIdxs) {
+                                let mapping = sheetDef.mappings[fromKeyIdxs[j] - 1];
+                                let idx;
+                                for (let k in refDef.keys) {
+                                    if (refDef.keys[k].icasa === mapping.icasa || refDef.keys[k].column_header === mapping.icasa ||
+                                        refDef.keys[k].icasa === mapping.column_header || refDef.keys[k].column_header === mapping.column_header) {
+                                        idx = refDef.keys[k].column_index;
+                                    }
+                                }
+                                if (!idx) {
+                                    if (refDef.keys[j]) {
+                                        idx = refDef.keys[j].column_index;
+                                    } else {
+                                        console.log("[warning] borken reference detected")
+                                        continue;
+                                    }
+                                }
+                                for (let i in agmipData) {
+                                    if (i <= headerRow) {
+                                        continue;
+                                    }
+                                    if (!idxInfo.indexing[agmipData[i][0]]) {
+                                        idxInfo.indexing[agmipData[i][0]] = {};
+                                    } else {
+                                        // TODO
+                                    }
+                                    idxInfo.indexing[agmipData[i][0]][idx] = agmipData[i][fromKeyIdxs[j]];
+                                }
+                            }
+                        }
+                        subDatas.push(createCsvSheetArr(refDef.file, refDef.sheet, idxInfo));
+                    }
+                }
+                for (let i in subDatas) {
+                    agmipData = agmipData.concat(subDatas[i]);
+                }
+                            
+                return agmipData;
             }
             
             function isNumericUnit(unit) {
@@ -2164,6 +2351,7 @@
                         <li onclick="openExpDataFile()" id="openFileMenu"><a href="#"><span class="glyphicon glyphicon-open"></span> Load file</a></li>
                         <li onclick="openExpDataFolderFile()"><a href="#"><span class="glyphicon glyphicon-open"></span> Load folder</a></li>
                         <li onclick="saveExpDataFile()"><a href="#"><span class="glyphicon glyphicon-save"></span> Save</a></li>
+                        <li onclick="saveAgMIPZip()"><a href="#"><span class="glyphicon glyphicon-export"></span> To AgMIP Input Package</a></li>
                         <li onclick="saveAcebFile()"><a href="#"><span class="glyphicon glyphicon-export"></span> To Aceb</a></li>
                     </ul>
                 </div>
@@ -2266,6 +2454,7 @@
         <#include "../footer.ftl">
         <script type="text/javascript" src="/js/bootbox/dragable.js" charset="utf-8"></script>
         <script type="text/javascript" src='/plugins/FileSaver/FileSaver.min.js'></script>
+        <script type="text/javascript" src='/plugins/jszip/jszip.min.js'></script>
         <script type="text/javascript" src="/js/sheetjs/shim.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/sheetjs/xlsx.full.min.js"></script>
         <script type="text/javascript" src="/plugins/filestyle/bootstrap-filestyle.min.js"></script>

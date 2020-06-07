@@ -624,6 +624,19 @@
         }
         return ret;
     }
+    
+    function isArrayData(mappings) {
+        let tableCat = getTableCategory(mappings);
+        if (tableCat.rank === 3) {
+            return tableCat.order > 2500;
+        } else if (tableCat.rank === 4) {
+            return tableCat.order < 2500;
+        } else if (tableCat.rank === 6) {
+            return tableCat.order > 5050;
+        } else {
+            return tableCat.rank === 7;
+        }
+    }
 </script>
 
 <div id="template" hidden>
