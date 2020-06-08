@@ -1650,7 +1650,12 @@
                 let agmipData = JSON.parse(JSON.stringify(wbObj[fileName][sheetName].data));
                 let sheetDef = templates[fileName][sheetName];
                 if (sheetDef.data_start_row) {
-                    agmipData = agmipData.slice(sheetDef.data_start_row - 2);
+                    agmipData = agmipData.slice(sheetDef.data_start_row - 1);
+                }
+                if (wbObj[fileName][sheetName].headers) {
+                    agmipData.unshift(JSON.parse(JSON.stringify(wbObj[fileName][sheetName].headers)));
+                } else {
+                    agmipData.unshift([""]);
                 }
                 
                 let headerRow = agmipData.length;
@@ -1721,7 +1726,13 @@
                             continue;
                         }
                         if (mapping.ignored_flg) {
-                            agmipData[headerRow][mapping.column_index] = "!" + mapping.icasa;
+                            if (mapping.icasa) {
+                                agmipData[headerRow][mapping.column_index] = "!" + mapping.icasa;
+                            } else if (mapping.column_header) {
+                                agmipData[headerRow][mapping.column_index] = "!" + mapping.column_header;
+                            } else {
+                                agmipData[headerRow][mapping.column_index] = "!" + agmipData[headerRow][mapping.column_index];
+                            }
                         } else if (mapping.icasa) {
                             agmipData[headerRow][mapping.column_index] = mapping.icasa;
                             let icasaUnit = icasaVarMap.getUnit(mapping.icasa);
