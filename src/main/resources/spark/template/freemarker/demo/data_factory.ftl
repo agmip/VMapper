@@ -1739,11 +1739,15 @@
                             if (mapping.unit) {
                                 if (mapping.unit === "date") {
                                     if (mapping.format) {
-//                                        for (let j in agmipData) {
-//                                            if (j > headerRow) {
-//                                                agmipData[j][mapping.column_index] = dateUtil.toYYYYMMDDStr(agmipData[j][mapping.column_index]);
-//                                            }
-//                                        }
+                                        if (mapping.format === "yyyyDDD") {
+                                            for (let j in agmipData) {
+                                                if (j > headerRow) {
+                                                    agmipData[j][mapping.column_index] = dateUtil.toYYYYMMDDStr(agmipData[j][mapping.column_index]);
+                                                }
+                                            }
+                                        } else {
+                                            // TODO support customized date format
+                                        }
                                     }
                                 } else if (mapping.unit === "code") {
                                     if (mapping.code_mappings) {

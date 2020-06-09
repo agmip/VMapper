@@ -21,7 +21,7 @@ dateUtil.toYYYYMMDDStr = function (date) {
             year = tmp[0];
             month = tmp[1];
             day = tmp [2];
-        } else if (date.match(/\d{5}/)) {
+        } else if (date.match(/^\d{5}$/)) {
             year = date.substring(0, 2);
             if (Number(year) > 50) {
                 year = "19" + year;
@@ -29,6 +29,12 @@ dateUtil.toYYYYMMDDStr = function (date) {
                 year = "20" + year;
             }
             let doy = Number(date.substring(2));
+            let tmp = new Date(year, 0, doy);
+            month = (tmp.getMonth() + 1).toString();
+            day = tmp.getDate().toString();
+        } else if (date.match(/^\d{7}$/)) {
+            year = date.substring(0, 4);
+            let doy = Number(date.substring(4));
             let tmp = new Date(year, 0, doy);
             month = (tmp.getMonth() + 1).toString();
             day = tmp.getDate().toString();
