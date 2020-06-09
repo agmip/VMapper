@@ -405,7 +405,7 @@
                     </#list>
                     "crid" : {
                     <#list culMetaList as culMeta>
-                        "${culMeta.agmip_code!}" : "${culMeta.name?js_string!?js_string}"<#sep>,</#sep>
+                        "${culMeta.crop_code!}" : "${culMeta.common_name?js_string!?js_string}"<#sep>,</#sep>
                     </#list>
                     }
                 },
