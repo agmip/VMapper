@@ -59,6 +59,7 @@
 "first_square_date","17","SQDAT","5","SQDAT","","","Date of first square on plant","day","single","","EXPERIMENT","MEASURED_DATA","SUMMARY","SM_DEVELOPMENT","2502","1","","","","0","366","","1","-1","","","",""
 "anthesis_dap_stdev","18","ADAPS","","ADAPS","","","Standard deviation of anthesis DAP","dap","","","EXPERIMENT","MEASURED_DATA","SUMMARY","SM_DEVELOPMENT","2502","1","","","","","","","0","","","","",""
 "phys_mat_dap_stdev","18","MDAPS","","MDAPS","","","Standard deviation of physiological maturity DAP","dap","","","EXPERIMENT","MEASURED_DATA","SUMMARY","SM_DEVELOPMENT","2502","1","","","","","","","0","","","","",""
+"growing_season_duration","23","GSLEN","","GSLEN","","","Length of time between planting and harvest dates","days","","","EXPERIMENT","MEASURED_DATA","SUMMARY","SM_DEVELOPMENT","2502","1","2020-06-08, CHP","","","","","","0","","","","",""
 "OID","3","OID","","OID","0","1","","","single","","EXPERIMENT","MEASURED_DATA","SUMMARY","SM_GROWTH","2503","0","","","","","","","1","-2","","","",""
 "treatment_lev_ID","16","OBS_TRT_ID","10","OBS_TRT_ID","1","","Treatment id for observed data, unique internal ID","number","single","","EXPERIMENT","MEASURED_DATA","SUMMARY","SM_GROWTH","2503","0","","","","","","","1","-2","","","",""
 "harvest_yld_matur_dry_wt","24","HWAM","4","HWAM","1","","Harvest yield at harvest maturity (dry wt)","kg/ha","single","","EXPERIMENT","MEASURED_DATA","SUMMARY","SM_GROWTH","2503","1","","Mat yield kg/ha",".","0","","","1","","","","",""
