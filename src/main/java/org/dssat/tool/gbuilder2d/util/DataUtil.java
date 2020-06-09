@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import org.agmip.translators.dssat.DssatSoilInput;
 import static org.dssat.tool.gbuilder2d.util.JsonUtil.parseFrom;
+import static org.dssat.tool.gbuilder2d.util.Path.Folder.ICASA_CROP_CODE;
 import static org.dssat.tool.gbuilder2d.util.Path.Folder.getSoilListDir;
 import static org.dssat.tool.gbuilder2d.util.Path.Folder.getSoilListFile;
 import static org.dssat.tool.gbuilder2d.util.Path.Folder.getWthListDir;
@@ -30,6 +31,7 @@ public class DataUtil {
     private static final JSONObject CUL_METADATA_MAP = loadCulData();
     private static final ArrayList<JSONObject> SOILDATA_LIST = getSoilDataList(getSoilListDir(), getSoilListFile());
     private static final ArrayList<JSONObject> WTHDATA_LIST = getWthDataList(getWthListDir(), getWthListFile());
+    private static final ArrayList<JSONObject> ICASA_CROP_CODE_LIST = loadICASACropCode();
     private static final JSONObject ICASA_MGN_CODE_MAP = loadICASAMgnCode();
     private static final JSONObject ICASA_MGN_VAR_MAP = loadICASAMgnVarCode();
     private static final JSONObject ICASA_OBV_VAR_MAP = loadICASAObvVarCode();
@@ -47,6 +49,11 @@ public class DataUtil {
     private static final String ICASA_MGN_VAR_HEADER_VAR_ORDER = "set_group_order";
     private static final String ICASA_OBV_VAR_HEADER_VAR_SUBGROUP = "sub-group";
     private static final String ICASA_MGN_VAR_HEADER_VAR_RATING = "agmip_data_entry";
+    private static final String ICASA_CROP_CODE_HEADER_CROP_CODE = "crop_code";
+    private static final String ICASA_CROP_CODE_HEADER_COMMON_NAME = "common_name";
+//    private static final String ICASA_CROP_CODE_HEADER_LATIN_NAME = "latin_name";
+//    private static final String ICASA_CROP_CODE_HEADER_DSSAT_CODE = "DSSAT_code";
+//    private static final String ICASA_CROP_CODE_HEADER_APSIM_CODE = "APSIM_code";
     private static final int ICASA_MIN_ACCEPTABLE_RATING_LEVEL = -1;
     
     private static JSONObject loadCulData() {
@@ -293,6 +300,57 @@ public class DataUtil {
         }
         return ret;
     }
+
+    private static ArrayList<JSONObject> loadICASACropCode() {
+        ArrayList<JSONObject> ret = new ArrayList();
+        File file = Path.Folder.getCropCodeFile();
+        if (!file.exists()) {
+            ICASAUtil.syncICASA();
+        }
+
+        try (CSVReader reader = new CSVReader(new BufferedReader(new FileReader(file)), ',')) {
+            int cropCodeIdx = -1;
+            int commonNameIdx = -1;
+//            int latinNameIdx = -1;
+//            int dssatCodeIdx = -1;
+//            int apsimCodeIdx = -1;
+            ArrayList<String> titles = new ArrayList();
+            String[] nextLine = reader.readNext();
+            if (nextLine!= null) {
+                for (String title : nextLine) {
+                    titles.add(title.toLowerCase());
+                }
+                cropCodeIdx = titles.indexOf(ICASA_CROP_CODE_HEADER_CROP_CODE);
+                commonNameIdx = titles.indexOf(ICASA_CROP_CODE_HEADER_COMMON_NAME);
+//                latinNameIdx = titles.indexOf(ICASA_CROP_CODE_HEADER_LATIN_NAME);
+//                dssatCodeIdx = titles.indexOf(ICASA_CROP_CODE_HEADER_DSSAT_CODE);
+//                apsimCodeIdx = titles.indexOf(ICASA_CROP_CODE_HEADER_APSIM_CODE);
+                if (cropCodeIdx < 0 || commonNameIdx < 0) {
+                    throw new IOException("Missing required column in ICASA crop code defination file!");
+                }
+            }
+            int minLength = Math.min(cropCodeIdx, commonNameIdx);
+            while ((nextLine = reader.readNext()) != null) {
+                if (nextLine[0].startsWith("!") || nextLine.length <= minLength) {
+                } else {
+                    String cropCode = nextLine[cropCodeIdx].trim();
+                    if (cropCode.isEmpty()) {
+                        continue;
+                    }
+                    JSONObject codeDef = new JSONObject();
+                    for (int i = 0; i < titles.size(); i++) {
+                        if (i < nextLine.length && !nextLine[i].trim().isEmpty()) {
+                            codeDef.put(titles.get(i), nextLine[i].trim());
+                        }
+                    }
+                    ret.add(codeDef);
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace(System.out);
+        }
+        return ret;
+    }
     
     public static JSONObject loadICASAMgnVarCode() {
         JSONObject ret = new JSONObject();
@@ -416,6 +474,10 @@ public class DataUtil {
             ex.printStackTrace(System.out);
         }
         return ret;
+    }
+    
+    public static ArrayList<JSONObject> getICASACropCodeMap() {
+        return ICASA_CROP_CODE_LIST;
     }
     
     public static JSONObject getICASAMgnCodeMap() {

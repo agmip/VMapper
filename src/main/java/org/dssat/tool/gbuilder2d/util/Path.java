@@ -85,6 +85,7 @@ public class Path {
         public final static String WTH_LIST = Config.get("WTH_LIST"); //"wth_list.json";
         public final static String CULTIVAR_LIST = Config.get("CULTIVAR_LIST"); //"crop_list.csv";
         public final static String ICASA_DIR = Config.get("ICASA_DIR"); //"ICASA";
+        public final static String ICASA_CROP_CODE = Config.get("ICASA_CROP_CODE"); //"Crop_codes.csv";
         public final static String ICASA_MGN_CODE = Config.get("ICASA_MGN_CODE"); //"Management_codes.csv";
         public final static String ICASA_MGN_VAR = Config.get("ICASA_MGN_VAR"); //"Management_info.csv";
         public final static String ICASA_OBV_VAR = Config.get("ICASA_OBV_VAR"); //"Measured_data.csv";
@@ -95,6 +96,10 @@ public class Path {
         }
         public static File getCulListFile() {
             File ret = Paths.get(DATA_DIR, CULTIVAR_LIST).toFile();
+            return ret;
+        }
+        public static File getCropCodeFile() {
+            File ret = Paths.get(DATA_DIR, ICASA_DIR, ICASA_CROP_CODE).toFile();
             return ret;
         }
         public static File getSoilListDir() {
