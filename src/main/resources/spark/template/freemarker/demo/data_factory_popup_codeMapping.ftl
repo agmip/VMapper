@@ -123,7 +123,7 @@
         let sb = $("#" + templateId).find("[name='icasa_code']");
         sb.html('<option value=""></option>');
         for (let code in codeDefs) {
-            sb.append($('<option value="' + code + '">' + codeDefs[code] + '</option>'));
+            sb.append($('<option value="' + code + '">' + codeDefs[code] + ' (' + code + ')</option>'));
         }
     }
     
