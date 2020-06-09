@@ -561,6 +561,10 @@
                             break;
                         }
                     }
+                    if (colDef.virtual_ignore_null_flg && (!data[j][Number(vrKey) - 1] || !data[j][Number(vrKey) - 1].trim())) {
+                        vals = [];
+                        break;
+                    }
                     if (colDef.virtual_val_rule && data[j][Number(vrKey) - 1]) {
                         vals.push(data[j][Number(vrKey) - 1].substring(0, Number(colDef.virtual_val_rule)));
                     } else {
@@ -794,6 +798,12 @@
                 <label class="control-label">Uniqueness:</label>
                 <div class="input-group col-sm-12">
                     <input type="checkbox" name="virtual_unique_flg" class="virtual_switch_cb form-control col-def-input-item-vr">
+                </div>
+            </div>
+            <div class="form-group col-sm-2 col-def-input-item-vr-control col-def-input-item-vr-string">
+                <label class="control-label">Ignore Null:</label>
+                <div class="input-group col-sm-12">
+                    <input type="checkbox" name="virtual_ignore_null_flg" class="virtual_switch_cb form-control col-def-input-item-vr">
                 </div>
             </div>
             <div class="form-group col-sm-12 col-def-input-item-vr-control col-def-input-item-vr-fixed">
