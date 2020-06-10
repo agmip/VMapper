@@ -597,7 +597,7 @@
                                 }
                             }
                         }
-                        if (sheetDef.data_start_row) {
+                        if (sheetDef.data_start_row && wbObj[fileName] && wbObj[fileName][sheetName]) {
                             sheetDef.single_flg = wbObj[fileName][sheetName].data.length === sheetDef.data_start_row;
                         }
                     }
@@ -1849,7 +1849,7 @@
                 if (Object.keys(workbooks).length === 0) {
                     alertBox("Please load spreadsheet file first, then apply SC2 file for it.");
                 } else {
-                    $('<input type="file" accept=".sc2.json,.json,.sc2" onchange="readSC2Json(this);">').click();
+                    $('<input type="file" accept=".sc2.json,.json,.sc2" onchange="readSC2Json(this);" multiple>').click();
                 }
             }
 
@@ -1860,32 +1860,98 @@
                 isDebugViewUpdated = false;
 
                 let files = target.files;
-                if (files.length !== 1) {
-                    alertBox('Please select one file!');
-                    return;
-                }
-                let file = files[0];
-                let start = 0;
-                let stop = file.size - 1;
+                let idx = 0;
+                let f = files[idx];
+                idx++;
                 let reader = new FileReader();
+                let sc2Objs = [];
                 reader.onloadend = function (evt) {
                     if (evt.target.readyState === FileReader.DONE) { // DONE == 2
                         let jsonStr = evt.target.result;
 //                        readSoilData(jsonStr);
                         
-                        let sc2Obj = JSON.parse(jsonStr);
+                        sc2Objs.push(JSON.parse(jsonStr));
                         $(".mapping_gengeral_info").val("");
-                        if (sc2Obj.mapping_info) {
-                            for (let key in sc2Obj.mapping_info) {
-                                $("[name='" + key + "']").val(sc2Obj.mapping_info[key]);
+                        if (idx < files.length) {
+                            f = files[idx];
+                            idx++;
+                            reader.readAsText(f);
+                        } else {
+                            let sc2Obj = sc2Objs[0];
+                            let fileNames = [];
+                            if (sc2Obj.agmip_translation_mappings && sc2Obj.agmip_translation_mappings.files) {
+                                for (let i in sc2Obj.agmip_translation_mappings.files) {
+                                    let fileMeta = sc2Obj.agmip_translation_mappings.files[i].file.file_metadata;
+                                    if (fileMeta && fileMeta.file_name) {
+                                        fileNames.push(fileMeta.file_name);
+                                    }
+                                }
                             }
+                            for (let i = 1; i < sc2Objs.length; i++) {
+                                for (let key in sc2Objs[i]) {
+                                    if (sc2Obj[key]) {
+                                        if (key === "agmip_translation_mappings") {
+                                            for (let key2 in sc2Objs[i][key]) {
+                                                if (key2 === "files") {
+                                                    for (let j in sc2Objs[i][key].files) {
+                                                        let fileObj = sc2Objs[i][key].files[j];
+                                                        if (!fileObj.file.file_metadata) {
+                                                            fileObj.file.file_metadata = {};
+                                                        }
+                                                        if (!fileObj.file.file_metadata.file_name) {
+                                                            fileObj.file.file_metadata.file_name = "N/A";
+                                                        }
+                                                        let cnt = 1;
+                                                        let fileName = fileObj.file.file_metadata.file_name;
+                                                        while (fileNames.includes(fileName)) {
+                                                            fileName = fileObj.file.file_metadata.file_name + "_" + cnt;
+                                                            cnt++;
+                                                        }
+                                                        fileObj.file.file_metadata.file_name = fileName;
+                                                        sc2Obj[key].files.push(fileObj);
+                                                    }
+                                                } else if (key2 === "relations") {
+                                                    for (let j in sc2Objs[i][key].relations) {
+                                                        sc2Obj[key].relations.push(sc2Objs[i][key].relations[j]);
+                                                    }
+                                                } else {
+                                                    sc2Obj[key][key2] = sc2Objs[i][key][key2];
+                                                }
+                                            }
+                                        } else if (typeof sc2Obj[key] !== "object") {
+                                            copyObject(sc2Objs[i][key], sc2Obj[key]);
+                                        } else {
+                                            sc2Obj[key] = sc2Objs[i][key];
+                                        }
+                                    } else {
+                                        sc2Obj[key] = sc2Objs[i][key];
+                                    }
+                                }
+                            }
+                            if (sc2Obj.mapping_info) {
+                                for (let key in sc2Obj.mapping_info) {
+                                    $("[name='" + key + "']").val(sc2Obj.mapping_info[key]);
+                                }
+                            }
+                            showSheetDefDialog(loadSC2Obj, null, false, sc2Obj);
                         }
-                        showSheetDefDialog(loadSC2Obj, null, false, sc2Obj);
                     }
                 };
 
-                let blob = file.slice(start, stop + 1);
-                reader.readAsText(blob);
+                reader.readAsText(f);
+            }
+            
+            function copyObject(from, to) {
+                if (!from || !to) {
+                    return;
+                }
+                for (let key in from) {
+                    if (to[key] && typeof to[key] !== "object") {
+                        copyObject(from[key], to[key]);
+                    } else {
+                        to[key] = from[key];
+                    }
+                }
             }
             
             function loadSC2Obj (sc2Obj, fileMap) {

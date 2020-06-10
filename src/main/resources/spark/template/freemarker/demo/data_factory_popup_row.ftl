@@ -1,6 +1,7 @@
 <script>
     function showSheetDefDialog(callback, errMsg, editFlg, sc2Obj) {
-        let fileMap;
+        let fileMap = {};
+        let singleFileName;
         if (callback.name === "loadSC2Obj") {
             templates = {};
             if (sc2Obj.agmip_translation_mappings) {
@@ -22,7 +23,7 @@
 //                                || name.startsWith(fileName) && (!contentType || fileTypes[name] === contentType)
                                 ) {
                                 // TODO need to revise the file auto-mapping
-                                fileMap = fileName;
+                                singleFileName = fileName;
 //                                fileName = name;
                             }
                         }
@@ -37,10 +38,13 @@
                 }
                 for (let fileName in workbooks) {
                     let workbook = workbooks[fileName];
+                    fileMap[fileName] = {};
                     if (templates[fileName]) {
                         workbook.SheetNames.forEach(function(sheetName) {
                             if (!templates[fileName][sheetName]) {
                                 isFullyMatched = false;
+                            } else {
+                                fileMap[fileName][sheetName] = {sheet_name: sheetName, file_name: fileName, sheet_def: sheetName, file_def: fileName};
                             }
                         });
                     } else {
@@ -48,7 +52,7 @@
                     }
                 }
                 if (isFullyMatched) {
-                    callback(sc2Obj);
+                    callback(sc2Obj, fileMap);
                     return;
                 }
             } else {
@@ -251,9 +255,9 @@
                         if (templates[fileName][sheetName]) {
                             data[data.length - 1].sheet_def = sheetName;
                         }
-                    } else if (templates[fileMap]) {
-                        data[data.length - 1].file_def = fileMap;
-                        if (templates[fileMap][sheetName]) {
+                    } else if (templates[singleFileName]) {
+                        data[data.length - 1].file_def = singleFileName;
+                        if (templates[singleFileName][sheetName]) {
                             data[data.length - 1].sheet_def = sheetName;
                         }
                     }

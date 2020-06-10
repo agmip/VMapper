@@ -61,7 +61,7 @@
         <!-- 2nd row -->
         <div class="form-group col-sm-12">
             <label class="control-label">SC2 Template File :</label>
-            <input type="file" name="sc2_file" class="form-control" accept=".sc2.json,.json,.sc2" disabled>
+            <input type="file" name="sc2_file" class="form-control" accept=".sc2.json,.json,.sc2" multiple disabled>
         </div>
     </div>
     <p>&nbsp;</p>
