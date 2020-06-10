@@ -617,7 +617,7 @@
                     $('#sheet_tab_list').append('<li class="divider"></li>');
                 }
 
-                if (curFileName && curSheetName) {
+                if (curFileName && curSheetName && templates[curFileName] && templates[curFileName][curSheetName]) {
 //                    initSpreadsheet(curFileName, curSheetName);
                     let linkId = curFileName + "__" + curSheetName;
                     $('#sheet_tab_list').find("[id='" + linkId +"']").click();
