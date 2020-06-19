@@ -15,7 +15,7 @@
                     
                     let fileConfig = files[i];
                     // Load mapping for each sheet and fill missing column with ignore flag
-                    let fileName = fileConfig.file.file_metadata.file_name;
+                    let fileName = getMetaFileName(fileConfig.file.file_metadata);
                     if (!fileTypes[fileName]) {
 //                        let contentType = fileConfig.file.file_metadata["content-type"];
                         for (let name in fileTypes) {

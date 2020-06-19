@@ -1882,8 +1882,8 @@
                             if (sc2Obj.agmip_translation_mappings && sc2Obj.agmip_translation_mappings.files) {
                                 for (let i in sc2Obj.agmip_translation_mappings.files) {
                                     let fileMeta = sc2Obj.agmip_translation_mappings.files[i].file.file_metadata;
-                                    if (fileMeta && fileMeta.file_name) {
-                                        fileNames.push(fileMeta.file_name);
+                                    if (fileMeta && getMetaFileName(fileMeta)) {
+                                        fileNames.push(getMetaFileName(fileMeta));
                                     }
                                 }
                             }
@@ -1898,13 +1898,13 @@
                                                         if (!fileObj.file.file_metadata) {
                                                             fileObj.file.file_metadata = {};
                                                         }
-                                                        if (!fileObj.file.file_metadata.file_name) {
-                                                            fileObj.file.file_metadata.file_name = "N/A";
+                                                        if (!getMetaFileName(fileObj.file.file_metadata)) {
+                                                            saveMetaFileName(fileObj.file.file_metadata, "N/A");
                                                         }
                                                         let cnt = 1;
-                                                        let fileName = fileObj.file.file_metadata.file_name;
+                                                        let fileName = getMetaFileName(fileObj.file.file_metadata);
                                                         while (fileNames.includes(fileName)) {
-                                                            fileName = fileObj.file.file_metadata.file_name + "_" + cnt;
+                                                            fileName = getMetaFileName(fileObj.file.file_metadata) + "_" + cnt;
                                                             cnt++;
                                                         }
                                                         fileObj.file.file_metadata.file_name = fileName;
@@ -1973,8 +1973,8 @@
                             for (let i in files) {
                                 let fileConfig = files[i];
                                 if (fileConfig.file && fileConfig.file.file_metadata
-                                        && (fileName === fileConfig.file.file_metadata.file_name
-                                            || getFileName(fileName) === getFileName(fileConfig.file.file_metadata.file_name)
+                                        && (fileName === getMetaFileName(fileConfig.file.file_metadata)
+                                            || getFileName(fileName) === getFileName(getMetaFileName(fileConfig.file.file_metadata))
                                         )) {
                                     fileConfigs.push(fileConfig);
                                 }
@@ -2017,7 +2017,7 @@
                                 let found = false;
                                 for (let i in fileConfigs) {
                                     let fileConfig = fileConfigs[i];
-                                    if (fileDef === fileConfig.file.file_metadata.file_name) {
+                                    if (fileDef === getMetaFileName(fileConfig.file.file_metadata)) {
                                         if (!fileConfig.file.sheets) {
                                             fileConfig.file.sheets = [];
                                         }
@@ -2109,7 +2109,7 @@
                         if (!fileConfig.file.sheets) {
                             fileConfig.file.sheets = [];
                         }
-                        let fileName = fileConfig.file.file_metadata.file_name;
+                        let fileName = getMetaFileName(fileConfig.file.file_metadata);
                         // setup mappings
                         templates[fileName] = {};
                         for (let i in fileConfig.file.sheets) {
@@ -2253,6 +2253,23 @@
                 processData();
             }
             
+            function getMetaFileName(fileMeta) {
+                if (fileMeta.file_name_local) {
+                    return fileMeta.file_name_local;
+                } else {
+                    return fileMeta.file_name;
+                }
+            }
+            
+            function saveMetaFileName(fileMeta, fileName, fileUrl) {
+                fileMeta.file_name_local = fileName;
+                if (fileUrl) {
+                    fileMeta.file_name = fileUrl;
+                } else {
+                    fileMeta.file_name = fileName;
+                }
+            }
+            
             function saveTemplateFile() {
                 if (!curFileName) {
                     alertBox("Please load spreadsheet file first, then edit and save SC2 file for it.");
@@ -2300,6 +2317,7 @@
                     file : {
                         file_metadata : {
                             file_name : "",
+                            file_name_local,
                             "content-type" : ""
                             // file_url : ""
                         },
@@ -2313,7 +2331,7 @@
 
                 for (let fileName in templates) {
                     let tmp2 = JSON.parse(agmipTranslationMappingTemplate);
-                    tmp2.file.file_metadata.file_name = fileName;
+                    saveMetaFileName(tmp2.file.file_metadata, fileName);
                     tmp2.file.file_metadata["content-type"] = fileTypes[fileName];
 //                    if (fileName.toLowerCase().endsWith(".csv")) {
 //                        tmp2.file.file_metadata["content-type"] = "text/csv";
