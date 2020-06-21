@@ -23,6 +23,7 @@
 //            let workbook;
             let workbooks = {};
             let fileTypes = {};
+            let fileUrls = {};
             let userVarMap = {};
             let fileColors = {};
             let virColCnt = {};
@@ -463,6 +464,7 @@
                 userVarMap = {};
                 workbooks = {};
                 fileTypes = {};
+                fileUrls = {};
                 templates = {};
                 fileColors = {};
                 curFileName = null;
@@ -511,6 +513,7 @@
                         f = files[idx];
                         fileName = f.name;
                         fileTypes[fileName] = f.type;
+                        fileUrls[fileName] = "";
                         fileColors[fileName] = colors.shift();
                         idx++;
                         loadingDialog.find(".loading-msg").html(' Loading ' + fileName + ' (' + idx + '/' + files.length + ') ...');
@@ -518,6 +521,8 @@
 //                        reader.readAsArrayBuffer(f);
                     } else {
                         loadingDialog.modal('hide');
+                        $(".mapping_gengeral_info").val("");
+                        $("#file_url_inputs").html("");
                         if (sc2Files.files && sc2Files.files.length > 0) {
                             readSC2Json(sc2Files);
                         } else {
@@ -531,6 +536,7 @@
                 idx++;
                 let fileName = f.name;
                 fileTypes[fileName] = f.type;
+                fileUrls[fileName] = "";
                 fileColors[fileName] = "";
                 let loadingDialog = bootbox.dialog({
                     message: '<h4><span class="glyphicon glyphicon-refresh spinning"></span><span class="loading-msg"> Loading ' + fileName + ' (1/' + files.length + ') ...</span></h4></br><p><mark>MS Excel File (> 1 MB)</mark> might experice longer loading time...</p>',
@@ -549,6 +555,13 @@
                         templates = ret;
                     } else {
                         for (let fileName in ret) {
+                            for (let sheetName in ret[fileName]) {
+                                if (fileName !== ret[fileName][sheetName].file_def) {
+                                    fileUrls[fileName] = fileUrls[ret[fileName][sheetName].file_def];
+                                    delete fileUrls[ret[fileName][sheetName].file_def];
+                                }
+                                break;
+                            }
                             if (!templates[fileName]) {
                                 templates[fileName] = ret[fileName];
                             } else {
@@ -601,6 +614,15 @@
                             sheetDef.single_flg = wbObj[fileName][sheetName].data.length === sheetDef.data_start_row;
                         }
                     }
+                }
+
+                for (let fileName in fileUrls) {
+                    let fileUrlDiv = $("#template_file_url_input").find("div").first().clone();
+                    $("#file_url_inputs").append(fileUrlDiv);
+                    fileUrlDiv.find("label").text("URL for " + fileName);
+                    fileUrlDiv.find("input").val(fileUrls[fileName]).on("change", function() {
+                        fileUrls[fileName] = $(this).val();
+                    });
                 }
 
                 $('#sheet_tab_list').empty();
@@ -1858,6 +1880,7 @@
                 isChanged = false;
                 isViewUpdated = false;
                 isDebugViewUpdated = false;
+                fileUrls = {};
 
                 let files = target.files;
                 let idx = 0;
@@ -1865,13 +1888,14 @@
                 idx++;
                 let reader = new FileReader();
                 let sc2Objs = [];
+                $(".mapping_gengeral_info").val("");
+                $("#file_url_inputs").html("");
                 reader.onloadend = function (evt) {
                     if (evt.target.readyState === FileReader.DONE) { // DONE == 2
                         let jsonStr = evt.target.result;
 //                        readSoilData(jsonStr);
                         
                         sc2Objs.push(JSON.parse(jsonStr));
-                        $(".mapping_gengeral_info").val("");
                         if (idx < files.length) {
                             f = files[idx];
                             idx++;
@@ -1931,6 +1955,13 @@
                             if (sc2Obj.mapping_info) {
                                 for (let key in sc2Obj.mapping_info) {
                                     $("[name='" + key + "']").val(sc2Obj.mapping_info[key]);
+                                }
+                            }
+                            for (let i in sc2Obj.agmip_translation_mappings.files) {
+                                let fileMeta = sc2Obj.agmip_translation_mappings.files[i].file.file_metadata;
+                                let url = getMetaFileUrl(fileMeta);
+                                if (url || url === "") {
+                                    fileUrls[getMetaFileName(fileMeta)] = url;
                                 }
                             }
                             showSheetDefDialog(loadSC2Obj, null, false, sc2Obj);
@@ -2012,6 +2043,7 @@
                                         },
                                         sheets: []
                                     }};
+                                    saveMetaFileName(newFileConfigs[fileName].file.file_metadata, fileName, fileUrls[fileName]);
                                 }
                                 // update sheet mapping
                                 let found = false;
@@ -2261,10 +2293,21 @@
                 }
             }
             
+            function getMetaFileUrl(fileMeta) {
+                if (fileMeta.file_url) {
+                    return fileMeta.file_url;
+                } else if (fileMeta.file_name_local && fileMeta.file_name_local !== fileMeta.file_name) {
+                    return fileMeta.file_name;
+                } else {
+                    return "";
+                }
+            }
+            
             function saveMetaFileName(fileMeta, fileName, fileUrl) {
                 fileMeta.file_name_local = fileName;
                 if (fileUrl) {
                     fileMeta.file_name = fileUrl;
+                    fileMeta.file_url = fileUrl;
                 } else {
                     fileMeta.file_name = fileName;
                 }
@@ -2317,7 +2360,7 @@
                     file : {
                         file_metadata : {
                             file_name : "",
-                            file_name_local,
+                            file_name_local : "",
                             "content-type" : ""
                             // file_url : ""
                         },
@@ -2331,7 +2374,7 @@
 
                 for (let fileName in templates) {
                     let tmp2 = JSON.parse(agmipTranslationMappingTemplate);
-                    saveMetaFileName(tmp2.file.file_metadata, fileName);
+                    saveMetaFileName(tmp2.file.file_metadata, fileName, fileUrls[fileName]);
                     tmp2.file.file_metadata["content-type"] = fileTypes[fileName];
 //                    if (fileName.toLowerCase().endsWith(".csv")) {
 //                        tmp2.file.file_metadata["content-type"] = "text/csv";
@@ -2531,6 +2574,10 @@
                                     <input type="url" name="source_url" class="form-control mapping_gengeral_info" value="">
                                 </div>
                             </div>
+                            <fieldset class="col-sm-12">
+                                <legend data-toggle="tooltip" title="Used for file name">File URL</legend>
+                                <div id="file_url_inputs"></div>
+                            </fieldset>
                         </fieldset>
                     </div>
                 </div>
@@ -2552,6 +2599,14 @@
                     <div class="col-sm-6">
                         <textarea class="form-control" rows="30" id="sc2_json_content_text" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div id="template_file_url_input" hidden>
+            <div class="col-sm-12">
+                <label class="control-label"></label>
+                <div class="input-group col-sm-12">
+                    <input type="url" name="file_url" class="form-control" value="">
                 </div>
             </div>
         </div>
