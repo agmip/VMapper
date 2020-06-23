@@ -2296,20 +2296,18 @@
             function getMetaFileUrl(fileMeta) {
                 if (fileMeta.file_url) {
                     return fileMeta.file_url;
-                } else if (fileMeta.file_name_local && fileMeta.file_name_local !== fileMeta.file_name) {
-                    return fileMeta.file_name;
+//                } else if (fileMeta.file_name_local && fileMeta.file_name_local !== fileMeta.file_name) {
+//                    return fileMeta.file_name;
                 } else {
                     return "";
                 }
             }
             
             function saveMetaFileName(fileMeta, fileName, fileUrl) {
-                fileMeta.file_name_local = fileName;
+//                fileMeta.file_name_local = fileName;
+                fileMeta.file_name = fileName;
                 if (fileUrl) {
-                    fileMeta.file_name = fileUrl;
                     fileMeta.file_url = fileUrl;
-                } else {
-                    fileMeta.file_name = fileName;
                 }
             }
             
@@ -2360,7 +2358,7 @@
                     file : {
                         file_metadata : {
                             file_name : "",
-                            file_name_local : "",
+//                            file_name_local : "",
                             "content-type" : ""
                             // file_url : ""
                         },
