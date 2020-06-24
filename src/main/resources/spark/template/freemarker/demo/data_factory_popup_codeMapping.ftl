@@ -145,9 +145,7 @@
         if (!codeDescs) {
             codeDescs = {}; // TODO wait for the final style of code mapping in SC2
         }
-        if (sheetDef.data_start_row) {
-            data = data.slice(sheetDef.data_start_row - 1);
-        }
+        data = getSheetDataContent(data, sheetDef);
         for (let i in data) {
             let val = data[i][mapping.column_index - 1];
             if (val) {

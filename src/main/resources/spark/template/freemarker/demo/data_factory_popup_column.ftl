@@ -545,10 +545,14 @@
         let valSet = {};
         
         let dataStartRow = 0;
+        let dataEndRow = data.length;
         if (sheetDef.data_start_row) {
             dataStartRow = sheetDef.data_start_row - 1;
         }
-        for (let j = dataStartRow; j < data.length; j++) {
+        if (sheetDef.data_end_row) {
+            dataEndRow = sheetDef.data_end_row;
+        }
+        for (let j = dataStartRow; j < dataEndRow; j++) {
             let vals = [];
             if (vrValFixed) {
                 vals.push(vrValFixed);
@@ -611,7 +615,7 @@
         columns[idx] = getColumnDef(colDef);
         mappings[idx] = colDef;
         if (isDataOnly) {
-            data = data.slice(sheetDef.data_start_row - 1);
+            data = getSheetDataContent(data, sheetDef);
         }
         spreadsheet.updateSettings({
             data : data,

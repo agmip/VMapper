@@ -611,7 +611,7 @@
                             }
                         }
                         if (sheetDef.data_start_row && wbObj[fileName] && wbObj[fileName][sheetName]) {
-                            sheetDef.single_flg = wbObj[fileName][sheetName].data.length === sheetDef.data_start_row;
+                            sheetDef.single_flg = isSingleRecordTable(wbObj[fileName][sheetName].data, sheetDef);
                         }
                     }
                 }
@@ -1423,7 +1423,7 @@
                     }
                 };
                 if (!$('#tableViewSwitch').prop("checked")) {
-                    spsOptions.data = spsOptions.data.slice(sheetDef.data_start_row - 1);
+                    spsOptions.data = getSheetDataContent(spsOptions.data, sheetDef);
 //                    spsOptions.rowHeaders = true;
                 }
                 if (spreadsheet) {
@@ -1671,9 +1671,7 @@
             function createCsvSheetArr(fileName, sheetName, parentIdxInfo) {
                 let agmipData = JSON.parse(JSON.stringify(wbObj[fileName][sheetName].data));
                 let sheetDef = templates[fileName][sheetName];
-                if (sheetDef.data_start_row) {
-                    agmipData = agmipData.slice(sheetDef.data_start_row - 1);
-                }
+                agmipData = getSheetDataContent(agmipData, sheetDef);
                 if (wbObj[fileName][sheetName].headers) {
                     agmipData.unshift(JSON.parse(JSON.stringify(wbObj[fileName][sheetName].headers)));
                 } else {
@@ -2308,6 +2306,25 @@
                 fileMeta.file_name = fileName;
                 if (fileUrl) {
                     fileMeta.file_url = fileUrl;
+                }
+            }
+            
+            function getSheetDataContent(rawData, sheetDef) {
+                if (sheetDef.data_start_row) {
+                    if (sheetDef.data_end_row) {
+                        rawData = rawData.slice(sheetDef.data_start_row - 1, sheetDef.data_end_row);
+                    } else {
+                        rawData = rawData.slice(sheetDef.data_start_row - 1);
+                    }
+                }
+                return rawData;
+            }
+
+            function isSingleRecordTable(data, sheetDef) {
+                if (sheetDef.data_end_row) {
+                    return sheetDef.data_end_row === sheetDef.data_start_row;
+                } else {
+                    return data.length === sheetDef.data_start_row;
                 }
             }
             

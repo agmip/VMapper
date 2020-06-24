@@ -121,7 +121,7 @@
                     }
 
                     if (sheets[fileName][sheetName].data_start_row) {
-                        sheets[fileName][sheetName].single_flg = roa.length === sheets[fileName][sheetName].data_start_row;
+                        sheets[fileName][sheetName].single_flg = isSingleRecordTable(roa, sheets[fileName][sheetName]);
                     }
                 });
             }
@@ -148,13 +148,16 @@
                             if (sheets[fileName][sheetName].included_flg) {
                                 includedCnt++;
                                 delete sheets[fileName][sheetName].included_flg;
-                                let keys = ["data_start_row", "header_row", "unit_row", "desc_row"];
+                                let keys = ["data_start_row", "data_end_row", "header_row", "unit_row", "desc_row"];
                                 for (let i = 0; i < keys.length; i++) {
                                     if (sheets[fileName][sheetName][keys[i]]) {
                                         for (let j = i + 1; j < keys.length; j++) {
                                             if (sheets[fileName][sheetName][keys[i]] === sheets[fileName][sheetName][keys[j]]) {
-                                                repeatedErrFlg = true;
-                                                break;
+                                                if ((keys[i] !== "data_start_row" || keys[j] !== "data_end_row") &&
+                                                    (keys[j] !== "data_start_row" || keys[i] !== "data_end_row")) {
+                                                    repeatedErrFlg = true;
+                                                    break;
+                                                }
                                             }
                                         }
                                     }
@@ -165,7 +168,7 @@
                         }
                     }
                     if (editFlg && sheets[curFileName][curSheetName].data_start_row) {
-                        sheets[curFileName][curSheetName].single_flg = wbObj[curFileName][curSheetName].data.length === sheets[curFileName][curSheetName].data_start_row;
+                        sheets[curFileName][curSheetName].single_flg = isSingleRecordTable(wbObj[curFileName][curSheetName].data, sheets[curFileName][curSheetName]);
                     }
 //                    if (idxErrFlg) {
 //                        showSheetDefDialog(callback, "[warning] Please provide header row number and data start row number.", editFlg);
@@ -211,11 +214,12 @@
                 {type: 'text', data : "sheet_name", readOnly: true},
                 {type: 'numeric', data : "header_row"},
                 {type: 'numeric', data : "data_start_row"},
+                {type: 'numeric', data : "data_end_row"},
                 {type: 'numeric', data : "unit_row"},
                 {type: 'numeric', data : "desc_row"},
                 {type: 'checkbox', data : "included_flg"}
             ];
-            let colHeaders = ["Sheet", "Header Row #", "Data start Row #", "Unit Row #", "Description Row #"];
+            let colHeaders = ["Sheet", "Header Row #", "Data Start Row #", "Data End Row #", "Unit Row #", "Description Row #"];
             if (!editFlg) {
                 if (Object.keys(templates).length === 0) {
                     columns = [
