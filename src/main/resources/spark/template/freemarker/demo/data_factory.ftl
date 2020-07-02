@@ -1635,55 +1635,56 @@
                         }
                     }
                 }
-                $("#agmip_input_pacakge_loading_icon").fadeIn(0);
-                // check the relationship among tables and determine the data structure
-                let rootTables = {};
-                let toRefs = [];
-                for (let fileName in templates) {
-                    for (let sheetName in templates[fileName]) {
-                        if (!rootTables[fileName]) {
-                            rootTables[fileName] = {};
-                        }
-                        rootTables[fileName][sheetName] = true;
-                        if (Object.keys(templates[fileName][sheetName].references).length > 0) {
-                            toRefs.push(templates[fileName][sheetName].references);
-                        }
-                    }
-                }
-                // mark all the tables which has been related as non-root tables
-                for (let i in toRefs) {
-                    for (let fromKeyIdx in toRefs[i]) {
-                        for (let toKeyIdx in toRefs[i][fromKeyIdx]) {
-                            let refDef = toRefs[i][fromKeyIdx][toKeyIdx];
-                            let tableCat = getTableCategory(templates[refDef.file][refDef.sheet].mappings);
-                            if ((tableCat.order < 4000 || tableCat.order > 4051) &&
-                                (tableCat.order < 5000 || tableCat.order > 5051)) {
-                                // If reference target is not soil/weather meta/profile table, then mark it as non-root table
-                                rootTables[refDef.file][refDef.sheet] = false;
+                $("#agmip_input_pacakge_loading_icon").fadeIn(0, function () {
+                    // check the relationship among tables and determine the data structure
+                    let rootTables = {};
+                    let toRefs = [];
+                    for (let fileName in templates) {
+                        for (let sheetName in templates[fileName]) {
+                            if (!rootTables[fileName]) {
+                                rootTables[fileName] = {};
+                            }
+                            rootTables[fileName][sheetName] = true;
+                            if (Object.keys(templates[fileName][sheetName].references).length > 0) {
+                                toRefs.push(templates[fileName][sheetName].references);
                             }
                         }
                     }
-                }
-                // loop the root tables to create csv file for each related group of tables
-                let zip = new JSZip();
-                let fileMap = {};
-                for (let fileName in rootTables) {
-                    for (let sheetName in rootTables[fileName]) {
-                        if (rootTables[fileName][sheetName] && templates[fileName][sheetName]) {
-                            let csvData = createCsvSheet(fileName, sheetName);
-                            let cnt = 1;
-                            let csvFileName = sheetName;
-                            while (fileMap[csvFileName]) {
-                                csvFileName = sheetName + "_" + cnt;
+                    // mark all the tables which has been related as non-root tables
+                    for (let i in toRefs) {
+                        for (let fromKeyIdx in toRefs[i]) {
+                            for (let toKeyIdx in toRefs[i][fromKeyIdx]) {
+                                let refDef = toRefs[i][fromKeyIdx][toKeyIdx];
+                                let tableCat = getTableCategory(templates[refDef.file][refDef.sheet].mappings);
+                                if ((tableCat.order < 4000 || tableCat.order > 4051) &&
+                                    (tableCat.order < 5000 || tableCat.order > 5051)) {
+                                    // If reference target is not soil/weather meta/profile table, then mark it as non-root table
+                                    rootTables[refDef.file][refDef.sheet] = false;
+                                }
                             }
-                            fileMap[csvFileName] = true;
-                            zip.file(csvFileName + ".csv", csvData);
                         }
                     }
-                }
-                zip.generateAsync({type:"blob"}).then(function(content) {
-                    $("#agmip_input_pacakge_loading_icon").fadeOut(0);
-                    saveAs(content, "AgMIP_Input.zip");
+                    // loop the root tables to create csv file for each related group of tables
+                    let zip = new JSZip();
+                    let fileMap = {};
+                    for (let fileName in rootTables) {
+                        for (let sheetName in rootTables[fileName]) {
+                            if (rootTables[fileName][sheetName] && templates[fileName][sheetName]) {
+                                let csvData = createCsvSheet(fileName, sheetName);
+                                let cnt = 1;
+                                let csvFileName = sheetName;
+                                while (fileMap[csvFileName]) {
+                                    csvFileName = sheetName + "_" + cnt;
+                                }
+                                fileMap[csvFileName] = true;
+                                zip.file(csvFileName + ".csv", csvData);
+                            }
+                        }
+                    }
+                    zip.generateAsync({type:"blob"}).then(function(content) {
+                        $("#agmip_input_pacakge_loading_icon").fadeOut(0);
+                        saveAs(content, "AgMIP_Input.zip");
+                    });
                 });
             }
             
