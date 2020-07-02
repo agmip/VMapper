@@ -1635,7 +1635,12 @@
                         }
                     }
                 }
-                $("#agmip_input_pacakge_loading_icon").fadeIn(0, function () {
+                let loadingDialog = bootbox.dialog({
+                    message: '<h4><span class="glyphicon glyphicon-refresh spinning"></span><span class="loading-msg"> Preparing files...</span></h4>',
+//                    centerVertical: true,
+                    closeButton: false
+                });
+                loadingDialog.on("shown.bs.modal", function() {
                     // check the relationship among tables and determine the data structure
                     let rootTables = {};
                     let toRefs = [];
@@ -1682,7 +1687,7 @@
                         }
                     }
                     zip.generateAsync({type:"blob"}).then(function(content) {
-                        $("#agmip_input_pacakge_loading_icon").fadeOut(0);
+                        loadingDialog.modal('hide');
                         saveAs(content, "AgMIP_Input.zip");
                     });
                 });
@@ -2602,7 +2607,7 @@
                         <li onclick="openExpDataFile()" id="openFileMenu"><a href="#"><span class="glyphicon glyphicon-open"></span> Load file</a></li>
                         <li onclick="openExpDataFolderFile()"><a href="#"><span class="glyphicon glyphicon-open"></span> Load folder</a></li>
                         <li onclick="saveExpDataFile()"><a href="#"><span class="glyphicon glyphicon-save"></span> Save</a></li>
-                        <li onclick="saveAgMIPZip()"><a href="#"><span class="glyphicon glyphicon-export"></span> To AgMIP Input Package <span id="agmip_input_pacakge_loading_icon" class="glyphicon glyphicon-refresh spinning" style="display: none"></span></a></li>
+                        <li onclick="saveAgMIPZip()"><a href="#"><span class="glyphicon glyphicon-export"></span> To AgMIP Input Package</a></li>
                         <li onclick="saveAcebFile()"><a href="#"><span class="glyphicon glyphicon-export"></span> To Aceb</a></li>
                     </ul>
                 </div>
