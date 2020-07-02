@@ -236,14 +236,14 @@
                 toKeySB.val([]).prop("disabled", true).trigger("chosen:updated").trigger("change");
             } else {
                 let refDefSheet = JSON.parse(val);
-                if (templates[refDefSheet.file][refDefSheet.sheet].single_flg) {
+//                if (templates[refDefSheet.file][refDefSheet.sheet].single_flg) {
                     singleCB.prop("disabled", false);
-                } else {
-                    singleCB.prop("disabled", true);
-                    if (singleCB.prop("checked")) {
-                        singleCB.prop("checked", false).trigger("change");
-                    }
-                }
+//                } else {
+//                    singleCB.prop("disabled", true);
+//                    if (singleCB.prop("checked")) {
+//                        singleCB.prop("checked", false).trigger("change");
+//                    }
+//                }
                 toKeySB.prop("disabled", singleCB.prop("checked"));
                 initKeySB(toKeySB, refDefSheet);
                 fromKeySB.trigger("change");

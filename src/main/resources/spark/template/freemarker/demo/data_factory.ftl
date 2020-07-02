@@ -1715,18 +1715,23 @@
                     if (parentIdxInfo.refDef.keys.length === 0) {
                         // create sub data table for meta case
                         if (agmipData.length > headerRow + 1) {
-                            let j = headerRow + 1;
-                            // duplicate it self for single record meta table reference
-                            agmipData[j].unshift("!");
-                            let metaNum = Object.keys(parentIdxInfo.indexing).length;
-                            let cnt = 1;
+                            let curIdx = headerRow + 1;
+                            // create spot for indexing
+                            for (let j = curIdx; j < agmipData.length; j++) {
+                                agmipData[j].unshift("!");
+                            }
                             for (let idx in parentIdxInfo.indexing) {
-                                agmipData[j][0] = idx;
-                                if (cnt < metaNum) {
-                                    agmipData.push(JSON.parse(JSON.stringify(agmipData[j])));
-                                    j++;
+                                if (agmipData[curIdx][0] !== "!") {
+                                    // duplicate it self for meta table reference
+                                    let curLength = agmipData.length;
+                                    for (let j = curIdx; j < curLength; j++, curIdx++) {
+                                        agmipData.push(JSON.parse(JSON.stringify(agmipData[j])));
+                                    }
                                 }
-                                cnt++;
+                                // fill indexing for each source record
+                                for (let j = curIdx; j < agmipData.length; j++) {
+                                    agmipData[j][0] = idx;
+                                }
                             }
                         }
                     } else {
