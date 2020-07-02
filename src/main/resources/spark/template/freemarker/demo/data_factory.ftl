@@ -1830,6 +1830,23 @@
                                         }
                                     });
                                 }
+                                // Fill missing data if repeated flag is on
+                                if (mapping.formula === "fill_with_previous") {
+                                    let nullVal = mapping.null_val;
+                                    let lastCell = nullVal;
+                                    for (let j in agmipData) {
+                                        if (j > headerRow) {
+                                            if (lastCell === nullVal) {
+                                                lastCell = agmipData[j][mapping.column_index];
+                                            } else if (nullVal && agmipData[j][mapping.column_index] === nullVal || agmipData[j][mapping.column_index] === null || agmipData[j][mapping.column_index].trim() === "") {
+                                                agmipData[j][mapping.column_index] = lastCell;
+                                            } else {
+                                                lastCell = agmipData[j][mapping.column_index];
+                                            }
+                                        }
+                                    }
+                                }
+
                             }
                         } else {
                             agmipData[headerRow][mapping.column_index] = mapping.column_header;
