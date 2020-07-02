@@ -28,6 +28,30 @@
             let fileColors = {};
             let virColCnt = {};
             let lastHeaderRow = {};
+            let primaryVarExisted = {EXNAME: false, SOIL_ID: false, WST_ID: false};
+            const eventDateMapping = {
+                def : {
+                    "planting" : "pdate",
+                    "irrigation" : "idate",
+                    "fertilizer" : "fedate",
+                    "tillage" : "tdate",
+                    "organic_material" : "omdat",
+                    "harvest" : "hadat",
+                    "inorg_mulch" : "mladat",
+                    "Inorg_mul_rem" : "mlrdat",
+                    "chemicals" : "cdate",
+                    "observation" : "date",
+                    "flood_level" : "idate",
+                    "other" : "evdate"
+                },
+                getEventDateVarName : function (eventType) {
+                    if (this.def[eventType]) {
+                        return this.def[eventType];
+                    } else {
+                        return "evdate";
+                    }
+                }
+            };
             let icasaVarMap = {
                 "management" : {
                     <#list icasaMgnVarMap?values?sort_by("code_display")?sort_by("set_group_order") as var>
@@ -1625,7 +1649,7 @@
                         }
                     }
                 }
-                // mark all the been related table as non-root tables
+                // mark all the tables which has been related as non-root tables
                 for (let i in toRefs) {
                     for (let fromKeyIdx in toRefs[i]) {
                         for (let toKeyIdx in toRefs[i][fromKeyIdx]) {
@@ -1740,10 +1764,18 @@
                 }
 
                 if (agmipData.length > headerRow + 1) {
+                    let evtInputConfig = {};
                     for (let i = sheetDef.mappings.length - 1; i > -1; i--) {
                         let mapping = sheetDef.mappings[i];
                         if (!mapping) {
                             continue;
+                        }
+                        if (mapping.icasa) {
+                            if (mapping.icasa.toUpperCase() === "MGMT_EVENT") {
+                                evtInputConfig.mgmt_event_index = i + 1;
+                            } else if (mapping.icasa.toUpperCase() === "EVDATE") {
+                                evtInputConfig.evdate_index = i + 1;
+                            }
                         }
                         if (mapping.ignored_flg) {
                             if (mapping.icasa) {
@@ -1757,6 +1789,7 @@
                             agmipData[headerRow][mapping.column_index] = mapping.icasa;
                             let icasaUnit = icasaVarMap.getUnit(mapping.icasa);
                             if (mapping.unit) {
+                                // Code/unit/value convertion
                                 if (mapping.unit === "date") {
                                     if (mapping.format) {
                                         if (mapping.format === "yyyyDDD") {
@@ -1796,6 +1829,42 @@
                         } else {
                             agmipData[headerRow][mapping.column_index] = mapping.column_header;
                         }
+                    }
+                    // Adjust event input into AgMIP format
+                    if (evtInputConfig.evdate_index !== undefined && evtInputConfig.mgmt_event_index) {
+                        let agmipDataTmp = [];
+                        
+                        for (let j in agmipData) {
+                            if (j < headerRow) {
+                                agmipDataTmp.push(agmipData[j])
+                            } else if (j > headerRow) {
+                                let eventInput = [
+                                    agmipData[j][0],
+                                    "event", 
+                                    agmipData[j][evtInputConfig.mgmt_event_index], 
+                                    "",
+                                    agmipData[j][evtInputConfig.evdate_index]
+                                ];
+                                eventInput[3] = eventDateMapping.getEventDateVarName(eventInput[2]);
+                                agmipDataTmp.push(["#", eventInput[3]]);
+                                agmipDataTmp.push(eventInput);
+                                for (let i = 0; i < sheetDef.mappings.length; i++) {
+                                    let skipFlg = false;
+                                    for (let key in evtInputConfig) {
+                                        if (i + 1 === evtInputConfig[key]) {
+                                            skipFlg = true;
+                                            break;
+                                        }
+                                    }
+                                    if (skipFlg) {
+                                        continue;
+                                    }
+                                    eventInput.push(sheetDef.mappings[i].icasa);
+                                    eventInput.push(agmipData[j][sheetDef.mappings[i].column_index]);
+                                }
+                            }
+                        }                        
+                        agmipData = agmipDataTmp;
                     }
                 }
                 
