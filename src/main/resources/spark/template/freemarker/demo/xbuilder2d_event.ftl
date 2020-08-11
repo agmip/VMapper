@@ -101,7 +101,7 @@
     }
     
     function syncEventData() {
-        if (!mgnId) {
+        if (!mgnId || !managements[mgnId]) {
             return;
         }
         if ($("#spreadsheet_swc_btn").hasClass("btn-primary")) {
