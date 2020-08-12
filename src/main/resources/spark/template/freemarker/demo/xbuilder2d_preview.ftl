@@ -44,8 +44,12 @@
                 "<hr></div>");
     }
     
-    function getFinalJson() {
-        return JSON.stringify(getFinalData());
+    function getFinalJson(compressFlg) {
+        if (compressFlg) {
+            return JSON.stringify(getFinalData());
+        } else {
+            return JSON.stringify(getFinalData(), 2, 2);
+        }
     }
     
     function getFinalData() {
@@ -106,7 +110,7 @@
     function updateDssatPreview() {
         $('#dssat_preview_text').html('Loading...');
         $.post("/translator/dssat_exp",
-            {data : getFinalJson()},
+            {data : getFinalJson(true)},
             function (xfile) {
                 $('#dssat_preview_text').html(xfile);
             }
