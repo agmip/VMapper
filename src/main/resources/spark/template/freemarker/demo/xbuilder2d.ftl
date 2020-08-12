@@ -127,12 +127,22 @@
                         {type: 'numeric', data: 'plrs'},
                         {type: 'numeric', data: 'plrd',
                             validator: function (value, callback) {
-                                var valid = value <= 360 && value >= 0;
+                                var valid = value >= 0;
                                 return callback(valid);
                             }
                         },
-                        {type: 'numeric', data: 'pldp'},
-                        {type: 'numeric', data: 'plpop'},
+                        {type: 'numeric', data: 'pldp',
+                            validator: function (value, callback) {
+                                var valid = value >= 0;
+                                return callback(valid);
+                            }
+                        },
+                        {type: 'numeric', data: 'plpop',
+                            validator: function (value, callback) {
+                                var valid = value > 0;
+                                return callback(valid);
+                            }
+                        },
                         {type: 'numeric', data: 'plpoe'},
                         {type: 'numeric', data: 'plmwt'},
                         {type: 'numeric', data: 'plenv'},
@@ -178,8 +188,18 @@
                         {type: 'dropdown', data: 'feacd_text',
                             source: [<#list icasaMgnCodeMap.feacd?keys?sort as code>"${icasaMgnCodeMap.feacd[code]?js_string}"<#sep>,</#sep></#list>]
                         },
-                        {type: 'numeric', data: 'fedep'},
-                        {type: 'numeric', data: 'feamn'},
+                        {type: 'numeric', data: 'fedep',
+                            validator: function (value, callback) {
+                                var valid = value >= 0;
+                                return callback(valid);
+                            }
+                        },
+                        {type: 'numeric', data: 'feamn',
+                            validator: function (value, callback) {
+                                var valid = value >= 0;
+                                return callback(valid);
+                            }
+                        },
                         {type: 'numeric', data: 'feamp'},
                         {type: 'numeric', data: 'feamk'},
                         {type: 'numeric', data: 'feamc'},
