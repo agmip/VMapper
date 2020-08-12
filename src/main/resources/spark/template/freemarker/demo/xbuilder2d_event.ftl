@@ -401,13 +401,21 @@
         }
     }
     
+    function isValid(val) {
+        if (val) {
+            return Number(val) !== -99;
+        } else {
+            return Number(val) === 0;
+        }
+    }
+    
     function clearNullElements(array, ids) {
         let x = -1, y = 0;
         let flg;
         for (let i = 0; i < array.length; i++) {
             flg = true;
             for (let j = 0; j < ids.length; j++) {
-                if (!array[i][ids[j]] || array[i][ids[j]].toString().trim() === "") {
+                if (!isValid(array[i][ids[j]]) || array[i][ids[j]].toString().trim() === "") {
                     y++;
                     flg = false;
                     break;
@@ -426,7 +434,7 @@
         
         for (let i = 0; i < array.length; i++) {
             for (let key in array[i]) {
-                if (!array[i][key] || array[i][key] === "") {
+                if (!isValid(array[i][key]) || array[i][key] === "") {
                     delete array[i][key];
                 }
             }
