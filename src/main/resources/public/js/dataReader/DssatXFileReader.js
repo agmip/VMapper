@@ -437,12 +437,13 @@ function readIrrigationLine(line, headerLine) {
         formats = {
             "id" :  2,
             "ireff" :  6,
-            "irmdp" :  6,
-            "irthr" :  6,
-            "irept" :  6,
-            "irstg" :  6,
-            "iame" :  6,
-            "iamt" :  6,
+            "null" : 36,
+//            "irmdp" :  6,
+//            "irthr" :  6,
+//            "irept" :  6,
+//            "irstg" :  6,
+//            "iame" :  6,
+//            "iamt" :  6,
             "name" : line.length
         };
     } else if (headerLine.startsWith("I  IRLN")) {
