@@ -41,7 +41,7 @@ ${cultivar?counter?left_pad(2)}${(expData['crid']!-99)?left_pad(3)} ${(cultivar[
 </#if>
 <#-- tier 1 -->
 <#list fields as field>
-${field?counter?left_pad(2)} ${(field['id_field']!-99)?right_pad(8)} <#if field.wst_id_suff??>${(field['wst_id']!)?right_pad(4)}${(field['wst_id_suff']!)?right_pad(4)}<#else>${(field['wst_id']!-99)?right_pad(8)}</#if>   -99   -99 -99     -99   -99 -99   -99    -99  ${(field['soil_id']!-99)?right_pad(10)} ${field['fl_name']!}
+${field?counter?left_pad(2)} ${(field['id_field']!-99)?right_pad(8)} <#if field.wst_id_suff??>${(field['wst_id']!)?right_pad(4)}${(field['wst_id_suff']!)?right_pad(4)}<#else>${(field['wst_id']!-99)?right_pad(8)}</#if> ${(field['flsl']!-99)?left_pad(5)} ${(field['flob']!-99)?left_pad(5)} ${(field['fl_drntype']!-99)?left_pad(5)} ${(field['fldrd']!-99)?left_pad(5)} ${(field['fldrs']!-99)?left_pad(5)} ${(field['flst']!-99)?left_pad(5)} ${(field['sltx']!-99)?right_pad(5)}${(field['sldp']!-99)?left_pad(5)}  ${(field['soil_id']!-99)?right_pad(10)} ${field['fl_name']!}
 </#list>
 <#if fields?size gt 0>
 @L ...........XCRD ...........YCRD .....ELEV .............AREA .SLEN .FLWR .SLAS FLHST FHDUR
@@ -112,7 +112,7 @@ ${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['iro
 </#if>
 <#list managements.fertilizer as eventArr>
 <#list eventArr as event>
-${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['fecd']!-99)?left_pad(5)} ${(event['feacd']!-99)?left_pad(5)} ${(event['fedep']!-99)?left_pad(5)} ${(event['feamn']!0)?left_pad(5)} ${(event['feamp']!0)?left_pad(5)} ${(event['feamk']!0)?left_pad(5)} ${(event['feamc']!0)?left_pad(5)} ${(event['feamo']!0)?left_pad(5)} ${(event['feocd']!0-99)?left_pad(5)} ${event['fe_name']!}--${event.mgn_name!}
+${eventArr?counter?left_pad(2)} ${(event['date']!-99)?left_pad(5)} ${(event['fecd']!-99)?left_pad(5)} ${(event['feacd']!-99)?left_pad(5)} ${(event['fedep']!-99)?left_pad(5)} ${(event['feamn']!-99)?left_pad(5)} ${(event['feamp']!-99)?left_pad(5)} ${(event['feamk']!-99)?left_pad(5)} ${(event['feamc']!-99)?left_pad(5)} ${(event['feamo']!-99)?left_pad(5)} ${(event['feocd']!-99)?left_pad(5)} ${event['fe_name']!}--${event.mgn_name!}
 </#list>
 </#list>
  <#if managements.harvest?size gt 0>
