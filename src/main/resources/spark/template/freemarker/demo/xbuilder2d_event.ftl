@@ -401,11 +401,11 @@
         }
     }
     
-    function isValid(val) {
+    function isValidVal(val) {
         if (val) {
-            return Number(val) !== -99;
+            return Number(val) !== -99 && val.toString().trim() !== "";
         } else {
-            return Number(val) === 0;
+            return val === 0;
         }
     }
     
@@ -415,7 +415,7 @@
         for (let i = 0; i < array.length; i++) {
             flg = true;
             for (let j = 0; j < ids.length; j++) {
-                if (!isValid(array[i][ids[j]]) || array[i][ids[j]].toString().trim() === "") {
+                if (!isValidVal(array[i][ids[j]])) {
                     y++;
                     flg = false;
                     break;
@@ -434,7 +434,7 @@
         
         for (let i = 0; i < array.length; i++) {
             for (let key in array[i]) {
-                if (!isValid(array[i][key]) || array[i][key] === "") {
+                if (!isValidVal(array[i][key])) {
                     delete array[i][key];
                 }
             }
