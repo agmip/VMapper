@@ -2323,10 +2323,23 @@
 
 //                                        mappings[sc2Mappings[j].column_index - 1] = sc2Mappings[j];
                                 if (sc2Mappings[j].formula_info) {
-                                    for (let key in sc2Mappings[j].formula_info) {
-                                        sc2Mappings[j][key] = sc2Mappings[j].formula_info[key];
+                                    if (sc2Mappings[j].formula_info.virtual_val_fixed || sc2Mappings[j].formula_info.virtual_val_fixed === 0) {
+                                        sc2Mappings[j].value = sc2Mappings[j].formula_info.virtual_val_fixed;
+                                    } else {
+                                        sc2Mappings[j].formula = {
+                                            "function": "join_columns",
+                                            "args" : sc2Mappings[j].formula_info
+                                        }
                                     }
                                     delete sc2Mappings[j].formula_info;
+                                }
+                                if (sc2Mappings[j].formula) {
+                                    if (sc2Mappings[j].formula.function === "join_columns") {
+                                        for (let key in sc2Mappings[j].formula.args) {
+                                            sc2Mappings[j][key] = sc2Mappings[j].formula.args[key];
+                                        }
+                                        delete sc2Mappings[j].formula;
+                                    }
                                 }
                                 if (sc2Mappings[j].value) {
                                     sc2Mappings[j].virtual_val_fixed = sc2Mappings[j].value;
@@ -2512,7 +2525,10 @@
                                 if (!mappingCopy.column_index_org) {
                                     mappingCopy.column_index_vr = mappingCopy.column_index;
                                     delete mappingCopy.column_index;
-                                    mappingCopy.formula_info = {};
+                                    mappingCopy.formula = {
+                                        "function" : "",
+                                        "args" : {}
+                                    };
                                     for (let key in mappingCopy) {
                                         if (key.startsWith("virtual")) {
                                             if (key === "virtual_val_fixed") {
@@ -2521,10 +2537,14 @@
                                                 if (mappingCopy[key].length === 0) {
                                                     continue;
                                                 }
+                                                mappingCopy.formula.function = "join_columns";
                                             }
-                                            mappingCopy.formula_info[key] = mappingCopy[key];
+                                            mappingCopy.formula.args[key] = mappingCopy[key];
                                             delete mappingCopy[key];
                                         }
+                                    }
+                                    if (mappingCopy.formula.function) {
+                                        delete mappingCopy.formula;
                                     }
                                 } else {
                                     mappingCopy.column_index = mappingCopy.column_index_org;
