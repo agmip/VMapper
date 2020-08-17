@@ -33,7 +33,7 @@ function drawSWV2DPlot(plotVar, plotVarName, data, containerId, cell, style, cha
     if (obvSubdaily !== undefined) {
         for (var i = 0; i < obvSubdaily.length; i++) {
             if (obvSubdaily[i].TS < subdaily[end - 1].TS) {
-                plotDataObv.push([obvSubdaily[i].TS, obvSubdaily[i][plotVar][cell.row][cell.col]]);
+                plotDataObv.push([obvSubdaily[i].TS.getTime(), obvSubdaily[i][plotVar][cell.row][cell.col]]);
             }
         }
 //        if (data["obv"]["max"][plotVar][cell.row][cell.col]) {
