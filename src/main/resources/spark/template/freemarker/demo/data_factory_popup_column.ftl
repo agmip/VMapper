@@ -242,6 +242,7 @@
                         }
                         if (["FEAMP", "FEP_TOT"].includes(icasa)) {
                             subDiv.find("[name='fert_amnt_unit_pk_div']").fadeIn(0);
+                            subDiv.find("[name='raw_data_unit_div']").removeClass("col-sm-4").addClass("col-sm-3");
                             subDiv.find("[name='fert_amnt_unit_pk_cb']").data("on", "P2O5").bootstrapToggle({on:"P2O5", off:"P", offstyle:"success", size:"mini"});
                             if (sourceUnit.val().replace(/\[.*[Pp]2[Oo]5.*\]/g, "").toLowerCase().includes("p2o5")) {
                                 subDiv.find("[name='fert_amnt_unit_pk_cb']").bootstrapToggle("on");
@@ -250,6 +251,7 @@
                             }
                         } else if (["FEAMK", "FEK_TOT"].includes(icasa)) {
                             subDiv.find("[name='fert_amnt_unit_pk_div']").fadeIn(0);
+                            subDiv.find("[name='raw_data_unit_div']").removeClass("col-sm-4").addClass("col-sm-3");
                             subDiv.find("[name='fert_amnt_unit_pk_cb']").data("on", "K2O").bootstrapToggle({on:"K2O", off:"K", offstyle:"success", size:"mini"});
                             if (sourceUnit.val().replace(/\[.*[Kk]2[Oo].*\]/g, "").toLowerCase().includes("k2o")) {
                                 subDiv.find("[name='fert_amnt_unit_pk_cb']").bootstrapToggle("on");
@@ -258,6 +260,7 @@
                             }
                         } else {
                             subDiv.find("[name='fert_amnt_unit_pk_div']").fadeOut(0);
+                            subDiv.find("[name='raw_data_unit_div']").removeClass("col-sm-3").addClass("col-sm-4");
                             subDiv.find("[name='fert_amnt_unit_pk_cb']").data("on", "");
                         }
                         if (isVirtual) {
@@ -828,23 +831,23 @@
                 </div>
             </div>
             <!-- 3rd row -->
-            <div class="form-group col-sm-3 value-type-control value-type-numeric">
+            <div class="form-group col-sm-3 value-type-control value-type-numeric" name="raw_data_unit_div">
                 <label class="control-label">Raw Data Unit</label>
-                <div class="input-group col-sm-12">
+                <div class="input-group col-sm-11">
                     <input type="text" name="unit" class="form-control col-def-input-item" value="">
                     <div class="label label-danger" name="unit_validate_result"></div>
                 </div>
             </div>
-            <div class="form-group col-sm-3 value-type-control value-type-numeric">
+            <div class="form-group col-sm-1 value-type-control value-type-numeric" name="fert_amnt_unit_pk_div">
+                <label class="control-label">Element</label>
+                <div class="input-group col-sm-12">
+                    <input type="checkbox" name="fert_amnt_unit_pk_cb">
+                </div>
+            </div>
+            <div class="form-group col-sm-4 value-type-control value-type-numeric">
                 <label class="control-label">ICASA Unit</label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="icasa_unit" class="form-control" value="" readonly>
-                </div>
-            </div>
-            <div class="form-group col-sm-3 value-type-control value-type-numeric" name="fert_amnt_unit_pk_div">
-                <label class="control-label">Element Measured by</label>
-                <div class="input-group col-sm-12">
-                    <input type="checkbox" name="fert_amnt_unit_pk_cb">
                 </div>
             </div>
             <div class="form-group col-sm-3 value-type-control value-type-code">
@@ -852,7 +855,7 @@
                     <span class="btn btn-primary" name="icasa_code_mapping_btn"><span class="glyphicon glyphicon-edit"></span> Edit Code Mapping</span>
                 </div>
             </div>
-            <div class="form-group col-sm-3 value-type-control value-type-date">
+            <div class="form-group col-sm-4 value-type-control value-type-date">
                 <label class="control-label">Format</label>
                 <div class="input-group col-sm-12">
                     <select name="format" class="form-control col-def-input-item" value="" disabled>
@@ -862,7 +865,7 @@
                     </select>
                 </div>
             </div>
-            <div class="form-group col-sm-3 value-type-control value-type-date">
+            <div class="form-group col-sm-4 value-type-control value-type-date">
                 <label class="control-label">Standardized Expression</label>
                 <div class="input-group col-sm-12">
                     <input type="text" name="format_customized" class="form-control col-def-input-item" value="" disabled>
