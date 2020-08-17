@@ -32,8 +32,8 @@
                         <li><a href="/demo/gbuilder1d"><span class="glyphicon glyphicon-picture"></span> GBuilder 1D</a></li>
                         <li><a href="/demo/gbuilder2d"><span class="glyphicon glyphicon-picture"></span> GBuilder 2D</a></li>
                         <li><a href="/demo/xmleditor"><span class="glyphicon glyphicon-edit"></span> XML Editor</a></li>
-                        <li><a href="/demo/unit"><span class="glyphicon glyphicon-edit"></span> Unit Master</a></li>
                         <li><a href="/demo/vmapper"><span class="glyphicon glyphicon-road"></span> VMapper</a></li>
+                        <li><a href="/demo/unit"><span class="glyphicon glyphicon-edit"></span> Unit Master</a></li>
                         <li><a href="#" onClick="window.open('https://dssat2d-plot-demo.herokuapp.com/')"><span class="glyphicon glyphicon-send"></span> Distributable Plot</a></li>
                     </ul>
                 </li>
