@@ -589,8 +589,8 @@
                     valSet[data[j][idx]] = 1;
                 } else {
                     vals.push(valSet[data[j][idx]]);
-                    data[j][idx] = vals.join(divider);
                     valSet[data[j][idx]]++;
+                    data[j][idx] = vals.join(divider);
                 }
             }
         }
