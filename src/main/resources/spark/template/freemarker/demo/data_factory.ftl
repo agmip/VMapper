@@ -1839,7 +1839,7 @@
                                     });
                                 }
                                 // Fill missing data if repeated flag is on
-                                if (mapping.formula === "fill_with_previous") {
+                                if (mapping.formula && mapping.formula.function === "fill_with_previous") {
                                     let nullVal = mapping.null_val;
                                     let lastCell = nullVal;
                                     for (let j in agmipData) {
