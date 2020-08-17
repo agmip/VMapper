@@ -2334,7 +2334,9 @@
                                     delete sc2Mappings[j].formula_info;
                                 }
                                 if (sc2Mappings[j].formula) {
-                                    if (sc2Mappings[j].formula.function === "join_columns") {
+                                    if (sc2Mappings[j].formula === "fill_with_previous") {
+                                        sc2Mappings[j].formula = {"function" : "fill_with_previous"};
+                                    } else if (sc2Mappings[j].formula.function === "join_columns") {
                                         for (let key in sc2Mappings[j].formula.args) {
                                             sc2Mappings[j][key] = sc2Mappings[j].formula.args[key];
                                         }
@@ -2543,7 +2545,7 @@
                                             delete mappingCopy[key];
                                         }
                                     }
-                                    if (mappingCopy.formula.function) {
+                                    if (!mappingCopy.formula.function) {
                                         delete mappingCopy.formula;
                                     }
                                 } else {
