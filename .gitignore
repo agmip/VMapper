@@ -235,3 +235,6 @@ Data/ICASA/Form Responses 1.csv
 !Data/DSSAT47/
 Data/DSSAT47/*
 !Data/DSSAT47/Genotype
+src/main/resources/public/plugins/mxgraph/*
+src/main/resources/public/test.html
+src/main/resources/public/test_mxgraph.html
