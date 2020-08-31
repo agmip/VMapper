@@ -1,4 +1,4 @@
-package org.dssat.tool.gbuilder2d.util;
+package org.agmip.tool.vmapper.util;
 
 import au.com.bytecode.opencsv.CSVReader;
 import java.io.BufferedReader;
@@ -13,12 +13,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import org.agmip.translators.dssat.DssatSoilInput;
-import static org.dssat.tool.gbuilder2d.util.JsonUtil.parseFrom;
-import static org.dssat.tool.gbuilder2d.util.Path.Folder.ICASA_CROP_CODE;
-import static org.dssat.tool.gbuilder2d.util.Path.Folder.getSoilListDir;
-import static org.dssat.tool.gbuilder2d.util.Path.Folder.getSoilListFile;
-import static org.dssat.tool.gbuilder2d.util.Path.Folder.getWthListDir;
-import static org.dssat.tool.gbuilder2d.util.Path.Folder.getWthListFile;
+import static org.agmip.tool.vmapper.util.JsonUtil.parseFrom;
+import static org.agmip.tool.vmapper.util.Path.Folder.ICASA_CROP_CODE;
+import static org.agmip.tool.vmapper.util.Path.Folder.getSoilListDir;
+import static org.agmip.tool.vmapper.util.Path.Folder.getSoilListFile;
+import static org.agmip.tool.vmapper.util.Path.Folder.getWthListDir;
+import static org.agmip.tool.vmapper.util.Path.Folder.getWthListFile;
 
 /**
  *

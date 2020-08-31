@@ -1,8 +1,8 @@
-package org.dssat.tool.gbuilder2d.dao.bean;
+package org.agmip.tool.vmapper.dao.bean;
 
 import lombok.Data;
-import org.dssat.tool.gbuilder2d.util.JSONObject;
-import org.dssat.tool.gbuilder2d.util.JsonUtil;
+import org.agmip.tool.vmapper.util.JSONObject;
+import org.agmip.tool.vmapper.util.JsonUtil;
 
 /**
  *
