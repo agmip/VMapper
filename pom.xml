@@ -139,11 +139,11 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <finalName>gbuilder2d</finalName>
+                    <finalName>vmapper</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
-                            <mainClass>org.dssat.tool.gbuilder2d.Main</mainClass>
+                            <mainClass>org.agmip.tool.vmapper.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
