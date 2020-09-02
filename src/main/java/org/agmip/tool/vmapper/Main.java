@@ -34,7 +34,7 @@ import spark.template.freemarker.FreeMarkerEngine;
  */
 public class Main {
     
-    private static final int DEF_PORT = 8081;
+    private static final int DEF_PORT = Path.Folder.DEF_PORT;
     public static final Logger LOG = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     
     public static void main(String[] args) {

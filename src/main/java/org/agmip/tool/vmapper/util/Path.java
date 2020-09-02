@@ -58,6 +58,7 @@ public class Path {
         public final static String ICASA_MGN_CODE = Config.get("ICASA_MGN_CODE"); //"Management_codes.csv";
         public final static String ICASA_MGN_VAR = Config.get("ICASA_MGN_VAR"); //"Management_info.csv";
         public final static String ICASA_OBV_VAR = Config.get("ICASA_OBV_VAR"); //"Measured_data.csv";
+        public final static int DEF_PORT = Integer.parseInt(Config.get("DEF_PORT")); //8081;
 
         public static File getCropCodeFile() {
             File ret = Paths.get(DATA_DIR, ICASA_DIR, ICASA_CROP_CODE).toFile();
@@ -94,6 +95,7 @@ public class Path {
             ret.put("ICASA_MGN_CODE", "Management_codes.csv");
             ret.put("ICASA_MGN_VAR", "Management_info.csv");
             ret.put("ICASA_OBV_VAR", "Measured_data.csv");
+            ret.put("DEF_PORT", "8081");
             try {
                 BufferedReader br = new BufferedReader(new FileReader(new File("config.ini")));
                 String line;
