@@ -1,1 +1,1 @@
-web:    java -Xmx512m -jar target/gbuilder2d.jar
+web:    java -Xmx512m -jar target/vmapper.jar
