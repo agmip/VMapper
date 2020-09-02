@@ -48,11 +48,6 @@
             <artifactId>opencsv</artifactId>
             <version>2.3</version>
         </dependency>
-        <dependency>
-            <groupId>org.agmip.translators</groupId>
-            <artifactId>translator-dssat</artifactId>
-            <version>1.2.20</version>
-        </dependency>
 <!--        <dependency>
             <groupId>org.mindrot</groupId>
             <artifactId>jbcrypt</artifactId>
