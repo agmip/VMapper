@@ -98,11 +98,11 @@
             <version>4.6.13</version>
             <!--<version>5.3.1</version>-->
         </dependency>
-<!--        <dependency>
+        <dependency>
             <groupId>org.agmip.libs</groupId>
             <artifactId>unit-helper</artifactId>
-            <version>0.0.2</version>
-        </dependency>-->
+            <version>1.0.1</version>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>
