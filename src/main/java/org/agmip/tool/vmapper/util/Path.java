@@ -17,8 +17,8 @@ public class Path {
         @Getter public static final String LOGOUT = "/logout";
         @Getter public static final String UPLOAD = "/upload";
         
-        public static class Demo {
-            private static final String PACKAGE = "/" + Demo.class.getSimpleName().toLowerCase();
+        public static class Tools {
+            private static final String PACKAGE = "/" + Tools.class.getSimpleName().toLowerCase();
             public static final String UNIT_MASTER = PACKAGE + "/unit";
             public static final String DATA_FACTORY = PACKAGE + "/data_factory";
             public static final String VMAPPER = PACKAGE + "/vmapper";

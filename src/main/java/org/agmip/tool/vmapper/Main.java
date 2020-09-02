@@ -111,11 +111,11 @@ public class Main {
 
         // Set up routes
         get("/", (Request request, Response response) -> {
-            response.redirect(Path.Web.Demo.VMAPPER);
-            return "Redirect to " + Path.Web.Demo.VMAPPER;
+            response.redirect(Path.Web.Tools.VMAPPER);
+            return "Redirect to " + Path.Web.Tools.VMAPPER;
                 });
         
-        get(Path.Web.Demo.UNIT_MASTER, (Request request, Response response) -> {
+        get(Path.Web.Tools.UNIT_MASTER, (Request request, Response response) -> {
             HashMap data = new HashMap();
             data.put("baseUnits", UnitUtil.listBaseUnit());
             data.put("prefixes", UnitUtil.listPrefix());
@@ -139,12 +139,12 @@ public class Main {
             return UnitUtil.convertUnit(unitFrom, unitTo, valueFrom).toJSONString();
                 });
         
-        get(Path.Web.Demo.DATA_FACTORY, (Request request, Response response) -> {
-            response.redirect(Path.Web.Demo.VMAPPER);
-            return "Redirect to " + Path.Web.Demo.VMAPPER;
+        get(Path.Web.Tools.DATA_FACTORY, (Request request, Response response) -> {
+            response.redirect(Path.Web.Tools.VMAPPER);
+            return "Redirect to " + Path.Web.Tools.VMAPPER;
                 });
         
-        get(Path.Web.Demo.VMAPPER, (Request request, Response response) -> {
+        get(Path.Web.Tools.VMAPPER, (Request request, Response response) -> {
             HashMap data = new HashMap();
             data.put("icasaMgnVarMap", DataUtil.getICASAMgnVarMap());
             data.put("icasaObvVarMap", DataUtil.getICASAObvVarMap());
