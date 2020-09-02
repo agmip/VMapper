@@ -822,7 +822,7 @@
                         if (sheetDef.header_row) {
                             headers = roa[sheetDef.header_row - 1];
                             lastHeaderRow[fileName][sheetName] = sheetDef.header_row;
-                            for (let i = 0; i < headers.length; i++) {
+                            for (let i = 0; i < Math.max(headers.length, sheetDef.mappings.length); i++) {
                                 if (!headers[i]) {
                                     headers[i] = "";
                                 }
