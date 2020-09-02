@@ -2772,6 +2772,8 @@
         
         <script>
             $(document).ready(function () {
+                icasaVarMap.icasaCode.icpcr = icasaVarMap.icasaCode.crid;
+                icasaVarMap.icasaCode.hacr = icasaVarMap.icasaCode.crid;
                 initIcasaLookupSB();
                 initIcasaCategorySB();
                 chosen_init_all();

@@ -6,13 +6,8 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import org.agmip.tool.vmapper.dao.MetaDataDAO;
 import org.agmip.tool.vmapper.util.DataUtil;
-import org.agmip.tool.vmapper.util.DssatDataUtil;
-import org.agmip.tool.vmapper.util.JSONObject;
-import org.agmip.tool.vmapper.util.JsonUtil;
 import org.agmip.tool.vmapper.util.Path;
 import org.agmip.tool.vmapper.util.UnitUtil;
 import org.eclipse.jetty.server.Server;
@@ -27,7 +22,6 @@ import static spark.Spark.before;
 import static spark.Spark.get;
 import static spark.Spark.options;
 import static spark.Spark.port;
-import static spark.Spark.post;
 import static spark.Spark.staticFiles;
 import spark.embeddedserver.EmbeddedServers;
 import spark.embeddedserver.jetty.EmbeddedJettyFactory;
@@ -117,20 +111,8 @@ public class Main {
 
         // Set up routes
         get("/", (Request request, Response response) -> {
-            HashMap data = new HashMap();
-            data.put("culMetaList", DataUtil.getCulMetaDataList());
-            data.put("soils", DataUtil.getSoilDataList());
-            data.put("weathers", DataUtil.getWthDataList());
-            data.put("icasaMgnCodeMap", DataUtil.getICASAMgnCodeMap());
-            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.XBUILDER2D));
-                });
-        
-        get(Path.Web.Demo.GBUILDER1D, (Request request, Response response) -> {
-            return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.Demo.GBUILDER1D));
-                });
-        
-        get(Path.Web.Demo.GBUILDER2D, (Request request, Response response) -> {
-            return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.Demo.GBUILDER2D));
+            response.redirect(Path.Web.Demo.VMAPPER);
+            return "Redirect to " + Path.Web.Demo.VMAPPER;
                 });
         
         get(Path.Web.Demo.UNIT_MASTER, (Request request, Response response) -> {
@@ -157,26 +139,6 @@ public class Main {
             return UnitUtil.convertUnit(unitFrom, unitTo, valueFrom).toJSONString();
                 });
         
-        get(Path.Web.Demo.XBUILDER2D, (Request request, Response response) -> {
-            HashMap data = new HashMap();
-            data.put("culMetaList", DataUtil.getCulMetaDataList());
-            data.put("soils", DataUtil.getSoilDataList());
-            data.put("weathers", DataUtil.getWthDataList());
-            data.put("icasaMgnCodeMap", DataUtil.getICASAMgnCodeMap());
-            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.XBUILDER2D));
-                });
-        
-        get(Path.Web.Demo.METALIST, (Request request, Response response) -> {
-            HashMap data = new HashMap();
-            data.put("metalist", MetaDataDAO.list());
-            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.METALIST));
-                });
-        
-        get(Path.Web.Demo.XML_EDITOR, (Request request, Response response) -> {
-            HashMap data = new HashMap();
-            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.XML_EDITOR));
-                });
-        
         get(Path.Web.Demo.DATA_FACTORY, (Request request, Response response) -> {
             response.redirect(Path.Web.Demo.VMAPPER);
             return "Redirect to " + Path.Web.Demo.VMAPPER;
@@ -190,27 +152,7 @@ public class Main {
             data.put("culMetaList", DataUtil.getICASACropCodeMap());
             return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.DATA_FACTORY));
                 });
-        
-        post(Path.Web.Translator.XML, (Request request, Response response) -> {
-            HashMap data = new HashMap();
-            String jsonStr = request.queryParams("io");
-            JSONObject rawData = JsonUtil.parseFrom(jsonStr);
-            
-            // Handle io data
-            ArrayList<JSONObject> ioData = rawData.getObjArr();
-            data.put("io", ioData);
-            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Translator.XML));
-        });
-        
-        get(Path.Web.Data.CULTIVAR, (Request request, Response response) -> {
-            String crid = request.queryParams("crid");
-            return DataUtil.getCulDataList(crid).toJSONString();
-                });
-        
-        post(Path.Web.Translator.DSSAT_EXP, (Request request, Response response) -> {
-            HashMap data = DssatDataUtil.readFromRequest(request);
-            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Translator.DSSAT_EXP));
-                });
+
 //        get("*",                     PageController.serveNotFoundPage, new FreeMarkerEngine());
 
         //Set up after-filters (called after each get/post)

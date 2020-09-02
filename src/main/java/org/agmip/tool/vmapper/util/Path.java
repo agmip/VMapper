@@ -3,11 +3,8 @@ package org.agmip.tool.vmapper.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.*;
 
 public class Path {
@@ -22,13 +19,6 @@ public class Path {
         
         public static class Demo {
             private static final String PACKAGE = "/" + Demo.class.getSimpleName().toLowerCase();
-            public static final String IRRLIST = PACKAGE + "/irrlist";
-            public static final String AUTOMAIL = PACKAGE + "/automail";
-            public static final String GBUILDER1D = PACKAGE + "/gbuilder1d";
-            public static final String GBUILDER2D = PACKAGE + "/gbuilder2d";
-            public static final String XBUILDER2D = PACKAGE + "/xbuilder2d";
-            public static final String METALIST = PACKAGE + "/metalist";
-            public static final String XML_EDITOR = PACKAGE + "/xmleditor";
             public static final String UNIT_MASTER = PACKAGE + "/unit";
             public static final String DATA_FACTORY = PACKAGE + "/data_factory";
             public static final String VMAPPER = PACKAGE + "/vmapper";
@@ -36,16 +26,8 @@ public class Path {
         
         public static class Data {
             private static final String PACKAGE = "/" + Data.class.getSimpleName().toLowerCase();
-            public static final String CULTIVAR = PACKAGE + "/cultivar";
             public static final String UNIT_LOOKUP = PACKAGE + "/unit/lookup";
             public static final String UNIT_CONVERT = PACKAGE + "/unit/convert";
-        }
-        
-        public static class Translator {
-            private static final String PACKAGE = "/" + Translator.class.getSimpleName().toLowerCase();
-            public static final String DSSAT = PACKAGE + "/dssat";
-            public static final String DSSAT_EXP = PACKAGE + "/dssat_exp";
-            public static final String XML = PACKAGE + "/xml";
         }
     }
     
@@ -58,12 +40,6 @@ public class Path {
         
         public static class Demo {
             private static final String PACKAGE = Demo.class.getSimpleName().toLowerCase();
-            public static final String IRRLIST = PACKAGE + "/irrlist.ftl";
-            public static final String GBUILDER1D = PACKAGE + "/gbuilder1d.ftl";
-            public static final String GBUILDER2D = PACKAGE + "/gbuilder2d.ftl";
-            public static final String XBUILDER2D = PACKAGE + "/xbuilder2d.ftl";
-            public static final String METALIST = PACKAGE + "/meta_list.ftl";
-            public static final String XML_EDITOR = PACKAGE + "/xml_editor.ftl";
             public static final String UNIT_MASTER = PACKAGE + "/unit_master.ftl";
             public static final String DATA_FACTORY = PACKAGE + "/data_factory.ftl";
         }
@@ -71,51 +47,20 @@ public class Path {
         public static class Translator {
             private static final String PACKAGE = Demo.class.getSimpleName().toLowerCase();
             public static final String DSSAT_EXP = PACKAGE + "/xfile_template.ftl";
-            public static final String XML = PACKAGE + "/xml_template.ftl";
         }
     }
     
     public static class Folder {
         public final static String DATA_DIR = Config.get("DATA_DIR"); //"Data";
         public final static String DSSAT_DIR = Config.get("DSSAT_DIR"); //"Data\\DSSAT47";
-        public final static String DATA_SOIL_DIR = Config.get("DATA_SOIL_DIR"); //"Soil";
-        public final static String DATA_WTH_DIR = Config.get("DATA_WTH_DIR"); //"Weather";
-        public final static String CULTIVAR_DIR = Config.get("CULTIVAR_DIR"); //"Genotype";
-        public final static String SOIL_LIST = Config.get("SOIL_LIST"); //"soil_list.json";
-        public final static String WTH_LIST = Config.get("WTH_LIST"); //"wth_list.json";
-        public final static String CULTIVAR_LIST = Config.get("CULTIVAR_LIST"); //"crop_list.csv";
         public final static String ICASA_DIR = Config.get("ICASA_DIR"); //"ICASA";
         public final static String ICASA_CROP_CODE = Config.get("ICASA_CROP_CODE"); //"Crop_codes.csv";
         public final static String ICASA_MGN_CODE = Config.get("ICASA_MGN_CODE"); //"Management_codes.csv";
         public final static String ICASA_MGN_VAR = Config.get("ICASA_MGN_VAR"); //"Management_info.csv";
         public final static String ICASA_OBV_VAR = Config.get("ICASA_OBV_VAR"); //"Measured_data.csv";
-        public final static String DSSAT_VERSION = Config.get("DSSAT_VERSION"); //"47";
-        public static File getCulFile(String modelName) {
-            File ret = Paths.get(DSSAT_DIR, CULTIVAR_DIR, getDSSATFileNameWithVer(modelName, "CUL")).toFile();
-            return ret;
-        }
-        public static File getCulListFile() {
-            File ret = Paths.get(DATA_DIR, CULTIVAR_LIST).toFile();
-            return ret;
-        }
+
         public static File getCropCodeFile() {
             File ret = Paths.get(DATA_DIR, ICASA_DIR, ICASA_CROP_CODE).toFile();
-            return ret;
-        }
-        public static File getSoilListDir() {
-            File ret = Paths.get(DSSAT_DIR, DATA_SOIL_DIR).toFile();
-            return ret;
-        }
-        public static File getSoilListFile() {
-            File ret = Paths.get(DATA_DIR, SOIL_LIST).toFile();
-            return ret;
-        }
-        public static File getWthListDir() {
-            File ret = Paths.get(DSSAT_DIR, DATA_WTH_DIR).toFile();
-            return ret;
-        }
-        public static File getWthListFile() {
-            File ret = Paths.get(DATA_DIR, WTH_LIST).toFile();
             return ret;
         }
         
@@ -138,20 +83,6 @@ public class Path {
             File ret = Paths.get(DATA_DIR, ICASA_DIR, ICASA_OBV_VAR).toFile();
             return ret;
         }
-        
-        public static String getDSSATFileNameWithVer(String pref) {
-            return getDSSATFileNameWithVer(pref, null);
-        }
-        
-        public static String getDSSATFileNameWithVer(String pref, String ext) {
-            if (pref == null || pref.trim().isEmpty()) {
-                return "";
-            } else if (ext == null || ext.trim().isEmpty()) {
-                return pref.trim().toUpperCase() + "0" + DSSAT_VERSION;
-            } else {
-                return pref.trim().toUpperCase() + "0" + DSSAT_VERSION + "." + ext.trim().toUpperCase();
-            }
-        }
     }
     
     public static class Config {
@@ -159,13 +90,6 @@ public class Path {
         private static HashMap<String, String> readConfig() {
             HashMap<String, String> ret = new HashMap();
             ret.put("DATA_DIR", "Data");
-            ret.put("DSSAT_DIR", Paths.get("Data", "DSSAT47").toString());
-            ret.put("DATA_SOIL_DIR", "Soil");
-            ret.put("DATA_WTH_DIR", "Weather");
-            ret.put("CULTIVAR_DIR", "Genotype");
-            ret.put("SOIL_LIST", "soil_list.json");
-            ret.put("WTH_LIST", "wth_list.json");
-            ret.put("CULTIVAR_LIST", "crop_list.csv");
             ret.put("ICASA_DIR", "ICASA");
             ret.put("ICASA_MGN_CODE", "Management_codes.csv");
             ret.put("ICASA_MGN_VAR", "Management_info.csv");
