@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.agmip.tool</groupId>
     <artifactId>vmapper</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>VMapper</name>
     <packaging>jar</packaging>
     <properties>
