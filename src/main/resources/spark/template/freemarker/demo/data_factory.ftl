@@ -29,6 +29,7 @@
             let virColCnt = {};
             let lastHeaderRow = {};
             let primaryVarExisted = {EXNAME: false, SOIL_ID: false, WST_ID: false};
+            let sc2ObjCache = {};
             const eventDateMapping = {
                 def : {
                     "planting" : "pdate",
@@ -2061,6 +2062,11 @@
                                     fileUrls[getMetaFileName(fileMeta)] = url;
                                 }
                             }
+                            for (let key in sc2Obj) {
+                                if (key !== "agmip_translation_mappings" && key !== "mapping_info") {
+                                    sc2ObjCache[key] = sc2Obj[key];
+                                }
+                            }
                             showSheetDefDialog(loadSC2Obj, null, false, sc2Obj);
                         }
                     }
@@ -2518,7 +2524,6 @@
                     sc2Obj.agmip_translation_mappings.files.push(tmp2);
                     for (let sheetName in templates[fileName]) {
                         let tmp = Object.assign({}, templates[fileName][sheetName]);
-                        delete tmp.file_name;
                         tmp.mappings = [];
                         delete tmp.references;
                         for (let i in templates[fileName][sheetName].mappings) {
@@ -2579,6 +2584,9 @@
                         }
                         tmp2.file.sheets.push(tmp);
                     }
+                }
+                for (let key in sc2ObjCache) {
+                    sc2Obj[key] = sc2ObjCache[key];
                 }
                 return sc2Obj;
             }
