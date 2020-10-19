@@ -6,7 +6,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -39,8 +43,8 @@ public class DataUtil {
 //    private static final String ICASA_CROP_CODE_HEADER_DSSAT_CODE = "DSSAT_code";
 //    private static final String ICASA_CROP_CODE_HEADER_APSIM_CODE = "APSIM_code";
     private static final int ICASA_MIN_ACCEPTABLE_RATING_LEVEL = -1;
-    
-    
+    private static Properties versionProperties = loadProperties();
+
     public static ArrayList getCulMetaDataList() {
         return CUL_METADATA_LIST;
     }
@@ -372,5 +376,33 @@ public class DataUtil {
     
     public static JSONObject getICASAObvVarMap() {
         return ICASA_OBV_VAR_MAP;
+    }
+    
+    private static Properties loadProperties() {
+        Properties p = new Properties();
+        try (InputStream versionFile = DataUtil.class.getClassLoader().getResourceAsStream("product.properties")) {
+            p.load(versionFile);
+        } catch (IOException ex) {
+            Logger.getLogger(DataUtil.class.getName()).log(Level.SEVERE, "Unable to load version information, version will be blank.", ex);
+        }
+        return p;
+    }
+    
+    public static String getProductVersion() {
+        return versionProperties.getProperty("product.version");
+    }
+    
+    public static String getProductInfo() {
+        
+        StringBuilder qv = new StringBuilder();
+        String buildType = versionProperties.getProperty("product.buildtype");
+        qv.append("Version ");
+        qv.append(getProductVersion());
+        qv.append("-").append(versionProperties.getProperty("product.buildversion"));
+        qv.append("(").append(buildType).append(")");
+        if (buildType.equals("dev")) {
+            qv.append(" [").append(versionProperties.getProperty("product.buildts")).append("]");
+        }
+        return qv.toString();
     }
 }

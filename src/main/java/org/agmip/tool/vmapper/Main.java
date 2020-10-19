@@ -71,6 +71,7 @@ public class Main {
 //            return server;
 //        }));
         LOG.setLevel(Level.INFO);
+        LOG.info(DataUtil.getProductInfo());
 
         String portStr = System.getenv("PORT");
         int port;
@@ -150,6 +151,7 @@ public class Main {
             data.put("icasaObvVarMap", DataUtil.getICASAObvVarMap());
             data.put("icasaMgnCodeMap", DataUtil.getICASAMgnCodeMap());
             data.put("culMetaList", DataUtil.getICASACropCodeMap());
+            data.put("version", DataUtil.getProductVersion());
             return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.DATA_FACTORY));
                 });
 

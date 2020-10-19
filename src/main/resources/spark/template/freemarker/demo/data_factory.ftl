@@ -9,6 +9,7 @@
         <link rel="stylesheet" type="text/css" href="/plugins/jsonViewer/jquery.json-viewer.css" />
         <script>
             const preferColors = ["#33DBFF", "#FF5733", "#33FF57", "#BD33FF", "#802B1A", "#3383FF", "#FFAF33", "#3ADDD6"];
+            const vmapperVersion = "${version!}";
             let wbObj;
 //            let spsContainer;
             let spreadsheet;
@@ -743,10 +744,32 @@
                         ret[fileName] = to_object(workbooks[fileName], fileName);
                     }
                 }
-                // update reference
+                // update index used in reference and virtual column
                 for (let fileName in templates) {
                     for (let sheetName in templates[fileName]) {
                         let sheetDef = templates[fileName][sheetName];
+                        
+                        // update virtual column
+                        if (virColCnt[fileName][sheetName]) {
+                            mappings = sheetDef.mappings;
+                            for (let i in mappings) {
+                                let virKeys = mappings[i].virtual_val_keys;
+                                if (virKeys) {
+                                    console.log("test");
+                                    for (let j in virKeys) {
+                                        for (let k in mappings) {
+                                            if (mappings[k].column_index_org === virKeys[j]) {
+                                                virKeys[j] = mappings[k].column_index;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    updateRawData(ret[fileName][sheetName].data, sheetDef, mappings[i]);
+                                }
+                            }
+                        }
+                        
+                        // update reference
                         sheetDef.references = {};
                         let refConfig = sheetDef.references_org;
                         let references = sheetDef.references;
@@ -2000,6 +2023,7 @@
                             reader.readAsText(f);
                         } else {
                             let sc2Obj = sc2Objs[0];
+                            hotFixIndex(sc2Obj);
                             let fileNames = [];
                             if (sc2Obj.agmip_translation_mappings && sc2Obj.agmip_translation_mappings.files) {
                                 for (let i in sc2Obj.agmip_translation_mappings.files) {
@@ -2010,6 +2034,7 @@
                                 }
                             }
                             for (let i = 1; i < sc2Objs.length; i++) {
+                                hotFixIndex(sc2Objs[i]);
                                 for (let key in sc2Objs[i]) {
                                     if (sc2Obj[key]) {
                                         if (key === "agmip_translation_mappings") {
@@ -2040,10 +2065,8 @@
                                                     sc2Obj[key][key2] = sc2Objs[i][key][key2];
                                                 }
                                             }
-                                        } else if (typeof sc2Obj[key] !== "object") {
-                                            copyObject(sc2Objs[i][key], sc2Obj[key]);
                                         } else {
-                                            sc2Obj[key] = sc2Objs[i][key];
+                                            copyObject(sc2Objs[i][key], sc2Obj[key]);
                                         }
                                     } else {
                                         sc2Obj[key] = sc2Objs[i][key];
@@ -2075,12 +2098,97 @@
                 reader.readAsText(f);
             }
             
+            function hotFixIndex(sc2Obj) {
+                if (!sc2Obj.mapping_info.vmapper_version || isOlderVersion(sc2Obj.mapping_info.vmapper_version)) {
+                    // apply the hot fix to the sc2 data
+                    // change the index used in the virtual column and reference definition to relative column index rather than original column index
+                    let virColIdxMap = {};
+                    
+                    // Fix virtual column definition
+                    for (let i in sc2Obj.agmip_translation_mappings.files) {
+                        let fileName = getMetaFileName(sc2Obj.agmip_translation_mappings.files[i].file.file_metadata);
+                        let sheets = sc2Obj.agmip_translation_mappings.files[i].file.sheets;
+                        virColIdxMap[fileName] = {};
+                        for (let j in sheets) {
+                            let mappings = sheets[j].mappings;
+                            let sheetName = sheets[j].sheet_name;
+                            let virColIdxArr = [];
+                            virColIdxMap[fileName][sheetName] = virColIdxArr;
+                            let lastColIdx;
+                            for (let k in mappings) {
+                                if (mappings[k].column_index) {
+                                    if (lastColIdx) {
+                                        lastColIdx++;
+                                    } else {
+                                        lastColIdx = mappings[k].column_index;
+                                    }
+                                } else {
+                                    if (mappings[k].column_index_vr) {
+                                        virColIdxArr.push(mappings[k].column_index_vr);
+                                        lastColIdx = mappings[k].column_index_vr;
+                                    } else {
+                                        lastColIdx++;
+                                        virColIdxArr.push(lastColIdx);
+                                    }
+                                }
+                            }
+                            for (let k in mappings) {
+                                if (!mappings[k].column_index) {
+                                    let virKeys;
+                                    if (mappings[k].formula_info) {
+                                        virKeys = mappings[k].formula_info.virtual_val_keys;
+                                    } else if (mappings[k].formula.function === "join_columns") {
+                                        virKeys = mappings[k].formula.function.args.virtual_val_keys;
+                                    }
+                                    if (virKeys) {
+                                        for (let l in virKeys) {
+                                            let key = Number(virKeys[l]);
+                                            let tmpKey = key;
+                                            for (let m in virColIdxArr) {
+                                                if (key >= virColIdxArr[m]) {
+                                                    tmpKey--;
+                                                }
+                                            }
+                                            virKeys[l] = tmpKey;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Fix reference definition
+//                    for (let i in sc2Obj.agmip_translation_mappings.files) {
+//                        let fileName = getMetaFileName(sc2Obj.agmip_translation_mappings.files[i].file.file_metadata);
+//                        virColIdxMap[fileName] = {};
+//                        for (let j in sc2Obj.agmip_translation_mappings.files[i].file.relations) {
+//                            
+//                        }
+//                    }
+                }
+            }
+            
+            function isOlderVersion(sc2Ver) {
+                let curVer = vmapperVersion;
+                let curVer2 = curVer.replace("-SNAPSHOT", "").replace("-snapshot", "");
+                let sc2Ver2 = sc2Ver.replace("-SNAPSHOT", "").replace("-snapshot", "");
+                if (sc2Ver2 !== curVer2) {
+                    return sc2Ver2 < curVer2;
+                } else {
+                    if (sc2Ver !== sc2Ver2 && sc2Ver !== curVer) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            
             function copyObject(from, to) {
                 if (!from || !to) {
                     return;
                 }
                 for (let key in from) {
-                    if (to[key] && typeof to[key] !== "object") {
+                    if (to[key] && typeof to[key] === "object") {
                         copyObject(from[key], to[key]);
                     } else {
                         to[key] = from[key];
@@ -2471,6 +2579,7 @@
             function toSC2Obj() {
                 let sc2Obj = {
                     mapping_info : {
+                        "vmapper_version" : vmapperVersion
 //                        mapping_author : "data factory (http://dssat2d-plot.herokuapp.com/demo/data_factory)",
 //                        source_url: ""
                     },
@@ -2544,6 +2653,9 @@
                                             } else if (key === "virtual_val_keys") {
                                                 if (mappingCopy[key].length === 0) {
                                                     continue;
+                                                }
+                                                for (let j in mappingCopy[key]) {
+                                                    mappingCopy[key][j] = templates[fileName][sheetName].mappings[mappingCopy[key][j] - 1].column_index_org;
                                                 }
                                                 mappingCopy.formula.function = "join_columns";
                                             }

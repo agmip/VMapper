@@ -562,12 +562,12 @@
             } else if (vrKeys) {
                 for (let i in vrKeys) {
                     let vrKey = vrKeys[i];
-                    for (let k in sheetDef.mappings) {
-                        if (sheetDef.mappings[k].column_index_org === vrKeys[i]) {
-                            vrKey = sheetDef.mappings[k].column_index;
-                            break;
-                        }
-                    }
+//                    for (let k in sheetDef.mappings) {
+//                        if (sheetDef.mappings[k].column_index === vrKeys[i]) {
+//                            vrKey = sheetDef.mappings[k].column_index;
+//                            break;
+//                        }
+//                    }
                     if (colDef.virtual_ignore_null_flg && (!data[j][Number(vrKey) - 1] || !data[j][Number(vrKey) - 1].trim())) {
                         vals = [];
                         break;
