@@ -755,7 +755,6 @@
                             for (let i in mappings) {
                                 let virKeys = mappings[i].virtual_val_keys;
                                 if (virKeys) {
-                                    console.log("test");
                                     for (let j in virKeys) {
                                         for (let k in mappings) {
                                             if (mappings[k].column_index_org === virKeys[j]) {
