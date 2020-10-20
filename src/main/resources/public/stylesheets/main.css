@@ -261,3 +261,14 @@ ul.nav-tabs button.tabaddbtns {
 .label-as-badge {
     border-radius: 1em;
 }
+
+.tab-sm {
+    font-size: 13px;
+    padding: 8px 12px!important;
+}
+
+.tab-xs {
+    font-size: 12px;
+    margin: 0px 2px 0px 0px!important;
+    padding: 6px 9px!important;
+}

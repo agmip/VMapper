@@ -15,6 +15,8 @@
             let spreadsheet;
             let refSpreadsheet;
             let curSheetName;
+            let curTableIdx;
+            let latestTableIdx;
             let templates = {};
             let curFileName;
             let dirName;
@@ -495,6 +497,8 @@
                 fileColors = {};
                 curFileName = null;
                 curSheetName = null;
+                curTableIdx = null;
+                latestTableIdx = 0;
                 wbObj = null;
                 isChanged = false;
                 isViewUpdated = false;
@@ -597,7 +601,7 @@
                                         if (templates[fileName][preSheetName]) {
                                             updateSheetName(fileName, preSheetName, sheetName);
                                         }
-                                    } else if (!templates[fileName][sheetName]) {
+                                    } else if (!isSheetDefExist(fileName, sheetName)) {
                                         templates[fileName][sheetName] = ret[fileName][sheetName];
                                     }
                                 }
@@ -790,7 +794,7 @@
                     }
                 }
 //                workbook.SheetNames.forEach(function(sheetName) {
-//                    if (templates[fileName][sheetName]) {
+//                    if (isSheetDefExist(fileName, sheetName)) {
 //                        shiftRefToKeyIdx(templates[fileName][sheetName]);
 //                    }
 //                });
@@ -807,7 +811,7 @@
                 workbook.SheetNames.forEach(function(sheetName) {
 //                workbook.worksheets.forEach(function(sheet) {
 //                    let sheetName = sheet.name;
-                    if (!templates[fileName] || !templates[fileName][sheetName]) {
+                    if (!isSheetDefExist(fileName, sheetName)) {
                         return;
                     }
                     // Only reload current sheet when editting row definition
@@ -1476,6 +1480,7 @@
                 if (spreadsheet) {
                     spreadsheet.destroy();
                 }
+                $("#sheet_spreadsheet_table_tabs").fadeIn(0);
                 spreadsheet = new Handsontable(spsContainer, spsOptions);
                 if ($('#tableViewSwitch').prop("checked")) {
                     spreadsheet.updateSettings({
@@ -2089,6 +2094,7 @@
                                     sc2ObjCache[key] = sc2Obj[key];
                                 }
                             }
+//                            initLastestTableIdx(sc2Obj);
                             showSheetDefDialog(loadSC2Obj, null, false, sc2Obj);
                         }
                     }
@@ -2178,6 +2184,22 @@
                         return true;
                     } else {
                         return false;
+                    }
+                }
+            }
+            
+            function initLastestTableIdx(sc2Obj) {
+                let files = sc2Obj.agmip_translation_mappings.files;
+                if (!files || files.length === 0) {
+                    return;
+                }
+                for (let i in files) {
+                    let fileConfig = files[i];
+                    for (let i in fileConfig.file.sheets) {
+                        let tableIdx = fileConfig.file.sheets[i].table_index;
+                        if (tableIdx && latestTableIdx < tableIdx) {
+                            latestTableIdx = tableIdx;
+                        }
                     }
                 }
             }
@@ -2361,10 +2383,10 @@
                                 continue;
                             }
                             templates[fileName][sheetName] = Object.assign({}, fileConfig.file.sheets[i]);
-//                                    if (!templates[fileName][sheetName].header_row) {
+//                                    if (!isTableDefExist(fileName, sheetName).header_row) {
 //                                        templates[fileName][sheetName].header_row = 1;
 //                                    }
-//                                    if (!templates[fileName][sheetName].data_start_row) {
+//                                    if (!isTableDefExist(fileName, sheetName).data_start_row) {
 //                                        templates[fileName][sheetName].data_start_row = templates[fileName][sheetName].header_row + 1;
 //                                    }
                             let sc2Mappings = fileConfig.file.sheets[i].mappings;
@@ -2510,6 +2532,141 @@
                 processData();
             }
             
+            function getSheetDef(fileName, sheetName, files) {
+                if (!files) {
+                    files = templates;
+                }
+                if (!fileName || !files[fileName] || !sheetName) {
+                    return null;
+                } else {
+                    if (Array.isArray(files[fileName][sheetName])) {
+                        return files[fileName][sheetName];
+                    } else { //TODO tempory solution, will be removed eventually
+                        let ret = [];
+                        ret.push(files[fileName][sheetName]);
+                        return ret;
+                    }                
+                }
+            }
+            
+//            function getSheetDefArr(fileName, sheetName, files) {
+//                let ret = [];
+//                let sheetDef = getSheetDef(fileName, sheetName, files);
+//                if (sheetDef) {
+//                    for (let i in sheetDef) {
+//                        ret.push(sheetDef[i]);
+//                    }
+//                }
+//                return ret;
+//            }
+            
+        function getTableDef(fileName, sheetName, tableIdx, files) {
+            let sheetDef = getSheetDef(fileName, sheetName, files);
+            if (sheetDef) {
+                if (tableIdx) {
+                    return sheetDef[tableIdx];
+                } else {
+                    return sheetDef[0];
+                }
+            } else {
+                return null;
+            }
+        }
+
+        function updateTableIdx(fileName, sheetName, files) {
+            let sheetDef = getSheetDef(fileName, sheetName, files);
+            for (let i in sheetDef) {
+                sheetDef[i].table_index = i + 1;
+            }
+        }
+
+        function removeTableDefAt(fileName, sheetName, tableIdx, files) {
+            let sheetDef = getSheetDef(fileName, sheetName, files);
+            if (sheetDef[tableIdx]) {
+                sheetDef.splice(tableIdx, 1);
+            }
+            updateTableIdx(fileName, sheetName, files);
+            // TODO update reference
+        }
+
+        function getCurSheetDef(files) {
+            return getSheetDef(curFileName, curSheetName, files);
+        }
+
+        function getCurTableDef(files) {
+            return getTableDef(curFileName, curSheetName, curTableIdx, files);
+        }
+
+        function removeCurTableDef(files) {
+            removeTableDefAt(curFileName, curSheetName, curTableIdx);
+        }
+
+        function getTableIdx(tableDef, noUpdate) {
+            if (!tableDef) {
+                tableDef = getCurTableDef();
+            }
+            let tableIdx = tableDef.table_index;
+            if (!tableIdx) {
+                latestTableIdx++;
+                tableIdx = latestTableIdx;
+            }
+            if (!noUpdate) {
+                tableDef.table_index = tableIdx;
+            }
+            return tableIdx;
+        }
+
+        function isSheetDefExist(fileName, sheetName, tableIdx) {
+            return !!getTableDef(fileName, sheetName, tableIdx);
+        }
+
+//        function toSheetsByName(files) {
+//            let ret = {};
+//            if (!files) {
+//                files = templates;
+//            }
+//            for (let fileName in files) {
+//                ret[fileName] = {};
+//                for (let tableIdx in files[fileName]) {
+//                    let sheetName = files[fileName][tableIdx].sheet_name;
+//                    if (ret[fileName][sheetName]) {
+//                        if (!ret[fileName][sheetName] instanceof Array) {
+//                            let tmp = [];
+//                            tmp.push(ret[fileName][sheetName]);
+//                            ret[fileName][sheetName] = tmp;
+//                        }
+//                        ret[fileName][sheetName].push(files[fileName][tableIdx]);
+//                    } else {
+//                        ret[fileName][sheetName] = files[fileName][tableIdx];
+//                    }
+//                }
+//            }
+//            return ret;
+//        }
+//
+//        function toSheetsByIdx(files) {
+//            let ret = {};
+//            if (!files) {
+//                alert("Error happens at toSheetsByIdx method!")
+//                return;
+//            }
+//            for (let fileName in files) {
+//                ret[fileName] = {};
+//                for (let sheetName in files[fileName]) {
+//                    if (ret[fileName][sheetName] instanceof Array) {
+//                        for (let i in ret[fileName][sheetName]) {
+//                            let idx = getTableIdx(files[fileName][sheetName][i]);
+//                            ret[fileName][idx] = files[fileName][sheetName][i];
+//                        }
+//                    } else {
+//                        let idx = getTableIdx(files[fileName][sheetName]);
+//                        ret[fileName][idx] = files[fileName][sheetName];
+//                    }
+//                }
+//            }
+//            return ret;
+//        }
+            
             function getMetaFileName(fileMeta) {
                 if (fileMeta.file_name_local) {
                     return fileMeta.file_name_local;
@@ -2547,11 +2704,11 @@
                 return rawData;
             }
 
-            function isSingleRecordTable(data, sheetDef) {
-                if (sheetDef.data_end_row) {
-                    return sheetDef.data_end_row === sheetDef.data_start_row;
+            function isSingleRecordTable(data, tableDef) {
+                if (tableDef.data_end_row) {
+                    return tableDef.data_end_row === tableDef.data_start_row;
                 } else {
-                    return data.length === sheetDef.data_start_row;
+                    return data.length === tableDef.data_start_row;
                 }
             }
             
@@ -2809,7 +2966,12 @@
                         <span class="label label-danger"><em>Warning</em></span>
                         <span class="label label-default">Ignored</span>
                     </div>
-                    <div id="sheet_spreadsheet_content" class="col-sm-12" style="overflow: hidden"></div>
+                    <ul id="sheet_spreadsheet_table_tabs" class="nav nav-tabs text-center" hidden>
+                        <li class="active"><a data-toggle="tab" href="#sheet_spreadsheet_content" class="tab-xs">Table 1</a></li>
+                        <li><a data-toggle="tab" href="#sheet_spreadsheet_content" class="tab-xs">Table 2</a></li>
+                        <li><a href="#" class="tab-xs"><span class="glyphicon glyphicon-plus"></span></a><li>
+                    </ul>
+                    <div id="sheet_spreadsheet_content" class="col-sm-12 tab-pane fade in active" style="overflow: hidden"></div>     
                 </div>
                 <div id="csv_tab" class="tab-pane fade">
                     <textarea class="form-control" rows="30" id="sheet_csv_content" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>

@@ -699,6 +699,9 @@
                                 <select class="form-control" name="reference_from_sheet" data-placeholder="Choose ...">
                                     <option value=""></option>
                                 </select>
+                                <select class="form-control" name="reference_from_sheet_table" data-placeholder="Choose ...">
+                                    <option value=""></option>
+                                </select>
                             </div>
                             <div class="col-sm-3">
                                 <select class="form-control" name="reference_from_vars" data-placeholder="Choose ..." multiple disabled>

@@ -33,7 +33,11 @@
                     }
                     for (let i in fileConfig.file.sheets) {
                         let sheetName = fileConfig.file.sheets[i].sheet_name;
-                        templates[fileName][sheetName] = {};
+                        if (!templates[fileName][sheetName]) {
+                            templates[fileName][sheetName] = [];
+                        }
+                        let tableIdx = getTableIdx(fileConfig.file.sheets[i]);
+                        templates[fileName][sheetName][tableIdx] = {sheet_name : sheetName, table_index : tableIdx};
                     }
                 }
                 for (let fileName in workbooks) {
@@ -41,10 +45,14 @@
                     fileMap[fileName] = {};
                     if (templates[fileName]) {
                         workbook.SheetNames.forEach(function(sheetName) {
-                            if (!templates[fileName][sheetName]) {
+                            let sheetDef = getSheetDef(fileName, sheetName);
+                            if (sheetDef.length === 0) {
                                 isFullyMatched = false;
                             } else {
-                                fileMap[fileName][sheetName] = {sheet_name: sheetName, file_name: fileName, sheet_def: sheetName, file_def: fileName};
+                                for (let i in sheetDef) {
+                                    let tableIdx = getTableIdx(sheetDef[i]);
+                                    fileMap[fileName][tableIdx] = {sheet_name: sheetName, file_name: fileName, table_def: tableIdx, file_def: fileName};
+                                }
                             }
                         });
                     } else {
@@ -65,26 +73,34 @@
         if (editFlg) {
             headerStr = "<h2>Row Definition</h2>";
             sheets = JSON.parse(JSON.stringify(templates));
-            if (!sheets[curFileName][curSheetName].header_row) {
-                sheets[curFileName][curSheetName].header_row = 1;
+            let sheetDef = getCurSheetDef(sheets);
+            let latestHeaderRow = 1;
+            for (let i in sheetDef) {
+                let tableDef = sheetDef[i];
+                if (!tableDef.header_row) {
+                    tableDef.header_row = latestHeaderRow;
+                    latestHeaderRow++;
+                }
+                if (!tableDef.data_start_row) {
+                    tableDef.data_start_row = tableDef.header_row + 1;
+                    latestHeaderRow = tableDef.data_start_row + 1;
+                }
             }
-            if (!sheets[curFileName][curSheetName].data_start_row) {
-                sheets[curFileName][curSheetName].data_start_row = sheets[curFileName][curSheetName].header_row + 1;
-            }
+//            sheets = toSheetsByName(sheets);
         } else {
-            headerStr = "<h2>Sheet Definition</h2>";
+            headerStr = "<h2>Table Definition</h2>";
             for (let fileName in workbooks) {
                 let workbook = workbooks[fileName];
                 sheets[fileName] = {};
                 workbook.SheetNames.forEach(function(sheetName) {
 //                workbook.worksheets.forEach(function(sheet) {
 //                    let sheetName = sheet.name;
-                    sheets[fileName][sheetName] = {};
-
-                    sheets[fileName][sheetName].file_name = fileName;
-                    sheets[fileName][sheetName].sheet_name = sheetName;
-                    sheets[fileName][sheetName].included_flg = true;
-                    sheets[fileName][sheetName].single_flg = false;
+                    let tableDefs = [];
+                    let tableDef = {};
+                    tableDef.file_name = fileName;
+                    tableDef.sheet_name = sheetName;
+                    tableDef.included_flg = true;
+                    tableDef.single_flg = false;
                     let roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1});
                     for (let i = roa.length; i >= 0; i--) {
                         if (roa[i] && roa[i].length > 0) {
@@ -92,36 +108,49 @@
                             break;
                         }
                     }
-    //                let roa = sheet_to_json(sheet);
+//                    let roa = sheet_to_json(sheet);
+                    // Pre-scan the raw data and try auto-detect the header, data start, unit and description row
                     if(roa.length){
+                        tableDefs.push(JSON.parse(JSON.stringify(tableDef)));
+                        let lastIdx = tableDefs.length - 1;
                         for (let i in roa) {
                             if (!roa[i].length || roa[i].length === 0) {
                                 continue;
                             }
                             let fstCell = String(roa[i][0]);
                             if (fstCell.startsWith("!")) {
-                                if (!sheets[fileName][sheetName].unit_row && fstCell.toLowerCase().includes("unit")) {
-                                    sheets[fileName][sheetName].unit_row = Number(i) + 1;
-                                } else if (!sheets[fileName][sheetName].desc_row && 
+                                if (!tableDefs[lastIdx].unit_row && fstCell.toLowerCase().includes("unit")) {
+                                    tableDefs[lastIdx].unit_row = Number(i) + 1;
+                                    if (lastIdx > 0 && !tableDefs[lastIdx - 1].data_end_row) {
+                                        tableDefs[lastIdx - 1].data_end_row = Number(i) - 1;
+                                    }
+                                } else if (!tableDefs[lastIdx].desc_row && 
                                         (fstCell.toLowerCase().includes("definition") || 
                                         fstCell.toLowerCase().includes("description"))) {
-                                    sheets[fileName][sheetName].desc_row = Number(i) + 1;
+                                    tableDefs[lastIdx].desc_row = Number(i) + 1;
+                                    if (lastIdx > 0 && !tableDefs[lastIdx - 1].data_end_row) {
+                                        tableDefs[lastIdx - 1].data_end_row = Number(i) - 1;
+                                    }
                                 }
                             } else if (fstCell.startsWith("#") || fstCell.startsWith("%")) {
-                                if (!sheets[fileName][sheetName].header_row) {
-                                    sheets[fileName][sheetName].header_row = Number(i) + 1;
+                                tableDefs[lastIdx].header_row = Number(i) + 1;
+                                if (lastIdx > 0 && !tableDefs[lastIdx - 1].data_end_row) {
+                                    tableDefs[lastIdx - 1].data_end_row = Number(i) - 1;
                                 }
-                            } else if (sheets[fileName][sheetName].header_row && !sheets[fileName][sheetName].data_start_row) {
-                                sheets[fileName][sheetName].data_start_row = Number(i) + 1;
-                            }
-                            if (Object.keys(sheets[fileName][sheetName]).length >= 7) {
-                                break;
+                            } else if (tableDefs.header_row && !tableDefs[lastIdx].data_start_row) {
+                                tableDefs[lastIdx].data_start_row = Number(i) + 1;
+                                tableDefs.push(JSON.parse(JSON.stringify(tableDef)));
+                                lastIdx++;
                             }
                         }
                     }
-
-                    if (sheets[fileName][sheetName].data_start_row) {
-                        sheets[fileName][sheetName].single_flg = isSingleRecordTable(roa, sheets[fileName][sheetName]);
+                    sheets[fileName][sheetName] = tableDefs;
+                    
+                    // check and setup single record flag
+                    for (let i in tableDefs) {
+                        if (tableDefs[i].data_start_row) {
+                            tableDefs[i].single_flg = isSingleRecordTable(roa, tableDefs[i]);
+                        }
                     }
                 });
             }
@@ -142,33 +171,37 @@
                     let includedCnt = 0;
                     for (let fileName in sheets) {
                         for (let sheetName in sheets[fileName]) {
-                            if (!sheets[fileName][sheetName].data_start_row || !sheets[fileName][sheetName].header_row) {
-                                idxErrFlg = true;
-                            }
-                            if (sheets[fileName][sheetName].included_flg) {
-                                includedCnt++;
-                                delete sheets[fileName][sheetName].included_flg;
-                                let keys = ["data_start_row", "data_end_row", "header_row", "unit_row", "desc_row"];
-                                for (let i = 0; i < keys.length; i++) {
-                                    if (sheets[fileName][sheetName][keys[i]]) {
-                                        for (let j = i + 1; j < keys.length; j++) {
-                                            if (sheets[fileName][sheetName][keys[i]] === sheets[fileName][sheetName][keys[j]]) {
-                                                if ((keys[i] !== "data_start_row" || keys[j] !== "data_end_row") &&
-                                                    (keys[j] !== "data_start_row" || keys[i] !== "data_end_row")) {
-                                                    repeatedErrFlg = true;
-                                                    break;
+                            for (let i in [fileName][sheetName]) {
+                                let tableDef = [fileName][sheetName][i];
+                                if (!tableDef.data_start_row || !tableDef.header_row) {
+                                    idxErrFlg = true;
+                                }
+                                if (tableDef.included_flg) {
+                                    includedCnt++;
+                                    delete tableDef.included_flg;
+                                    let keys = ["data_start_row", "data_end_row", "header_row", "unit_row", "desc_row"];
+                                    for (let i = 0; i < keys.length; i++) {
+                                        if (tableDef[keys[i]]) {
+                                            for (let j = i + 1; j < keys.length; j++) {
+                                                if (tableDef[keys[i]] === tableDef[keys[j]]) {
+                                                    if ((keys[i] !== "data_start_row" || keys[j] !== "data_end_row") &&
+                                                        (keys[j] !== "data_start_row" || keys[i] !== "data_end_row")) {
+                                                        repeatedErrFlg = true;
+                                                        break;
+                                                    }
                                                 }
                                             }
                                         }
                                     }
+                                } else {
+                                    removeTableDef(fileName, sheetName, i, sheets);
                                 }
-                            } else {
-                                delete sheets[fileName][sheetName];
                             }
                         }
                     }
-                    if (editFlg && sheets[curFileName][curSheetName].data_start_row) {
-                        sheets[curFileName][curSheetName].single_flg = isSingleRecordTable(wbObj[curFileName][curSheetName].data, sheets[curFileName][curSheetName]);
+                    let curTableDef = getCurTableDef(sheets);
+                    if (editFlg && curTableDef.data_start_row) {
+                        curTableDef.single_flg = isSingleRecordTable(wbObj[curFileName][curSheetName].data, curTableDef);
                     }
 //                    if (idxErrFlg) {
 //                        showSheetDefDialog(callback, "[warning] Please provide header row number and data start row number.", editFlg);
@@ -256,7 +289,7 @@
                     data[data.length - 1].file_name = fileName;
                     if (templates[fileName]) {
                         data[data.length - 1].file_def = fileName;
-                        if (templates[fileName][sheetName]) {
+                        if (isSheetDefExist(fileName, sheetName)) {
                             data[data.length - 1].sheet_def = sheetName;
                         }
                     } else if (templates[singleFileName]) {
