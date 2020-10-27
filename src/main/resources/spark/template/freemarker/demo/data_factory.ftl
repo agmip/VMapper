@@ -10,6 +10,7 @@
         <script>
             const preferColors = ["#33DBFF", "#FF5733", "#33FF57", "#BD33FF", "#802B1A", "#3383FF", "#FFAF33", "#3ADDD6"];
             const vmapperVersion = "${version!}";
+            const hotfixVersion = "1.0.2-SNAPSHOT";
             let wbObj;
 //            let spsContainer;
             let spreadsheet;
@@ -2173,8 +2174,10 @@
                 }
             }
             
-            function isOlderVersion(sc2Ver) {
-                let curVer = vmapperVersion;
+            function isOlderVersion(sc2Ver, curVer) {
+                if (!curVer) {
+                    curVer = vmapperVersion;
+                }
                 let curVer2 = curVer.replace("-SNAPSHOT", "").replace("-snapshot", "");
                 let sc2Ver2 = sc2Ver.replace("-SNAPSHOT", "").replace("-snapshot", "");
                 if (sc2Ver2 !== curVer2) {
