@@ -2105,7 +2105,7 @@
             }
             
             function hotFixIndex(sc2Obj) {
-                if (!sc2Obj.mapping_info.vmapper_version || isOlderVersion(sc2Obj.mapping_info.vmapper_version)) {
+                if (!sc2Obj.mapping_info.vmapper_version || isOlderVersion(sc2Obj.mapping_info.vmapper_version, hotfixVersion)) {
                     // apply the hot fix to the sc2 data
                     // change the index used in the virtual column and reference definition to relative column index rather than original column index
                     let virColIdxMap = {};
@@ -2143,8 +2143,8 @@
                                     let virKeys;
                                     if (mappings[k].formula_info) {
                                         virKeys = mappings[k].formula_info.virtual_val_keys;
-                                    } else if (mappings[k].formula.function === "join_columns") {
-                                        virKeys = mappings[k].formula.function.args.virtual_val_keys;
+                                    } else if (mappings[k].formula && mappings[k].formula.function === "join_columns") {
+                                        virKeys = mappings[k].formula.args.virtual_val_keys;
                                     }
                                     if (virKeys) {
                                         for (let l in virKeys) {
