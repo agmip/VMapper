@@ -2635,6 +2635,7 @@
                     sc2Obj.agmip_translation_mappings.files.push(tmp2);
                     for (let sheetName in templates[fileName]) {
                         let tmp = Object.assign({}, templates[fileName][sheetName]);
+                        delete tmp.unfully_matched_flg;
                         tmp.mappings = [];
                         delete tmp.references;
                         for (let i in templates[fileName][sheetName].mappings) {
