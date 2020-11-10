@@ -52,7 +52,6 @@ public class Path {
     
     public static class Folder {
         public final static String DATA_DIR = Config.get("DATA_DIR"); //"Data";
-        public final static String DSSAT_DIR = Config.get("DSSAT_DIR"); //"Data\\DSSAT47";
         public final static String ICASA_DIR = Config.get("ICASA_DIR"); //"ICASA";
         public final static String ICASA_CROP_CODE = Config.get("ICASA_CROP_CODE"); //"Crop_codes.csv";
         public final static String ICASA_MGN_CODE = Config.get("ICASA_MGN_CODE"); //"Management_codes.csv";

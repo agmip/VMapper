@@ -2744,10 +2744,10 @@
                     },
                     dataset_metadata : {},
                     agmip_translation_mappings : {
-                        primary_ex_sheet : {
-                            file : null,
-                            sheet : null,
-                        },
+//                        primary_ex_sheet : {
+//                            file : null,
+//                            sheet : null,
+//                        },
                         relations : [],
                         files : []
                     },
@@ -2792,6 +2792,7 @@
                     sc2Obj.agmip_translation_mappings.files.push(tmp2);
                     for (let sheetName in templates[fileName]) {
                         let tmp = Object.assign({}, templates[fileName][sheetName]);
+                        delete tmp.unfully_matched_flg;
                         tmp.mappings = [];
                         delete tmp.references;
                         for (let i in templates[fileName][sheetName].mappings) {
@@ -2849,6 +2850,12 @@
                                         JSON.parse("[" + fromKeyIdxs + "]"),
                                         toRefDef,
                                         getKeyIdxArr(toRefDef.keys), true);
+                                    if (refDef.from.keys.length === 0) {
+                                        delete refDef.from.keys;
+                                    }
+                                    if (refDef.to.keys.length === 0) {
+                                        delete refDef.to.keys;
+                                    }
                                     sc2Obj.agmip_translation_mappings.relations.push(refDef);
                                 }
                             }
