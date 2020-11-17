@@ -643,7 +643,7 @@
                     }
                 }
 
-                for (let fileName in fileUrls) {
+                for (let fileName in fileTypes) {
                     let fileUrlDiv = $("#template_file_url_input").find("div").first().clone();
                     $("#file_url_inputs").append(fileUrlDiv);
                     fileUrlDiv.find("label").text("URL for " + fileName);
