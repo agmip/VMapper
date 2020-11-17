@@ -300,7 +300,7 @@
                         if (!cell) {
                             return;
                         }
-                        if (curSheetName === data[row].sheet_name) {
+                        if (curSheetName === data[row].sheet_name && curFileName === data[row].file_name) {
                             cell.style.backgroundColor = "yellow";
                         } else if (data[row].file_name_row) {
                             cell.style.color = "white";
