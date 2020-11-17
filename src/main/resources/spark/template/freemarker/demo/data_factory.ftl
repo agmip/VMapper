@@ -841,6 +841,12 @@
                         result[sheetName] = {};
                         result[sheetName].data = roa;
                     }
+                    if (!sheetDef.mappings) {
+                        sheetDef.mappings = [];
+                    }
+                    if (!sheetDef.references) {
+                        sheetDef.references = {};
+                    }
                     if (sheetDef.header_row !== lastHeaderRow[fileName][sheetName] || !headers || headers.length === 0) {
                         // store sheet data
                         if (sheetDef.header_row) {
@@ -859,13 +865,7 @@
                     
                     if (roa.length && roa.length > 0) {
                         // init template structure
-                        if (!sheetDef.mappings || sheetDef.mappings.length === 0 || isChanged) {
-                            if (!sheetDef.mappings) {
-                                sheetDef.mappings = [];
-                            }
-                            if (!sheetDef.references) {
-                                sheetDef.references = {};
-                            }
+                        if (sheetDef.mappings.length === 0 || isChanged) {
                             for (let i = 0; i < headers.length; i++) {
                                 let headerDef = sheetDef.mappings[i];
                                 if (!headerDef) {

@@ -65,10 +65,10 @@
         if (editFlg) {
             headerStr = "<h2>Row Definition</h2>";
             sheets = JSON.parse(JSON.stringify(templates));
-            if (!sheets[curFileName][curSheetName].header_row) {
-                sheets[curFileName][curSheetName].header_row = 1;
-            }
-            if (!sheets[curFileName][curSheetName].data_start_row) {
+//            if (!sheets[curFileName][curSheetName].header_row) {
+//                sheets[curFileName][curSheetName].header_row = 1;
+//            }
+            if (!sheets[curFileName][curSheetName].data_start_row && sheets[curFileName][curSheetName].header_row) {
                 sheets[curFileName][curSheetName].data_start_row = sheets[curFileName][curSheetName].header_row + 1;
             }
         } else {
@@ -107,7 +107,7 @@
                                         fstCell.toLowerCase().includes("description"))) {
                                     sheets[fileName][sheetName].desc_row = Number(i) + 1;
                                 }
-                            } else if (fstCell.startsWith("#") || fstCell.startsWith("%")) {
+                            } else if ((fstCell && fstCell === "#") || (fstCell && fstCell === "%")) {
                                 if (!sheets[fileName][sheetName].header_row) {
                                     sheets[fileName][sheetName].header_row = Number(i) + 1;
                                 }
