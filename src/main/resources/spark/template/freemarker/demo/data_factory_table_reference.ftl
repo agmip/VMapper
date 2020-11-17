@@ -419,7 +419,7 @@
         } else if (icasa) {
             ret = '[' + index + '] ' + icasa;
         } else {
-            ret = 'Column ' + (index + 1);
+            ret = 'Column ' + index;
         }
         return ret;
     }

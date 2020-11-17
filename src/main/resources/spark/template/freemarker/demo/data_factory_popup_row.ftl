@@ -77,11 +77,11 @@
             let latestHeaderRow = 1;
             for (let i in sheetDef) {
                 let tableDef = sheetDef[i];
-                if (!tableDef.header_row) {
-                    tableDef.header_row = latestHeaderRow;
-                    latestHeaderRow++;
-                }
-                if (!tableDef.data_start_row) {
+//                if (!tableDef.header_row) {
+//                    tableDef.header_row = latestHeaderRow;
+//                    latestHeaderRow++;
+//                }
+                if (!tableDef.data_start_row && tableDef.header_row) {
                     tableDef.data_start_row = tableDef.header_row + 1;
                     latestHeaderRow = tableDef.data_start_row + 1;
                 }
@@ -132,7 +132,7 @@
                                         tableDefs[lastIdx - 1].data_end_row = Number(i) - 1;
                                     }
                                 }
-                            } else if (fstCell.startsWith("#") || fstCell.startsWith("%")) {
+                            } else if ((fstCell && fstCell === "#") || (fstCell && fstCell === "%")) {
                                 tableDefs[lastIdx].header_row = Number(i) + 1;
                                 if (lastIdx > 0 && !tableDefs[lastIdx - 1].data_end_row) {
                                     tableDefs[lastIdx - 1].data_end_row = Number(i) - 1;
@@ -333,7 +333,7 @@
                         if (!cell) {
                             return;
                         }
-                        if (curSheetName === data[row].sheet_name) {
+                        if (curSheetName === data[row].sheet_name && curFileName === data[row].file_name) {
                             cell.style.backgroundColor = "yellow";
                         } else if (data[row].file_name_row) {
                             cell.style.color = "white";
