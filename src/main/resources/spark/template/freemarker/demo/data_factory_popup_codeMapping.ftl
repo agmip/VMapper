@@ -2,7 +2,7 @@
     function showCodeMappingDialog(mapping, codeDefs, isCustomized, errMsg) {
         let userCodeMappings = {};
         if (!codeDefs) {
-            codeDefs = icasaVarMap.getCodeMap(mapping.icasa);
+            codeDefs = {};
         }
         if (!isCustomized) {
             initIcasaCodeSB(codeDefs, "template_code_mappings");
@@ -59,6 +59,9 @@
                             }
                         });
                         delete mapping.code_mappings_undefined_flg;
+                        if (isCustomized) {
+                            delete mapping.code_mappings;
+                        }
                     } else {
                         showCodeMappingDialog(mapping, codeDefs, isCustomized, "[Warn] Fix the error");
                     }
