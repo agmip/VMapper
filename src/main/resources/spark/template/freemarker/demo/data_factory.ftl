@@ -852,13 +852,26 @@
                         if (sheetDef.header_row) {
                             headers = roa[sheetDef.header_row - 1];
                             lastHeaderRow[fileName][sheetName] = sheetDef.header_row;
-                            for (let i = 0; i < Math.max(headers.length, sheetDef.mappings.length); i++) {
+                            for (let i = 0; i < Math.max(headers.length, sheetDef.mappings.length - virColCnt[fileName][sheetName]); i++) {
                                 if (!headers[i]) {
                                     headers[i] = "";
                                 }
                             }
                         } else {
                             headers = [];
+                            if (sheetDef.data_start_row) {
+                                for (let i = 0; i < roa[sheetDef.data_start_row + 1].length; i++) {
+                                    headers.push("");
+                                }
+                            } else if (sheetDef.mappings) {
+                                for (let i in sheetDef.mappings) {
+                                    if (sheetDef.mappings[i].column_header) {
+                                        headers.push(sheetDef.mappings[i].column_header);
+                                    } else {
+                                        headers.push("");
+                                    }
+                                }
+                            }
                         }
                         result[sheetName].header = headers;
                     }
@@ -941,9 +954,14 @@
                             let matchedMap = {};
                             let isFullyMatched = true;
                             for (let i = 0; i < headers.length; i++) {
+                                // If header is not available from data, then skip header matching
+                                if (!headers[i]) {
+                                    tmpMappings[i] = {index_matched : true};
+                                    continue;
+                                }
                                 // use index to locate the mapping by default
                                 let headerDef = sheetDef.mappings[i];
-                                // if header is not matched, the search other mappings
+                                // if header is not matched, then search other mappings
                                 if (!headerDef || matchedMap[i] || !headerDef.column_index_org || headerDef.column_header !== headers[i]) {
                                     for (let j in sheetDef.mappings) {
                                         if (!matchedMap[j] && sheetDef.mappings[j].column_index_org && sheetDef.mappings[j].column_header === headers[i]) {
@@ -987,9 +1005,25 @@
                                 i = Number(i);
                                 if (tmpMappings[i].index_matched) {
                                     if (!matchedMap[i]) {
-                                        tmpMappings[i] = sheetDef.mappings[i];
+                                        for (let j in sheetDef.mappings) {
+                                            if (sheetDef.mappings[j].column_index_org - 1 === Number(i)) {
+                                                tmpMappings[i] = sheetDef.mappings[j];
+                                                break;
+                                            }
+                                        }
+                                        // If not found matching index
+                                        if (tmpMappings[i].index_matched) {
+                                            tmpMappings[i] = {
+                                                column_header : "",
+                                                column_index : i + 1,
+                                                column_index_org : i + 1,
+                                                ignored_flg : true
+                                            };
+                                        }
                                         if (headers[i]) {
                                             tmpMappings[i].column_header = headers[i].trim();
+                                        } else {
+                                            delete tmpMappings[i].column_header;
                                         }
                                         tmpMappings[i].column_index = i + 1;
                                         orgColIdxMap[tmpMappings[i].column_index_org] = tmpMappings[i].column_index;
@@ -1033,7 +1067,7 @@
                                         }
                                     }
                                     if (i < tmpMappings.length) {
-                                        tmpMappings.splice(i, 0, sheetDef.mappings[i]);
+                                        tmpMappings.splice(sheetDef.mappings[i].column_index - 1, 0, sheetDef.mappings[i]);
                                         sheetDef.mappings[i].column_index = i + 1;
                                         for (let j = i + 1; j < tmpMappings.length; j ++) {
                                             tmpMappings[j].column_index++;
@@ -1065,6 +1099,23 @@
                                 headers = roa[sheetDef.header_row - 1];
                             } else {
                                 headers = [];
+                                if (sheetDef.data_start_row) {
+                                    for (let i = 0; i < roa[sheetDef.data_start_row + 1].length; i++) {
+                                        if (sheetDef.mappings[i] && !sheetDef.mappings[i].column_index_org && sheetDef.mappings[i].column_header) {
+                                            headers.push(sheetDef.mappings[i].column_header);
+                                        } else {
+                                            headers.push("");
+                                        }
+                                    }
+                                } else if (sheetDef.mappings) {
+                                    for (let i in sheetDef.mappings) {
+                                        if (sheetDef.mappings[i].column_header) {
+                                            headers.push(sheetDef.mappings[i].column_header);
+                                        } else {
+                                            headers.push("");
+                                        }
+                                    }
+                                }
                             }
                             result[sheetName].header = headers;
                             
@@ -2430,13 +2481,15 @@
                                 }
 
                                 let colIdx = Number(sc2Mappings[j].column_index);
-                                for (let k = mappings.length; k < colIdx - 1; k++) {
-                                    if (!mappings[k]) {
-                                        mappings.push({
-                                            column_index : k + 1,
-                                            column_index_org : k + 1,
-                                            ignored_flg : true
-                                        });
+                                if (sc2Mappings[j].column_index_org) {
+                                    for (let k = mappings.length; k < colIdx - 1; k++) {
+                                        if (!mappings[k]) {
+                                            mappings.push({
+                                                column_index : k + 1,
+                                                column_index_org : k + 1 - vrColCnt,
+                                                ignored_flg : true
+                                            });
+                                        }
                                     }
                                 }
                                 mappings[colIdx - 1] = sc2Mappings[j];
@@ -2646,6 +2699,9 @@
                             let mapping = templates[fileName][sheetName].mappings[i];
                             if (!mapping.ignored_flg) {
                                 let mappingCopy = JSON.parse(JSON.stringify(mapping));
+                                if (mappingCopy.column_header === "") {
+                                    delete mappingCopy.column_header;
+                                }
                                 if (!mappingCopy.column_index_org) {
                                     mappingCopy.column_index_vr = mappingCopy.column_index;
                                     delete mappingCopy.column_index;
