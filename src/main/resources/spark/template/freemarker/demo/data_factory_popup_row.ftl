@@ -205,17 +205,10 @@
                 });
                 
                 $(this).find("[name='row_define_remove_btn']").on("click", function() {
-                    let tableIdx = $(this).parent().parent().index();
-                    let tableDef = sheetDef[tableIdx];
-                    alert(tableDef.table_name);
+                    removeRowDef(sheetDef[$(this).parent().parent().index()]);
                 });
                 $(this).find("[name='row_define_add_btn']").on("click", function() {
-                    let tableDef = data[data.length - 1];
-                    tableDef.button = '<button type="button" name="row_define_remove_btn" class="btn btn-danger btn-xs"><span name="table_index' + '_' + tableDef.table_index + '" class="glyphicon glyphicon-minus"></span></button>';
-                    addTableDef2(data, {
-                        button : '<button type="button" name="row_define_add_btn" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>'
-                    });
-                    popSpreadsheet.render();
+                    addRowDef(data, popSpreadsheet);
                 });
                 
                 popSpreadsheet.addHook('afterRenderer', function(TD, row, column, prop, value, cellProperties) {
@@ -224,18 +217,11 @@
                     }
                     if (row < data.length - 1) {
                         TD.firstChild.onclick = function () {
-                            let tableIdx = $(this).parent().parent().index();
-                            let tableDef = sheetDef[tableIdx];
-                            alert(tableDef.table_name);
+                            removeRowDef(sheetDef[$(this).parent().parent().index()]);
                         };
                     } else {
                         TD.firstChild.onclick = function () {
-                            let tableDef = data[data.length - 1];
-                            tableDef.button = '<button type="button" name="row_define_remove_btn" class="btn btn-danger btn-xs"><span name="table_index' + '_' + tableDef.table_index + '" class="glyphicon glyphicon-minus"></span></button>';
-                            addTableDef2(data, {
-                                button : '<button type="button" name="row_define_add_btn" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>'
-                            });
-                            popSpreadsheet.render();
+                            addRowDef(data, popSpreadsheet);
                         };
                     }
 //                    spDiv.find("[name='row_define_remove_btn']").on("click", function() {
@@ -254,6 +240,21 @@
                 });
             });
         });
+    }
+    
+    function addRowDef(data, popSpreadsheet) {
+        let tableDef = data[data.length - 1];
+        tableDef.button = '<button type="button" name="row_define_remove_btn" class="btn btn-danger btn-xs"><span name="table_index' + '_' + tableDef.table_index + '" class="glyphicon glyphicon-minus"></span></button>';
+        addTableDef2(data, {
+            button : '<button type="button" name="row_define_add_btn" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>'
+        });
+        popSpreadsheet.render();
+    }
+    
+    function removeRowDef(tableDef) {
+//        let tableIdx = $(this).parent().parent().index();
+//        let tableDef = sheetDef[tableIdx];
+        alert(tableDef.table_name);
     }
 
     function showSheetDefPrompt(callback) {
