@@ -104,14 +104,14 @@
 //                {type: 'text', data : "table_index", readOnly: true},
                 {type: 'text', data : "table_name"},
                 {type: 'numeric', data : "header_row"},
-                {type: 'numeric', data : "data_start_row"},
-                {type: 'numeric', data : "data_end_row"},
                 {type: 'numeric', data : "unit_row"},
                 {type: 'numeric', data : "desc_row"},
+                {type: 'numeric', data : "data_start_row"},
+                {type: 'numeric', data : "data_end_row"},
                 {type: 'text', data : "button", readOnly: true, renderer: 'html', className: "htCenter"}
 //                {type: 'checkbox', data : "included_flg"}
             ];
-            let colHeaders = ["Table Name", "Header Row #", "Data Start Row #", "Data End Row #", "Unit Row #", "Description Row #", "Edit"];
+            let colHeaders = ["Table Name", "Header Row #", "Unit Row #", "Description Row #", "Data Start Row #", "Data End Row #", "Edit"];
 //            data.push({table_index: curFileName, file_name_row:true});
 //            mergeCells.push({row: data.length - 1, col: 0, rowspan: 1, colspan: columns.length});
 //            data.push({table_index: curSheetName, sheet_name_row:true});
