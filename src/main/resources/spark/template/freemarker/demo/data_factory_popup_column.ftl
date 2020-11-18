@@ -3,12 +3,12 @@
 //                let promptClass = 'event-input-' + itemData.event;
         let curVarType;
         let isVirtual = !itemData.column_index_org;
-//        let colDef = templates[curFileName][curSheetName].mappings[itemData.column_index - 1];
+//        let colDef = getCurTableDef().mappings[itemData.column_index - 1];
         let colDef;
         if (isVirtual && !itemData.column_index) {
             colDef = itemData;
         } else {
-            colDef = templates[curFileName][curSheetName].mappings[itemData.column_index - 1];
+            colDef = getCurTableDef().mappings[itemData.column_index - 1];
         }
         if (!type) {
             if (itemData.icasa) {
@@ -275,7 +275,7 @@
                         if ($(this).is(":checked")) {
                             sourceUnit.val(unit).trigger("input").prop("readOnly", true);
                         } else {
-                            let unitRow = templates[curFileName][curSheetName].unit_row;
+                            let unitRow = getCurTableDef().unit_row;
                             let orgUnit = colDef.unit;
                             if (orgUnit === unit) {
                                 if (unitRow && unitRow > 0) {
@@ -456,8 +456,8 @@
     function insertVRData(colDef) {
         let columns = spreadsheet.getSettings().columns;
         let data = wbObj[curFileName][curSheetName].data;
-        let sheetDef = templates[curFileName][curSheetName];
-        let mappings = sheetDef.mappings;
+        let tableDef = getCurTableDef();
+        let mappings = tableDef.mappings;
 
         // generate column index for the new column
         let idx = colDef.column_index_prev;
@@ -468,7 +468,7 @@
         }
 
         // Shift references index
-        shiftRefFromKeyIdx(sheetDef, idx);
+        shiftRefFromKeyIdx(tableDef, idx);
 
         // shift value component keys
         if (colDef.virtual_val_keys) {
@@ -484,7 +484,7 @@
         }
         
         // shift mapping and spreadsheet column index
-        shiftRawData(data, idx);
+        shiftRawData(data, idx, tableDef);
         for (let i = columns.length; i > idx; i--) {    
             columns[i] = columns[i - 1];
             mappings[i] = mappings[i - 1];
@@ -492,12 +492,12 @@
         }
     }
     
-    function shiftRefFromKeyIdx(sheetDef, idx, shiftVal) {
+    function shiftRefFromKeyIdx(tableDef, idx, shiftVal) {
         let references = {};
         if (!shiftVal) {
             shiftVal = 1;
         }
-        for (let keyStr in sheetDef.references) {
+        for (let keyStr in tableDef.references) {
             let keys = JSON.parse("[" + keyStr + "]");
             let newKeys = [];
             for (let i in keys) {
@@ -507,18 +507,18 @@
                     newKeys.push(keys[i]);
                 }
             }
-            references[newKeys.join()] = sheetDef.references[keyStr];
+            references[newKeys.join()] = tableDef.references[keyStr];
         }
-        sheetDef.references = references;
+        tableDef.references = references;
     }
     
-    function shiftRefToKeyIdx(sheetDef) {
-        for (let i in sheetDef.references) {
+    function shiftRefToKeyIdx(tableDef) {
+        for (let i in tableDef.references) {
             let references = {};
-            for (let keyStr in sheetDef.references[i]) {
-                let refDef = sheetDef.references[i][keyStr];
+            for (let keyStr in tableDef.references[i]) {
+                let refDef = tableDef.references[i][keyStr];
                 let keys = refDef.keys;
-                let mappings = templates[refDef.file][refDef.sheet].mappings;
+                let mappings = templates[refDef.file][refDef.sheet][refDef.table_index].mappings;
                 for (let j in keys) {
                     for (let k in mappings) {
                         if (keys[j].column_index === mappings[k].column_index_org) {
@@ -527,21 +527,32 @@
                         }
                     }
                 }
-                references[getRefDefKey(refDef, keys)] = sheetDef.references[i][keyStr];
+                references[getRefDefKey(refDef, keys)] = tableDef.references[i][keyStr];
             }
-            sheetDef.references[i] = references;
+            tableDef.references[i] = references;
         }
     }
     
-    function shiftRawData(data, idx) {
-        for (let j = 0; j < data.length; j++) {
+    function shiftRawData(data, idx, tableDef) {
+        let dataStartRow = 0;
+        let dataEndRow = data.length;
+        if (tableDef) {
+            dataStartRow = Math.min(tableDef.data_start_row, tableDef.header_row, tableDef.desc_row, tableDef.unit_row);
+            if (!dataStartRow) {
+                dataStartRow = 0;
+            }
+            if (tableDef.data_end_row) {
+                dataEndRow = tableDef.data_end_row;
+            }
+        }
+        for (let j = dataStartRow; j < dataEndRow; j++) {
             for (let i = data[j].length; i > idx; i--) {
                 data[j][i] = data[j][i - 1];
             }
         }
     }
     
-    function updateRawData(data, sheetDef, colDef) {
+    function updateRawData(data, tableDef, colDef) {
         let idx = colDef.column_index - 1;
         let vrKeys = colDef.virtual_val_keys;
         let vrValFixed = colDef.virtual_val_fixed;
@@ -549,11 +560,11 @@
         
         let dataStartRow = 0;
         let dataEndRow = data.length;
-        if (sheetDef.data_start_row) {
-            dataStartRow = sheetDef.data_start_row - 1;
+        if (tableDef.data_start_row) {
+            dataStartRow = tableDef.data_start_row - 1;
         }
-        if (sheetDef.data_end_row) {
-            dataEndRow = sheetDef.data_end_row;
+        if (tableDef.data_end_row) {
+            dataEndRow = tableDef.data_end_row;
         }
         for (let j = dataStartRow; j < dataEndRow; j++) {
             let vals = [];
@@ -562,9 +573,9 @@
             } else if (vrKeys) {
                 for (let i in vrKeys) {
                     let vrKey = vrKeys[i];
-//                    for (let k in sheetDef.mappings) {
-//                        if (sheetDef.mappings[k].column_index === vrKeys[i]) {
-//                            vrKey = sheetDef.mappings[k].column_index;
+//                    for (let k in tableDef.mappings) {
+//                        if (tableDef.mappings[k].column_index === vrKeys[i]) {
+//                            vrKey = tableDef.mappings[k].column_index;
 //                            break;
 //                        }
 //                    }
@@ -594,14 +605,14 @@
                 }
             }
         }
-        if (sheetDef.header_row) {
-            data[sheetDef.header_row - 1][idx] = colDef.column_header;
+        if (tableDef.header_row) {
+            data[tableDef.header_row - 1][idx] = colDef.column_header;
         }
-        if (sheetDef.unit_row) {
-            data[sheetDef.unit_row - 1][idx] = colDef.unit;
+        if (tableDef.unit_row) {
+            data[tableDef.unit_row - 1][idx] = colDef.unit;
         }
-        if (sheetDef.desc_row) {
-            data[sheetDef.desc_row - 1][idx] = colDef.description;
+        if (tableDef.desc_row) {
+            data[tableDef.desc_row - 1][idx] = colDef.description;
         }
     }
     
@@ -609,16 +620,16 @@
         let idx = colDef.column_index - 1;
         let data = wbObj[curFileName][curSheetName].data;
         let isDataOnly = !$('#tableViewSwitch').prop("checked");
-        let sheetDef = templates[curFileName][curSheetName];
-        let mappings = sheetDef.mappings;
+        let tableDef = getCurTableDef();
+        let mappings = tableDef.mappings;
         let columns = spreadsheet.getSettings().columns;
 
-        updateRawData(data, sheetDef, colDef);
+        updateRawData(data, tableDef, colDef);
 
         columns[idx] = getColumnDef(colDef);
         mappings[idx] = colDef;
         if (isDataOnly) {
-            data = getSheetDataContent(data, sheetDef);
+            data = getSheetDataContent(data, tableDef);
         }
         spreadsheet.updateSettings({
             data : data,

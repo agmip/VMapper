@@ -586,24 +586,32 @@
                         templates = ret;
                     } else {
                         for (let fileName in ret) {
+                            // Update cached file URLs infor
                             for (let sheetName in ret[fileName]) {
-                                if (fileName !== ret[fileName][sheetName].file_def) {
+                                if (fileName !== ret[fileName][sheetName].file_def && ret[fileName][sheetName].file_def) {
                                     fileUrls[fileName] = fileUrls[ret[fileName][sheetName].file_def];
                                     delete fileUrls[ret[fileName][sheetName].file_def];
                                 }
                                 break;
                             }
                             if (!templates[fileName]) {
-                                templates[fileName] = ret[fileName];
+                                templates[fileName] = {};
+                                for (let sheetName in ret[fileName]) {
+                                    for (let i in ret[fileName][sheetName].table_defs) {
+                                        addTableDef(fileName, sheetName, ret[fileName][sheetName].table_defs[i]);
+                                    }
+                                }
                             } else {
                                 for (let sheetName in ret[fileName]) {
                                     let preSheetName = ret[fileName][sheetName].sheet_def;
                                     if (preSheetName) {
-                                        if (templates[fileName][preSheetName]) {
+                                        if (isSheetDefExist(fileName, preSheetName)) {
                                             updateSheetName(fileName, preSheetName, sheetName);
                                         }
                                     } else if (!isSheetDefExist(fileName, sheetName)) {
-                                        templates[fileName][sheetName] = ret[fileName][sheetName];
+                                        for (let i in ret[fileName][sheetName].table_defs) {
+                                            addTableDef(fileName, sheetName, ret[fileName][sheetName].table_defs[i]);
+                                        }
                                     }
                                 }
                             }
@@ -621,7 +629,10 @@
                 for (let fileName in templates) {
                     for (let sheetName in templates[fileName]) {
                         if (!virColCnt[fileName][sheetName]) {
-                            virColCnt[fileName][sheetName] = 0;
+                            virColCnt[fileName][sheetName] = [];
+                        }
+                        for (let i in templates[fileName][sheetName]) {
+                            virColCnt[fileName][sheetName][i] = 0;
                         }
                     }
                 }
@@ -633,16 +644,19 @@
                 wbObj = to_objects(workbooks);
                 for (let fileName in templates) {
                     for (let sheetName in templates[fileName]) {
-                        let sheetDef = templates[fileName][sheetName];
-                        if (sheetDef.references) {
-                            for (let fromKeyIdxs in sheetDef.references) {
-                                for (let toKey in sheetDef.references[fromKeyIdxs]) {
-                                    sheetDef.references[fromKeyIdxs][toKey].keys = getKeyArr(sheetDef.references[fromKeyIdxs][toKey].keys, templates[sheetDef.references[fromKeyIdxs][toKey].file][sheetDef.references[fromKeyIdxs][toKey].sheet].mappings);
+                        for (let i in templates[fileName][sheetName]) {
+                            let tableDef = getTableDef(fileName, sheetName, i);
+                            if (tableDef.references) {
+                                for (let fromKeyIdxs in tableDef.references) {
+                                    for (let toKey in tableDef.references[fromKeyIdxs]) {
+                                        // TODO update table reference for multi table feature
+                                        tableDef.references[fromKeyIdxs][toKey].keys = getKeyArr(tableDef.references[fromKeyIdxs][toKey].keys, getRefTableDef(tableDef.references[fromKeyIdxs][toKey]).mappings);
+                                    }
                                 }
                             }
-                        }
-                        if (sheetDef.data_start_row && wbObj[fileName] && wbObj[fileName][sheetName]) {
-                            sheetDef.single_flg = isSingleRecordTable(wbObj[fileName][sheetName].data, sheetDef);
+                            if (tableDef.data_start_row && wbObj[fileName] && wbObj[fileName][sheetName]) {
+                                tableDef.single_flg = isSingleRecordTable(wbObj[fileName][sheetName].data, tableDef);
+                            }
                         }
                     }
                 }
@@ -660,7 +674,7 @@
                 for (let fileName in templates) {
                     $('#sheet_tab_list').append('<li class="dropdown-header"><strong>' + fileName + '</strong></li>');
                     for (let sheetName in templates[fileName]) {
-                        let cntUndefined = countUndefinedColumns(templates[fileName][sheetName]);
+                        let cntUndefined = countUndefinedColumns(getSheetDef(fileName, sheetName));
                         if (cntUndefined > 0) {
                             $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + fileName + '__' + sheetName + '" onclick="setSpreadsheet(this);">' + sheetName + '&nbsp;&nbsp;<span class="label label-danger label-as-badge">' + cntUndefined + '</span></a></li>');
                         } else {
@@ -670,7 +684,7 @@
                     $('#sheet_tab_list').append('<li class="divider"></li>');
                 }
 
-                if (curFileName && curSheetName && templates[curFileName] && templates[curFileName][curSheetName]) {
+                if (curFileName && curSheetName && isSheetDefExist(curFileName, curSheetName)) {
 //                    initSpreadsheet(curFileName, curSheetName);
                     let linkId = curFileName + "__" + curSheetName;
                     $('#sheet_tab_list').find("[id='" + linkId +"']").click();
@@ -681,7 +695,9 @@
             
             function updateSheetName(fileName, preSheetName, sheetName) {
                 templates[fileName][sheetName] = templates[fileName][preSheetName];
-                templates[fileName][sheetName].sheet_name = sheetName;
+                for (let i in templates[fileName][sheetName]) {
+                    templates[fileName][sheetName][i].sheet_name = sheetName;
+                }
                 delete templates[fileName][preSheetName];
                 for (let i in templates) {
                     for (let j in templates[i]) {
@@ -692,6 +708,7 @@
                 }
             }
             
+            // TODO update references for multi table feature
             function updateSheetReference(references, fileName, preSheetName, sheetName) {
                 for (let fromKeyIdx in references) {
                     for (let refToKey in references[fromKeyIdx]) {
@@ -710,10 +727,18 @@
             
             function countUndefinedColumns(sheetDef) {
                 let ret = 0;
-                if (!sheetDef.data_start_row) {
+                for (let i in sheetDef) {
+                    ret += countUndefinedColumnsTable(sheetDef[i]);
+                }
+                return ret;
+            }
+            
+            function countUndefinedColumnsTable(tableDef) {
+                let ret = 0;
+                if (!tableDef.data_start_row) {
                     ret = 1;
                 } else {
-                    let mappings = sheetDef.mappings;
+                    let mappings = tableDef.mappings;
                     for (let i in mappings) {
                         let classNames = getColStatusClass(i, mappings);
                         if (classNames.includes("warning") || classNames.includes("danger")) {
@@ -752,46 +777,50 @@
                 // update index used in reference and virtual column
                 for (let fileName in templates) {
                     for (let sheetName in templates[fileName]) {
-                        let sheetDef = templates[fileName][sheetName];
-                        
-                        // update virtual column
-                        if (virColCnt[fileName][sheetName]) {
-                            mappings = sheetDef.mappings;
-                            for (let i in mappings) {
-                                let virKeys = mappings[i].virtual_val_keys;
-                                if (virKeys) {
-                                    for (let j in virKeys) {
-                                        for (let k in mappings) {
-                                            if (mappings[k].column_index_org === virKeys[j]) {
-                                                virKeys[j] = mappings[k].column_index;
-                                                break;
+                        let sheetDef = getSheetDef(fileName, sheetName);
+
+                        for (let i in sheetDef) {
+                            let tableDef = sheetDef[i];
+                            // update virtual column
+                            if (virColCnt[fileName][sheetName][i]) {
+                                mappings = tableDef.mappings;
+                                for (let i in mappings) {
+                                    let virKeys = mappings[i].virtual_val_keys;
+                                    if (virKeys) {
+                                        for (let j in virKeys) {
+                                            for (let k in mappings) {
+                                                if (mappings[k].column_index_org === virKeys[j]) {
+                                                    virKeys[j] = mappings[k].column_index;
+                                                    break;
+                                                }
                                             }
                                         }
+                                        updateRawData(ret[fileName][sheetName].data, tableDef, mappings[i]);
                                     }
-                                    updateRawData(ret[fileName][sheetName].data, sheetDef, mappings[i]);
                                 }
                             }
-                        }
-                        
-                        // update reference
-                        sheetDef.references = {};
-                        let refConfig = sheetDef.references_org;
-                        let references = sheetDef.references;
-                        for (let j in refConfig) {
-                            let refDef = refConfig[j];
-                            let fromKeyIdxs = getKeyIdxArr(refDef.from.keys, sheetDef.mappings);
-                            let toKeyIdxs = getKeyIdxArr(refDef.to.keys, templates[refDef.to.file][refDef.to.sheet].mappings);
-                            let toKey = getRefDefKey(refDef.to, toKeyIdxs);
-                            if (!references[fromKeyIdxs]) {
-                                references[fromKeyIdxs] = {};
+
+                            // update reference
+                            tableDef.references = {};
+                            // TODO update reference to match multi table feature
+                            let refConfig = tableDef.references_org;
+                            let references = tableDef.references;
+                            for (let j in refConfig) {
+                                let refDef = refConfig[j];
+                                let fromKeyIdxs = getKeyIdxArr(refDef.from.keys, tableDef.mappings);
+                                let toKeyIdxs = getKeyIdxArr(refDef.to.keys, getRefTableDef(refDef.to).mappings);
+                                let toKey = getRefDefKey(refDef.to, toKeyIdxs);
+                                if (!references[fromKeyIdxs]) {
+                                    references[fromKeyIdxs] = {};
+                                }
+                                references[fromKeyIdxs][toKey] = {
+                                    file: refDef.to.file,
+                                    sheet: refDef.to.sheet,
+                                    keys: toKeyIdxs //getKeyArr(toKeyIdxs, mappings)
+                                };
                             }
-                            references[fromKeyIdxs][toKey] = {
-                                file: refDef.to.file,
-                                sheet: refDef.to.sheet,
-                                keys: toKeyIdxs //getKeyArr(toKeyIdxs, mappings)
-                            };
+                            delete tableDef.references_org;
                         }
-                        delete sheetDef.references_org;
                     }
                 }
 //                workbook.SheetNames.forEach(function(sheetName) {
@@ -823,16 +852,20 @@
                             return;
                         }
                     }
+                    let sheetDef = getSheetDef(fileName, sheetName);
                     let roa;
-                    let sheetDef = templates[fileName][sheetName];
-                    let headers;
                     if (wbObj[fileName] && wbObj[fileName][sheetName]) {
                         result[sheetName] = wbObj[fileName][sheetName];
                         roa = result[sheetName].data;
-                        headers = result[sheetName].header;
                     }
                     // Do re-read data when 1, no data loaded; 2, load SC2 file with virtual column but not the case of change row define
-                    if (!roa || (virColCnt[fileName][sheetName] && !isChanged)) {
+                    let virColCntTtl = 0;
+                    for (let i in sheetDef) {
+                        if (virColCnt[fileName][sheetName][i]) {
+                            virColCntTtl += virColCnt[fileName][sheetName][i];
+                        }
+                    }
+                    if (!roa || (virColCntTtl && !isChanged)) {
                         roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1, raw: false, dateNF: "yyyy-MM-dd"});
                         for (let i = roa.length; i >= 0; i--) {
                             if (roa[i] && roa[i].length > 0) {
@@ -841,338 +874,105 @@
                             }
                         }
 //                        let roa = sheet_to_json(sheet);
-                        
+
                         result[sheetName] = {};
                         result[sheetName].data = roa;
+                        result[sheetName].header = [];
                     }
-                    if (!sheetDef.mappings) {
-                        sheetDef.mappings = [];
-                    }
-                    if (!sheetDef.references) {
-                        sheetDef.references = {};
-                    }
-                    if (sheetDef.header_row !== lastHeaderRow[fileName][sheetName] || !headers || headers.length === 0) {
-                        // store sheet data
-                        if (sheetDef.header_row) {
-                            headers = roa[sheetDef.header_row - 1];
-                            lastHeaderRow[fileName][sheetName] = sheetDef.header_row;
-                            for (let i = 0; i < Math.max(headers.length, sheetDef.mappings.length - virColCnt[fileName][sheetName]); i++) {
-                                if (!headers[i]) {
-                                    headers[i] = "";
-                                }
-                            }
-                        } else {
-                            headers = [];
-                            if (sheetDef.data_start_row) {
-                                for (let i = 0; i < roa[sheetDef.data_start_row + 1].length; i++) {
-                                    headers.push("");
-                                }
-                            } else if (sheetDef.mappings) {
-                                for (let i in sheetDef.mappings) {
-                                    if (sheetDef.mappings[i].column_header) {
-                                        headers.push(sheetDef.mappings[i].column_header);
-                                    } else {
-                                        headers.push("");
-                                    }
-                                }
-                            }
-                        }
-                        result[sheetName].header = headers;
+                    if (!lastHeaderRow[fileName][sheetName]) {
+                        lastHeaderRow[fileName][sheetName] = [];
                     }
                     
-                    if (roa.length && roa.length > 0) {
-                        // init template structure
-                        if (sheetDef.mappings.length === 0 || isChanged) {
-                            for (let i = 0; i < headers.length; i++) {
-                                let headerDef = sheetDef.mappings[i];
-                                if (!headerDef) {
-                                    headerDef = {
-                                        column_header : "",
-                                        column_index : i + 1,
-                                        column_index_org : i + 1
-                                    };
-                                    if (!sheetDef.mappings[i]) {
-                                        sheetDef.mappings[i] = headerDef;
+                    for (let i in sheetDef) {
+                        let headers = result[sheetName].header[i];
+                        let tableDef = sheetDef[i];
+                        if (!tableDef.mappings) {
+                            tableDef.mappings = [];
+                        }
+                        if (!tableDef.references) {
+                            tableDef.references = {};
+                        }
+                        if (tableDef.header_row !== lastHeaderRow[fileName][sheetName][i] || !headers || headers.length === 0) {
+                            // store sheet data
+                            if (tableDef.header_row) {
+                                headers = roa[tableDef.header_row - 1];
+                                lastHeaderRow[fileName][sheetName][i] = tableDef.header_row;
+                                for (let i = 0; i < Math.max(headers.length, tableDef.mappings.length - virColCnt[fileName][sheetName][i]); i++) {
+                                    if (!headers[i]) {
+                                        headers[i] = "";
                                     }
                                 }
-                                if (!headerDef.column_index_org) {
-                                    updateRawData(roa, sheetDef, headerDef);
-                                    continue;
-                                }
-                                if (headers[i]) {
-                                    headerDef.column_header = headers[i].trim();
-                                }
-                                if (!headerDef.unit || headerDef.unit_error || !headerDef.icasa) {
-                                    if (sheetDef.unit_row) {
-                                        headerDef.unit = roa[sheetDef.unit_row - 1][i];
-                                    } else {
-                                        delete headerDef.unit;
-                                    }
-                                }
-                                if (!headerDef.description && sheetDef.desc_row) {
-                                    headerDef.description = roa[sheetDef.desc_row - 1][i];
-                                }
-                                if (!headerDef.icasa) {
-                                    let headerName = String(headerDef.column_header).toUpperCase();
-                                    if (icasaVarMap.getDefinition(headerName)) {
-                                        headerDef.icasa = headerName;
-                                    } else if (icasaVarMap.getDefinition(headerDef.column_header)) {
-                                        headerDef.icasa = headerDef.column_header;
-                                    }
-                                }
-                                let icasa_unit = icasaVarMap.getUnit(headerDef.icasa);
-                                if (!headerDef.icasa) {
-                                    continue;
-                                } else if (!headerDef.unit) {
-                                    headerDef.unit_error = true;
-                                } else if (icasa_unit && headerDef.unit !== icasa_unit) {
-                                    $.get("/data/unit/convert?value_from=2&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
-                                        function (jsonStr) {
-                                            let ret = JSON.parse(jsonStr);
-                                            if (ret.status !== "0") {
-//                                                headerDef.unit = icasa_unit; // TODO this should change to give warning message
-                                                headerDef.unit_error = true;
-                                            }
-                                        }
-                                    );
-                                } else if (!icasa_unit) {
-                                    $.get("/data/unit/lookup?unit=" + encodeURIComponent(headerDef.unit),
-                                        function (jsonStr) {
-                                            let unitInfo = JSON.parse(jsonStr);
-                                            if (unitInfo.message === "undefined unit expression" && isNumericUnit(headerDef.unit)) {
-                                                headerDef.unit_error = true;
-                                            }
-                                        }
-                                    );
-                                }
-                            }
-                            for (let i in roa) {
-                                while (sheetDef.mappings.length < roa[i].length) {
-                                    sheetDef.mappings.push({column_index : sheetDef.mappings.length + 1, column_index_org : sheetDef.mappings.length + 1});
-                                }
-                            }
-                        } else {
-                            // check if header is matched with given spreadsheet
-                            let tmpMappings = [];
-                            let orgColIdxMap = {};
-                            let matchedMap = {};
-                            let isFullyMatched = true;
-                            for (let i = 0; i < headers.length; i++) {
-                                // If header is not available from data, then skip header matching
-                                if (!headers[i]) {
-                                    tmpMappings[i] = {index_matched : true};
-                                    continue;
-                                }
-                                // use index to locate the mapping by default
-                                let headerDef = sheetDef.mappings[i];
-                                // if header is not matched, then search other mappings
-                                if (!headerDef || matchedMap[i] || !headerDef.column_index_org || headerDef.column_header !== headers[i]) {
-                                    for (let j in sheetDef.mappings) {
-                                        if (!matchedMap[j] && sheetDef.mappings[j].column_index_org && sheetDef.mappings[j].column_header === headers[i]) {
-                                            headerDef = sheetDef.mappings[j];
-                                            headerDef.column_index = i + 1;
-                                            orgColIdxMap[headerDef.column_index_org] = i + 1;
-                                            headerDef.column_index_org = i + 1;
-                                            matchedMap[j] = true;
-                                            isFullyMatched = false;
-                                            break;
-                                        }
-                                    }
-                                } else {
-                                    headerDef.column_index = i + 1;
-                                    orgColIdxMap[headerDef.column_index_org] = i + 1;
-                                    headerDef.column_index_org = i + 1;
-                                    matchedMap[i] = true;
-                                }
-                                // if not find matched mapping, then use the mapping by index or create new if unavalible
-                                if (!headerDef || !headerDef.column_index_org) {
-                                    headerDef = {
-                                        column_header : "",
-                                        column_index : i + 1,
-                                        column_index_org : i + 1,
-                                        ignored_flg : true
-                                    };
-                                    if (headers[i]) {
-                                        headerDef.column_header = headers[i].trim();
-                                    }
-                                    orgColIdxMap[i + 1] = i + 1;
-                                    isFullyMatched = false;
-                                } else if (headerDef.column_header !== headers[i]) {
-                                    // temporarily match by index
-                                    headerDef = {index_matched : true};
-                                }
-                                tmpMappings[i] = headerDef;
-                            }
-
-                            // match by index
-                            for (let i in tmpMappings) {
-                                i = Number(i);
-                                if (tmpMappings[i].index_matched) {
-                                    if (!matchedMap[i]) {
-                                        for (let j in sheetDef.mappings) {
-                                            if (sheetDef.mappings[j].column_index_org - 1 === Number(i)) {
-                                                tmpMappings[i] = sheetDef.mappings[j];
-                                                break;
-                                            }
-                                        }
-                                        // If not found matching index
-                                        if (tmpMappings[i].index_matched) {
-                                            tmpMappings[i] = {
-                                                column_header : "",
-                                                column_index : i + 1,
-                                                column_index_org : i + 1,
-                                                ignored_flg : true
-                                            };
-                                        }
-                                        if (headers[i]) {
-                                            tmpMappings[i].column_header = headers[i].trim();
-                                        } else {
-                                            delete tmpMappings[i].column_header;
-                                        }
-                                        tmpMappings[i].column_index = i + 1;
-                                        orgColIdxMap[tmpMappings[i].column_index_org] = tmpMappings[i].column_index;
-                                        tmpMappings[i].column_index_org = tmpMappings[i].column_index;
-                                        matchedMap[i] = true;
-                                    } else {
-                                        tmpMappings[i] = {
-                                            column_header : "",
-                                            column_index : i + 1,
-                                            column_index_org : i + 1,
-                                            ignored_flg : true
-                                        };
-                                        if (headers[i]) {
-                                            tmpMappings[i].column_header = headers[i].trim();
-                                        }
-                                        if (!orgColIdxMap[i + 1]) {
-                                            orgColIdxMap[i + 1] = i + 1;
-                                        }
-                                        isFullyMatched = false;
-                                    }
-                                }
-                            }
-
-                            // Add virtual column from definition
-                            for (let i in sheetDef.mappings) {
-                                i = Number(i);
-                                if (!sheetDef.mappings[i].column_index_org) {
-                                    // update index for virtual columns
-                                    if (!isFullyMatched && sheetDef.mappings[i].virtual_val_keys) {
-                                        for (let j = sheetDef.mappings[i].virtual_val_keys.length - 1; j > - 1; j--) {
-                                            let orgRefIdx = orgColIdxMap[sheetDef.mappings[i].virtual_val_keys[j]];
-                                            if (orgRefIdx) {
-                                                orgColIdxMap
-                                                sheetDef.mappings[i].virtual_val_keys[j] = orgColIdxMap[sheetDef.mappings[i].virtual_val_keys[j]];
-                                            } else {
-                                                sheetDef.mappings[i].virtual_val_keys.splice(j, 1);
-                                            }
-                                        }
-                                        if (sheetDef.mappings[i].virtual_val_keys.length === 0) {
-                                            continue;
-                                        }
-                                    }
-                                    if (i < tmpMappings.length) {
-                                        tmpMappings.splice(sheetDef.mappings[i].column_index - 1, 0, sheetDef.mappings[i]);
-                                        sheetDef.mappings[i].column_index = i + 1;
-                                        for (let j = i + 1; j < tmpMappings.length; j ++) {
-                                            tmpMappings[j].column_index++;
-                                        }
-                                    } else {
-                                        tmpMappings.push(sheetDef.mappings[i]);
-                                        sheetDef.mappings[i].column_index = tmpMappings.length;
-                                    }
-                                } else {
-                                    
-                                }
-                            }
-
-                            sheetDef.mappings = tmpMappings;
-                            for (let i in sheetDef.mappings) {
-                                let mapping = sheetDef.mappings[i];
-                                if (!mapping.column_index_org) {
-//                                    shiftRefFromKeyIdx(sheetDef, i);
-                                    shiftRawData(roa, i);
-                                }
-                            }
-                            for (let i in sheetDef.mappings) {
-                                let mapping = sheetDef.mappings[i];
-                                if (!mapping.column_index_org) {
-                                    updateRawData(roa, sheetDef, mapping);
-                                }
-                            }
-                            if (sheetDef.header_row) {
-                                headers = roa[sheetDef.header_row - 1];
                             } else {
                                 headers = [];
-                                if (sheetDef.data_start_row) {
-                                    for (let i = 0; i < roa[sheetDef.data_start_row + 1].length; i++) {
-                                        if (sheetDef.mappings[i] && !sheetDef.mappings[i].column_index_org && sheetDef.mappings[i].column_header) {
-                                            headers.push(sheetDef.mappings[i].column_header);
-                                        } else {
-                                            headers.push("");
-                                        }
+                                if (tableDef.data_start_row) {
+                                    for (let i = 0; i < roa[tableDef.data_start_row + 1].length; i++) {
+                                        headers.push("");
                                     }
-                                } else if (sheetDef.mappings) {
-                                    for (let i in sheetDef.mappings) {
-                                        if (sheetDef.mappings[i].column_header) {
-                                            headers.push(sheetDef.mappings[i].column_header);
+                                } else if (tableDef.mappings) {
+                                    for (let i in tableDef.mappings) {
+                                        if (tableDef.mappings[i].column_header) {
+                                            headers.push(tableDef.mappings[i].column_header);
                                         } else {
                                             headers.push("");
                                         }
                                     }
                                 }
                             }
-                            result[sheetName].header = headers;
-                            
-                            // fill missing column definition with ignored flag
-                            let vrColCnt = 0;
-                            for (let i = 0; i < headers.length; i++) {
-                                let headerDef = sheetDef.mappings[i];
-                                if(!headerDef) {
-                                    headerDef = {
-                                        column_header : "",
-                                        column_index : i + 1,
-                                        column_index_org : i + 1 - vrColCnt,
-                                        ignored_flg : true
+                            result[sheetName].header[i] = headers;
+                        }
+
+                        if (roa.length && roa.length > 0) {
+                            // init template structure
+                            if (tableDef.mappings.length === 0 || isChanged) {
+                                for (let i = 0; i < headers.length; i++) {
+                                    let headerDef = tableDef.mappings[i];
+                                    if (!headerDef) {
+                                        headerDef = {
+                                            column_header : "",
+                                            column_index : i + 1,
+                                            column_index_org : i + 1
+                                        };
+                                        if (!tableDef.mappings[i]) {
+                                            tableDef.mappings[i] = headerDef;
+                                        }
                                     }
-                                    sheetDef.mappings[i] = headerDef;
+                                    if (!headerDef.column_index_org) {
+                                        updateRawData(roa, tableDef, headerDef);
+                                        continue;
+                                    }
                                     if (headers[i]) {
                                         headerDef.column_header = headers[i].trim();
                                     }
-                                    // Load existing template definition
-                                    if (sheetDef.unit_row) {
-                                        headerDef.unit = roa[sheetDef.unit_row - 1][i];
+                                    if (!headerDef.unit || headerDef.unit_error || !headerDef.icasa) {
+                                        if (tableDef.unit_row) {
+                                            headerDef.unit = roa[tableDef.unit_row - 1][i];
+                                        } else {
+                                            delete headerDef.unit;
+                                        }
                                     }
-                                    if (sheetDef.desc_row) {
-                                        headerDef.description = roa[sheetDef.desc_row - 1][i];
+                                    if (!headerDef.description && tableDef.desc_row) {
+                                        headerDef.description = roa[tableDef.desc_row - 1][i];
                                     }
-                                    let headerName = String(headerDef.column_header).toUpperCase();
-                                    if (icasaVarMap.getDefinition(headerName)) {
-                                        headerDef.icasa = headerName;
-                                    } else if (icasaVarMap.getDefinition(headerDef.column_header)) {
-                                        headerDef.icasa = headerDef.column_header;
+                                    if (!headerDef.icasa) {
+                                        let headerName = String(headerDef.column_header).toUpperCase();
+                                        if (icasaVarMap.getDefinition(headerName)) {
+                                            headerDef.icasa = headerName;
+                                        } else if (icasaVarMap.getDefinition(headerDef.column_header)) {
+                                            headerDef.icasa = headerDef.column_header;
+                                        }
                                     }
-                                } else {
-                                    if (!headerDef.column_index_org) {
-                                        vrColCnt++;
-                                    }
-                                    if (sheetDef.mappings[i].column_header !== headers[i]) {
-                                        sheetDef.mappings[i].column_header = headers[i].trim();
-                                        // TODO deal with sc2 mappings is not fully matched with given spreadsheet columns
-                                    }
-                                }
-                                if (headerDef.icasa) {
                                     let icasa_unit = icasaVarMap.getUnit(headerDef.icasa);
-                                    if (!headerDef.unit) {
+                                    if (!headerDef.icasa) {
+                                        continue;
+                                    } else if (!headerDef.unit) {
                                         headerDef.unit_error = true;
                                     } else if (icasa_unit && headerDef.unit !== icasa_unit) {
-                                        $.get("/data/unit/convert?value_from=1&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
+                                        $.get("/data/unit/convert?value_from=2&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
                                             function (jsonStr) {
                                                 let ret = JSON.parse(jsonStr);
                                                 if (ret.status !== "0") {
-//                                                    headerDef.unit = icasa_unit; // TODO this should change to give warning message
+    //                                                headerDef.unit = icasa_unit; // TODO this should change to give warning message
                                                     headerDef.unit_error = true;
-                                                } else {
-                                                    delete headerDef.unit_error;
                                                 }
                                             }
                                         );
@@ -1182,18 +982,260 @@
                                                 let unitInfo = JSON.parse(jsonStr);
                                                 if (unitInfo.message === "undefined unit expression" && isNumericUnit(headerDef.unit)) {
                                                     headerDef.unit_error = true;
-                                                } else {
-                                                    delete headerDef.unit_error;
                                                 }
                                             }
                                         );
-                                    } else {
-                                         delete headerDef.unit_error;
                                     }
                                 }
-                            }
-                            if (!isFullyMatched) {
-                                sheetDef.unfully_matched_flg = true;
+                                for (let i in roa) {
+                                    while (tableDef.mappings.length < roa[i].length) {
+                                        tableDef.mappings.push({column_index : tableDef.mappings.length + 1, column_index_org : tableDef.mappings.length + 1});
+                                    }
+                                }
+                            } else {
+                                // check if header is matched with given spreadsheet
+                                let tmpMappings = [];
+                                let orgColIdxMap = {};
+                                let matchedMap = {};
+                                let isFullyMatched = true;
+                                for (let i = 0; i < headers.length; i++) {
+                                    // If header is not available from data, then skip header matching
+                                    if (!headers[i]) {
+                                        tmpMappings[i] = {index_matched : true};
+                                        continue;
+                                    }
+                                    // use index to locate the mapping by default
+                                    let headerDef = tableDef.mappings[i];
+                                    // if header is not matched, then search other mappings
+                                    if (!headerDef || matchedMap[i] || !headerDef.column_index_org || headerDef.column_header !== headers[i]) {
+                                        for (let j in tableDef.mappings) {
+                                            if (!matchedMap[j] && tableDef.mappings[j].column_index_org && tableDef.mappings[j].column_header === headers[i]) {
+                                                headerDef = tableDef.mappings[j];
+                                                headerDef.column_index = i + 1;
+                                                orgColIdxMap[headerDef.column_index_org] = i + 1;
+                                                headerDef.column_index_org = i + 1;
+                                                matchedMap[j] = true;
+                                                isFullyMatched = false;
+                                                break;
+                                            }
+                                        }
+                                    } else {
+                                        headerDef.column_index = i + 1;
+                                        orgColIdxMap[headerDef.column_index_org] = i + 1;
+                                        headerDef.column_index_org = i + 1;
+                                        matchedMap[i] = true;
+                                    }
+                                    // if not find matched mapping, then use the mapping by index or create new if unavalible
+                                    if (!headerDef || !headerDef.column_index_org) {
+                                        headerDef = {
+                                            column_header : "",
+                                            column_index : i + 1,
+                                            column_index_org : i + 1,
+                                            ignored_flg : true
+                                        };
+                                        if (headers[i]) {
+                                            headerDef.column_header = headers[i].trim();
+                                        }
+                                        orgColIdxMap[i + 1] = i + 1;
+                                        isFullyMatched = false;
+                                    } else if (headerDef.column_header !== headers[i]) {
+                                        // temporarily match by index
+                                        headerDef = {index_matched : true};
+                                    }
+                                    tmpMappings[i] = headerDef;
+                                }
+
+                                // match by index
+                                for (let i in tmpMappings) {
+                                    i = Number(i);
+                                    if (tmpMappings[i].index_matched) {
+                                        if (!matchedMap[i]) {
+                                            for (let j in tableDef.mappings) {
+                                                if (tableDef.mappings[j].column_index_org - 1 === Number(i)) {
+                                                    tmpMappings[i] = tableDef.mappings[j];
+                                                    break;
+                                                }
+                                            }
+                                            // If not found matching index
+                                            if (tmpMappings[i].index_matched) {
+                                                tmpMappings[i] = {
+                                                    column_header : "",
+                                                    column_index : i + 1,
+                                                    column_index_org : i + 1,
+                                                    ignored_flg : true
+                                                };
+                                            }
+                                            if (headers[i]) {
+                                                tmpMappings[i].column_header = headers[i].trim();
+                                            } else {
+                                                delete tmpMappings[i].column_header;
+                                            }
+                                            tmpMappings[i].column_index = i + 1;
+                                            orgColIdxMap[tmpMappings[i].column_index_org] = tmpMappings[i].column_index;
+                                            tmpMappings[i].column_index_org = tmpMappings[i].column_index;
+                                            matchedMap[i] = true;
+                                        } else {
+                                            tmpMappings[i] = {
+                                                column_header : "",
+                                                column_index : i + 1,
+                                                column_index_org : i + 1,
+                                                ignored_flg : true
+                                            };
+                                            if (headers[i]) {
+                                                tmpMappings[i].column_header = headers[i].trim();
+                                            }
+                                            if (!orgColIdxMap[i + 1]) {
+                                                orgColIdxMap[i + 1] = i + 1;
+                                            }
+                                            isFullyMatched = false;
+                                        }
+                                    }
+                                }
+
+                                // Add virtual column from definition
+                                for (let i in tableDef.mappings) {
+                                    i = Number(i);
+                                    if (!tableDef.mappings[i].column_index_org) {
+                                        // update index for virtual columns
+                                        if (!isFullyMatched && tableDef.mappings[i].virtual_val_keys) {
+                                            for (let j = tableDef.mappings[i].virtual_val_keys.length - 1; j > - 1; j--) {
+                                                let orgRefIdx = orgColIdxMap[tableDef.mappings[i].virtual_val_keys[j]];
+                                                if (orgRefIdx) {
+                                                    orgColIdxMap
+                                                    tableDef.mappings[i].virtual_val_keys[j] = orgColIdxMap[tableDef.mappings[i].virtual_val_keys[j]];
+                                                } else {
+                                                    tableDef.mappings[i].virtual_val_keys.splice(j, 1);
+                                                }
+                                            }
+                                            if (tableDef.mappings[i].virtual_val_keys.length === 0) {
+                                                continue;
+                                            }
+                                        }
+                                        if (i < tmpMappings.length) {
+                                            tmpMappings.splice(tableDef.mappings[i].column_index - 1, 0, tableDef.mappings[i]);
+                                            tableDef.mappings[i].column_index = i + 1;
+                                            for (let j = i + 1; j < tmpMappings.length; j ++) {
+                                                tmpMappings[j].column_index++;
+                                            }
+                                        } else {
+                                            tmpMappings.push(tableDef.mappings[i]);
+                                            tableDef.mappings[i].column_index = tmpMappings.length;
+                                        }
+                                    } else {
+
+                                    }
+                                }
+
+                                tableDef.mappings = tmpMappings;
+                                for (let i in tableDef.mappings) {
+                                    let mapping = tableDef.mappings[i];
+                                    if (!mapping.column_index_org) {
+//                                        shiftRefFromKeyIdx(tableDef, i);
+                                        shiftRawData(roa, i, tableDef);
+                                    }
+                                }
+                                for (let i in tableDef.mappings) {
+                                    let mapping = tableDef.mappings[i];
+                                    if (!mapping.column_index_org) {
+                                        updateRawData(roa, tableDef, mapping);
+                                    }
+                                }
+                                if (tableDef.header_row) {
+                                    headers = roa[tableDef.header_row - 1];
+                                } else {
+                                    headers = [];
+                                    if (tableDef.data_start_row) {
+                                        for (let i = 0; i < roa[tableDef.data_start_row + 1].length; i++) {
+                                            if (tableDef.mappings[i] && !tableDef.mappings[i].column_index_org && tableDef.mappings[i].column_header) {
+                                                headers.push(tableDef.mappings[i].column_header);
+                                            } else {
+                                                headers.push("");
+                                            }
+                                        }
+                                    } else if (tableDef.mappings) {
+                                        for (let i in tableDef.mappings) {
+                                            if (tableDef.mappings[i].column_header) {
+                                                headers.push(tableDef.mappings[i].column_header);
+                                            } else {
+                                                headers.push("");
+                                            }
+                                        }
+                                    }
+                                }
+                                result[sheetName][i].header = headers;
+
+                                // fill missing column definition with ignored flag
+                                let vrColCnt = 0;
+                                for (let i = 0; i < headers.length; i++) {
+                                    let headerDef = tableDef.mappings[i];
+                                    if(!headerDef) {
+                                        headerDef = {
+                                            column_header : "",
+                                            column_index : i + 1,
+                                            column_index_org : i + 1 - vrColCnt,
+                                            ignored_flg : true
+                                        }
+                                        tableDef.mappings[i] = headerDef;
+                                        if (headers[i]) {
+                                            headerDef.column_header = headers[i].trim();
+                                        }
+                                        // Load existing template definition
+                                        if (tableDef.unit_row) {
+                                            headerDef.unit = roa[tableDef.unit_row - 1][i];
+                                        }
+                                        if (tableDef.desc_row) {
+                                            headerDef.description = roa[tableDef.desc_row - 1][i];
+                                        }
+                                        let headerName = String(headerDef.column_header).toUpperCase();
+                                        if (icasaVarMap.getDefinition(headerName)) {
+                                            headerDef.icasa = headerName;
+                                        } else if (icasaVarMap.getDefinition(headerDef.column_header)) {
+                                            headerDef.icasa = headerDef.column_header;
+                                        }
+                                    } else {
+                                        if (!headerDef.column_index_org) {
+                                            vrColCnt++;
+                                        }
+                                        if (tableDef.mappings[i].column_header !== headers[i]) {
+                                            tableDef.mappings[i].column_header = headers[i].trim();
+                                            // TODO deal with sc2 mappings is not fully matched with given spreadsheet columns
+                                        }
+                                    }
+                                    if (headerDef.icasa) {
+                                        let icasa_unit = icasaVarMap.getUnit(headerDef.icasa);
+                                        if (!headerDef.unit) {
+                                            headerDef.unit_error = true;
+                                        } else if (icasa_unit && headerDef.unit !== icasa_unit) {
+                                            $.get("/data/unit/convert?value_from=1&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
+                                                function (jsonStr) {
+                                                    let ret = JSON.parse(jsonStr);
+                                                    if (ret.status !== "0") {
+    //                                                    headerDef.unit = icasa_unit; // TODO this should change to give warning message
+                                                        headerDef.unit_error = true;
+                                                    } else {
+                                                        delete headerDef.unit_error;
+                                                    }
+                                                }
+                                            );
+                                        } else if (!icasa_unit) {
+                                            $.get("/data/unit/lookup?unit=" + encodeURIComponent(headerDef.unit),
+                                                function (jsonStr) {
+                                                    let unitInfo = JSON.parse(jsonStr);
+                                                    if (unitInfo.message === "undefined unit expression" && isNumericUnit(headerDef.unit)) {
+                                                        headerDef.unit_error = true;
+                                                    } else {
+                                                        delete headerDef.unit_error;
+                                                    }
+                                                }
+                                            );
+                                        } else {
+                                             delete headerDef.unit_error;
+                                        }
+                                    }
+                                }
+                                if (!isFullyMatched) {
+                                    tableDef.unfully_matched_flg = true;
+                                }
                             }
                         }
                     }
@@ -1224,6 +1266,7 @@
                 let tmp = target.id.split("__");
                 curFileName = tmp[0];
                 curSheetName = tmp[1];
+                curTableIdx = 0;
                 if (curFileName.toLowerCase().endsWith("csv")) {
                     $("#sheet_name_selected").text(" <" + curFileName + ">");
                 } else {
@@ -1249,9 +1292,9 @@
                 }
 //                let minRows = 10;
                 let data = wbObj[fileName][sheetName].data;
-                let sheetDef = templates[fileName][sheetName];
+                let tableDef = getTableDef(fileName, sheetName);
 //               let mappings = getMappings(fileName, sheetName);
-                let mappings = sheetDef.mappings;
+                let mappings = tableDef.mappings;
                 let columns = [];
 //                if (data.length < minRows) {
 //                    data = JSON.parse(JSON.stringify(data)); // TODO set raw data as read only for a temprory solution
@@ -1281,19 +1324,19 @@
                         let txt;
                         let idx = row + 1;
                         if (!$('#tableViewSwitch').prop("checked")) {
-                            txt = sheetDef.data_start_row + row;
-                        } else if (row === sheetDef.header_row - 1) {
+                            txt = tableDef.data_start_row + row;
+                        } else if (row === tableDef.header_row - 1) {
                             txt = "<span data-toggle='tooltip' title='Header (Varible Code Name)'><Strong>Var</Strong> " + idx + "</span>";
-                        } else if (row === sheetDef.unit_row - 1) {
+                        } else if (row === tableDef.unit_row - 1) {
                             txt = "<span data-toggle='tooltip' title='Unit Expression'><Strong>Unit</Strong> " + idx + "</span>";
-                        } else if (row === sheetDef.desc_row - 1) {
+                        } else if (row === tableDef.desc_row - 1) {
                             txt = "<span data-toggle='tooltip' title='Description/Definition'><Strong>Desc</Strong> " + idx + "</span>";
-                        } else if (!sheetDef.data_start_row) {
+                        } else if (!tableDef.data_start_row) {
                             txt = idx;
-                        } else if (row < sheetDef.data_start_row - 1) {
+                        } else if (row < tableDef.data_start_row - 1) {
                             txt = "<span data-toggle='tooltip' title='Comment/Ignored raw'><em>C</em> " + idx + "</span>";;
                         } else {
-//                            txt = row - sheetDef.data_start_row + 2;
+//                            txt = row - tableDef.data_start_row + 2;
                             txt = idx;
                         }
                         return txt;
@@ -1440,7 +1483,7 @@
                                                     }
                                                     mappings.splice(j, 1);
                                                     // Shift references index
-                                                    shiftRefFromKeyIdx(sheetDef, j, -1);
+                                                    shiftRefFromKeyIdx(tableDef, j, -1);
                                                     // remove data
                                                     for (let k in data) {
                                                         data[k].splice(j, 1);
@@ -1460,10 +1503,10 @@
                                 }
                             },
                             "edit_row":{
-                                name: '<span class="glyphicon glyphicon-edit"></span> Edit Row Definition',
+                                name: '<span class="glyphicon glyphicon-edit"></span> Edit Table Definition',
                                 callback: function(key, selection, clickEvent) {
                                     setTimeout(function() {
-                                        showSheetDefDialog(processData, null, true);
+                                        showRowDefDialog(processData);
                                     }, 0); // Fire alert after menu close (with timeout)
                                 }
                             },
@@ -1485,7 +1528,6 @@
                                 },
                                 callback : function(key, selection, clickEvent) {
                                     setTimeout(function() {
-//                                        let mappings = templates[fileName][sheetName].mappings;
                                         for (let i in selection) {
                                             for (let j = selection[i].start.col; j <= selection[i].end.col; j++) {
                                                 if (mappings[j].unit_error) {
@@ -1530,7 +1572,7 @@
                     }
                 };
                 if (!$('#tableViewSwitch').prop("checked")) {
-                    spsOptions.data = getSheetDataContent(spsOptions.data, sheetDef);
+                    spsOptions.data = getSheetDataContent(spsOptions.data, tableDef);
 //                    spsOptions.rowHeaders = true;
                 }
                 if (spreadsheet) {
@@ -1545,24 +1587,24 @@
                             if (!cell) {
                                 return;
                             }
-                            if (row === sheetDef.header_row - 1) {
+                            if (row === tableDef.header_row - 1) {
     //                            cell.style.color = "white";
     //                            cell.style.fontWeight = "bold";
                                 cell.style.fontStyle = "italic";
                                 cell.style.backgroundColor = "lightgrey";
                                 return {readOnly : true};
-                            } else if (row === sheetDef.unit_row - 1) {
+                            } else if (row === tableDef.unit_row - 1) {
     //                            cell.style.color = "white";
     //                            cell.style.textDecoration = "underline";
                                 cell.style.fontStyle = "italic";
                                 cell.style.backgroundColor = "lightgrey";
                                 return {readOnly : true};
-                            } else if (row === sheetDef.desc_row - 1) {
+                            } else if (row === tableDef.desc_row - 1) {
     //                            cell.style.color = "white";
                                 cell.style.fontStyle = "italic";
                                 cell.style.backgroundColor = "lightgrey";
                                 return {readOnly : true};
-                            } else if (row < sheetDef.data_start_row - 1) {
+                            } else if (row < tableDef.data_start_row - 1) {
     //                            cell.style.color = "white";
                                 cell.style.backgroundColor = "lightgrey";
                                 return {readOnly : true};
@@ -1571,7 +1613,7 @@
                     });
                 }
                 $('.table_switch_cb').bootstrapToggle('enable');
-                if (!sheetDef.data_start_row) {
+                if (!tableDef.data_start_row) {
                     $('#tableViewSwitch').bootstrapToggle('disable');
                 }
             }
@@ -1641,7 +1683,8 @@
                 let key = curFileName + "_" + curSheetName + "_" + colIdx;
                 let headerCB = $("[name='" + key + "']").last();
                 let header = $("[name='" + key + "_label']").last();
-                let mapping = templates[curFileName][curSheetName].mappings[colIdx];
+                let tableDef = getCurTableDef();
+                let mapping = tableDef.mappings[colIdx];
                 if (headerCB.prop("checked")) {
                     delete mapping.ignored_flg;
 //                    header.html("class", getColStatusClass(colIdx));
@@ -1649,7 +1692,7 @@
                     mapping.ignored_flg = true;
 //                    header.attr("class", "label label-default");
                 }
-                let newHeader = getColHeaderComp(templates[curFileName][curSheetName].mappings, colIdx);
+                let newHeader = getColHeaderComp(tableDef.mappings, colIdx);
                 header.attr("class", newHeader.attr("class"));
                 header.html(newHeader.html());
                 isChanged = true;
@@ -1659,7 +1702,7 @@
             
             function getColStatusClass(col, mappings) {
                 if (!mappings) {
-                    mappings = templates[curFileName][curSheetName].mappings;
+                    mappings = getCurTableDef().mappings;
                 }
                 if (mappings[col]) {
                      if (mappings[col].ignored_flg) {
@@ -1679,6 +1722,11 @@
                     }
                 }
                 return "label label-warning";
+            }
+            
+            function switchTable(tableIdx) {
+                curTableIdx = Number(tableIdx) - 1;
+                initSpreadsheet(curFileName, curSheetName);
             }
             
             function convertUnit() {
@@ -1705,7 +1753,7 @@
                 // check if mappings are completed
                 for (let fileName in templates) {
                     for (let sheetName in templates[fileName]) {
-                        let cntUndefined = countUndefinedColumns(templates[fileName][sheetName]);
+                        let cntUndefined = countUndefinedColumns(getSheetDef(fileName, sheetName));
                         if (cntUndefined > 0) {
                             alertBox("There are undefined/error mappings left here...", function () {
                                 $('#sheet_tab_list').find("a").each(function () {
@@ -1729,13 +1777,19 @@
                     let rootTables = {};
                     let toRefs = [];
                     for (let fileName in templates) {
+                        if (!rootTables[fileName]) {
+                            rootTables[fileName] = {};
+                        }
                         for (let sheetName in templates[fileName]) {
-                            if (!rootTables[fileName]) {
-                                rootTables[fileName] = {};
+                            if (!rootTables[fileName][sheetName]) {
+                                rootTables[fileName][sheetName] = [];
                             }
-                            rootTables[fileName][sheetName] = true;
-                            if (Object.keys(templates[fileName][sheetName].references).length > 0) {
-                                toRefs.push(templates[fileName][sheetName].references);
+                            for (let i in templates[fileName][sheetName]) {
+                                rootTables[fileName][sheetName][i] = true;
+                                let tableDef = getTableDef(fileName, sheetName, i);
+                                if (Object.keys(tableDef.references).length > 0) {
+                                    toRefs.push(tableDef.references);
+                                }
                             }
                         }
                     }
@@ -1744,7 +1798,7 @@
                         for (let fromKeyIdx in toRefs[i]) {
                             for (let toKeyIdx in toRefs[i][fromKeyIdx]) {
                                 let refDef = toRefs[i][fromKeyIdx][toKeyIdx];
-                                let tableCat = getTableCategory(templates[refDef.file][refDef.sheet].mappings);
+                                let tableCat = getTableCategory(getRefTableDef(refDef).mappings);
                                 if ((tableCat.order < 4000 || tableCat.order > 4051) &&
                                     (tableCat.order < 5000 || tableCat.order > 5051)) {
                                     // If reference target is not soil/weather meta/profile table, then mark it as non-root table
@@ -1758,15 +1812,17 @@
                     let fileMap = {};
                     for (let fileName in rootTables) {
                         for (let sheetName in rootTables[fileName]) {
-                            if (rootTables[fileName][sheetName] && templates[fileName][sheetName]) {
-                                let csvData = createCsvSheet(fileName, sheetName);
-                                let cnt = 1;
-                                let csvFileName = sheetName;
-                                while (fileMap[csvFileName]) {
-                                    csvFileName = sheetName + "_" + cnt;
+                            for (let i in rootTables[fileName][sheetName]) {
+                                if (isTableDefExist(fileName, sheetName, i, rootTables) && isTableDefExist(fileName, sheetName, i, templates)) {
+                                    let csvData = createCsvSheet(fileName, sheetName, i);
+                                    let cnt = 1;
+                                    let csvFileName = sheetName;
+                                    while (fileMap[csvFileName]) {
+                                        csvFileName = sheetName + "_" + cnt;
+                                    }
+                                    fileMap[csvFileName] = true;
+                                    zip.file(csvFileName + ".csv", csvData);
                                 }
-                                fileMap[csvFileName] = true;
-                                zip.file(csvFileName + ".csv", csvData);
                             }
                         }
                     }
@@ -1777,19 +1833,19 @@
                 });
             }
             
-            function createCsvSheet(fileName, sheetName) {
+            function createCsvSheet(fileName, sheetName, tableIdx) {
                 let wb = XLSX.utils.book_new();
-                let ws = XLSX.utils.aoa_to_sheet(createCsvSheetArr(fileName, sheetName) );
+                let ws = XLSX.utils.aoa_to_sheet(createCsvSheetArr(fileName, sheetName, tableIdx) );
                 XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
                 return XLSX.write(wb, {bookType:"csv", type: 'string'});
             }
 
-            function createCsvSheetArr(fileName, sheetName, parentIdxInfo) {
+            function createCsvSheetArr(fileName, sheetName, tableIdx, parentIdxInfo) {
                 let agmipData = JSON.parse(JSON.stringify(wbObj[fileName][sheetName].data));
-                let sheetDef = templates[fileName][sheetName];
-                agmipData = getSheetDataContent(agmipData, sheetDef);
-                if (wbObj[fileName][sheetName].headers) {
-                    agmipData.unshift(JSON.parse(JSON.stringify(wbObj[fileName][sheetName].headers)));
+                let tableDef = getTableDef(fileName, sheetName, tableIdx);
+                agmipData = getSheetDataContent(agmipData, tableDef);
+                if (wbObj[fileName][sheetName].header) { // TODO double check if change from headers to header is OK for generating CSV pacakge
+                    agmipData.unshift(JSON.parse(JSON.stringify(wbObj[fileName][sheetName].header)));
                 } else {
                     agmipData.unshift([""]);
                 }
@@ -1798,7 +1854,7 @@
                 agmipData.unshift(["!", sheetName]);
                 agmipData.unshift(["!", fileName]);
                 headerRow = agmipData.length - headerRow;
-                if (isArrayData(sheetDef.mappings)) {
+                if (isArrayData(tableDef.mappings)) {
                     agmipData[headerRow].unshift("%");
                 } else {
                     agmipData[headerRow].unshift("#");
@@ -1862,8 +1918,8 @@
 
                 if (agmipData.length > headerRow + 1) {
                     let evtInputConfig = {};
-                    for (let i = sheetDef.mappings.length - 1; i > -1; i--) {
-                        let mapping = sheetDef.mappings[i];
+                    for (let i = tableDef.mappings.length - 1; i > -1; i--) {
+                        let mapping = tableDef.mappings[i];
                         if (!mapping) {
                             continue;
                         }
@@ -1962,7 +2018,7 @@
                                 eventInput[3] = eventDateMapping.getEventDateVarName(eventInput[2]);
                                 agmipDataTmp.push(["#", eventInput[3]]);
                                 agmipDataTmp.push(eventInput);
-                                for (let i = 0; i < sheetDef.mappings.length; i++) {
+                                for (let i = 0; i < tableDef.mappings.length; i++) {
                                     let skipFlg = false;
                                     for (let key in evtInputConfig) {
                                         if (i + 1 === evtInputConfig[key]) {
@@ -1973,8 +2029,8 @@
                                     if (skipFlg) {
                                         continue;
                                     }
-                                    eventInput.push(sheetDef.mappings[i].icasa);
-                                    eventInput.push(agmipData[j][sheetDef.mappings[i].column_index]);
+                                    eventInput.push(tableDef.mappings[i].icasa);
+                                    eventInput.push(agmipData[j][tableDef.mappings[i].column_index]);
                                 }
                             }
                         }                        
@@ -1982,12 +2038,12 @@
                     }
                 }
                 
-                let refDefs = templates[fileName][sheetName].references;
+                let refDefs = tableDef.references;
                 let subDatas = [];
                 for (let fromKeyIdx in refDefs) {
                     for (let toKeyIdx in refDefs[fromKeyIdx]) {
                         let refDef = refDefs[fromKeyIdx][toKeyIdx];
-                        let tableCat = getTableCategory(templates[refDef.file][refDef.sheet].mappings);
+                        let tableCat = getTableCategory(getRefTableDef(refDef).mappings);
                         if ((tableCat.order > 4000 && tableCat.order < 4052) ||
                             (tableCat.order > 5000 && tableCat.order < 5052)) {
                             // If it is soil/weather meta/profile table, then skip as sub table.
@@ -2005,7 +2061,7 @@
                             }
                         } else {
                             for (let j in fromKeyIdxs) {
-                                let mapping = sheetDef.mappings[fromKeyIdxs[j] - 1];
+                                let mapping = tableDef.mappings[fromKeyIdxs[j] - 1];
                                 let idx;
                                 for (let k in refDef.keys) {
                                     if (refDef.keys[k].icasa === mapping.icasa || refDef.keys[k].column_header === mapping.icasa ||
@@ -2034,7 +2090,7 @@
                                 }
                             }
                         }
-                        subDatas.push(createCsvSheetArr(refDef.file, refDef.sheet, idxInfo));
+                        subDatas.push(createCsvSheetArr(refDef.file, refDef.sheet, refDef.table_index, idxInfo));
                     }
                 }
                 for (let i in subDatas) {
@@ -2151,7 +2207,7 @@
                                 }
                             }
 //                            initLastestTableIdx(sc2Obj);
-                            showSheetDefDialog(loadSC2Obj, null, false, sc2Obj);
+                            showSheetDefDialog(loadSC2Obj, null, sc2Obj);
                         }
                     }
                 };
@@ -2254,9 +2310,9 @@
                 for (let i in files) {
                     let fileConfig = files[i];
                     for (let i in fileConfig.file.sheets) {
-                        let tableIdx = fileConfig.file.sheets[i].table_index;
+                        let tableIdx = fileConfig.file.sheets[i].table_index - 1;
                         if (tableIdx && latestTableIdx < tableIdx) {
-                            latestTableIdx = tableIdx;
+                            latestTableIdx = tableIdx + 1;
                         }
                     }
                 }
@@ -2601,11 +2657,13 @@
                 } else {
                     if (Array.isArray(files[fileName][sheetName])) {
                         return files[fileName][sheetName];
-                    } else { //TODO tempory solution, will be removed eventually
+                    } else if(files[fileName][sheetName]) { //TODO tempory solution, will be removed eventually
                         let ret = [];
                         ret.push(files[fileName][sheetName]);
                         return ret;
-                    }                
+                    } else {
+                        return [];
+                    }
                 }
             }
             
@@ -2620,112 +2678,121 @@
 //                return ret;
 //            }
             
-        function getTableDef(fileName, sheetName, tableIdx, files) {
-            let sheetDef = getSheetDef(fileName, sheetName, files);
-            if (sheetDef) {
-                if (tableIdx) {
-                    return sheetDef[tableIdx];
+            function getTableDef(fileName, sheetName, tableIdx, files) {
+                let sheetDef = getSheetDef(fileName, sheetName, files);
+                if (sheetDef) {
+                    if (tableIdx) {
+                        return sheetDef[tableIdx];
+                    } else if (curTableIdx) {
+                        return sheetDef[curTableIdx];
+                    } else {
+                        curTableIdx = 0;
+                        return sheetDef[0];
+                    }
                 } else {
-                    return sheetDef[0];
+                    return null;
                 }
-            } else {
-                return null;
             }
-        }
 
-        function updateTableIdx(fileName, sheetName, files) {
-            let sheetDef = getSheetDef(fileName, sheetName, files);
-            for (let i in sheetDef) {
-                sheetDef[i].table_index = i + 1;
+            function getRefTableDef(refDef) {
+                return getTableDef(refDef.file, refDef.sheet, refDef.table_index);
             }
-        }
 
-        function removeTableDefAt(fileName, sheetName, tableIdx, files) {
-            let sheetDef = getSheetDef(fileName, sheetName, files);
-            if (sheetDef[tableIdx]) {
-                sheetDef.splice(tableIdx, 1);
+            function updateTableIdx(fileName, sheetName, files) {
+                let sheetDef = getSheetDef(fileName, sheetName, files);
+                for (let i in sheetDef) {
+                    sheetDef[i].table_index = i + 1;
+                }
             }
-            updateTableIdx(fileName, sheetName, files);
-            // TODO update reference
-        }
 
-        function getCurSheetDef(files) {
-            return getSheetDef(curFileName, curSheetName, files);
-        }
-
-        function getCurTableDef(files) {
-            return getTableDef(curFileName, curSheetName, curTableIdx, files);
-        }
-
-        function removeCurTableDef(files) {
-            removeTableDefAt(curFileName, curSheetName, curTableIdx);
-        }
-
-        function getTableIdx(tableDef, noUpdate) {
-            if (!tableDef) {
-                tableDef = getCurTableDef();
+            function removeTableDefAt(fileName, sheetName, tableIdx, files) {
+                let sheetDef = getSheetDef(fileName, sheetName, files);
+                if (sheetDef[tableIdx]) {
+                    sheetDef.splice(tableIdx, 1);
+                }
+                updateTableIdx(fileName, sheetName, files);
+                // TODO lastHeaderRow
+                // TODO virColCnt
+                // TODO webObj[sheetName].header
+                // TODO update reference
             }
-            let tableIdx = tableDef.table_index;
-            if (!tableIdx) {
-                latestTableIdx++;
-                tableIdx = latestTableIdx;
-            }
-            if (!noUpdate) {
-                tableDef.table_index = tableIdx;
-            }
-            return tableIdx;
-        }
 
-        function isSheetDefExist(fileName, sheetName, tableIdx) {
-            return !!getTableDef(fileName, sheetName, tableIdx);
-        }
+            function getCurSheetDef(files) {
+                return getSheetDef(curFileName, curSheetName, files);
+            }
 
-//        function toSheetsByName(files) {
-//            let ret = {};
-//            if (!files) {
-//                files = templates;
-//            }
-//            for (let fileName in files) {
-//                ret[fileName] = {};
-//                for (let tableIdx in files[fileName]) {
-//                    let sheetName = files[fileName][tableIdx].sheet_name;
-//                    if (ret[fileName][sheetName]) {
-//                        if (!ret[fileName][sheetName] instanceof Array) {
-//                            let tmp = [];
-//                            tmp.push(ret[fileName][sheetName]);
-//                            ret[fileName][sheetName] = tmp;
-//                        }
-//                        ret[fileName][sheetName].push(files[fileName][tableIdx]);
-//                    } else {
-//                        ret[fileName][sheetName] = files[fileName][tableIdx];
-//                    }
+            function getCurTableDef(files) {
+                return getTableDef(curFileName, curSheetName, curTableIdx, files);
+            }
+            
+            function addTableDef(fileName, sheetName, tableDef, idx) {
+                if (!isSheetDefExist(fileName, sheetName)) {
+                    if (!templates[fileName]) {
+                        templates[fileName] = {};
+                    }
+                    templates[fileName][sheetName] = [];
+                }
+                addTableDef2(getSheetDef(fileName, sheetName), tableDef, idx);
+            }
+            
+            function addTableDef2(sheetDef, tableDef, idx) {
+                if (!tableDef || !sheetDef) {
+                    return;
+                }
+                if (idx || idx === 0) {
+                    sheetDef[idx] = tableDef;
+                    tableDef.table_index = idx + 1;
+                } else {
+                    sheetDef.push(tableDef);
+                    tableDef.table_index = sheetDef.length;
+                }
+            }
+
+            function removeCurTableDef(files) {
+                removeTableDefAt(curFileName, curSheetName, curTableIdx);
+            }
+
+//            function getTableIdx(tableDef, noUpdate) {
+//                if (!tableDef) {
+//                    tableDef = getCurTableDef();
 //                }
-//            }
-//            return ret;
-//        }
-//
-//        function toSheetsByIdx(files) {
-//            let ret = {};
-//            if (!files) {
-//                alert("Error happens at toSheetsByIdx method!")
-//                return;
-//            }
-//            for (let fileName in files) {
-//                ret[fileName] = {};
-//                for (let sheetName in files[fileName]) {
-//                    if (ret[fileName][sheetName] instanceof Array) {
-//                        for (let i in ret[fileName][sheetName]) {
-//                            let idx = getTableIdx(files[fileName][sheetName][i]);
-//                            ret[fileName][idx] = files[fileName][sheetName][i];
-//                        }
-//                    } else {
-//                        let idx = getTableIdx(files[fileName][sheetName]);
-//                        ret[fileName][idx] = files[fileName][sheetName];
-//                    }
+//                let tableIdx = tableDef.table_index - 1;
+//                if (!tableIdx) {
+//                    latestTableIdx++;
+//                    tableIdx = latestTableIdx;
 //                }
+//                if (!noUpdate) {
+//                    tableDef.table_index = tableIdx + 1;
+//                }
+//                return tableIdx;
 //            }
-//            return ret;
-//        }
+
+            function isSheetDefExist(fileName, sheetName, files) {
+                let sheetDef = getSheetDef(fileName, sheetName, files);
+                return !!sheetDef && sheetDef.length > 0;
+            }
+            
+            function isTableDefExist(fileName, sheetName, tableIdx, files) {
+                return !!getTableDef(fileName, sheetName, tableIdx, files);
+            }
+            
+            function isSubTableExist(files) {
+                if (!files) {
+                    files = templates;
+                }
+                for (let fileName in files) {
+                    for (let sheetName in files[fileName]) {
+                        if (isSubTableExistInSheet(getSheetDef(fileName, sheetName, files))) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            
+            function isSubTableExistInSheet(sheetDef) {
+                return !!sheetDef && sheetDef.length !== 1;
+            }
             
             function getMetaFileName(fileMeta) {
                 if (fileMeta.file_name_local) {
@@ -2753,12 +2820,12 @@
                 }
             }
             
-            function getSheetDataContent(rawData, sheetDef) {
-                if (sheetDef.data_start_row) {
-                    if (sheetDef.data_end_row) {
-                        rawData = rawData.slice(sheetDef.data_start_row - 1, sheetDef.data_end_row);
+            function getSheetDataContent(rawData, tableDef) {
+                if (tableDef.data_start_row) {
+                    if (tableDef.data_end_row) {
+                        rawData = rawData.slice(tableDef.data_start_row - 1, tableDef.data_end_row);
                     } else {
-                        rawData = rawData.slice(sheetDef.data_start_row - 1);
+                        rawData = rawData.slice(tableDef.data_start_row - 1);
                     }
                 }
                 return rawData;
@@ -2801,10 +2868,10 @@
                     },
                     dataset_metadata : {},
                     agmip_translation_mappings : {
-//                        primary_ex_sheet : {
-//                            file : null,
-//                            sheet : null,
-//                        },
+                        primary_ex_sheet : {
+                            file : null,
+                            sheet : null,
+                        },
                         relations : [],
                         files : []
                     },
@@ -2910,12 +2977,6 @@
                                         JSON.parse("[" + fromKeyIdxs + "]"),
                                         toRefDef,
                                         getKeyIdxArr(toRefDef.keys), true);
-                                    if (refDef.from.keys.length === 0) {
-                                        delete refDef.from.keys;
-                                    }
-                                    if (refDef.to.keys.length === 0) {
-                                        delete refDef.to.keys;
-                                    }
                                     sc2Obj.agmip_translation_mappings.relations.push(refDef);
                                 }
                             }
@@ -3037,8 +3098,8 @@
                         <span class="label label-default">Ignored</span>
                     </div>
                     <ul id="sheet_spreadsheet_table_tabs" class="nav nav-tabs text-center" hidden>
-                        <li class="active"><a data-toggle="tab" href="#sheet_spreadsheet_content" class="tab-xs">Table 1</a></li>
-                        <li><a data-toggle="tab" href="#sheet_spreadsheet_content" class="tab-xs">Table 2</a></li>
+                        <li class="active"><a data-toggle="tab" href="#sheet_spreadsheet_content" class="tab-xs" onclick="switchTable(1);">Table 1</a></li>
+                        <li><a data-toggle="tab" href="#sheet_spreadsheet_content" class="tab-xs" onclick="switchTable(2);">Table 2</a></li>
                         <li><a href="#" class="tab-xs"><span class="glyphicon glyphicon-plus"></span></a><li>
                     </ul>
                     <div id="sheet_spreadsheet_content" class="col-sm-12 tab-pane fade in active" style="overflow: hidden"></div>     
@@ -3100,6 +3161,7 @@
         </div>
 
         <#include "data_factory_popup_loadFile.ftl">
+        <#include "data_factory_popup_sheet.ftl">
         <#include "data_factory_popup_row.ftl">
         <#include "data_factory_popup_column.ftl">
         <#include "data_factory_popup_codeMapping.ftl">
@@ -3143,10 +3205,11 @@
                 });
                 $('.nav-tabs #sheetTab').on('shown.bs.tab', function(){
                     $('.table_switch_cb').bootstrapToggle('enable');
-                    if (templates[curFileName][curSheetName].data_start_row) {
-                        if (templates[curFileName][curSheetName].unfully_matched_flg) {
+                    let tableDef = getCurTableDef();
+                    if (tableDef.data_start_row) {
+                        if (tableDef.unfully_matched_flg) {
                             alertBox("Please double check the mappings for each column and make any correction as needed.");
-                            delete templates[curFileName][curSheetName].unfully_matched_flg;
+                            delete tableDef.unfully_matched_flg;
                         }
                         $('#tableViewSwitch').bootstrapToggle('off');
                     } else {
@@ -3182,8 +3245,7 @@
 //                    let plugin = spreadsheet.getPlugin('hiddenColumns');
 //                    let hiddenArr = [];
 //                    let isShown = $('#tableColSwitchSuccess').prop('checked');
-//                    let sheetDef = templates[curFileName][curSheetName];
-//                    let mappings = sheetDef.mappings;
+//                    let mappings = getCurTableDef().mappings;
 //                    for (let i = 0; i < mappings.length; i++) {
 //                        if (mappings[i].icasa) {
 //                            if (isShown) {
@@ -3197,6 +3259,7 @@
 //                });
                 $('#sheetTab').on("click", function() {
                     $('#sheet_tab_list').find("a").each(function () {
+                        // TODO update table link for multi table feature
                         let tmp = $(this).attr('id').split("__");
                         let cntUndefined = countUndefinedColumns(templates[tmp[0]][tmp[1]]);
                         if (cntUndefined > 0) {
