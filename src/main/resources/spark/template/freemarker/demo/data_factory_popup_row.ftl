@@ -1,10 +1,11 @@
 <script>
-    function showRowDefDialog(callback, errMsg) {
+    function showRowDefDialog(callback, errMsg, sheets) {
 //        let singleFileName;
-        let sheets = {};
+        if (!sheets) {
+            sheets = JSON.parse(JSON.stringify(templates));
+        }
 //        let data = [];
         // TODO editFlg = true will use different routine to handle
-        sheets = JSON.parse(JSON.stringify(templates));
         let sheetDef = getCurSheetDef(sheets);
         // Setup default value for row definition of a table
         let latestHeaderRow = 1;
@@ -74,7 +75,7 @@
 //                        showRowDefDialog(callback, "[warning] Please select at least one sheet for reading in.");
 //                    } else
                     if (repeatedErrFlg) {
-                        showRowDefDialog(callback, "[warning] Please select different raw for each definition.");
+                        showRowDefDialog(callback, "[warning] Please select different raw for each definition.", sheets);
                     }  else {
                         isViewUpdated = false;
                         isDebugViewUpdated = false;
