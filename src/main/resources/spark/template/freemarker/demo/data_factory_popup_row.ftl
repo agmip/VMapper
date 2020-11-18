@@ -224,19 +224,6 @@
                             addRowDef(data, popSpreadsheet);
                         };
                     }
-//                    spDiv.find("[name='row_define_remove_btn']").on("click", function() {
-//                        let tableIdx = $(this).parent().parent().index();
-//                        let tableDef = sheetDef[tableIdx];
-//                        alert(tableDef.table_name);
-//                    });
-//                    spDiv.find("[name='row_define_add_btn']").on("click", function() {
-//                        let tableDef = data[data.length - 1];
-//                        tableDef.button = '<button type="button" name="row_define_remove_btn" class="btn btn-danger btn-xs"><span name="table_index' + '_' + tableDef.table_index + '" class="glyphicon glyphicon-minus"></span></button>';
-//                        addTableDef2(data, {
-//                            button : '<button type="button" name="row_define_add_btn" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>'
-//                        });
-//                        popSpreadsheet.render();
-//                    });
                 });
             });
         });
