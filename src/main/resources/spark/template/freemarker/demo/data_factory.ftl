@@ -1169,7 +1169,11 @@
                 let tmp = target.id.split("__");
                 curFileName = tmp[0];
                 curSheetName = tmp[1];
-                $("#sheet_name_selected").text(" <" + curSheetName + ">");
+                if (curFileName.toLowerCase().endsWith("csv")) {
+                    $("#sheet_name_selected").text(" <" + curFileName + ">");
+                } else {
+                    $("#sheet_name_selected").text(" <" + curSheetName + ">");
+                }
             }
 
             function getColumnDef(mapping) {
