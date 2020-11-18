@@ -36,12 +36,15 @@
                 callback: function(){
                     let idxErrFlg = false;
                     let repeatedErrFlg = false;
+                    let invalidEndErrFlg = false;
+                    let overlapErrFlg = false;
 //                    let includedCnt = 0;
                     // Check if the last row input is meaningful or not
                     let lastRow = sheetDef.pop();
                     if (lastRow.header_row || lastRow.data_start_row) {
                         sheetDef.push(lastRow);
                     }
+                    let lastTableDef;
                     for (let i in sheetDef) {
                         let tableDef = sheetDef[i];
                         delete tableDef.button;
@@ -65,8 +68,18 @@
                                 }
                             }
                         }
+                        if (tableDef.data_start_row && tableDef.data_end_row && tableDef.data_start_row >= tableDef.data_end_row) {
+                            invalidEndErrFlg = true;
+                        }
                         if (tableDef.data_start_row) {
                             tableDef.single_flg = isSingleRecordTable(wbObj[curFileName][curSheetName].data, tableDef);
+                        }
+                        if (lastTableDef) {
+                            if (!lastTableDef.data_end_row || lastTableDef.data_end_row <= Math.max(tableDef.header_row, tableDef.data_start_row, tableDef.unit_row, tableDef.desc_row)) {
+                                overlapErrFlg = true;
+                            }
+                        } else {
+                            lastTableDef = tableDef;
                         }
                     }
 //                    if (idxErrFlg) {
@@ -75,8 +88,12 @@
 //                        showRowDefDialog(callback, "[warning] Please select at least one sheet for reading in.");
 //                    } else
                     if (repeatedErrFlg) {
-                        showRowDefDialog(callback, "[warning] Please select different raw for each definition.", sheets);
-                    }  else {
+                        showRowDefDialog(callback, "[warning] Please select different row for each definition.", sheets);
+                    }  else if (invalidEndErrFlg) {
+                        showRowDefDialog(callback, "[warning] Please select a row below the data start row for the end of table.", sheets);
+                    } else if (overlapErrFlg) {
+                        showRowDefDialog(callback, "[warning] Please select a row as end of data for the previous tables.", sheets);
+                    } else {
                         isViewUpdated = false;
                         isDebugViewUpdated = false;
                         isChanged = true;
