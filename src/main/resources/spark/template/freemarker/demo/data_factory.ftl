@@ -1729,6 +1729,33 @@
                 initSpreadsheet(curFileName, curSheetName);
             }
             
+            function setSubTableTabs() {
+                let tabDiv = $("#sheet_spreadsheet_table_tabs");
+                let curTableName = tabDiv.children(".active").attr("name");
+                tabDiv.children(":not(#sheet_spreadsheet_table_tabs_edit_btn)").remove();
+                let editBtn = tabDiv.children("#sheet_spreadsheet_table_tabs_edit_btn");
+                let sheetDef = getCurSheetDef();
+                let curTableTab;
+                for (let i in sheetDef) {
+                    let tableName = sheetDef[i].table_name;
+                    if (!tableName) {
+                        tableName = "Table " + sheetDef[i].table_index;
+                    }
+//                    $('<li><a data-toggle="tab" name="' + tableName + '" href="#sheet_spreadsheet_content" class="tab-xs" onclick="switchTable(' + sheetDef[i].table_index + ');">' + tableName + '</a></li>')
+                    let tableTab = $('<li name="' + tableName + '"><a data-toggle="tab" href="#sheet_spreadsheet_content" class="tab-xs" onclick="switchTable(' + sheetDef[i].table_index + ');">' + tableName + '</a></li>');
+                    tableTab.insertBefore(editBtn);
+                    
+                    if (tableName === curTableName || Number(i) === curTableIdx) {
+                        curTableTab = tableTab;
+                    }
+                }
+                if (curTableTab) {
+                    curTableTab.find("a").click();
+                } else {
+                    tabDiv.first().find("a").click();
+                }
+            }
+            
             function convertUnit() {
                 // TODO
             }
@@ -3098,9 +3125,7 @@
                         <span class="label label-default">Ignored</span>
                     </div>
                     <ul id="sheet_spreadsheet_table_tabs" class="nav nav-tabs text-center" hidden>
-                        <li class="active"><a data-toggle="tab" href="#sheet_spreadsheet_content" class="tab-xs" onclick="switchTable(1);">Table 1</a></li>
-                        <li><a data-toggle="tab" href="#sheet_spreadsheet_content" class="tab-xs" onclick="switchTable(2);">Table 2</a></li>
-                        <li><a href="#" class="tab-xs"><span class="glyphicon glyphicon-plus"></span></a><li>
+                        <li id="sheet_spreadsheet_table_tabs_edit_btn"><a href="#" class="tab-xs"><span class="glyphicon glyphicon-plus" onclick="showRowDefDialog(processData);"></span></a><li>
                     </ul>
                     <div id="sheet_spreadsheet_content" class="col-sm-12 tab-pane fade in active" style="overflow: hidden"></div>     
                 </div>
@@ -3239,6 +3264,7 @@
                 });
                 $("button").prop("disabled", false);
                 $('#tableViewSwitch').change(function () {
+                    setSubTableTabs();
                     initSpreadsheet(curFileName, curSheetName);
                 });
 //                $('#tableColSwitchSuccess').change(function () {
