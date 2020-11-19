@@ -9,6 +9,7 @@
         let sheetDef = getCurSheetDef(sheets);
         // Setup default value for row definition of a table
         let latestHeaderRow = 1;
+        let sheetName;
         for (let i in sheetDef) {
             let tableDef = sheetDef[i];
 //                if (!tableDef.header_row) {
@@ -48,12 +49,12 @@
                     for (let i in sheetDef) {
                         let tableDef = sheetDef[i];
                         delete tableDef.button;
+                        if (tableDef.table_name === autoTableName({table_index : tableDef.table_index})) {
+                            delete tableDef.table_name;
+                        }
                         if (!tableDef.data_start_row || !tableDef.header_row) {
                             idxErrFlg = true;
                         }
-//                                if (tableDef.included_flg) { // TODO replace with remove button
-//                                    includedCnt++;
-//                                    delete tableDef.included_flg;
                         let keys = ["data_start_row", "data_end_row", "header_row", "unit_row", "desc_row"];
                         for (let i = 0; i < keys.length; i++) {
                             if (tableDef[keys[i]]) {
@@ -75,7 +76,7 @@
                             tableDef.single_flg = isSingleRecordTable(wbObj[curFileName][curSheetName].data, tableDef);
                         }
                         if (lastTableDef) {
-                            if (!lastTableDef.data_end_row || lastTableDef.data_end_row <= Math.max(tableDef.header_row, tableDef.data_start_row, tableDef.unit_row, tableDef.desc_row)) {
+                            if (!lastTableDef.data_end_row || lastTableDef.data_end_row >= tableDef.data_start_row) {
                                 overlapErrFlg = true;
                             }
                         } else {
@@ -159,15 +160,12 @@
                     tableDef.table_index = Number(i) + 1;
                 }
                 if (!tableDef.table_name) {
-                    if (sheetDef.length === 1) {
-                        tableDef.table_name = tableDef.sheet_name;
-                    } else {
-                        tableDef.table_name = tableDef.sheet_name + "_" + (Number(i) + 1);
-                    }
+                    tableDef.table_name = autoTableName(tableDef);
                 }
                 tableDef.button = '<button type="button" name="row_define_remove_btn" class="btn btn-danger btn-xs"><span name="table_index' + '_' + tableDef.table_index + '" class="glyphicon glyphicon-minus"></span></button>';
             }
             addTableDef2(data, {
+                sheet_name : sheetName,
                 button : '<button type="button" name="row_define_add_btn" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>'
             });
             let spsOptions = {
@@ -250,8 +248,10 @@
         let tableDef = data[data.length - 1];
         tableDef.button = '<button type="button" name="row_define_remove_btn" class="btn btn-danger btn-xs"><span name="table_index' + '_' + tableDef.table_index + '" class="glyphicon glyphicon-minus"></span></button>';
         addTableDef2(data, {
+            sheet_name : tableDef.sheet_name,
             button : '<button type="button" name="row_define_add_btn" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>'
         });
+        tableDef.table_name = autoTableName(tableDef);
         popSpreadsheet.render();
     }
     
@@ -259,6 +259,28 @@
 //        let tableIdx = $(this).parent().parent().index();
 //        let tableDef = sheetDef[tableIdx];
         alert(tableDef.table_name);
+    }
+    
+//    function autoTableName(sheetDef, i) {
+//        let tableDef = sheetDef[i];
+//        if (sheetDef.length === 1) {
+//            tableDef.table_name = tableDef.sheet_name;
+//        } else {
+//            tableDef.table_name = tableDef.sheet_name + "_" + (Number(i) + 1);
+//        }
+//        return tableDef.table_name;
+//    }
+    
+    function autoTableName(tableDef, i) {
+        if (tableDef.table_name) {
+            return tableDef.table_name;
+        } else {
+            if (i) {
+                return "Table " + i;
+            } else {
+                return "Table " + tableDef.table_index;
+            }
+        }
     }
 
     function showSheetDefPrompt(callback) {

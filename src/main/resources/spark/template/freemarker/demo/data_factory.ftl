@@ -1739,7 +1739,7 @@
                 for (let i in sheetDef) {
                     let tableName = sheetDef[i].table_name;
                     if (!tableName) {
-                        tableName = "Table " + sheetDef[i].table_index;
+                        tableName = autoTableName(sheetDef[i]);
                     }
 //                    $('<li><a data-toggle="tab" name="' + tableName + '" href="#sheet_spreadsheet_content" class="tab-xs" onclick="switchTable(' + sheetDef[i].table_index + ');">' + tableName + '</a></li>')
                     let tableTab = $('<li name="' + tableName + '"><a data-toggle="tab" href="#sheet_spreadsheet_content" class="tab-xs" onclick="switchTable(' + sheetDef[i].table_index + ');">' + tableName + '</a></li>');
@@ -2759,10 +2759,10 @@
                     }
                     templates[fileName][sheetName] = [];
                 }
-                addTableDef2(getSheetDef(fileName, sheetName), tableDef, idx);
+                addTableDef2(getSheetDef(fileName, sheetName), tableDef, idx, sheetName);
             }
             
-            function addTableDef2(sheetDef, tableDef, idx) {
+            function addTableDef2(sheetDef, tableDef, idx, sheetName) {
                 if (!tableDef || !sheetDef) {
                     return;
                 }
@@ -2772,6 +2772,12 @@
                 } else {
                     sheetDef.push(tableDef);
                     tableDef.table_index = sheetDef.length;
+                }
+                if (!tableDef.sheet_name) {
+                    if (!sheetName && sheetDef.length > 1) {
+                        sheetName = sheetDef[0].sheet_name;
+                    }
+                    tableDef.sheet_name = sheetName;
                 }
             }
 
