@@ -27,6 +27,8 @@
                         } else {
                             mappingDivList = codeMappingListDiv.find("[name='template_code_mapping']");
                         }
+                        delete mapping.code_mappings;
+                        delete mapping.code_descriptions;
                         mappingDivList.each(function (){
                             let userCode = $(this).find("[name='user_code']").val().trim();
                             let userCodeDesc = $(this).find("[name='user_code_desc']").val().trim();
