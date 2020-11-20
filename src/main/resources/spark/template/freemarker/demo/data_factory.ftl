@@ -1571,6 +1571,9 @@
                         }
                     }
                 };
+                if ($('#tableViewSwitch2').prop("checked")) {
+                    spsOptions.data = replaceOrgCode(spsOptions.data, sheetDef)
+                }
                 if (!$('#tableViewSwitch').prop("checked")) {
                     spsOptions.data = getSheetDataContent(spsOptions.data, tableDef);
 //                    spsOptions.rowHeaders = true;
@@ -1620,7 +1623,6 @@
                                     if (mappings[col].code_mappings) {
                                         let icasaCode = mappings[col].code_mappings[orgVal];
                                         if (icasaCode) {
-                                            cell.textContent = icasaCode;
                                             cell.style.color = "white";
                                             cell.style.backgroundColor = "lightgreen";
                                         }
@@ -2891,6 +2893,27 @@
                         rawData = rawData.slice(tableDef.data_start_row - 1, tableDef.data_end_row);
                     } else {
                         rawData = rawData.slice(tableDef.data_start_row - 1);
+                    }
+                }
+                return rawData;
+            }
+            
+            function replaceOrgCode(rawData, sheetDef, modifyOrgDataFlg) {
+                if (!modifyOrgDataFlg) {
+                    rawData = JSON.parse(JSON.stringify(rawData));
+                }
+                let mappings = sheetDef.mappings;
+                for (let i in mappings) {
+                    if (mappings[i].unit === "code") {
+                        if (mappings[i].code_mappings) {
+                            for (let row in rawData) {
+                                let orgVal = rawData[row][i];
+                                let icasaCode = mappings[i].code_mappings[orgVal];
+                                if (icasaCode) {
+                                    rawData[row][i] = icasaCode;
+                                }
+                            }
+                        }
                     }
                 }
                 return rawData;
