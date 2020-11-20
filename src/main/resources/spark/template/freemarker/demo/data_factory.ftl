@@ -1580,34 +1580,66 @@
                 }
                 $("#sheet_spreadsheet_table_tabs").fadeIn(0);
                 spreadsheet = new Handsontable(spsContainer, spsOptions);
-                if ($('#tableViewSwitch').prop("checked")) {
+                if ($('#tableViewSwitch').prop("checked") || $('#tableViewSwitch2').prop("checked")) {
                     spreadsheet.updateSettings({
                         cells: function(row, col, prop) {
                             let cell = spreadsheet.getCell(row,col);
                             if (!cell) {
                                 return;
                             }
-                            if (row === tableDef.header_row - 1) {
-    //                            cell.style.color = "white";
-    //                            cell.style.fontWeight = "bold";
-                                cell.style.fontStyle = "italic";
-                                cell.style.backgroundColor = "lightgrey";
-                                return {readOnly : true};
-                            } else if (row === tableDef.unit_row - 1) {
-    //                            cell.style.color = "white";
-    //                            cell.style.textDecoration = "underline";
-                                cell.style.fontStyle = "italic";
-                                cell.style.backgroundColor = "lightgrey";
-                                return {readOnly : true};
-                            } else if (row === tableDef.desc_row - 1) {
-    //                            cell.style.color = "white";
-                                cell.style.fontStyle = "italic";
-                                cell.style.backgroundColor = "lightgrey";
-                                return {readOnly : true};
-                            } else if (row < tableDef.data_start_row - 1) {
-    //                            cell.style.color = "white";
-                                cell.style.backgroundColor = "lightgrey";
-                                return {readOnly : true};
+                            if ($('#tableViewSwitch').prop("checked")) {
+                                if (row === tableDef.header_row - 1) {
+        //                            cell.style.color = "white";
+        //                            cell.style.fontWeight = "bold";
+                                    cell.style.fontStyle = "italic";
+                                    cell.style.backgroundColor = "lightgrey";
+                                    return {readOnly : true};
+                                } else if (row === tableDef.unit_row - 1) {
+        //                            cell.style.color = "white";
+        //                            cell.style.textDecoration = "underline";
+                                    cell.style.fontStyle = "italic";
+                                    cell.style.backgroundColor = "lightgrey";
+                                    return {readOnly : true};
+                                } else if (row === tableDef.desc_row - 1) {
+        //                            cell.style.color = "white";
+                                    cell.style.fontStyle = "italic";
+                                    cell.style.backgroundColor = "lightgrey";
+                                    return {readOnly : true};
+                                } else if (row < tableDef.data_start_row - 1) {
+        //                            cell.style.color = "white";
+                                    cell.style.backgroundColor = "lightgrey";
+                                    return {readOnly : true};
+                                }
+                            }
+                            if ($('#tableViewSwitch2').prop("checked")) {
+                                if (mappings[col].unit === "code") {
+                                    let orgVal = data[row][col];
+                                    if (!$('#tableViewSwitch').prop("checked")) {
+                                        orgVal = data[row + tableDef.data_start_row - 1][col];
+                                    }
+                                    if (mappings[col].code_mappings) {
+                                        let icasaCode = mappings[col].code_mappings[orgVal];
+                                        if (icasaCode) {
+                                            cell.textContent = icasaCode;
+                                            cell.style.color = "white";
+                                            cell.style.backgroundColor = "lightgreen";
+                                        }
+                                        return;
+                                    } else if (mappings[col].code_descriptions) {
+                                        cell.style.color = "white";
+                                        cell.style.backgroundColor = "lightblue";
+                                        return;
+                                    } else if (mappings[col].icasa) {
+                                        let codeMap = icasaVarMap.getCodeMap(mappings[col].icasa);
+                                        if (codeMap && codeMap[orgVal]) {
+                                            cell.style.color = "white";
+                                            cell.style.backgroundColor = "lightgreen";
+                                            return;
+                                        }
+                                    }
+                                    cell.style.color = "white";
+                                    cell.style.backgroundColor = "orange";
+                                }
                             }
                         },
                     });
@@ -3122,6 +3154,8 @@
                             <span class="label label-default">Ignored Row</span>-->
                         <label>View Style: </label>
                         <input type="checkbox" id="tableViewSwitch" class="table_switch_cb" data-toggle="toggle" data-size="mini" data-on="Full View" data-off="Data Only">
+                        <label>Code Value: </label>
+                        <input type="checkbox" id="tableViewSwitch2" class="table_switch_cb2" data-toggle="toggle" data-size="mini" data-on="ICASA" data-off="Original">
                         <label>Column Marker : </label>
                         <span class="label label-success">ICASA Mapped</span>
                         <span class="label label-info">Customized</span>
@@ -3271,6 +3305,9 @@
                 $("button").prop("disabled", false);
                 $('#tableViewSwitch').change(function () {
                     setSubTableTabs();
+                    initSpreadsheet(curFileName, curSheetName);
+                });
+                $('#tableViewSwitch2').change(function () {
                     initSpreadsheet(curFileName, curSheetName);
                 });
 //                $('#tableColSwitchSuccess').change(function () {
