@@ -1526,7 +1526,7 @@
                     }
                 };
                 if ($('#tableViewSwitch2').prop("checked")) {
-                    spsOptions.data = replaceOrgCode(spsOptions.data, sheetDef)
+                    spsOptions.data = replaceOrgCode(spsOptions.data, sheetDef);
                 }
                 if (!$('#tableViewSwitch').prop("checked")) {
                     spsOptions.data = getSheetDataContent(spsOptions.data, sheetDef);
