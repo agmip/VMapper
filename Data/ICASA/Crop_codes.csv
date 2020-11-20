@@ -74,6 +74,7 @@
 "CRID","LET","Lettuce","Lactuca spp.","Vegetable","","","","","","","","","","","","","","","","","",""
 "CRID","MAZ","Maize","Zea mays","Cereal","","","MZ","Maize","Maize","","","","","","","","","","","","",""
 "CRID","MCN","Macadamia nut","Macadamia spp.","Nut","","","","","","","","","","","","","","","","","",""
+"CRID","MNG","Mung bean","Vigna radiata","Pulse","","Green gram","MU","","","","","","","","","","","","","","",""
 "CRID","NPG","Napier grass","Pennisetum_purpureum","Forage, Bioenergy","","Elephant grass","NP","Napiergrass","","","","","","","","","","","","","",""
 "CRID","OAT","Oats","Avena sativa","Cereal, Forage","","","OA","Oats","","","","","","","","","","","","","",""
 "CRID","OKR","Okra","Abelmoschus esculentus","Vegetable","","","","","","","","","","","","","","","","","",""
@@ -145,5 +146,4 @@
 "CRID","WNB","Black walnut","Juglans nigra","Nut","","","","","","","","","","","","","","","","","",""
 "CRID","WNT","Walnut","Juglans regia","Nut","","English or Persian ","","","","","","","","","","","","","","","",""
 "CRID","YAM","Yam","Dioscorea spp.","Tuber crop","","","","","","","","","","","","","","","","","",""
-"","","","","","","","","","","","","","","","","","","","","","",""
 "","","","","","","","","","","","","","","","","","","","","","",""
