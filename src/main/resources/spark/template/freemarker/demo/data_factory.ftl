@@ -2980,73 +2980,76 @@
                     
                     sc2Obj.agmip_translation_mappings.files.push(tmp2);
                     for (let sheetName in templates[fileName]) {
-                        let tmp = Object.assign({}, templates[fileName][sheetName]);
-                        delete tmp.unfully_matched_flg;
-                        tmp.mappings = [];
-                        delete tmp.references;
-                        for (let i in templates[fileName][sheetName].mappings) {
-                            let mapping = templates[fileName][sheetName].mappings[i];
-                            if (!mapping.ignored_flg) {
-                                let mappingCopy = JSON.parse(JSON.stringify(mapping));
-                                if (mappingCopy.column_header === "") {
-                                    delete mappingCopy.column_header;
-                                }
-                                if (!mappingCopy.column_index_org) {
-                                    mappingCopy.column_index_vr = mappingCopy.column_index;
-                                    delete mappingCopy.column_index;
-                                    mappingCopy.formula = {
-                                        "function" : "",
-                                        "args" : {}
-                                    };
-                                    for (let key in mappingCopy) {
-                                        if (key.startsWith("virtual")) {
-                                            if (key === "virtual_val_fixed") {
-                                                mappingCopy.value = mappingCopy[key];
-                                            } else if (key === "virtual_val_keys") {
-                                                if (mappingCopy[key].length === 0) {
-                                                    continue;
+                        for (let idx in templates[fileName][sheetName]) {
+                            let tableDef = getTableDef(fileName, sheetName, idx);
+                            let tmp = Object.assign({}, tableDef);
+                            delete tmp.unfully_matched_flg;
+                            tmp.mappings = [];
+                            delete tmp.references;
+                            for (let i in tableDef.mappings) {
+                                let mapping = tableDef.mappings[i];
+                                if (!mapping.ignored_flg) {
+                                    let mappingCopy = JSON.parse(JSON.stringify(mapping));
+                                    if (mappingCopy.column_header === "") {
+                                        delete mappingCopy.column_header;
+                                    }
+                                    if (!mappingCopy.column_index_org) {
+                                        mappingCopy.column_index_vr = mappingCopy.column_index;
+                                        delete mappingCopy.column_index;
+                                        mappingCopy.formula = {
+                                            "function" : "",
+                                            "args" : {}
+                                        };
+                                        for (let key in mappingCopy) {
+                                            if (key.startsWith("virtual")) {
+                                                if (key === "virtual_val_fixed") {
+                                                    mappingCopy.value = mappingCopy[key];
+                                                } else if (key === "virtual_val_keys") {
+                                                    if (mappingCopy[key].length === 0) {
+                                                        continue;
+                                                    }
+                                                    for (let j in mappingCopy[key]) {
+                                                        mappingCopy[key][j] = tableDef.mappings[mappingCopy[key][j] - 1].column_index_org;
+                                                    }
+                                                    mappingCopy.formula.function = "join_columns";
                                                 }
-                                                for (let j in mappingCopy[key]) {
-                                                    mappingCopy[key][j] = templates[fileName][sheetName].mappings[mappingCopy[key][j] - 1].column_index_org;
-                                                }
-                                                mappingCopy.formula.function = "join_columns";
+                                                mappingCopy.formula.args[key] = mappingCopy[key];
+                                                delete mappingCopy[key];
                                             }
-                                            mappingCopy.formula.args[key] = mappingCopy[key];
-                                            delete mappingCopy[key];
                                         }
+                                        if (!mappingCopy.formula.function) {
+                                            delete mappingCopy.formula;
+                                        }
+                                    } else {
+                                        mappingCopy.column_index = mappingCopy.column_index_org;
+                                        delete mappingCopy.column_index_org;
                                     }
-                                    if (!mappingCopy.formula.function) {
-                                        delete mappingCopy.formula;
+                                    tmp.mappings.push(mappingCopy);
+                                    if (mapping.reference_flg) {
+                                        delete mappingCopy.reference_type;
+                                        delete mappingCopy.reference_flg;
                                     }
-                                } else {
-                                    mappingCopy.column_index = mappingCopy.column_index_org;
-                                    delete mappingCopy.column_index_org;
-                                }
-                                tmp.mappings.push(mappingCopy);
-                                if (mapping.reference_flg) {
-                                    delete mappingCopy.reference_type;
-                                    delete mappingCopy.reference_flg;
-                                }
-                                if (mapping.format_customized) {
-                                    mappingCopy.format = mapping.format_customized;
-                                    delete mappingCopy.format_customized;
+                                    if (mapping.format_customized) {
+                                        mappingCopy.format = mapping.format_customized;
+                                        delete mappingCopy.format_customized;
+                                    }
                                 }
                             }
-                        }
-                        if (templates[fileName][sheetName].references) {
-                            for (let fromKeyIdxs in templates[fileName][sheetName].references) {
-                                let refDefs = templates[fileName][sheetName].references[fromKeyIdxs];
-                                for (let toRefDefStr in refDefs) {
-                                    let toRefDef = refDefs[toRefDefStr];
-                                    let refDef = createRefDefObj({file: fileName, sheet: sheetName},
-                                        JSON.parse("[" + fromKeyIdxs + "]"),
-                                        toRefDef,
-                                        getKeyIdxArr(toRefDef.keys), true);
-                                    sc2Obj.agmip_translation_mappings.relations.push(refDef);
+                            if (tableDef.references) {
+                                for (let fromKeyIdxs in tableDef.references) {
+                                    let refDefs = tableDef.references[fromKeyIdxs];
+                                    for (let toRefDefStr in refDefs) {
+                                        let toRefDef = refDefs[toRefDefStr];
+                                        let refDef = createRefDefObj({file: fileName, sheet: sheetName},
+                                            JSON.parse("[" + fromKeyIdxs + "]"),
+                                            toRefDef,
+                                            getKeyIdxArr(toRefDef.keys), true);
+                                        sc2Obj.agmip_translation_mappings.relations.push(refDef);
+                                    }
                                 }
                             }
+                            tmp2.file.sheets.push(tmp);
                         }
-                        tmp2.file.sheets.push(tmp);
                     }
                 }
                 for (let key in sc2ObjCache) {
