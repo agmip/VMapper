@@ -1573,7 +1573,6 @@
                                     if (mappings[col].code_mappings) {
                                         let icasaCode = mappings[col].code_mappings[orgVal];
                                         if (icasaCode) {
-                                            cell.textContent = icasaCode;
                                             cell.style.color = "white";
                                             cell.style.backgroundColor = "lightgreen";
                                         }
@@ -2634,6 +2633,22 @@
                         rawData = rawData.slice(sheetDef.data_start_row - 1, sheetDef.data_end_row);
                     } else {
                         rawData = rawData.slice(sheetDef.data_start_row - 1);
+                    }
+                }
+                if ($('#tableViewSwitch2').prop("checked")) {
+                    rawData = JSON.parse(JSON.stringify(rawData));
+                    for (let i in sheetDef.mappings) {
+                        if (sheetDef.mappings[i].unit === "code") {
+                            if (mappings[i].code_mappings) {
+                                for (let row in rawData) {
+                                    let orgVal = rawData[row][i];
+                                    let icasaCode = mappings[i].code_mappings[orgVal];
+                                    if (icasaCode) {
+                                        rawData[row][i] = icasaCode;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 return rawData;
