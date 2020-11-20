@@ -2645,8 +2645,9 @@
                 if (!modifyOrgDataFlg) {
                     rawData = JSON.parse(JSON.stringify(rawData));
                 }
-                for (let i in sheetDef.mappings) {
-                    if (sheetDef.mappings[i].unit === "code") {
+                let mappings = sheetDef.mappings;
+                for (let i in mappings) {
+                    if (mappings[i].unit === "code") {
                         if (mappings[i].code_mappings) {
                             for (let row in rawData) {
                                 let orgVal = rawData[row][i];
