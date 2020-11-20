@@ -140,7 +140,7 @@
         if (!sheetName) {
             sheetName = curSheetName;
         }
-        let sheetDef = templates[fileName][sheetName];
+        let tableDef = getCurTableDef();
         let data = wbObj[fileName][sheetName].data;
         let codeMappings = mapping.code_mappings;
         if (!codeMappings) {
@@ -150,7 +150,7 @@
         if (!codeDescs) {
             codeDescs = {}; // TODO wait for the final style of code mapping in SC2
         }
-        data = getSheetDataContent(data, sheetDef);
+        data = getSheetDataContent(data, tableDef);
         for (let i in data) {
             let val = data[i][mapping.column_index - 1];
             if (val) {
