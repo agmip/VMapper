@@ -103,10 +103,10 @@
                         });
                         if (!itemData.code_mappings_undefined_flg) {
                             if ($('#tableViewSwitch2').prop("checked")) {
-                                let tableDef = templates[curFileName][curSheetName];
+                                let tableDef = getCurTableDef();
                                 let rawData = wbObj[curFileName][curSheetName].data;
                                 if (!$('#tableViewSwitch').prop("checked")) {
-                                    rawData = getSheetDataContent(wbObj[curFileName][curSheetName].data, tableDef);
+                                    rawData = getSheetDataContent(rawData, tableDef);
                                 }
                                 spreadsheet.updateSettings({
                                     data : replaceOrgCode(rawData, tableDef)
