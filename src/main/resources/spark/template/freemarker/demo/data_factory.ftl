@@ -1572,7 +1572,7 @@
                     }
                 };
                 if ($('#tableViewSwitch2').prop("checked")) {
-                    spsOptions.data = replaceOrgCode(spsOptions.data, sheetDef)
+                    spsOptions.data = replaceOrgCode(spsOptions.data, tableDef)
                 }
                 if (!$('#tableViewSwitch').prop("checked")) {
                     spsOptions.data = getSheetDataContent(spsOptions.data, tableDef);
@@ -2898,11 +2898,11 @@
                 return rawData;
             }
             
-            function replaceOrgCode(rawData, sheetDef, modifyOrgDataFlg) {
+            function replaceOrgCode(rawData, tableDef, modifyOrgDataFlg) {
                 if (!modifyOrgDataFlg) {
                     rawData = JSON.parse(JSON.stringify(rawData));
                 }
-                let mappings = sheetDef.mappings;
+                let mappings = tableDef.mappings;
                 for (let i in mappings) {
                     if (mappings[i].unit === "code") {
                         if (mappings[i].code_mappings) {
