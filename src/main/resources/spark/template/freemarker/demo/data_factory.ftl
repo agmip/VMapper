@@ -1525,6 +1525,9 @@
                         }
                     }
                 };
+                if ($('#tableViewSwitch2').prop("checked")) {
+                    spsOptions.data = replaceOrgCode(spsOptions.data, sheetDef)
+                }
                 if (!$('#tableViewSwitch').prop("checked")) {
                     spsOptions.data = getSheetDataContent(spsOptions.data, sheetDef);
 //                    spsOptions.rowHeaders = true;
@@ -2635,17 +2638,21 @@
                         rawData = rawData.slice(sheetDef.data_start_row - 1);
                     }
                 }
-                if ($('#tableViewSwitch2').prop("checked")) {
+                return rawData;
+            }
+            
+            function replaceOrgCode(rawData, sheetDef, modifyOrgDataFlg) {
+                if (!modifyOrgDataFlg) {
                     rawData = JSON.parse(JSON.stringify(rawData));
-                    for (let i in sheetDef.mappings) {
-                        if (sheetDef.mappings[i].unit === "code") {
-                            if (mappings[i].code_mappings) {
-                                for (let row in rawData) {
-                                    let orgVal = rawData[row][i];
-                                    let icasaCode = mappings[i].code_mappings[orgVal];
-                                    if (icasaCode) {
-                                        rawData[row][i] = icasaCode;
-                                    }
+                }
+                for (let i in sheetDef.mappings) {
+                    if (sheetDef.mappings[i].unit === "code") {
+                        if (mappings[i].code_mappings) {
+                            for (let row in rawData) {
+                                let orgVal = rawData[row][i];
+                                let icasaCode = mappings[i].code_mappings[orgVal];
+                                if (icasaCode) {
+                                    rawData[row][i] = icasaCode;
                                 }
                             }
                         }
