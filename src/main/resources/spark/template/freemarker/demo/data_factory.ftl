@@ -1625,13 +1625,17 @@
                                         if (icasaCode) {
                                             cell.style.color = "white";
                                             cell.style.backgroundColor = "lightgreen";
+                                            return;
                                         }
-                                        return;
-                                    } else if (mappings[col].code_descriptions) {
-                                        cell.style.color = "white";
-                                        cell.style.backgroundColor = "lightblue";
-                                        return;
-                                    } else if (mappings[col].icasa) {
+                                    }
+                                    if (mappings[col].code_descriptions) {
+                                        if (mappings[col].code_descriptions[orgVal]) {
+                                            cell.style.color = "white";
+                                            cell.style.backgroundColor = "lightblue";
+                                            return;
+                                        }
+                                    }
+                                    if (mappings[col].icasa) {
                                         let codeMap = icasaVarMap.getCodeMap(mappings[col].icasa);
                                         if (codeMap && codeMap[orgVal]) {
                                             cell.style.color = "white";
