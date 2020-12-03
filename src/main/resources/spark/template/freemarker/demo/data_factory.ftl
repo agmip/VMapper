@@ -897,7 +897,17 @@
                             if (tableDef.header_row) {
                                 headers = roa[tableDef.header_row - 1];
                                 lastHeaderRow[fileName][sheetName][i] = tableDef.header_row;
-                                for (let i = 0; i < Math.max(headers.length, tableDef.mappings.length - virColCnt[fileName][sheetName][i]); i++) {
+                                let maxColNum = Math.max(headers.length, tableDef.mappings.length - virColCnt[fileName][sheetName][i]);
+                                if (sheetDef.data_start_row) {
+                                    maxColNum = Math.max(maxColNum, roa[tableDef.data_start_row - 1].length);
+                                }
+                                if (sheetDef.unit_row) {
+                                    maxColNum = Math.max(maxColNum, roa[tableDef.unit_row - 1].length);
+                                }
+                                if (sheetDef.desc_row) {
+                                    maxColNum = Math.max(maxColNum, roa[tableDef.desc_row - 1].length);
+                                }
+                                for (let i = 0; i < maxColNum; i++) {
                                     if (!headers[i]) {
                                         headers[i] = "";
                                     }
@@ -905,7 +915,7 @@
                             } else {
                                 headers = [];
                                 if (tableDef.data_start_row) {
-                                    for (let i = 0; i < roa[tableDef.data_start_row + 1].length; i++) {
+                                    for (let i = 0; i < roa[tableDef.data_start_row - 1].length; i++) {
                                         headers.push("");
                                     }
                                 } else if (tableDef.mappings) {
@@ -1145,7 +1155,7 @@
                                 } else {
                                     headers = [];
                                     if (tableDef.data_start_row) {
-                                        for (let i = 0; i < roa[tableDef.data_start_row + 1].length; i++) {
+                                        for (let i = 0; i < roa[tableDef.data_start_row - 1].length; i++) {
                                             if (tableDef.mappings[i] && !tableDef.mappings[i].column_index_org && tableDef.mappings[i].column_header) {
                                                 headers.push(tableDef.mappings[i].column_header);
                                             } else {
