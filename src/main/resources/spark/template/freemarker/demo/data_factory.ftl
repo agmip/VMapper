@@ -2554,23 +2554,23 @@
                         }
                         let fileName = getMetaFileName(fileConfig.file.file_metadata);
                         // setup mappings
-                        templates[fileName] = {};
                         for (let i in fileConfig.file.sheets) {
                             let sheetName = fileConfig.file.sheets[i].sheet_name;
                             // If load SC2 separatedly and have excluding sheets, then skip the mapping for those sheets
                             if (curFileName && !wbObj[fileName][sheetName]) {
                                 continue;
                             }
-                            templates[fileName][sheetName] = Object.assign({}, fileConfig.file.sheets[i]);
-//                                    if (!isTableDefExist(fileName, sheetName).header_row) {
-//                                        templates[fileName][sheetName].header_row = 1;
+                            let tableDef = Object.assign({}, fileConfig.file.sheets[i]);
+                            addTableDef(fileName, sheetName, tableDef);
+//                                    if (!tableDef.header_row) {
+//                                        tableDef.header_row = 1;
 //                                    }
-//                                    if (!isTableDefExist(fileName, sheetName).data_start_row) {
-//                                        templates[fileName][sheetName].data_start_row = templates[fileName][sheetName].header_row + 1;
+//                                    if (!tableDef.data_start_row) {
+//                                        tableDef.data_start_row = tableDef.header_row + 1;
 //                                    }
                             let sc2Mappings = fileConfig.file.sheets[i].mappings;
-                            templates[fileName][sheetName].mappings = [];
-                            templates[fileName][sheetName].references = {};
+                            tableDef.mappings = [];
+                            tableDef.references = {};
                             if (!virColCnt[fileName]) {
                                 virColCnt[fileName] = {};
                             }
@@ -2580,12 +2580,12 @@
                             if (lastHeaderRow[fileName]) {
                                 lastHeaderRow[fileName] = {};
                             }
-                            if (templates[fileName][sheetName].header_row) {
-                                lastHeaderRow[fileName][sheetName] = templates[fileName][sheetName].header_row;
+                            if (tableDef.header_row) {
+                                lastHeaderRow[fileName][sheetName] = tableDef.header_row;
                             } else {
                                 lastHeaderRow[fileName][sheetName] = 1;
                             }
-                            let mappings = templates[fileName][sheetName].mappings;
+                            let mappings = tableDef.mappings;
                             sc2Mappings.sort(function (m1, m2) {
                                 let idx1 = m1.column_index;
                                 if (!idx1) {
