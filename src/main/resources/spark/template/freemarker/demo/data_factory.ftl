@@ -852,7 +852,17 @@
                         if (sheetDef.header_row) {
                             headers = roa[sheetDef.header_row - 1];
                             lastHeaderRow[fileName][sheetName] = sheetDef.header_row;
-                            for (let i = 0; i < Math.max(headers.length, sheetDef.mappings.length - virColCnt[fileName][sheetName]); i++) {
+                            let maxColNum = Math.max(headers.length, sheetDef.mappings.length - virColCnt[fileName][sheetName]);
+                            if (sheetDef.data_start_row) {
+                                maxColNum = Math.max(maxColNum, roa[sheetDef.data_start_row - 1].length);
+                            }
+                            if (sheetDef.unit_row) {
+                                maxColNum = Math.max(maxColNum, roa[sheetDef.unit_row - 1].length);
+                            }
+                            if (sheetDef.desc_row) {
+                                maxColNum = Math.max(maxColNum, roa[sheetDef.desc_row - 1].length);
+                            }
+                            for (let i = 0; i < maxColNum; i++) {
                                 if (!headers[i]) {
                                     headers[i] = "";
                                 }
@@ -860,7 +870,7 @@
                         } else {
                             headers = [];
                             if (sheetDef.data_start_row) {
-                                for (let i = 0; i < roa[sheetDef.data_start_row + 1].length; i++) {
+                                for (let i = 0; i < roa[sheetDef.data_start_row - 1].length; i++) {
                                     headers.push("");
                                 }
                             } else if (sheetDef.mappings) {
@@ -1100,7 +1110,7 @@
                             } else {
                                 headers = [];
                                 if (sheetDef.data_start_row) {
-                                    for (let i = 0; i < roa[sheetDef.data_start_row + 1].length; i++) {
+                                    for (let i = 0; i < roa[sheetDef.data_start_row - 1].length; i++) {
                                         if (sheetDef.mappings[i] && !sheetDef.mappings[i].column_index_org && sheetDef.mappings[i].column_header) {
                                             headers.push(sheetDef.mappings[i].column_header);
                                         } else {
