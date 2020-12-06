@@ -1172,7 +1172,7 @@
                                         }
                                     }
                                 }
-                                result[sheetName][i].header = headers;
+                                result[sheetName].header[i] = headers;
 
                                 // fill missing column definition with ignored flag
                                 let vrColCnt = 0;
