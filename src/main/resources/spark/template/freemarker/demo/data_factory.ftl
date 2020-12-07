@@ -626,40 +626,36 @@
                 if (!curFileName || !curSheetName) {
                     wbObj = {};
                 }
-                for (let fileName in templates) {
-                    for (let sheetName in templates[fileName]) {
+                loopTables(null,
+                    function(fileName, sheetName){
                         if (!virColCnt[fileName][sheetName]) {
                             virColCnt[fileName][sheetName] = [];
                         }
-                        for (let i in templates[fileName][sheetName]) {
-                            virColCnt[fileName][sheetName][i] = 0;
-                        }
+                    },
+                    function (fileName, sheetName, i){
+                        virColCnt[fileName][sheetName][i] = 0;
                     }
-                }
+                );
 //                for (let name in workbooks) {
 //                    if (workbooks[name]) {
 //                        wbObj[name] = to_object(workbooks[name], name);
 //                    }
 //                }
                 wbObj = to_objects(workbooks);
-                for (let fileName in templates) {
-                    for (let sheetName in templates[fileName]) {
-                        for (let i in templates[fileName][sheetName]) {
-                            let tableDef = getTableDef(fileName, sheetName, i);
-                            if (tableDef.references) {
-                                for (let fromKeyIdxs in tableDef.references) {
-                                    for (let toKey in tableDef.references[fromKeyIdxs]) {
-                                        // TODO update table reference for multi table feature
-                                        tableDef.references[fromKeyIdxs][toKey].keys = getKeyArr(tableDef.references[fromKeyIdxs][toKey].keys, getRefTableDef(tableDef.references[fromKeyIdxs][toKey]).mappings);
-                                    }
-                                }
-                            }
-                            if (tableDef.data_start_row && wbObj[fileName] && wbObj[fileName][sheetName]) {
-                                tableDef.single_flg = isSingleRecordTable(wbObj[fileName][sheetName].data, tableDef);
+                loopTables(null, null, function (fileName, sheetName, i) {
+                    let tableDef = getTableDef(fileName, sheetName, i);
+                    if (tableDef.references) {
+                        for (let fromKeyIdxs in tableDef.references) {
+                            for (let toKey in tableDef.references[fromKeyIdxs]) {
+                                // TODO update table reference for multi table feature
+                                tableDef.references[fromKeyIdxs][toKey].keys = getKeyArr(tableDef.references[fromKeyIdxs][toKey].keys, getRefTableDef(tableDef.references[fromKeyIdxs][toKey]).mappings);
                             }
                         }
                     }
-                }
+                    if (tableDef.data_start_row && wbObj[fileName] && wbObj[fileName][sheetName]) {
+                        tableDef.single_flg = isSingleRecordTable(wbObj[fileName][sheetName].data, tableDef);
+                    }
+                });
 
                 for (let fileName in fileTypes) {
                     let fileUrlDiv = $("#template_file_url_input").find("div").first().clone();
@@ -671,18 +667,22 @@
                 }
 
                 $('#sheet_tab_list').empty();
-                for (let fileName in templates) {
-                    $('#sheet_tab_list').append('<li class="dropdown-header"><strong>' + fileName + '</strong></li>');
-                    for (let sheetName in templates[fileName]) {
+                loopSheets(
+                    function(fileName){
+                        $('#sheet_tab_list').append('<li class="dropdown-header"><strong>' + fileName + '</strong></li>');
+                    },
+                    function(fileName, sheetName){
                         let cntUndefined = countUndefinedColumns(getSheetDef(fileName, sheetName));
                         if (cntUndefined > 0) {
                             $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + fileName + '__' + sheetName + '" onclick="setSpreadsheet(this);">' + sheetName + '&nbsp;&nbsp;<span class="label label-danger label-as-badge">' + cntUndefined + '</span></a></li>');
                         } else {
                             $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + fileName + '__' + sheetName + '" onclick="setSpreadsheet(this);">' + sheetName + '&nbsp;&nbsp;<span class="label label-danger label-as-badge invisible">' + cntUndefined + '</span></a></li>');
                         }
+                    },
+                    function(fileName) {
+                        $('#sheet_tab_list').append('<li class="divider"></li>');
                     }
-                    $('#sheet_tab_list').append('<li class="divider"></li>');
-                }
+                );
 
                 if (curFileName && curSheetName && isSheetDefExist(curFileName, curSheetName)) {
 //                    initSpreadsheet(curFileName, curSheetName);
@@ -695,25 +695,24 @@
             
             function updateSheetName(fileName, preSheetName, sheetName) {
                 templates[fileName][sheetName] = templates[fileName][preSheetName];
-                for (let i in templates[fileName][sheetName]) {
-                    templates[fileName][sheetName][i].sheet_name = sheetName;
-                }
+                loopTableFromSheet(getSheetDef(fileName, sheetName), function(tableDef) {
+                    tableDef.sheet_name = sheetName;
+                });
                 delete templates[fileName][preSheetName];
-                for (let i in templates) {
-                    for (let j in templates[i]) {
-                        if (templates[i][j].references) {
-                            updateSheetReference(templates[i][j].references, fileName, preSheetName, sheetName);
-                        }
+                loopTables(function (i, j, k) {
+                    let tableDef = getTableDef(i, j, k);
+                    if (tableDef.references) {
+                        updateSheetReference(tableDef.references, fileName, preSheetName, sheetName);
                     }
-                }
+                });
             }
             
             // TODO update references for multi table feature
             function updateSheetReference(references, fileName, preSheetName, sheetName) {
                 for (let fromKeyIdx in references) {
                     for (let refToKey in references[fromKeyIdx]) {
-                        if (refToKey.includes("[" + fileName + "][" + preSheetName + "]:")) {
-                            let newRefToKey = refToKey.replace("][" + preSheetName + "]:", "][" + sheetName + "]:");
+                        if (refToKey.includes("[" + fileName + "][" + preSheetName + "][")) {
+                            let newRefToKey = refToKey.replace("][" + preSheetName + "]", "][" + sheetName + "][");
                             references[fromKeyIdx][newRefToKey] = references[fromKeyIdx][refToKey];
                             delete references[fromKeyIdx][refToKey];
                             refToKey = newRefToKey;
@@ -775,54 +774,47 @@
                     }
                 }
                 // update index used in reference and virtual column
-                for (let fileName in templates) {
-                    for (let sheetName in templates[fileName]) {
-                        let sheetDef = getSheetDef(fileName, sheetName);
-
-                        for (let i in sheetDef) {
-                            let tableDef = sheetDef[i];
-                            // update virtual column
-                            if (virColCnt[fileName][sheetName][i]) {
-                                mappings = tableDef.mappings;
-                                for (let i in mappings) {
-                                    let virKeys = mappings[i].virtual_val_keys;
-                                    if (virKeys) {
-                                        for (let j in virKeys) {
-                                            for (let k in mappings) {
-                                                if (mappings[k].column_index_org === virKeys[j]) {
-                                                    virKeys[j] = mappings[k].column_index;
-                                                    break;
-                                                }
-                                            }
+                loopTables(null, null, function(fileName, sheetName, i, tableDef) {
+                    // update virtual column
+                    if (virColCnt[fileName][sheetName][i]) {
+                        mappings = tableDef.mappings;
+                        for (let i in mappings) {
+                            let virKeys = mappings[i].virtual_val_keys;
+                            if (virKeys) {
+                                for (let j in virKeys) {
+                                    for (let k in mappings) {
+                                        if (mappings[k].column_index_org === virKeys[j]) {
+                                            virKeys[j] = mappings[k].column_index;
+                                            break;
                                         }
-                                        updateRawData(ret[fileName][sheetName].data, tableDef, mappings[i]);
                                     }
                                 }
+                                updateRawData(ret[fileName][sheetName].data, tableDef, mappings[i]);
                             }
-
-                            // update reference
-                            tableDef.references = {};
-                            // TODO update reference to match multi table feature
-                            let refConfig = tableDef.references_org;
-                            let references = tableDef.references;
-                            for (let j in refConfig) {
-                                let refDef = refConfig[j];
-                                let fromKeyIdxs = getKeyIdxArr(refDef.from.keys, tableDef.mappings);
-                                let toKeyIdxs = getKeyIdxArr(refDef.to.keys, getRefTableDef(refDef.to).mappings);
-                                let toKey = getRefDefKey(refDef.to, toKeyIdxs);
-                                if (!references[fromKeyIdxs]) {
-                                    references[fromKeyIdxs] = {};
-                                }
-                                references[fromKeyIdxs][toKey] = {
-                                    file: refDef.to.file,
-                                    sheet: refDef.to.sheet,
-                                    keys: toKeyIdxs //getKeyArr(toKeyIdxs, mappings)
-                                };
-                            }
-                            delete tableDef.references_org;
                         }
                     }
-                }
+
+                    // update reference
+                    tableDef.references = {};
+                    // TODO update reference to match multi table feature
+                    let refConfig = tableDef.references_org;
+                    let references = tableDef.references;
+                    for (let j in refConfig) {
+                        let refDef = refConfig[j];
+                        let fromKeyIdxs = getKeyIdxArr(refDef.from.keys, tableDef.mappings);
+                        let toKeyIdxs = getKeyIdxArr(refDef.to.keys, getRefTableDef(refDef.to).mappings);
+                        let toKey = getRefDefKey(refDef.to, toKeyIdxs);
+                        if (!references[fromKeyIdxs]) {
+                            references[fromKeyIdxs] = {};
+                        }
+                        references[fromKeyIdxs][toKey] = {
+                            file: refDef.to.file,
+                            sheet: refDef.to.sheet,
+                            keys: toKeyIdxs //getKeyArr(toKeyIdxs, mappings)
+                        };
+                    }
+                    delete tableDef.references_org;
+                });
 //                workbook.SheetNames.forEach(function(sheetName) {
 //                    if (isSheetDefExist(fileName, sheetName)) {
 //                        shiftRefToKeyIdx(templates[fileName][sheetName]);
@@ -1276,7 +1268,7 @@
                 let tmp = target.id.split("__");
                 curFileName = tmp[0];
                 curSheetName = tmp[1];
-                curTableIdx = 0;
+                curTableIdx = 1;
                 if (curFileName.toLowerCase().endsWith("csv")) {
                     $("#sheet_name_selected").text(" <" + curFileName + ">");
                 } else {
@@ -1773,7 +1765,7 @@
             }
             
             function switchTable(tableIdx) {
-                curTableIdx = Number(tableIdx) - 1;
+                curTableIdx = Number(tableIdx);
                 initSpreadsheet(curFileName, curSheetName);
             }
             
@@ -1826,22 +1818,20 @@
 
             function saveAgMIPZip() {
                 // check if mappings are completed
-                for (let fileName in templates) {
-                    for (let sheetName in templates[fileName]) {
-                        let cntUndefined = countUndefinedColumns(getSheetDef(fileName, sheetName));
-                        if (cntUndefined > 0) {
-                            alertBox("There are undefined/error mappings left here...", function () {
-                                $('#sheet_tab_list').find("a").each(function () {
-                                    if ($(this).attr('id') === fileName + '__' + sheetName) {
-                                        $(this).click();
-                                        return false;
-                                    }
-                                 });
-                            });
-                            return;
-                        }
+                loopSheets(null, function (fileName, sheetName){
+                    let cntUndefined = countUndefinedColumns(getSheetDef(fileName, sheetName));
+                    if (cntUndefined > 0) {
+                        alertBox("There are undefined/error mappings left here...", function () {
+                            $('#sheet_tab_list').find("a").each(function () {
+                                if ($(this).attr('id') === fileName + '__' + sheetName) {
+                                    $(this).click();
+                                    return false;
+                                }
+                             });
+                        });
+                        return;
                     }
-                }
+                });
                 let loadingDialog = bootbox.dialog({
                     message: '<h4><span class="glyphicon glyphicon-refresh spinning"></span><span class="loading-msg"> Preparing files...</span></h4>',
 //                    centerVertical: true,
@@ -1851,23 +1841,24 @@
                     // check the relationship among tables and determine the data structure
                     let rootTables = {};
                     let toRefs = [];
-                    for (let fileName in templates) {
-                        if (!rootTables[fileName]) {
-                            rootTables[fileName] = {};
-                        }
-                        for (let sheetName in templates[fileName]) {
+                    loopTables(
+                        function(fileName){
+                            if (!rootTables[fileName]) {
+                                rootTables[fileName] = {};
+                            }
+                        },
+                        function(fileName, sheetName) {
                             if (!rootTables[fileName][sheetName]) {
                                 rootTables[fileName][sheetName] = [];
                             }
-                            for (let i in templates[fileName][sheetName]) {
-                                rootTables[fileName][sheetName][i] = true;
-                                let tableDef = getTableDef(fileName, sheetName, i);
-                                if (Object.keys(tableDef.references).length > 0) {
-                                    toRefs.push(tableDef.references);
-                                }
+                        },
+                        function(fileName, sheetName, i, tableDef) {
+                            rootTables[fileName][sheetName][i] = true;
+                            if (Object.keys(tableDef.references).length > 0) {
+                                toRefs.push(tableDef.references);
                             }
                         }
-                    }
+                    );
                     // mark all the tables which has been related as non-root tables
                     for (let i in toRefs) {
                         for (let fromKeyIdx in toRefs[i]) {
@@ -1888,7 +1879,7 @@
                     for (let fileName in rootTables) {
                         for (let sheetName in rootTables[fileName]) {
                             for (let i in rootTables[fileName][sheetName]) {
-                                if (isTableDefExist(fileName, sheetName, i, rootTables) && isTableDefExist(fileName, sheetName, i, templates)) {
+                                if (isTableDefExist(fileName, sheetName, i, rootTables) && isTableDefExist(fileName, sheetName, i)) {
                                     let csvData = createCsvSheet(fileName, sheetName, i);
                                     let cnt = 1;
                                     let csvFileName = sheetName;
@@ -2481,7 +2472,7 @@
                                                 tmp.sheet_name = sheetName;
                                                 newFileConfigs[fileName].file.sheets.push(tmp);
                                                 found = true;
-                                                break;
+//                                                break;
                                             }
                                         }
                                         if (found) {
@@ -2490,12 +2481,11 @@
                                     }
                                 }
                                 if (!found) {
-                                    let tmp = JSON.parse(JSON.stringify(fileMap[fileName][sheetName]));
-                                    delete tmp.file_name;
-                                    delete tmp.file_def;
-                                    delete tmp.sheet_def;
-                                    tmp.mappings = [];
-                                    newFileConfigs[fileName].file.sheets.push(tmp);
+                                    let tmp = JSON.parse(JSON.stringify(fileMap[fileName][sheetName].table_defs));
+                                    tmp.forEach(function() {
+                                        this.mappings = [];
+                                    });
+                                    newFileConfigs[fileName].file.sheets = tmp;
                                 }
                                 // update reference
                                 if (fileDef !== fileName || sheetDef !== sheetName) {
@@ -2681,41 +2671,44 @@
                     }
                     
                     // setup references
-                    for (let fileName in templates) {
-                        for (let sheetName in templates[fileName]) {
-                            let refConfig;
-                            if (refConfigs[fileName]) {
-                                if (!sheetName) {
-                                    refConfig = refConfigs[fileName][""];
-                                    if (!refConfig) {
-                                        refConfig = refConfigs[fileName]["sheet1"];
-                                    }
-                                } else {
-                                    refConfig = refConfigs[fileName][sheetName];
+                    loopTables(null, null, function(fileName, sheetName, i, tableDef){
+                        let refConfig;
+                        if (refConfigs[fileName]) {
+                            if (!sheetName) {
+                                refConfig = refConfigs[fileName][""];
+                                if (!refConfig) {
+                                    refConfig = refConfigs[fileName]["sheet1"];
                                 }
-                            }
-                            if (!refConfig) {
-                                refConfig = [];
-                            }
-                            let references = templates[fileName][sheetName].references;
-                            templates[fileName][sheetName].references_org = refConfig;
-                            for (let j in refConfig) {
-                                let refDef = refConfig[j];
-                                let fromKeyIdxs = getKeyIdxArr(refDef.from.keys);
-                                let toKeyIdxs = getKeyIdxArr(refDef.to.keys);
-                                let toKey = getRefDefKey(refDef.to, toKeyIdxs);
-                                if (!references[fromKeyIdxs]) {
-                                    references[fromKeyIdxs] = {};
-                                }
-                                references[fromKeyIdxs][toKey] = {
-                                    file: refDef.to.file,
-                                    sheet: refDef.to.sheet,
-                                    keys: toKeyIdxs //getKeyArr(toKeyIdxs, mappings)
-                                };
+                            } else {
+                                refConfig = refConfigs[fileName][sheetName][i];
                             }
                         }
-                                
-                    }
+                        if (!refConfig) {
+                            refConfig = [];
+                        }
+                        let references = tableDef.references;
+                        tableDef.references_org = refConfig;
+                        for (let j in refConfig) {
+                            let refDef = refConfig[j];
+                            if (!refDef.from.table_index) {
+                                refDef.from.table_index = 1;
+                            }
+                            if (!refDef.to.table_index) {
+                                refDef.to.table_index = 1;
+                            }
+                            let fromKeyIdxs = getKeyIdxArr(refDef.from.keys);
+                            let toKeyIdxs = getKeyIdxArr(refDef.to.keys);
+                            let toKey = getRefDefKey(refDef.to, toKeyIdxs);
+                            if (!references[fromKeyIdxs]) {
+                                references[fromKeyIdxs] = {};
+                            }
+                            references[fromKeyIdxs][toKey] = {
+                                file: refDef.to.file,
+                                sheet: refDef.to.sheet,
+                                keys: toKeyIdxs //getKeyArr(toKeyIdxs, mappings)
+                            };
+                        }
+                    });
                 } else {
                     alertBox("No AgMIP mapping information detected, please try another file!");
                     return;
@@ -2754,14 +2747,20 @@
 //            }
             
             function getTableDef(fileName, sheetName, tableIdx, files) {
-                let sheetDef = getSheetDef(fileName, sheetName, files);
+                return getTableDef2(getSheetDef(fileName, sheetName, files), tableIdx, files);
+            }
+            
+            function getTableDef2(sheetDef, tableIdx, files) {
                 if (sheetDef) {
                     if (tableIdx) {
+                        if (typeof tableIdx === "number") {
+                            tableIdx--;
+                        }
                         return sheetDef[tableIdx];
                     } else if (curTableIdx) {
-                        return sheetDef[curTableIdx];
+                        return sheetDef[curTableIdx - 1];
                     } else {
-                        curTableIdx = 0;
+                        curTableIdx = 1;
                         return sheetDef[0];
                     }
                 } else {
@@ -2771,6 +2770,78 @@
 
             function getRefTableDef(refDef) {
                 return getTableDef(refDef.file, refDef.sheet, refDef.table_index);
+            }
+            
+            function loopFiles(callback, files) {
+                if (!files) {
+                    files = templates;
+                }
+                for (let fileName in files) {
+                    if (callback(fileName)) {
+                        return;
+                    }
+                }
+            }
+            
+            function loopSheets(callbackFile, callbackSheet, callbackFile2, files) {
+                if (!files) {
+                    files = templates;
+                }
+                loopFiles(function (fileName) {
+                    if (callbackFile && callbackFile(fileName)) {
+                        return 1;
+                    }
+                    for (let sheetName in files[fileName]) {
+                        if (callbackSheet && callbackSheet(fileName, sheetName, getSheetDef(fileName, sheetName, files))) {
+                            return 1;
+                        }
+                    }
+                    if (callbackFile2 && callbackFile2(fileName)) {
+                        return 1;
+                    }
+                }, files);
+            }
+            
+            
+            function loopTables(callbackFile, callbackSheet, callbackTable, callbackSheet2, callbackFile2, files) {
+                if (!files) {
+                    files = templates;
+                }
+                loopSheets(
+                    function (fileName) {
+                        if (callbackFile && callbackFile(fileName)) {
+                            return 1;
+                        }
+                    },
+                    function (fileName, sheetName) {
+                        let sheetDef = getSheetDef(fileName, sheetName, files);
+                        if (callbackSheet && callbackSheet(fileName, sheetName, sheetDef)) {
+                            return 1;
+                        }
+                        for (let idx in files[fileName][sheetName]) {
+                            if (callbackTable(fileName, sheetName, idx, getTableDef2(sheetDef, idx, files))) {
+                                return 1;
+                            }
+                        }
+                        if (callbackSheet2 && callbackSheet2(fileName, sheetName, sheetDef)) {
+                            return 1;
+                        }
+                    },
+                    function (fileName) {
+                        if (callbackFile2 && callbackFile2(fileName)) {
+                            return 1;
+                        }
+                    },
+                    files
+                );
+            }
+            
+            function loopTableFromSheet(sheetDef, callback) {
+                for (let i in sheetDef) {
+                    if (callback && callback(sheetDef[i])) {
+                        return 1;
+                    }
+                }
             }
 
             function updateTableIdx(fileName, sheetName, files) {
@@ -2861,14 +2932,14 @@
                 if (!files) {
                     files = templates;
                 }
-                for (let fileName in files) {
-                    for (let sheetName in files[fileName]) {
-                        if (isSubTableExistInSheet(getSheetDef(fileName, sheetName, files))) {
-                            return true;
-                        }
+                let ret = false;
+                loopSheets(null, function(fileName, sheetName) {
+                    if (isSubTableExistInSheet(getSheetDef(fileName, sheetName, files))) {
+                        ret = true;
+                        return 1;
                     }
-                }
-                return false;
+                }, files);
+                return ret;
             }
             
             function isSubTableExistInSheet(sheetDef) {
@@ -3001,94 +3072,96 @@
                    sc2Obj.mapping_info[$(this).attr("name") ] = $(this).val();
                 });
 
-                for (let fileName in templates) {
-                    let tmp2 = JSON.parse(agmipTranslationMappingTemplate);
-                    saveMetaFileName(tmp2.file.file_metadata, fileName, fileUrls[fileName]);
-                    tmp2.file.file_metadata["content-type"] = fileTypes[fileName];
-//                    if (fileName.toLowerCase().endsWith(".csv")) {
-//                        tmp2.file.file_metadata["content-type"] = "text/csv";
-//                    } else if (fileName.toLowerCase().endsWith(".xlsx")) {
-//                        tmp2.file.file_metadata["content-type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-//                    } else if (fileName.toLowerCase().endsWith(".xls")) {
-//                        tmp2.file.file_metadata["content-type"] = "application/vnd.ms-excel";
-//                    } else {
-//                        // TODO add default content-type key word here
-//                    }
-                    
-                    sc2Obj.agmip_translation_mappings.files.push(tmp2);
-                    for (let sheetName in templates[fileName]) {
-                        for (let idx in templates[fileName][sheetName]) {
-                            let tableDef = getTableDef(fileName, sheetName, idx);
-                            let tmp = Object.assign({}, tableDef);
-                            delete tmp.unfully_matched_flg;
-                            tmp.mappings = [];
-                            delete tmp.references;
-                            for (let i in tableDef.mappings) {
-                                let mapping = tableDef.mappings[i];
-                                if (!mapping.ignored_flg) {
-                                    let mappingCopy = JSON.parse(JSON.stringify(mapping));
-                                    if (mappingCopy.column_header === "") {
-                                        delete mappingCopy.column_header;
-                                    }
-                                    if (!mappingCopy.column_index_org) {
-                                        mappingCopy.column_index_vr = mappingCopy.column_index;
-                                        delete mappingCopy.column_index;
-                                        mappingCopy.formula = {
-                                            "function" : "",
-                                            "args" : {}
-                                        };
-                                        for (let key in mappingCopy) {
-                                            if (key.startsWith("virtual")) {
-                                                if (key === "virtual_val_fixed") {
-                                                    mappingCopy.value = mappingCopy[key];
-                                                } else if (key === "virtual_val_keys") {
-                                                    if (mappingCopy[key].length === 0) {
-                                                        continue;
-                                                    }
-                                                    for (let j in mappingCopy[key]) {
-                                                        mappingCopy[key][j] = tableDef.mappings[mappingCopy[key][j] - 1].column_index_org;
-                                                    }
-                                                    mappingCopy.formula.function = "join_columns";
+                let tmp2;
+                loopTables(
+                    function (fileName){
+                        tmp2 = JSON.parse(agmipTranslationMappingTemplate);
+                        saveMetaFileName(tmp2.file.file_metadata, fileName, fileUrls[fileName]);
+                        tmp2.file.file_metadata["content-type"] = fileTypes[fileName];
+    //                    if (fileName.toLowerCase().endsWith(".csv")) {
+    //                        tmp2.file.file_metadata["content-type"] = "text/csv";
+    //                    } else if (fileName.toLowerCase().endsWith(".xlsx")) {
+    //                        tmp2.file.file_metadata["content-type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    //                    } else if (fileName.toLowerCase().endsWith(".xls")) {
+    //                        tmp2.file.file_metadata["content-type"] = "application/vnd.ms-excel";
+    //                    } else {
+    //                        // TODO add default content-type key word here
+    //                    }
+
+                        sc2Obj.agmip_translation_mappings.files.push(tmp2);
+                    },
+                    null,
+                    function (fileName, sheetName, idx){
+                        let tableDef = getTableDef(fileName, sheetName, idx);
+                        let tmp = Object.assign({}, tableDef);
+                        delete tmp.unfully_matched_flg;
+                        tmp.mappings = [];
+                        delete tmp.references;
+                        for (let i in tableDef.mappings) {
+                            let mapping = tableDef.mappings[i];
+                            if (!mapping.ignored_flg) {
+                                let mappingCopy = JSON.parse(JSON.stringify(mapping));
+                                if (mappingCopy.column_header === "") {
+                                    delete mappingCopy.column_header;
+                                }
+                                if (!mappingCopy.column_index_org) {
+                                    mappingCopy.column_index_vr = mappingCopy.column_index;
+                                    delete mappingCopy.column_index;
+                                    mappingCopy.formula = {
+                                        "function" : "",
+                                        "args" : {}
+                                    };
+                                    for (let key in mappingCopy) {
+                                        if (key.startsWith("virtual")) {
+                                            if (key === "virtual_val_fixed") {
+                                                mappingCopy.value = mappingCopy[key];
+                                            } else if (key === "virtual_val_keys") {
+                                                if (mappingCopy[key].length === 0) {
+                                                    continue;
                                                 }
-                                                mappingCopy.formula.args[key] = mappingCopy[key];
-                                                delete mappingCopy[key];
+                                                for (let j in mappingCopy[key]) {
+                                                    mappingCopy[key][j] = tableDef.mappings[mappingCopy[key][j] - 1].column_index_org;
+                                                }
+                                                mappingCopy.formula.function = "join_columns";
                                             }
+                                            mappingCopy.formula.args[key] = mappingCopy[key];
+                                            delete mappingCopy[key];
                                         }
-                                        if (!mappingCopy.formula.function) {
-                                            delete mappingCopy.formula;
-                                        }
-                                    } else {
-                                        mappingCopy.column_index = mappingCopy.column_index_org;
-                                        delete mappingCopy.column_index_org;
                                     }
-                                    tmp.mappings.push(mappingCopy);
-                                    if (mapping.reference_flg) {
-                                        delete mappingCopy.reference_type;
-                                        delete mappingCopy.reference_flg;
+                                    if (!mappingCopy.formula.function) {
+                                        delete mappingCopy.formula;
                                     }
-                                    if (mapping.format_customized) {
-                                        mappingCopy.format = mapping.format_customized;
-                                        delete mappingCopy.format_customized;
-                                    }
+                                } else {
+                                    mappingCopy.column_index = mappingCopy.column_index_org;
+                                    delete mappingCopy.column_index_org;
+                                }
+                                tmp.mappings.push(mappingCopy);
+                                if (mapping.reference_flg) {
+                                    delete mappingCopy.reference_type;
+                                    delete mappingCopy.reference_flg;
+                                }
+                                if (mapping.format_customized) {
+                                    mappingCopy.format = mapping.format_customized;
+                                    delete mappingCopy.format_customized;
                                 }
                             }
-                            if (tableDef.references) {
-                                for (let fromKeyIdxs in tableDef.references) {
-                                    let refDefs = tableDef.references[fromKeyIdxs];
-                                    for (let toRefDefStr in refDefs) {
-                                        let toRefDef = refDefs[toRefDefStr];
-                                        let refDef = createRefDefObj({file: fileName, sheet: sheetName},
-                                            JSON.parse("[" + fromKeyIdxs + "]"),
-                                            toRefDef,
-                                            getKeyIdxArr(toRefDef.keys), true);
-                                        sc2Obj.agmip_translation_mappings.relations.push(refDef);
-                                    }
-                                }
-                            }
-                            tmp2.file.sheets.push(tmp);
                         }
+                        if (tableDef.references) {
+                            for (let fromKeyIdxs in tableDef.references) {
+                                let refDefs = tableDef.references[fromKeyIdxs];
+                                for (let toRefDefStr in refDefs) {
+                                    let toRefDef = refDefs[toRefDefStr];
+                                    let refDef = createRefDefObj({file: fileName, sheet: sheetName},
+                                        JSON.parse("[" + fromKeyIdxs + "]"),
+                                        toRefDef,
+                                        getKeyIdxArr(toRefDef.keys), true);
+                                    sc2Obj.agmip_translation_mappings.relations.push(refDef);
+                                }
+                            }
+                        }
+                        tmp2.file.sheets.push(tmp);
                     }
-                }
+                );
                 for (let key in sc2ObjCache) {
                     sc2Obj[key] = sc2ObjCache[key];
                 }
