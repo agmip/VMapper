@@ -2538,13 +2538,24 @@
                     for (let i in relations) {
                         let fromFile = relations[i].from.file;
                         let fromSheet = relations[i].from.sheet;
+                        let fromTableIdx = relations[i].from.table_index;
+                        if (!relations[i].from.table_index) {
+                            relations[i].from.table_index = 1;
+                            fromTableIdx = 1;
+                        }
+                        if (!relations[i].to.table_index) {
+                            relations[i].to.table_index = 1;
+                        }
                         if (!refConfigs[fromFile]) {
                             refConfigs[fromFile] = {};
                         }
                         if (!refConfigs[fromFile][fromSheet]) {
                             refConfigs[fromFile][fromSheet] = [];
                         }
-                       refConfigs[fromFile][fromSheet].push(relations[i]);
+                        if (!refConfigs[fromFile][fromSheet][fromTableIdx]) {
+                            refConfigs[fromFile][fromSheet][fromTableIdx - 1] = [];
+                        }
+                       refConfigs[fromFile][fromSheet][fromTableIdx - 1].push(relations[i]);
                     }
                     
                     for (let i in fileConfigs) {

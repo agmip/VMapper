@@ -38,20 +38,20 @@
 //        return initRefDefDiv(null, refDef);
         let div = $("#template").find("[name='template_ref_def_readonly']").clone();
         let editBtn = div.find("[name='edit_btn']");
-        let fromSheetDiv = div.find("[name='reference_from_sheet']");
-        let toSheetDiv = div.find("[name='reference_to_sheet']");
+        let fromTableDiv = div.find("[name='reference_from_table']");
+        let toTableDiv = div.find("[name='reference_to_table']");
         let fromKeyDiv = div.find("[name='reference_from_vars']");
         let toKeyDiv = div.find("[name='reference_to_vars']");
         if (Object.keys(templates).length > 1) {
-//            fromSheetDiv.html(refDef.from.file + "<br>-- " + refDef.from.sheet);
-//            toSheetDiv.html(refDef.to.file + "<br>-- " + refDef.to.sheet);
-//            fromSheetDiv.html('<span style="color:' + fileColors[refDef.from.file] + '"><a data-toggle="tooltip"  title="' + refDef.from.file + '" style="color:' + fileColors[refDef.from.file] + ';text-decoration: underline;">' + refDef.from.file.substring(0, 5) + "..." + '</a> -> ' + refDef.from.sheet + '</span>');
-//            toSheetDiv.html('<a data-toggle="tooltip"  title="' + refDef.to.file + '">' + refDef.to.file.substring(0, 5) + "..." + '</a> -> <span style="color:' + fileColors[refDef.to.file] + '">' + refDef.to.sheet + '</span>');
-            fromSheetDiv.html('<a data-toggle="tooltip" title="' + refDef.from.file + '" style="color:' + fileColors[refDef.from.file] + '">' + refDef.from.sheet + '</a>');
-            toSheetDiv.html('<a data-toggle="tooltip" title="' + refDef.to.file + '" style="color:' + fileColors[refDef.to.file] + '">' + refDef.to.sheet + '</a>');
+//            fromTableDiv.html(refDef.from.file + "<br>-- " + refDef.from.sheet);
+//            toTableDiv.html(refDef.to.file + "<br>-- " + refDef.to.sheet);
+//            fromTableDiv.html('<span style="color:' + fileColors[refDef.from.file] + '"><a data-toggle="tooltip"  title="' + refDef.from.file + '" style="color:' + fileColors[refDef.from.file] + ';text-decoration: underline;">' + refDef.from.file.substring(0, 5) + "..." + '</a> -> ' + refDef.from.sheet + '</span>');
+//            toTableDiv.html('<a data-toggle="tooltip"  title="' + refDef.to.file + '">' + refDef.to.file.substring(0, 5) + "..." + '</a> -> <span style="color:' + fileColors[refDef.to.file] + '">' + refDef.to.sheet + '</span>');
+            fromTableDiv.html('<a data-toggle="tooltip" title="' + refDef.from.file + '" style="color:' + fileColors[refDef.from.file] + '">' + refDef.from.sheet + '</a>');
+            toTableDiv.html('<a data-toggle="tooltip" title="' + refDef.to.file + '" style="color:' + fileColors[refDef.to.file] + '">' + refDef.to.sheet + '</a>');
         } else {
-            fromSheetDiv.html(refDef.from.sheet);
-            toSheetDiv.html(refDef.to.sheet);
+            fromTableDiv.html(refDef.from.sheet);
+            toTableDiv.html(refDef.to.sheet);
         }
         setRefKeysDiv(fromKeyDiv, refDef.from);
         setRefKeysDiv(toKeyDiv, refDef.to);
@@ -62,7 +62,7 @@
             defListDiv.trigger("change");
             let fromKeyIdxs = getKeyIdxArr(refDef.from.keys);
             let toKeyIdxs = getKeyIdxArr(refDef.to.keys);
-            let references = templates[refDef.from.file][refDef.from.sheet].references;
+            let references = getRefTableDef(refDef).references;
             delete references[fromKeyIdxs][getRefDefKey(refDef.to, toKeyIdxs)];
             if (Object.keys(references[fromKeyIdxs]).length === 0) {
                 delete references[fromKeyIdxs];
@@ -106,7 +106,7 @@
     function getKeyArr(keyIdxs, mappings, isOrgIdx) {
         let keys = [];
         if (!mappings) {
-            mappings = templates[curFileName][curSheetName].mappings;
+            mappings = getCurTableDef().mappings;
         }
         for (let i in keyIdxs) {
             for (let j in mappings) {
@@ -131,7 +131,7 @@
     }
     
     function setRefKeysDiv(div, refDef) {
-        let mappings = templates[refDef.file][refDef.sheet].mappings;
+        let mappings = getRefTableDef(refDef).mappings;
         let text = [];
         for (let i in refDef.keys) {
             for (let j in mappings) {
@@ -155,51 +155,51 @@
             defListDiv = div.prev();
         }
         let editBtn = div.find("[name='edit_btn']");
-        let fromSheetSB = div.find("[name='reference_from_sheet']");
-        let toSheetSB = div.find("[name='reference_to_sheet']");
+        let fromTableSB = div.find("[name='reference_from_table']");
+        let toTableSB = div.find("[name='reference_to_table']");
         let fromKeySB = div.find("[name='reference_from_vars']");
         let toKeySB = div.find("[name='reference_to_vars']");
         let singleCB = div.find("[name='meta_table_flg']");
         
         if (refDef) {
-            initSheetSB(fromSheetSB, refDef.from);
-            initSheetSB(toSheetSB, refDef.to);
-            initKeySB(fromKeySB, JSON.parse(fromSheetSB.val()));
-            initKeySB(toKeySB, JSON.parse(toSheetSB.val()));
+            initTableSB(fromTableSB, refDef.from);
+            initTableSB(toTableSB, refDef.to);
+            initKeySB(fromKeySB, JSON.parse(fromTableSB.val()));
+            initKeySB(toKeySB, JSON.parse(toTableSB.val()));
             setKeySB(fromKeySB, refDef.from.keys);
             setKeySB(toKeySB, refDef.to.keys);
         } else {
-            initSheetSB(fromSheetSB);
-            initSheetSB(toSheetSB);
+            initTableSB(fromTableSB);
+            initTableSB(toTableSB);
         }
         
-        fromSheetSB.on("change", function() {
+        fromTableSB.on("change", function() {
             let val = $(this).val();
             if (!val) {
                 fromKeySB.val([]).prop("disabled", true).trigger("chosen:updated").trigger("change");
-                toSheetSB.find("option").prop("disabled", false).trigger("chosen:updated");
+                toTableSB.find("option").prop("disabled", false).trigger("chosen:updated");
             } else {
-                let refDefSheet = JSON.parse(val);
+                let refDefTable = JSON.parse(val);
                 fromKeySB.prop("disabled", singleCB.prop("checked"));
-                initKeySB(fromKeySB, refDefSheet);
-                if (toSheetSB.val() === val) {
-                    toSheetSB.val("");
+                initKeySB(fromKeySB, refDefTable);
+                if (toTableSB.val() === val) {
+                    toTableSB.val("");
                 }
-                toSheetSB.find("option").each(function () {
+                toTableSB.find("option").each(function () {
                     $(this).prop("disabled", $(this).val() === val);
                 }).trigger("chosen:updated");
             }
         });
         fromKeySB.on("change", function() {
-            if (!toSheetSB.val()) {
+            if (!toTableSB.val()) {
                 return;
             }
-            let refDefSheet = JSON.parse(toSheetSB.val());
+            let refDefTable = JSON.parse(toTableSB.val());
             let vals = $(this).val();
             if (vals.length > 0) {
-                let mappingsTo = templates[refDefSheet.file][refDefSheet.sheet].mappings;
-                refDefSheet = JSON.parse(fromSheetSB.val());
-                let mappingsFrom = templates[refDefSheet.file][refDefSheet.sheet].mappings;
+                let mappingsTo = getRefTableDef(refDefTable).mappings;
+                refDefTable = JSON.parse(fromTableSB.val());
+                let mappingsFrom = getRefTableDef(refDefTable).mappings;
                 let keys = [];
                 for (let i in vals) {
                     for (let j in mappingsFrom) {
@@ -229,14 +229,14 @@
                 
             }
         });
-        toSheetSB.on("change", function() {
+        toTableSB.on("change", function() {
             let val = $(this).val();
             if (!val) {
                 singleCB.prop("checked", false).prop("disabled", true);
                 toKeySB.val([]).prop("disabled", true).trigger("chosen:updated").trigger("change");
             } else {
-                let refDefSheet = JSON.parse(val);
-//                if (templates[refDefSheet.file][refDefSheet.sheet].single_flg) {
+                let refDefTable = JSON.parse(val);
+//                if (getRefTableDef(refDefTable).single_flg) {
                     singleCB.prop("disabled", false);
 //                } else {
 //                    singleCB.prop("disabled", true);
@@ -245,7 +245,7 @@
 //                    }
 //                }
                 toKeySB.prop("disabled", singleCB.prop("checked"));
-                initKeySB(toKeySB, refDefSheet);
+                initKeySB(toKeySB, refDefTable);
                 fromKeySB.trigger("change");
             }
         });
@@ -268,21 +268,21 @@
                 editBtn.prop("disabled", !isChecked);
             });
             editBtn.prop("disabled", true).on("click", function() {
-                let fromSheet = JSON.parse(fromSheetSB.val());
+                let fromTable = JSON.parse(fromTableSB.val());
                 let fromKeyIdxs = fromKeySB.val();
-                let toSheet = JSON.parse(toSheetSB.val());
+                let toTable = JSON.parse(toTableSB.val());
                 let toKeyIdxs = toKeySB.val();
-                let newRefDef = createRefDefObj(fromSheet, fromKeyIdxs, toSheet, toKeyIdxs);
+                let newRefDef = createRefDefObj(fromTable, fromKeyIdxs, toTable, toKeyIdxs);
                 
-                let references = templates[fromSheet.file][fromSheet.sheet].references;
+                let references = getRefTableDef(fromTable).references;
                 if (!references[fromKeyIdxs]) {
                     references[fromKeyIdxs] = {};
                 }
-                references[fromKeyIdxs][getRefDefKey(toSheet, toKeyIdxs)] = newRefDef.to;
+                references[fromKeyIdxs][getRefDefKey(toTable, toKeyIdxs)] = newRefDef.to;
                 
                 creatRefDefDiv(newRefDef, defListDiv);
-                fromSheetSB.val([]).trigger("chosen:updated").trigger("change");
-                toSheetSB.val([]).trigger("chosen:updated").trigger("change");
+                fromTableSB.val([]).trigger("chosen:updated").trigger("change");
+                toTableSB.val([]).trigger("chosen:updated").trigger("change");
                 isChanged = true;
                 isViewUpdated = false;
                 isDebugViewUpdated = false;
@@ -298,17 +298,19 @@
         return div;
     }
     
-    function createRefDefObj(fromSheet, fromKeyIdxs, toSheet, toKeyIdxs, isOrgIdx) {
+    function createRefDefObj(fromTable, fromKeyIdxs, toTable, toKeyIdxs, isOrgIdx) {
         return {
             from:{
-                file : fromSheet.file,
-                sheet : fromSheet.sheet,
-                keys : getKeyArr(fromKeyIdxs, templates[fromSheet.file][fromSheet.sheet].mappings, isOrgIdx)
+                file : fromTable.file,
+                sheet : fromTable.sheet,
+                table_index : fromTable.table_index,
+                keys : getKeyArr(fromKeyIdxs, getRefTableDef(fromTable).mappings, isOrgIdx)
             },
             to:{
-                file : toSheet.file,
-                sheet : toSheet.sheet,
-                keys : getKeyArr(toKeyIdxs, templates[toSheet.file][toSheet.sheet].mappings, isOrgIdx)
+                file : toTable.file,
+                sheet : toTable.sheet,
+                table_index : toTable.table_index,
+                keys : getKeyArr(toKeyIdxs, getRefTableDef(toTable).mappings, isOrgIdx)
             }
         };
     }
@@ -321,20 +323,28 @@
         sb.val(vals);
     }
     
-    function initSheetSB(sb, refDef) {
+    function initTableSB(sb, refDef) {
         let val = sb.val();
         if (refDef) {
-            val = createRefSheetTaregetKeyStr(refDef.file, refDef.sheet);
+            val = createRefSheetTaregetKeyStr(refDef.file, refDef.sheet, refDef.table_index);
         }
         sb.html('<option value=""></option>');
-        for (let fileName in templates) {
-            let optGrp = $('<optgroup name="' + fileName+ '" label="' + fileName + '"></optgroup>');
-            sb.append(optGrp);
-            for (let sheetName in templates[fileName]) {
-                let opt = $('<option value=\'' + createRefSheetTaregetKeyStr(fileName, sheetName) + '\'>' + sheetName + '</option>');
+        let optGrp;
+        loopTables(
+            function(fileName){
+                optGrp = $('<optgroup name="' + fileName + '" label="' + fileName + '"></optgroup>');
+                sb.append(optGrp);
+            },
+            null,
+            function(fileName, sheetName, i, tableDef) {
+                let lable = sheetName;
+                if (i > 0) {
+                    lable += "_" + tableDef.table_index;
+                }
+                let opt = $('<option value=\'' + createRefSheetTaregetKeyStr(fileName, sheetName, tableDef.table_index) + '\'>' + lable + '</option>');
                 optGrp.append(opt);
             }
-        }
+        );
         sb.val(val).trigger("chosen:updated");
         if (refDef) {
             sb.trigger("change");
@@ -345,7 +355,7 @@
         if (!refDef || !refDef.file || !refDef.sheet) {
             return;
         }
-        let mappings = templates[refDef.file][refDef.sheet].mappings;
+        let mappings = getRefTableDef(refDef).mappings;
         let val = [];
         if (refDef && refDef.keys) {
             val = createRefKeyTaregetKeyStr(refDef.keys);
@@ -361,27 +371,34 @@
     }
     
     function isRefDefExistDiv(refDefDiv) {
-        let fromSheetSB = refDefDiv.find("[name='reference_from_sheet']");
-        let toSheetSB = refDefDiv.find("[name='reference_to_sheet']");
+        let fromTableSB = refDefDiv.find("[name='reference_from_table']");
+        let toTableSB = refDefDiv.find("[name='reference_to_table']");
         let fromKeySB = refDefDiv.find("[name='reference_from_var']");
         let toKeySB = refDefDiv.find("[name='reference_to_var']");
-        isRefDefExist(JSON.parse(fromSheetSB.val()), fromKeySB.val(), JSON.parse(toSheetSB.val()), toKeySB.val());
+        isRefDefExist(JSON.parse(fromTableSB.val()), fromKeySB.val(), JSON.parse(toTableSB.val()), toKeySB.val());
     }
     
-    function isRefDefExist(fromSheet, fromKeyIdxs, toSheet, toKeyIdxs) {
-        let references = templates[fromSheet.file][fromSheet.sheet].references;
-        return !!references[fromKeyIdxs] && !!references[fromKeyIdxs][getRefDefKey(toSheet, toKeyIdxs)];
+    function isRefDefExist(fromTable, fromKeyIdxs, toTable, toKeyIdxs) {
+        let references = getRefTableDef(fromTable).references;
+        return !!references[fromKeyIdxs] && !!references[fromKeyIdxs][getRefDefKey(toTable, toKeyIdxs)];
     }
     
-    function getRefDefKey(sheet, keyIdxs) {
-        return "[" + sheet.file + "][" + sheet.sheet + "]:" + keyIdxs;
+    function getRefDefKey(table, keyIdxs) {
+        if (!table.table_index) {
+            table.table_index = 1;
+        }
+        return "[" + table.file + "][" + table.sheet + "][" + table.table_index + "]:" + keyIdxs;
     }
     
-    function createRefSheetTaregetKeyStr(fileName, sheetName) {
+    function createRefSheetTaregetKeyStr(fileName, sheetName, table_index) {
         let keyObj = {
             file : fileName,
-            sheet : sheetName
+            sheet : sheetName,
+            table_index : table_index
         };
+        if (!table_index) {
+            keyObj.table_index = 1;
+        }
         return JSON.stringify(keyObj);
     }
     
@@ -426,35 +443,31 @@
     
     function getRefDefList() {
         let ret = [];
-        for (let fileName in templates) {
-            let template = templates[fileName];
-            for (let sheetName in template) {
-                for (let keyIdxs in template[sheetName].references) {
-                    let refDefFrom = {
-                        file: fileName,
-                        sheet: sheetName,
-                        keys: getKeyArr(JSON.parse("[" + keyIdxs + "]"), template[sheetName].mappings)
-                    };
-                    let refDefTo = template[sheetName].references[keyIdxs];
-                    for (let refDefKey in refDefTo) {
-                        ret.push({
-                            from: refDefFrom,
-                            to: refDefTo[refDefKey]
-                        });
-                    }
+        loopTables(null, null, function(fileName, sheetName, i, tableDef) {
+            for (let keyIdxs in tableDef.references) {
+                let refDefFrom = {
+                    file: fileName,
+                    sheet: sheetName,
+                    table_index:tableDef.table_index,
+                    keys: getKeyArr(JSON.parse("[" + keyIdxs + "]"), tableDef.mappings)
+                };
+                let refDefTo = tableDef.references[keyIdxs];
+                for (let refDefKey in refDefTo) {
+                    ret.push({
+                        from: refDefFrom,
+                        to: refDefTo[refDefKey]
+                    });
                 }
             }
-        }
+        });
         return ret;
     }
     
     function detectReferences(defListDiv) {
         confirmBox("This process will overwrite the exisiting reference configuration.", function() {
-            for (let fileName in templates) {
-                for (let sheetName in templates[fileName]) {
-                    templates[fileName][sheetName].references = {};
-                }
-            }
+            loopTables(null, null, function(fileName, sheetName, i, tableDef) {
+                tableDef.references = {};
+            });
             defListDiv.html("").trigger("change");
             let tableRanks = getTableRanks();
             let rootRankArr;
@@ -531,10 +544,16 @@
         return newRefDef;
     }
     
-    function createReference(fromFile, fromSheet, toFile, toSheet) {
+    function createReference(fromDef, toDef) {
         let ret = null;
-        let from = templates[fromFile][fromSheet];
-        let to = templates[toFile][toSheet];
+        if (!fromDef.table_index) {
+            fromDef.table_index = 1;
+        }
+        if (!toDef.table_index) {
+            toDef.table_index = 1;
+        }
+        let from = getRefTableDef(fromDef);
+        let to = getRefTableDef(toDef);
         let toKeyIdxs = [];
         let fromKeyIdxs = [];
         if (from.mappings.length === 0 || to.mappings.length === 0) {
@@ -543,16 +562,20 @@
         // Check if global table is already linked with child table with keys
         for (let fromKeyIdx in from.references) {
             for (let toKey in from.references[fromKeyIdx]) {
-                if (from.references[fromKeyIdx][toKey].file === toFile &&
-                        from.references[fromKeyIdx][toKey].sheet === toSheet) {
+                let refDef = from.references[fromKeyIdx][toKey];
+                if (refDef.file === toDef.file &&
+                        refDef.sheet === toDef.sheet &&
+                        refDef.table_index === toDef.table_index) {
                     return true;
                 }
             }
         }
         for (let fromKeyIdx in to.references) {
             for (let toKey in to.references[fromKeyIdx]) {
-                if (to.references[fromKeyIdx][toKey].file === fromFile &&
-                        to.references[fromKeyIdx][toKey].sheet === fromSheet) {
+                let refDef = to.references[fromKeyIdx][toKey];
+                if (refDef.file === fromDef.file &&
+                        refDef.sheet === fromDef.sheet &&
+                        refDef.table_index === fromDef.table_index) {
                     return true;
                 }
             }
@@ -587,8 +610,14 @@
             if (!references[fromKeyIdxs]) {
                 references[fromKeyIdxs] = {};
             }
-            let newRefDef = createRefDefObj({file: fromFile, sheet: fromSheet}, fromKeyIdxs, {file: toFile, sheet: toSheet}, toKeyIdxs);
-            references[fromKeyIdxs][getRefDefKey({file: toFile, sheet: toSheet}, toKeyIdxs)] = newRefDef.to;
+            let newRefDef = createRefDefObj(
+                {file: fromDef.file, sheet: fromDef.sheet, table_index: fromDef.table_index},
+                fromKeyIdxs,
+                {file: toDef.file, sheet: toDef.sheet, table_index: toDef.table_index},
+                toKeyIdxs);
+            references[fromKeyIdxs][getRefDefKey(
+                {file: toDef.file, sheet: toDef.sheet, table_index: toDef.table_index},
+                toKeyIdxs)] = newRefDef.to;
             ret = newRefDef;
         }
         return ret;
@@ -596,17 +625,16 @@
     
     function getTableRanks() {
         let ret = [];
-        for (let fileName in templates) {
-            for (let sheetName in templates[fileName]) {
-                let catObj = getTableCategory(templates[fileName][sheetName].mappings);
-                catObj.file = fileName;
-                catObj.sheet = sheetName;
-                if (!ret[catObj.rank]) {
-                    ret[catObj.rank] = [];
-                }
-                ret[catObj.rank].push(catObj);
+        loopTables(null, null, function(fileName, sheetName, i, tableDef) {
+            let catObj = getTableCategory(tableDef.mappings);
+            catObj.file = fileName;
+            catObj.sheet = sheetName;
+            catObj.table_index = tableDef.table_index;
+            if (!ret[catObj.rank]) {
+                ret[catObj.rank] = [];
             }
-        }
+            ret[catObj.rank].push(catObj);
+        });
         return ret;
         
     }
@@ -696,10 +724,7 @@
                     <div name="template_ref_def_new" class="row" style="padding-top: 10px">
                         <div class="col-sm-11">
                             <div class="col-sm-3">
-                                <select class="form-control" name="reference_from_sheet" data-placeholder="Choose ...">
-                                    <option value=""></option>
-                                </select>
-                                <select class="form-control" name="reference_from_sheet_table" data-placeholder="Choose ...">
+                                <select class="form-control" name="reference_from_table" data-placeholder="Choose ...">
                                     <option value=""></option>
                                 </select>
                             </div>
@@ -709,7 +734,7 @@
                                 </select>
                             </div>
                             <div class="col-sm-3">
-                                <select class="form-control" name="reference_to_sheet" data-placeholder="Choose ...">
+                                <select class="form-control" name="reference_to_table" data-placeholder="Choose ...">
                                     <option value=""></option>
                                 </select>
                             </div>
@@ -733,7 +758,7 @@
     <div name="template_ref_def" class="row">
         <div class="col-sm-11">
             <div class="col-sm-3">
-                <select class="form-control" name="reference_from_sheet" data-placeholder="Choose ..." disabled>
+                <select class="form-control" name="reference_from_table" data-placeholder="Choose ..." disabled>
                     <option value=""></option>
                 </select>
             </div>
@@ -743,7 +768,7 @@
                 </select>
             </div>
             <div class="col-sm-3">
-                <select class="form-control" name="reference_to_sheet" data-placeholder="Choose ..." disabled>
+                <select class="form-control" name="reference_to_table" data-placeholder="Choose ..." disabled>
                     <option value=""></option>
                 </select>
             </div>
@@ -761,13 +786,13 @@
         <div class="row">
             <div class="col-sm-11">
                 <div class="col-sm-3">
-                    <div name="reference_from_sheet" style="overflow-wrap:break-word"></div>
+                    <div name="reference_from_table" style="overflow-wrap:break-word"></div>
                 </div>
                 <div class="col-sm-3">
                     <div name="reference_from_vars" style="overflow-wrap:break-word"></div>
                 </div>
                 <div class="col-sm-3">
-                    <div name="reference_to_sheet" style="overflow-wrap:break-word"></div>
+                    <div name="reference_to_table" style="overflow-wrap:break-word"></div>
                 </div>
                 <div class="col-sm-3">
                     <div name="reference_to_vars" style="overflow-wrap:break-word"></div>
