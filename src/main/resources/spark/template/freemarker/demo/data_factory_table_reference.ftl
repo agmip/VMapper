@@ -47,11 +47,11 @@
 //            toTableDiv.html(refDef.to.file + "<br>-- " + refDef.to.sheet);
 //            fromTableDiv.html('<span style="color:' + fileColors[refDef.from.file] + '"><a data-toggle="tooltip"  title="' + refDef.from.file + '" style="color:' + fileColors[refDef.from.file] + ';text-decoration: underline;">' + refDef.from.file.substring(0, 5) + "..." + '</a> -> ' + refDef.from.sheet + '</span>');
 //            toTableDiv.html('<a data-toggle="tooltip"  title="' + refDef.to.file + '">' + refDef.to.file.substring(0, 5) + "..." + '</a> -> <span style="color:' + fileColors[refDef.to.file] + '">' + refDef.to.sheet + '</span>');
-            fromTableDiv.html('<a data-toggle="tooltip" title="' + refDef.from.file + '" style="color:' + fileColors[refDef.from.file] + '">' + refDef.from.sheet + '</a>');
-            toTableDiv.html('<a data-toggle="tooltip" title="' + refDef.to.file + '" style="color:' + fileColors[refDef.to.file] + '">' + refDef.to.sheet + '</a>');
+            fromTableDiv.html('<a data-toggle="tooltip" title="' + refDef.from.file + '" style="color:' + fileColors[refDef.from.file] + '">' + getTableLabel(getRefTableDef(refDef.from), refDef.from.file) + '</a>');
+            toTableDiv.html('<a data-toggle="tooltip" title="' + refDef.to.file + '" style="color:' + fileColors[refDef.to.file] + '">' + getTableLabel(getRefTableDef(refDef.to), refDef.to.file) + '</a>');
         } else {
-            fromTableDiv.html(refDef.from.sheet);
-            toTableDiv.html(refDef.to.sheet);
+            fromTableDiv.html(getTableLabel(getRefTableDef(refDef.from), refDef.from.file));
+            toTableDiv.html(getTableLabel(getRefTableDef(refDef.to), refDef.to.file));
         }
         setRefKeysDiv(fromKeyDiv, refDef.from);
         setRefKeysDiv(toKeyDiv, refDef.to);
@@ -337,10 +337,7 @@
             },
             null,
             function(fileName, sheetName, i, tableDef) {
-                let lable = sheetName;
-                if (i > 0) {
-                    lable += "_" + tableDef.table_index;
-                }
+                let lable = getTableLabel(tableDef, fileName);
                 let opt = $('<option value=\'' + createRefSheetTaregetKeyStr(fileName, sheetName, tableDef.table_index) + '\'>' + lable + '</option>');
                 optGrp.append(opt);
             }
@@ -349,6 +346,18 @@
         if (refDef) {
             sb.trigger("change");
         }
+    }
+
+    function getTableLabel(tableDef, fileName) {
+        let label = tableDef.sheet_name;
+        if (isSubTableExistInSheet(getSheetDef(fileName, tableDef.sheet_name))) {
+            if (tableDef.table_name) {
+                label += "__" + tableDef.table_name;
+            } else {
+                label += "__table_" + tableDef.table_index;
+            }
+        }
+        return label;
     }
     
     function initKeySB(sb, refDef) {
