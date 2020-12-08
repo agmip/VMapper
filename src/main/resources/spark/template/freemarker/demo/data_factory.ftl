@@ -122,6 +122,9 @@
                     return this.groupList;
                 },
                 "getPrimaryGroup" : function(varName) {
+                    if (varName) {
+                        varName = varName.toUpperCase();
+                    }
                     if (this.management[varName]) {
                         return this.management;
                     } else if (this.observation[varName]) {
@@ -134,6 +137,9 @@
                     return !!this.getPrimaryGroup(varName);
                 },
                 "getDefinition" : function(varName) {
+                    if (varName) {
+                        varName = varName.toUpperCase();
+                    }
                     let group = this.getPrimaryGroup(varName);
                     if (group) {
                         return group[varName];
@@ -143,6 +149,9 @@
                     
                 },
                 "getUnit" : function(varName) {
+                    if (varName) {
+                        varName = varName.toUpperCase();
+                    }
                     let group = this.getPrimaryGroup(varName);
                     if (group) {
                         return group[varName].unit_or_type;
@@ -151,6 +160,9 @@
                     }
                 },
                 "getDesc" : function(varName) {
+                    if (varName) {
+                        varName = varName.toUpperCase();
+                    }
                     let group = this.getPrimaryGroup(varName);
                     if (group) {
                         return group[varName].description;
@@ -159,6 +171,9 @@
                     }
                 },
                 "getDataset" : function(varName, isLower) {
+                    if (varName) {
+                        varName = varName.toUpperCase();
+                    }
                     let group = this.getPrimaryGroup(varName);
                     if (group) {
                         if (isLower) {
@@ -171,6 +186,9 @@
                     }
                 },
                 "getSubset" : function(varName, isLower) {
+                    if (varName) {
+                        varName = varName.toUpperCase();
+                    }
                     let group = this.getPrimaryGroup(varName);
                     if (group) {
                         if (isLower) {
@@ -183,6 +201,9 @@
                     }
                 },
                 "getGroup" : function(varName, isLower) {
+                    if (varName) {
+                        varName = varName.toUpperCase();
+                    }
                     let group = this.getPrimaryGroup(varName);
                     if (group) {
                         if (isLower) {
@@ -195,6 +216,9 @@
                     }
                 },
                 "getSubGroup" : function(varName, isLower) {
+                    if (varName) {
+                        varName = varName.toUpperCase();
+                    }
                     let group = this.getPrimaryGroup(varName);
                     if (group) {
                         if (isLower) {
@@ -207,6 +231,7 @@
                     }
                 },
                 "getOrder" : function(varName) {
+                    varName = varName.toUpperCase();
                     let group = this.getPrimaryGroup(varName);
                     if (group) {
                         return group[varName].order;
@@ -2567,6 +2592,9 @@
                                 if (sc2Mappings[j].value) {
                                     sc2Mappings[j].virtual_val_fixed = sc2Mappings[j].value;
                                     delete sc2Mappings[j].value;
+                                }
+                                if (sc2Mappings[j].icasa) {
+                                    sc2Mappings[j].icasa = sc2Mappings[j].icasa.toUpperCase();
                                 }
                             }
                             if (vrColCnt > 0) {
