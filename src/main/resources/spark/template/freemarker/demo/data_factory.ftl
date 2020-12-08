@@ -2482,10 +2482,10 @@
                                 }
                                 if (!found) {
                                     let tmp = JSON.parse(JSON.stringify(fileMap[fileName][sheetName].table_defs));
-                                    tmp.forEach(function() {
-                                        this.mappings = [];
+                                    tmp.forEach(function(item) {
+                                        item.mappings = [];
                                     });
-                                    newFileConfigs[fileName].file.sheets = tmp;
+                                    newFileConfigs[fileName].file.sheets = newFileConfigs[fileName].file.sheets.concat(tmp);
                                 }
                                 // update reference
                                 if (fileDef !== fileName || sheetDef !== sheetName) {
@@ -2684,7 +2684,7 @@
                     // setup references
                     loopTables(null, null, function(fileName, sheetName, i, tableDef){
                         let refConfig;
-                        if (refConfigs[fileName]) {
+                        if (refConfigs[fileName] && refConfigs[fileName][sheetName]) {
                             if (!sheetName) {
                                 refConfig = refConfigs[fileName][""];
                                 if (!refConfig) {

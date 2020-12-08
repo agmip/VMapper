@@ -87,7 +87,7 @@
                             // handle new virtual column
                             insertVRData(colDef);
                             updateVRData(colDef);
-                            virColCnt[curFileName][curSheetName]++;
+                            virColCnt[curFileName][curSheetName][curTableIdx]++;
                         } else if (!colDef.column_index_org) {
                             // handle editted virtual column
                             updateVRData(colDef);
