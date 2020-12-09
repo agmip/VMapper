@@ -737,7 +737,7 @@
                 for (let fromKeyIdx in references) {
                     for (let refToKey in references[fromKeyIdx]) {
                         if (refToKey.includes("[" + fileName + "][" + preSheetName + "][")) {
-                            let newRefToKey = refToKey.replace("][" + preSheetName + "]", "][" + sheetName + "][");
+                            let newRefToKey = refToKey.replace("][" + preSheetName + "][", "][" + sheetName + "][");
                             references[fromKeyIdx][newRefToKey] = references[fromKeyIdx][refToKey];
                             delete references[fromKeyIdx][refToKey];
                             refToKey = newRefToKey;
