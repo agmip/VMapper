@@ -2578,7 +2578,7 @@
                         if (!refConfigs[fromFile][fromSheet]) {
                             refConfigs[fromFile][fromSheet] = [];
                         }
-                        if (!refConfigs[fromFile][fromSheet][fromTableIdx]) {
+                        if (!refConfigs[fromFile][fromSheet][fromTableIdx - 1]) {
                             refConfigs[fromFile][fromSheet][fromTableIdx - 1] = [];
                         }
                        refConfigs[fromFile][fromSheet][fromTableIdx - 1].push(relations[i]);
@@ -2794,9 +2794,7 @@
             function getTableDef2(sheetDef, tableIdx, files) {
                 if (sheetDef) {
                     if (tableIdx) {
-                        if (typeof tableIdx === "number") {
-                            tableIdx--;
-                        }
+                        tableIdx = adjustIdx(tableIdx);
                         return sheetDef[tableIdx];
                     } else if (curTableIdx) {
                         return sheetDef[curTableIdx - 1];
@@ -2891,8 +2889,18 @@
                     sheetDef[i].table_index = i + 1;
                 }
             }
+            
+            function adjustIdx(idx) {
+                if (idx) {
+                    if (typeof idx === "number") {
+                        idx--;
+                    }
+                }
+                return idx;
+            }
 
             function removeTableDefAt(fileName, sheetName, tableIdx, files) {
+                tableIdx = adjustIdx(tableIdx);
                 let sheetDef = getSheetDef(fileName, sheetName, files);
                 if (sheetDef[tableIdx]) {
                     sheetDef.splice(tableIdx, 1);
