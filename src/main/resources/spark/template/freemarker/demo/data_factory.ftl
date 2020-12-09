@@ -835,6 +835,7 @@
                         references[fromKeyIdxs][toKey] = {
                             file: refDef.to.file,
                             sheet: refDef.to.sheet,
+                            table_index: refDef.to.table_index,
                             keys: toKeyIdxs //getKeyArr(toKeyIdxs, mappings)
                         };
                     }
@@ -1810,7 +1811,7 @@
                     let tableTab = $('<li name="' + tableName + '"><a data-toggle="tab" href="#sheet_spreadsheet_content" class="tab-xs" onclick="switchTable(' + sheetDef[i].table_index + ');">' + tableName + '</a></li>');
                     tableTab.insertBefore(editBtn);
                     
-                    if (tableName === curTableName || Number(i) === curTableIdx) {
+                    if (tableName === curTableName || Number(i) + 1 === curTableIdx) {
                         curTableTab = tableTab;
                     }
                 }
@@ -2744,6 +2745,7 @@
                             references[fromKeyIdxs][toKey] = {
                                 file: refDef.to.file,
                                 sheet: refDef.to.sheet,
+                                table_index: refDef.to.table_index,
                                 keys: toKeyIdxs //getKeyArr(toKeyIdxs, mappings)
                             };
                         }
@@ -3130,8 +3132,7 @@
                         sc2Obj.agmip_translation_mappings.files.push(tmp2);
                     },
                     null,
-                    function (fileName, sheetName, idx){
-                        let tableDef = getTableDef(fileName, sheetName, idx);
+                    function (fileName, sheetName, idx, tableDef){
                         let tmp = Object.assign({}, tableDef);
                         delete tmp.unfully_matched_flg;
                         tmp.mappings = [];
@@ -3190,7 +3191,8 @@
                                 let refDefs = tableDef.references[fromKeyIdxs];
                                 for (let toRefDefStr in refDefs) {
                                     let toRefDef = refDefs[toRefDefStr];
-                                    let refDef = createRefDefObj({file: fileName, sheet: sheetName},
+                                    let refDef = createRefDefObj(
+                                        {file: fileName, sheet: sheetName, table_index: tableDef.table_index},
                                         JSON.parse("[" + fromKeyIdxs + "]"),
                                         toRefDef,
                                         getKeyIdxArr(toRefDef.keys), true);
@@ -3457,7 +3459,6 @@
                 $("button").prop("disabled", false);
                 $('#tableViewSwitch').change(function () {
                     setSubTableTabs();
-                    initSpreadsheet(curFileName, curSheetName);
                 });
                 $('#tableViewSwitch2').change(function () {
                     initSpreadsheet(curFileName, curSheetName);
