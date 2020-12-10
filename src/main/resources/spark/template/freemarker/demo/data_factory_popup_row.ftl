@@ -49,9 +49,9 @@
                     for (let i in sheetDef) {
                         let tableDef = sheetDef[i];
                         delete tableDef.button;
-                        if (tableDef.table_name === autoTableName({table_index : tableDef.table_index})) {
-                            delete tableDef.table_name;
-                        }
+//                        if (tableDef.table_name === autoTableName({table_index : tableDef.table_index})) {
+//                            delete tableDef.table_name;
+//                        }
                         if (!tableDef.data_start_row || !tableDef.header_row) {
                             idxErrFlg = true;
                         }
@@ -120,7 +120,7 @@
             let columns = [
 //                {type: 'text', data : "file_name", readOnly: true},
 //                {type: 'text', data : "sheet_name", readOnly: true},
-//                {type: 'text', data : "table_index", readOnly: true},
+                {type: 'text', data : "table_index", readOnly: true},
                 {type: 'text', data : "table_name"},
                 {type: 'numeric', data : "header_row"},
                 {type: 'numeric', data : "unit_row"},
@@ -130,7 +130,7 @@
                 {type: 'text', data : "button", readOnly: true, renderer: 'html', className: "htCenter"}
 //                {type: 'checkbox', data : "included_flg"}
             ];
-            let colHeaders = ["Table Name", "Header Row #", "Unit Row #", "Description Row #", "Data Start Row #", "Data End Row #", "Edit"];
+            let colHeaders = ["Index", "Table Name", "Header Row #", "Unit Row #", "Description Row #", "Data Start Row #", "Data End Row #", "Edit"];
 //            data.push({table_index: curFileName, file_name_row:true});
 //            mergeCells.push({row: data.length - 1, col: 0, rowspan: 1, colspan: columns.length});
 //            data.push({table_index: curSheetName, sheet_name_row:true});
@@ -159,9 +159,9 @@
                 if (!tableDef.table_index) {
                     tableDef.table_index = Number(i) + 1;
                 }
-                if (!tableDef.table_name) {
-                    tableDef.table_name = autoTableName(tableDef);
-                }
+//                if (!tableDef.table_name) {
+//                    tableDef.table_name = autoTableName(tableDef);
+//                }
                 tableDef.button = '<button type="button" name="row_define_remove_btn" class="btn btn-danger btn-xs"><span name="table_index' + '_' + tableDef.table_index + '" class="glyphicon glyphicon-minus"></span></button>';
             }
             addTableDef2(data, {
@@ -251,7 +251,7 @@
             sheet_name : tableDef.sheet_name,
             button : '<button type="button" name="row_define_add_btn" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>'
         });
-        tableDef.table_name = autoTableName(tableDef);
+//        tableDef.table_name = autoTableName(tableDef);
         popSpreadsheet.render();
     }
     
