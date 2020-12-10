@@ -753,8 +753,12 @@
             
             function countUndefinedColumns(sheetDef) {
                 let ret = 0;
-                for (let i in sheetDef) {
-                    ret += countUndefinedColumnsTable(sheetDef[i]);
+                if (sheetDef) {
+                    for (let i in sheetDef) {
+                        ret += countUndefinedColumnsTable(sheetDef[i]);
+                    }
+                } else {
+                    return 1;
                 }
                 return ret;
             }
@@ -2775,7 +2779,7 @@
                         ret.push(files[fileName][sheetName]);
                         return ret;
                     } else {
-                        return [];
+                        return null;
                     }
                 }
             }
@@ -2862,8 +2866,11 @@
                             return 1;
                         }
                         for (let idx = 0; idx < files[fileName][sheetName].length; idx++) {
-                            if (callbackTable(fileName, sheetName, idx + "", getTableDef2(sheetDef, idx + "", files))) {
-                                return 1;
+                            let tableDef = getTableDef2(sheetDef, idx + "", files);
+                            if (tableDef) {
+                                if (callbackTable(fileName, sheetName, idx + "", tableDef)) {
+                                    return 1;
+                                }
                             }
                         }
                         if (callbackSheet2 && callbackSheet2(fileName, sheetName, sheetDef)) {
@@ -2880,9 +2887,13 @@
             }
             
             function loopTableFromSheet(sheetDef, callback) {
-                for (let i in sheetDef) {
-                    if (callback && callback(sheetDef[i])) {
-                        return 1;
+                if (sheetDef) {
+                    for (let i = 0; i < sheetDef.length; i++) {
+                        if (sheetDef[i]) {
+                            if (callback && callback(sheetDef[i])) {
+                                return 1;
+                            }
+                        }
                     }
                 }
             }
@@ -2904,7 +2915,7 @@
             function removeTableDefAt(fileName, sheetName, tableIdx, files) {
                 tableIdx = adjustIdx(tableIdx);
                 let sheetDef = getSheetDef(fileName, sheetName, files);
-                if (sheetDef[tableIdx]) {
+                if (sheetDef && sheetDef[tableIdx]) {
                     sheetDef.splice(tableIdx, 1);
                 }
                 if (wbObj[fileName][sheetName].header[tableIdx]) {
@@ -3025,7 +3036,8 @@
 
             function isSheetDefExist(fileName, sheetName, files) {
                 let sheetDef = getSheetDef(fileName, sheetName, files);
-                return !!sheetDef && sheetDef.length > 0;
+//                return !!sheetDef && sheetDef.length > 0;
+                return !!sheetDef;
             }
             
             function isTableDefExist(fileName, sheetName, tableIdx, files) {
