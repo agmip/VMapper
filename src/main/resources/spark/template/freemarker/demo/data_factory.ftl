@@ -822,26 +822,27 @@
                     }
 
                     // update reference
-                    tableDef.references = {};
-                    // TODO update reference to match multi table feature
-                    let refConfig = tableDef.references_org;
-                    let references = tableDef.references;
-                    for (let j in refConfig) {
-                        let refDef = refConfig[j];
-                        let fromKeyIdxs = getKeyIdxArr(refDef.from.keys, tableDef.mappings);
-                        let toKeyIdxs = getKeyIdxArr(refDef.to.keys, getRefTableDef(refDef.to).mappings);
-                        let toKey = getRefDefKey(refDef.to, toKeyIdxs);
-                        if (!references[fromKeyIdxs]) {
-                            references[fromKeyIdxs] = {};
+                    if (tableDef.references_org) {
+                        tableDef.references = {};
+                        let refConfig = tableDef.references_org;
+                        let references = tableDef.references;
+                        for (let j in refConfig) {
+                            let refDef = refConfig[j];
+                            let fromKeyIdxs = getKeyIdxArr(refDef.from.keys, tableDef.mappings);
+                            let toKeyIdxs = getKeyIdxArr(refDef.to.keys, getRefTableDef(refDef.to).mappings);
+                            let toKey = getRefDefKey(refDef.to, toKeyIdxs);
+                            if (!references[fromKeyIdxs]) {
+                                references[fromKeyIdxs] = {};
+                            }
+                            references[fromKeyIdxs][toKey] = {
+                                file: refDef.to.file,
+                                sheet: refDef.to.sheet,
+                                table_index: refDef.to.table_index,
+                                keys: toKeyIdxs //getKeyArr(toKeyIdxs, mappings)
+                            };
                         }
-                        references[fromKeyIdxs][toKey] = {
-                            file: refDef.to.file,
-                            sheet: refDef.to.sheet,
-                            table_index: refDef.to.table_index,
-                            keys: toKeyIdxs //getKeyArr(toKeyIdxs, mappings)
-                        };
+                        delete tableDef.references_org;
                     }
-                    delete tableDef.references_org;
                 });
 //                workbook.SheetNames.forEach(function(sheetName) {
 //                    if (isSheetDefExist(fileName, sheetName)) {
@@ -2885,13 +2886,6 @@
                     }
                 }
             }
-
-            function updateTableIdx(fileName, sheetName, files) {
-                let sheetDef = getSheetDef(fileName, sheetName, files);
-                for (let i in sheetDef) {
-                    sheetDef[i].table_index = i + 1;
-                }
-            }
             
             function adjustIdx(idx) {
                 if (idx) {
@@ -2903,17 +2897,74 @@
                 return idx;
             }
 
+            function removeTableDef(tableDef, files) {
+                removeTableDefAt(curFileName, tableDef.sheet_name, tableDef.table_index, files);
+            }
+            
             function removeTableDefAt(fileName, sheetName, tableIdx, files) {
                 tableIdx = adjustIdx(tableIdx);
                 let sheetDef = getSheetDef(fileName, sheetName, files);
                 if (sheetDef[tableIdx]) {
                     sheetDef.splice(tableIdx, 1);
                 }
-                updateTableIdx(fileName, sheetName, files);
-                // TODO lastHeaderRow
-                // TODO virColCnt
-                // TODO webObj[sheetName].header
-                // TODO update reference
+                if (wbObj[fileName][sheetName].header[tableIdx]) {
+                    wbObj[fileName][sheetName].header.splice(tableIdx, 1);
+                }
+                updateCacheObjTableIdx(lastHeaderRow, fileName, sheetName, tableIdx);
+                updateCacheObjTableIdx(virColCnt, fileName, sheetName, tableIdx);
+                updateTableIdx(fileName, sheetName, tableIdx, files);
+            }
+
+            function updateTableIdx(updFileName, updSheetName, removedTableIdx, files) {
+                updateRefTableIdx(updFileName, updSheetName, removedTableIdx, null, files);
+                loopTables(null, null, function(fileName, sheetName, i, tableDef){
+                    i = Number(i);
+                    if (tableDef.table_index !== i + 1) {
+//                        if (tableDef.table_name === autoTableName(tableDef)) {
+//                            delete tableDef.table_name;
+//                            tableDef.table_name = autoTableName(tableDef, i + 1);
+//                        }
+                        tableDef.table_index = i + 1;
+                        updateRefTableIdx(fileName, sheetName, tableDef.table_index, i + 1, files);
+                    }
+                }, null, null, files);
+            }
+            
+            function updateCacheObjTableIdx(cacheDataObj, fileName, sheetName, idx) {
+                if (cacheDataObj[fileName] && cacheDataObj[fileName][sheetName] && (cacheDataObj[fileName][sheetName][idx] || cacheDataObj[fileName][sheetName][idx] === 0)) {
+                    cacheDataObj[fileName][sheetName].splice(idx, 1);
+                }
+            }
+            
+            function updateRefTableIdx(updFileName, updSheetName, tableIdx, newTableIdx, files) {
+                tableIdx = adjustIdx(tableIdx);
+                loopTables(null, null, function(fileName, sheetName, i, tableDef){
+                    if (tableDef.references) {
+                        for (let fromKeyIdxs in tableDef.references) {
+                            let refDefs = tableDef.references[fromKeyIdxs];
+                            let needKeyUpdated = false;
+                            for (let refToKey in refDefs) {
+                                let refDef = refDefs[refToKey];
+                                if (refDef.file === updFileName &&
+                                        refDef.sheet === updSheetName &&
+                                        refDef.table_index === tableIdx) {
+                                    if (newTableIdx) {
+                                        delete refDefs[toRefDefStr];
+                                    } else {
+                                        refDef.table_index = newTableIdx;
+                                        let newRefToKey = refToKey.replace(updSheetName + "][" + tableIdx + "]:", updSheetName + "][" + newTableIdx + "]:");
+                                        refDefs[newRefToKey] = refDefs[refToKey];
+                                        delete refDefs[refToKey];
+                                        refToKey = newRefToKey;
+                                    }
+                                }
+                            }
+                            if (Object.keys(refDefs) === 0) {
+                                delete tableDef.references[fromKeyIdxs];
+                            }
+                        }
+                    }
+                }, null, null, files);
             }
 
             function getCurSheetDef(files) {
@@ -2991,7 +3042,7 @@
                         ret = true;
                         return 1;
                     }
-                }, files);
+                }, null, files);
                 return ret;
             }
             

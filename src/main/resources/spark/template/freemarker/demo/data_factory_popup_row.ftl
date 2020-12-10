@@ -220,7 +220,7 @@
                 });
                 
                 $(this).find("[name='row_define_remove_btn']").on("click", function() {
-                    removeRowDef(sheetDef[$(this).parent().parent().index()]);
+                    removeRowDef(sheets, sheetDef[$(this).parent().parent().index()], popSpreadsheet);
                 });
                 $(this).find("[name='row_define_add_btn']").on("click", function() {
                     addRowDef(data, popSpreadsheet);
@@ -232,7 +232,7 @@
                     }
                     if (row < data.length - 1) {
                         TD.firstChild.onclick = function () {
-                            removeRowDef(sheetDef[$(this).parent().parent().index()]);
+                            removeRowDef(sheets, sheetDef[$(this).parent().parent().index()], popSpreadsheet);
                         };
                     } else {
                         TD.firstChild.onclick = function () {
@@ -255,21 +255,10 @@
         popSpreadsheet.render();
     }
     
-    function removeRowDef(tableDef) {
-//        let tableIdx = $(this).parent().parent().index();
-//        let tableDef = sheetDef[tableIdx];
-        alert(tableDef.table_name);
+    function removeRowDef(sheets, tableDef, popSpreadsheet) {
+        removeTableDef(tableDef, sheets);
+        popSpreadsheet.render();
     }
-    
-//    function autoTableName(sheetDef, i) {
-//        let tableDef = sheetDef[i];
-//        if (sheetDef.length === 1) {
-//            tableDef.table_name = tableDef.sheet_name;
-//        } else {
-//            tableDef.table_name = tableDef.sheet_name + "_" + (Number(i) + 1);
-//        }
-//        return tableDef.table_name;
-//    }
     
     function autoTableName(tableDef, i) {
         if (tableDef.table_name) {
