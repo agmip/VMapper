@@ -658,7 +658,9 @@
                         }
                     },
                     function (fileName, sheetName, i){
-                        virColCnt[fileName][sheetName][i] = 0;
+                        if (!virColCnt[fileName][sheetName][i]) {
+                            virColCnt[fileName][sheetName][i] = 0;
+                        }
                     }
                 );
 //                for (let name in workbooks) {
@@ -1519,7 +1521,7 @@
                                                     // remove column def
                                                     columns.splice(j, 1);
                                                     // reduce virtual column count
-                                                    virColCnt[fileName][sheetName]--;
+                                                    virColCnt[fileName][sheetName][curTableIdx - 1]--;
                                                 }
                                             }
                                         }
@@ -1925,19 +1927,19 @@
                 });
             }
             
-            function createCsvSheet(fileName, sheetName, tableIdx) {
+            function createCsvSheet(fileName, sheetName, id) {
                 let wb = XLSX.utils.book_new();
-                let ws = XLSX.utils.aoa_to_sheet(createCsvSheetArr(fileName, sheetName, tableIdx) );
+                let ws = XLSX.utils.aoa_to_sheet(createCsvSheetArr(fileName, sheetName, id) );
                 XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
                 return XLSX.write(wb, {bookType:"csv", type: 'string'});
             }
 
-            function createCsvSheetArr(fileName, sheetName, tableIdx, parentIdxInfo) {
+            function createCsvSheetArr(fileName, sheetName, id, parentIdxInfo) {
                 let agmipData = JSON.parse(JSON.stringify(wbObj[fileName][sheetName].data));
-                let tableDef = getTableDef(fileName, sheetName, tableIdx);
+                let tableDef = getTableDef(fileName, sheetName, id);
                 agmipData = getSheetDataContent(agmipData, tableDef);
-                if (wbObj[fileName][sheetName].header) { // TODO double check if change from headers to header is OK for generating CSV pacakge
-                    agmipData.unshift(JSON.parse(JSON.stringify(wbObj[fileName][sheetName].header)));
+                if (wbObj[fileName][sheetName].header[id]) {
+                    agmipData.unshift(JSON.parse(JSON.stringify(wbObj[fileName][sheetName].header[id])));
                 } else {
                     agmipData.unshift([""]);
                 }
@@ -2182,7 +2184,7 @@
                                 }
                             }
                         }
-                        subDatas.push(createCsvSheetArr(refDef.file, refDef.sheet, refDef.table_index, idxInfo));
+                        subDatas.push(createCsvSheetArr(refDef.file, refDef.sheet, String(refDef.table_index - 1), idxInfo));
                     }
                 }
                 for (let i in subDatas) {
@@ -2612,15 +2614,18 @@
                                 virColCnt[fileName] = {};
                             }
                             if (!virColCnt[fileName][sheetName]) {
-                                virColCnt[fileName][sheetName] = 0;
+                                virColCnt[fileName][sheetName] = [];
                             }
-                            if (lastHeaderRow[fileName]) {
+                            if (!lastHeaderRow[fileName]) {
                                 lastHeaderRow[fileName] = {};
                             }
+                            if (!lastHeaderRow[fileName][sheetName]) {
+                                lastHeaderRow[fileName][sheetName] = [];
+                            }
                             if (tableDef.header_row) {
-                                lastHeaderRow[fileName][sheetName] = tableDef.header_row;
+                                lastHeaderRow[fileName][sheetName].push(tableDef.header_row);
                             } else {
-                                lastHeaderRow[fileName][sheetName] = 1;
+                                lastHeaderRow[fileName][sheetName].push(1);
                             }
                             let mappings = tableDef.mappings;
                             sc2Mappings.sort(function (m1, m2) {
@@ -2704,9 +2709,7 @@
                                     sc2Mappings[j].icasa = sc2Mappings[j].icasa.toUpperCase();
                                 }
                             }
-                            if (vrColCnt > 0) {
-                                virColCnt[fileName][sheetName] = vrColCnt;
-                            }
+                            virColCnt[fileName][sheetName].push(vrColCnt);
                         }
                     }
                     
@@ -2857,8 +2860,8 @@
                         if (callbackSheet && callbackSheet(fileName, sheetName, sheetDef)) {
                             return 1;
                         }
-                        for (let idx in files[fileName][sheetName]) {
-                            if (callbackTable(fileName, sheetName, idx, getTableDef2(sheetDef, idx, files))) {
+                        for (let idx = 0; idx < files[fileName][sheetName].length; idx++) {
+                            if (callbackTable(fileName, sheetName, idx + "", getTableDef2(sheetDef, idx + "", files))) {
                                 return 1;
                             }
                         }
@@ -2894,6 +2897,7 @@
                 if (idx) {
                     if (typeof idx === "number") {
                         idx--;
+                        idx += "";
                     }
                 }
                 return idx;
