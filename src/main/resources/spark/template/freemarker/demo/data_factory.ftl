@@ -3073,11 +3073,14 @@
                 }
             }
             
-            function toSC2Json(compressFlg) {
+            function toSC2Json(jsonObj, compressFlg) {
+                if (!jsonObj) {
+                    jsonObj = toSC2Obj();
+                }
                 if (compressFlg) {
-                    return JSON.stringify(toSC2Obj());
+                    return JSON.stringify(jsonObj);
                 } else {
-                    return JSON.stringify(toSC2Obj(), 2, 2);
+                    return JSON.stringify(jsonObj, 2, 2);
                 }
             }
             
@@ -3458,9 +3461,10 @@
                     }
                 });
                 $('.nav-tabs #SC2Tab').on('shown.bs.tab', function(){
-                    $("#sc2_json_content_text").html(toSC2Json());
+                    let jsonObj = toSC2Obj();
+                    $("#sc2_json_content_text").html(toSC2Json(jsonObj));
                     if (!isViewUpdated) {
-                        $("#sc2_json_content_tree").jsonViewer(toSC2Obj(), {collapsed: true, rootCollapsable: false});
+                        $("#sc2_json_content_tree").jsonViewer(jsonObj, {collapsed: true, rootCollapsable: false});
                         isViewUpdated = true;
                     }
                 });
