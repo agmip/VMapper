@@ -3503,6 +3503,11 @@
                 $('.nav-tabs #sheetTab').on('shown.bs.tab', function(){
                     $('.table_switch_cb').bootstrapToggle('enable');
                     let tableDef = getCurTableDef();
+                    if (!tableDef) {
+                        tableDef = {sheet_name : curSheetName, mappings:[]};
+                        addTableDef(curFileName, curSheetName, tableDef);
+                        initSpreadsheet(curFileName, curSheetName);
+                    }
                     if (tableDef.data_start_row) {
                         if (tableDef.unfully_matched_flg) {
                             alertBox("Please double check the mappings for each column and make any correction as needed.");
