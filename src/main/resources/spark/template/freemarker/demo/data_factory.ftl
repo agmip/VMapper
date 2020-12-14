@@ -233,7 +233,9 @@
                     }
                 },
                 "getOrder" : function(varName) {
-                    varName = varName.toUpperCase();
+                    if (varName) {
+                        varName = varName.toUpperCase();
+                    }
                     let group = this.getPrimaryGroup(varName);
                     if (group) {
                         return group[varName].order;
