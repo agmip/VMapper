@@ -178,6 +178,7 @@
                             subDiv.find("[name='unit_validate_result']").html("Require unit expression");
                             itemData.err_msg = "Please provide your unit expression";
                         } else {
+                            subDiv.find("[name='unit_validate_result']").html('<img alt="loading" src="/images/loading.gif" height="40pt">validating...</img>');
                             $.get("/data/unit/convert?value_from=3&unit_to=" + encodeURIComponent(subDiv.find("[name='icasa_unit']").val()) + "&unit_from="+ encodeURIComponent($(this).val()),
                                 function (jsonStr) {
                                     let result = JSON.parse(jsonStr);
@@ -347,6 +348,7 @@
                 subDiv.find("[name='unit']").each(function () {
                     $(this).on("input", function () {
                         let unit = $(this).val().toLowerCase();
+                        subDiv.find("[name='unit_validate_result']").html('<img alt="loading" src="/images/loading.gif" height="40pt">validating...</img>');
                         $.get("/data/unit/lookup?unit=" + encodeURIComponent(unit),
                             function (jsonStr) {
                                 let unitInfo = JSON.parse(jsonStr);
