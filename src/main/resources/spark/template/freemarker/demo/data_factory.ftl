@@ -1853,7 +1853,7 @@
 
             function saveAgMIPZip() {
                 // check if mappings are completed
-                loopSheets(null, function (fileName, sheetName){
+                if (loopSheets(null, function (fileName, sheetName){
                     let cntUndefined = countUndefinedColumns(getSheetDef(fileName, sheetName));
                     if (cntUndefined > 0) {
                         alertBox("There are undefined/error mappings left here...", function () {
@@ -1864,9 +1864,11 @@
                                 }
                              });
                         });
-                        return;
+                        return 1;
                     }
-                });
+                })) {
+                    return false;
+                }
                 let loadingDialog = bootbox.dialog({
                     message: '<h4><span class="glyphicon glyphicon-refresh spinning"></span><span class="loading-msg"> Preparing files...</span></h4>',
 //                    centerVertical: true,
@@ -2827,7 +2829,7 @@
                 }
                 for (let fileName in files) {
                     if (callback(fileName)) {
-                        return;
+                        return 1;
                     }
                 }
             }
@@ -2836,7 +2838,7 @@
                 if (!files) {
                     files = templates;
                 }
-                loopFiles(function (fileName) {
+                return loopFiles(function (fileName) {
                     if (callbackFile && callbackFile(fileName)) {
                         return 1;
                     }
@@ -2856,7 +2858,7 @@
                 if (!files) {
                     files = templates;
                 }
-                loopSheets(
+                return loopSheets(
                     function (fileName) {
                         if (callbackFile && callbackFile(fileName)) {
                             return 1;
