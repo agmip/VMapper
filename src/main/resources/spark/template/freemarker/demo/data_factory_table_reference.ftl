@@ -289,7 +289,6 @@
             });
         } else {
             editBtn.on("click", function() {
-                // TODO remove the record
                 isChanged = true;
                 isViewUpdated = false;
                 isDebugViewUpdated = false;

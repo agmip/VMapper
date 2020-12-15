@@ -676,7 +676,6 @@
                     if (tableDef.references) {
                         for (let fromKeyIdxs in tableDef.references) {
                             for (let toKey in tableDef.references[fromKeyIdxs]) {
-                                // TODO update table reference for multi table feature
                                 tableDef.references[fromKeyIdxs][toKey].keys = getKeyArr(tableDef.references[fromKeyIdxs][toKey].keys, getRefTableDef(tableDef.references[fromKeyIdxs][toKey]).mappings);
                             }
                         }
@@ -736,7 +735,6 @@
                 });
             }
             
-            // TODO update references for multi table feature
             function updateSheetReference(references, fileName, preSheetName, sheetName) {
                 for (let fromKeyIdx in references) {
                     for (let refToKey in references[fromKeyIdx]) {
@@ -1008,7 +1006,7 @@
                                             function (jsonStr) {
                                                 let ret = JSON.parse(jsonStr);
                                                 if (ret.status !== "0") {
-    //                                                headerDef.unit = icasa_unit; // TODO this should change to give warning message
+    //                                                headerDef.unit = icasa_unit; // this is changed to give warning message
                                                     headerDef.unit_error = true;
                                                 }
                                             }
@@ -1247,7 +1245,7 @@
                                                 function (jsonStr) {
                                                     let ret = JSON.parse(jsonStr);
                                                     if (ret.status !== "0") {
-    //                                                    headerDef.unit = icasa_unit; // TODO this should change to give warning message
+    //                                                    headerDef.unit = icasa_unit; // this is changed to give warning message
                                                         headerDef.unit_error = true;
                                                     } else {
                                                         delete headerDef.unit_error;
@@ -1330,7 +1328,6 @@
 //                let minRows = 10;
                 let data = wbObj[fileName][sheetName].data;
                 let tableDef = getTableDef(fileName, sheetName);
-//               let mappings = getMappings(fileName, sheetName);
                 let mappings = tableDef.mappings;
                 let columns = [];
 //                if (data.length < minRows) {
@@ -1831,10 +1828,6 @@
                 }
             }
             
-            function convertUnit() {
-                // TODO
-            }
-            
             function openExpDataFile() {
                 showLoadFileDialog();
             }
@@ -2186,8 +2179,6 @@
                                     }
                                     if (!idxInfo.indexing[agmipData[i][0]]) {
                                         idxInfo.indexing[agmipData[i][0]] = {};
-                                    } else {
-                                        // TODO
                                     }
                                     idxInfo.indexing[agmipData[i][0]][idx] = agmipData[i][fromKeyIdxs[j]];
                                 }
@@ -2447,7 +2438,7 @@
                     }
                     // Locate the correct file for reading mappings
                     let fileConfigs = [];
-                    if (curFileName) { // TODO couble be removed, need test
+                    if (curFileName) {
                         // If spreadsheet is already loaded, then only pick up the config for the loaded file
                         for (let fileName in wbObj) {
                             for (let i in files) {
@@ -3549,7 +3540,6 @@
 //                });
                 $('#sheetTab').on("click", function() {
                     $('#sheet_tab_list').find("a").each(function () {
-                        // TODO update table link for multi table feature
                         let tmp = $(this).attr('id').split("__");
                         let cntUndefined = countUndefinedColumns(templates[tmp[0]][tmp[1]]);
                         if (cntUndefined > 0) {

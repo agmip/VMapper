@@ -16,14 +16,12 @@
                     // Load mapping for each sheet and fill missing column with ignore flag
                     let fileName = getMetaFileName(fileConfig.file.file_metadata);
                     if (!fileTypes[fileName]) {
-//                        let contentType = fileConfig.file.file_metadata["content-type"];
                         for (let name in fileTypes) {
                             if (Object.keys(fileTypes).length === 1
 //                                || name.startsWith(fileName) && (!contentType || fileTypes[name] === contentType)
                                 ) {
                                 // TODO need to revise the file auto-mapping
                                 singleFileName = fileName;
-//                                fileName = name;
                             }
                         }
                     }
@@ -35,8 +33,6 @@
                         if (!templates[fileName][sheetName]) {
                             templates[fileName][sheetName] = [];
                         }
-//                        let tableIdx = getTableIdx(fileConfig.file.sheets[i]);
-//                        templates[fileName][sheetName][tableIdx] = {sheet_name : sheetName, table_index : tableIdx + 1};
                         templates[fileName][sheetName].push({
                             sheet_name : sheetName,
                             table_index : templates[fileName][sheetName].length + 1
@@ -49,23 +45,10 @@
                     fileMap[fileName] = {};
                     if (templates[fileName]) {
                         workbook.SheetNames.forEach(function(sheetName) {
-//                            let sheetDef = getSheetDef(fileName, sheetName);
                             if (!isSheetDefExist(fileName, sheetName)) {
                                 isFullyMatched = false;
                             } else {
                                 fileMap[fileName][sheetName] = {sheet_name: sheetName, file_name: fileName, sheet_def: sheetName, file_def: fileName};
-//                                // TODO check if we need to use array for fileMap
-//                                fileMap[fileName][sheetName] = [];
-//                                for (let i in sheetDef) {
-//                                    fileMap[fileName][sheetName].push({
-//                                        sheet_name : sheetName,
-//                                        file_name: fileName,
-//                                        table_index: fileMap[fileName][sheetName].length + 1,
-//                                        file_def: fileName,
-//                                        sheet_def: sheet_name,
-//                                        table_def: i + 1
-//                                    });
-//                                }
                             }
                         });
                     } else {
@@ -101,7 +84,7 @@
                         break;
                     }
                 }
-//                    let roa = sheet_to_json(sheet);
+
                 // Pre-scan the raw data and try auto-detect the header, data start, unit and description row
                 if(roa.length){
                     tableDefs.push(JSON.parse(JSON.stringify(tableDef)));
@@ -158,8 +141,6 @@
                 label: "Confirm",
                 className: 'btn-primary',
                 callback: function(){
-                    let idxErrFlg = false;
-                    let repeatedErrFlg = false;
                     let includedCnt = 0;
                     for (let fileName in sheets) {
                         for (let sheetName in sheets[fileName]) {
@@ -199,11 +180,6 @@
             if (errMsg) {
                 dialog.find("[name='dialog_msg']").text(errMsg);
             }
-//            if (callback.name === "loadSC2Obj") {
-//                dialog.find("[name='mapping_def_desc']").fadeIn(0);
-//            } else {
-//                dialog.find("[name='mapping_def_desc']").fadeOut(0);
-//            }
             let data = [];
             let mergeCells = [];
             if (Object.keys(templates).length === 0) {

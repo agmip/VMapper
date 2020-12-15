@@ -1,21 +1,14 @@
 <script>
     function showRowDefDialog(callback, errMsg, sheets) {
-//        let singleFileName;
         if (!sheets) {
             sheets = JSON.parse(JSON.stringify(templates));
         }
-//        let data = [];
-        // TODO editFlg = true will use different routine to handle
         let sheetDef = getCurSheetDef(sheets);
         // Setup default value for row definition of a table
         let latestHeaderRow = 1;
         let sheetName;
         for (let i in sheetDef) {
             let tableDef = sheetDef[i];
-//                if (!tableDef.header_row) {
-//                    tableDef.header_row = latestHeaderRow;
-//                    latestHeaderRow++;
-//                }
             if (!tableDef.data_start_row) {
                 if (tableDef.header_row) {
                     tableDef.data_start_row = tableDef.header_row + 1;
@@ -39,7 +32,6 @@
                     let repeatedErrFlg = false;
                     let invalidEndErrFlg = false;
                     let overlapErrFlg = false;
-//                    let includedCnt = 0;
                     // Check if the last row input is meaningful or not
                     let lastRow = sheetDef.pop();
                     if (lastRow.header_row || lastRow.data_start_row) {
@@ -116,7 +108,6 @@
             }
             let data = sheetDef;
             let mergeCells = [];
-            // =========== TODO update popup spreadsheet to enable add/remove sub-table ===========
             let columns = [
 //                {type: 'text', data : "file_name", readOnly: true},
 //                {type: 'text', data : "sheet_name", readOnly: true},
@@ -128,34 +119,10 @@
                 {type: 'numeric', data : "data_start_row"},
                 {type: 'numeric', data : "data_end_row"},
                 {type: 'text', data : "button", readOnly: true, renderer: 'html', className: "htCenter"}
-//                {type: 'checkbox', data : "included_flg"}
             ];
             let colHeaders = ["Index", "Table Name", "Header Row #", "Unit Row #", "Description Row #", "Data Start Row #", "Data End Row #", "Edit"];
-//            data.push({table_index: curFileName, file_name_row:true});
-//            mergeCells.push({row: data.length - 1, col: 0, rowspan: 1, colspan: columns.length});
-//            data.push({table_index: curSheetName, sheet_name_row:true});
-//            mergeCells.push({row: data.length - 1, col: 0, rowspan: 1, colspan: columns.length});
-//            for (let sheetName in sheets[curFileName]) {
-//                let tmp = {};
-//                tmp.included_flg = true;
-//                tmp.file_name = curFileName;
-//                if (templates[curFileName]) {
-//                    tmp.file_def = curFileName;
-//                    if (isSheetDefExist(curFileName, sheetName)) {
-//                        tmp.sheet_def = sheetName;
-//                    }
-//                } else if (templates[singleFileName]) {
-//                    tmp.file_def = singleFileName;
-//                    if (templates[singleFileName][sheetName]) {
-//                        tmp.sheet_def = sheetName;
-//                    }
-//                }
-//                if (!tmp.sheet_def) {
-//                    tmp.included_flg = callback.name !== "loadSC2Obj";
-//                }
             for (let i in sheetDef) {
                 let tableDef = sheetDef[i];
-//                addTableDef2(data, tableDef);
                 if (!tableDef.table_index) {
                     tableDef.table_index = Number(i) + 1;
                 }
@@ -189,7 +156,6 @@
                 mergeCells: mergeCells
             };
             $(this).find("[name='rowDefSheet']").each(function () {
-                let spDiv = $(this);
                 $(this).handsontable(spsOptions);
                 let popSpreadsheet = $(this).handsontable('getInstance');
 
@@ -199,23 +165,9 @@
                         if (!cell) {
                             return;
                         }
-                        // TODO === could be deleted ===
                         if (row === data.length - 1) {
                             cell.style.backgroundColor = "#F4F6F6";
                         }
-//                        else if (data[row].file_name_row) {
-//                            cell.style.color = "white";
-//                            cell.style.fontWeight = "bold";
-//                            cell.style.backgroundColor = "grey";
-//                        } else if (data[row].sheet_name_row) {
-//                            cell.style.color = "white";
-//                            cell.style.fontWeight = "bold";
-//                            cell.style.fontStyle = "italic";
-//                            cell.style.backgroundColor = "grey";
-//                        }
-//                        else {
-//                            return {readOnly : true};
-//                        }
                     }
                 });
                 
