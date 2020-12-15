@@ -3129,10 +3129,10 @@
                     },
                     dataset_metadata : {},
                     agmip_translation_mappings : {
-                        primary_ex_sheet : {
-                            file : null,
-                            sheet : null,
-                        },
+//                        primary_ex_sheet : {
+//                            file : null,
+//                            sheet : null,
+//                        },
                         relations : [],
                         files : []
                     },
