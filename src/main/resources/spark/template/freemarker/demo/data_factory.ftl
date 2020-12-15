@@ -3522,9 +3522,6 @@
                 $('#tableViewSwitch2').change(function () {
                     initSpreadsheet(curFileName, curSheetName);
                 });
-                $('#tableViewSwitch2').change(function () {
-                    initSpreadsheet(curFileName, curSheetName);
-                });
 //                $('#tableColSwitchSuccess').change(function () {
 //                    let plugin = spreadsheet.getPlugin('hiddenColumns');
 //                    let hiddenArr = [];
