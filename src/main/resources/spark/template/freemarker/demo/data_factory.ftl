@@ -2788,17 +2788,6 @@
                 }
             }
             
-//            function getSheetDefArr(fileName, sheetName, files) {
-//                let ret = [];
-//                let sheetDef = getSheetDef(fileName, sheetName, files);
-//                if (sheetDef) {
-//                    for (let i in sheetDef) {
-//                        ret.push(sheetDef[i]);
-//                    }
-//                }
-//                return ret;
-//            }
-            
             function getTableDef(fileName, sheetName, tableIdx, files) {
                 return getTableDef2(getSheetDef(fileName, sheetName, files), tableIdx, files);
             }
@@ -3022,21 +3011,6 @@
             function removeCurTableDef(files) {
                 removeTableDefAt(curFileName, curSheetName, curTableIdx);
             }
-
-//            function getTableIdx(tableDef, noUpdate) {
-//                if (!tableDef) {
-//                    tableDef = getCurTableDef();
-//                }
-//                let tableIdx = tableDef.table_index - 1;
-//                if (!tableIdx) {
-//                    latestTableIdx++;
-//                    tableIdx = latestTableIdx;
-//                }
-//                if (!noUpdate) {
-//                    tableDef.table_index = tableIdx + 1;
-//                }
-//                return tableIdx;
-//            }
 
             function isSheetDefExist(fileName, sheetName, files) {
                 let sheetDef = getSheetDef(fileName, sheetName, files);
