@@ -22,6 +22,7 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-question-sign"></span> Help <span class="caret"></span></a>
                     <ul class="dropdown-menu" role="menu">
                         <li><a href="#" onClick="window.open('https://github.com/agmip/VMapper/issues')"><span class="glyphicon glyphicon-pencil"></span> Report Issues</a></li>
+                        <li><a href="#" onClick="alertBox('VMapper Version: ${version!}')"><span class="glyphicon glyphicon-info-sign"></span> About VMapper</a></li>
                     </ul>
                 </li>
             </ul>

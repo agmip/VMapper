@@ -1,131 +1,22 @@
 <script>
-    function showSheetDefDialog(callback, errMsg, editFlg, sc2Obj) {
-        let fileMap = {};
-        let singleFileName;
-        if (callback.name === "loadSC2Obj") {
-            templates = {};
-            if (sc2Obj.agmip_translation_mappings) {
-                let isFullyMatched = true;
-                
-                let files = sc2Obj.agmip_translation_mappings.files;
-                if (!files || files.length === 0) {
-                    callback(sc2Obj);
-                }
-                for (let i in files) {
-                    
-                    let fileConfig = files[i];
-                    // Load mapping for each sheet and fill missing column with ignore flag
-                    let fileName = getMetaFileName(fileConfig.file.file_metadata);
-                    if (!fileTypes[fileName]) {
-//                        let contentType = fileConfig.file.file_metadata["content-type"];
-                        for (let name in fileTypes) {
-                            if (Object.keys(fileTypes).length === 1
-//                                || name.startsWith(fileName) && (!contentType || fileTypes[name] === contentType)
-                                ) {
-                                // TODO need to revise the file auto-mapping
-                                singleFileName = fileName;
-//                                fileName = name;
-                            }
-                        }
-                    }
-                    if (!templates[fileName]) {
-                        templates[fileName] = {};
-                    }
-                    for (let i in fileConfig.file.sheets) {
-                        let sheetName = fileConfig.file.sheets[i].sheet_name;
-                        templates[fileName][sheetName] = {};
-                    }
-                }
-                for (let fileName in workbooks) {
-                    let workbook = workbooks[fileName];
-                    fileMap[fileName] = {};
-                    if (templates[fileName]) {
-                        workbook.SheetNames.forEach(function(sheetName) {
-                            if (!templates[fileName][sheetName]) {
-                                isFullyMatched = false;
-                            } else {
-                                fileMap[fileName][sheetName] = {sheet_name: sheetName, file_name: fileName, sheet_def: sheetName, file_def: fileName};
-                            }
-                        });
-                    } else {
-                        isFullyMatched = false;
-                    }
-                }
-                if (isFullyMatched) {
-                    callback(sc2Obj, fileMap);
-                    return;
-                }
-            } else {
-                callback(sc2Obj);
-                return;
-            }
-        }
-        let sheets = {};
-        let headerStr;
-        if (editFlg) {
-            headerStr = "<h2>Row Definition</h2>";
+    function showRowDefDialog(callback, errMsg, sheets) {
+        if (!sheets) {
             sheets = JSON.parse(JSON.stringify(templates));
-//            if (!sheets[curFileName][curSheetName].header_row) {
-//                sheets[curFileName][curSheetName].header_row = 1;
-//            }
-            if (!sheets[curFileName][curSheetName].data_start_row && sheets[curFileName][curSheetName].header_row) {
-                sheets[curFileName][curSheetName].data_start_row = sheets[curFileName][curSheetName].header_row + 1;
+        }
+        let sheetDef = getCurSheetDef(sheets);
+        // Setup default value for row definition of a table
+        let latestHeaderRow = 1;
+        let sheetName;
+        for (let i in sheetDef) {
+            let tableDef = sheetDef[i];
+            if (!tableDef.data_start_row) {
+                if (tableDef.header_row) {
+                    tableDef.data_start_row = tableDef.header_row + 1;
+                } else {
+                    tableDef.data_start_row = latestHeaderRow + 1;
+                }
+                latestHeaderRow = tableDef.data_start_row + 1;
             }
-        } else {
-            headerStr = "<h2>Sheet Definition</h2>";
-            for (let fileName in workbooks) {
-                let workbook = workbooks[fileName];
-                sheets[fileName] = {};
-                workbook.SheetNames.forEach(function(sheetName) {
-//                workbook.worksheets.forEach(function(sheet) {
-//                    let sheetName = sheet.name;
-                    sheets[fileName][sheetName] = {};
-
-                    sheets[fileName][sheetName].file_name = fileName;
-                    sheets[fileName][sheetName].sheet_name = sheetName;
-                    sheets[fileName][sheetName].included_flg = true;
-                    sheets[fileName][sheetName].single_flg = false;
-                    let roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1});
-                    for (let i = roa.length; i >= 0; i--) {
-                        if (roa[i] && roa[i].length > 0) {
-                            roa.splice(i + 1, roa.length - i);
-                            break;
-                        }
-                    }
-    //                let roa = sheet_to_json(sheet);
-                    if(roa.length){
-                        for (let i in roa) {
-                            if (!roa[i].length || roa[i].length === 0) {
-                                continue;
-                            }
-                            let fstCell = String(roa[i][0]);
-                            if (fstCell.startsWith("!")) {
-                                if (!sheets[fileName][sheetName].unit_row && fstCell.toLowerCase().includes("unit")) {
-                                    sheets[fileName][sheetName].unit_row = Number(i) + 1;
-                                } else if (!sheets[fileName][sheetName].desc_row && 
-                                        (fstCell.toLowerCase().includes("definition") || 
-                                        fstCell.toLowerCase().includes("description"))) {
-                                    sheets[fileName][sheetName].desc_row = Number(i) + 1;
-                                }
-                            } else if ((fstCell && fstCell === "#") || (fstCell && fstCell === "%")) {
-                                if (!sheets[fileName][sheetName].header_row) {
-                                    sheets[fileName][sheetName].header_row = Number(i) + 1;
-                                }
-                            } else if (sheets[fileName][sheetName].header_row && !sheets[fileName][sheetName].data_start_row) {
-                                sheets[fileName][sheetName].data_start_row = Number(i) + 1;
-                            }
-                            if (Object.keys(sheets[fileName][sheetName]).length >= 7) {
-                                break;
-                            }
-                        }
-                    }
-
-                    if (sheets[fileName][sheetName].data_start_row) {
-                        sheets[fileName][sheetName].single_flg = isSingleRecordTable(roa, sheets[fileName][sheetName]);
-                    }
-                });
-            }
-            
         }
         let buttons = {
             cancel: {
@@ -139,62 +30,75 @@
                 callback: function(){
                     let idxErrFlg = false;
                     let repeatedErrFlg = false;
-                    let includedCnt = 0;
-                    for (let fileName in sheets) {
-                        for (let sheetName in sheets[fileName]) {
-                            if (!sheets[fileName][sheetName].data_start_row || !sheets[fileName][sheetName].header_row) {
-                                idxErrFlg = true;
-                            }
-                            if (sheets[fileName][sheetName].included_flg) {
-                                includedCnt++;
-                                delete sheets[fileName][sheetName].included_flg;
-                                let keys = ["data_start_row", "data_end_row", "header_row", "unit_row", "desc_row"];
-                                for (let i = 0; i < keys.length; i++) {
-                                    if (sheets[fileName][sheetName][keys[i]]) {
-                                        for (let j = i + 1; j < keys.length; j++) {
-                                            if (sheets[fileName][sheetName][keys[i]] === sheets[fileName][sheetName][keys[j]]) {
-                                                if ((keys[i] !== "data_start_row" || keys[j] !== "data_end_row") &&
-                                                    (keys[j] !== "data_start_row" || keys[i] !== "data_end_row")) {
-                                                    repeatedErrFlg = true;
-                                                    break;
-                                                }
-                                            }
+                    let invalidEndErrFlg = false;
+                    let overlapErrFlg = false;
+                    // Check if the last row input is meaningful or not
+                    let lastRow = sheetDef.pop();
+                    if (lastRow.header_row || lastRow.data_start_row) {
+                        sheetDef.push(lastRow);
+                    }
+                    let lastTableDef;
+                    for (let i in sheetDef) {
+                        let tableDef = sheetDef[i];
+                        delete tableDef.button;
+//                        if (tableDef.table_name === autoTableName({table_index : tableDef.table_index})) {
+//                            delete tableDef.table_name;
+//                        }
+                        if (!tableDef.data_start_row || !tableDef.header_row) {
+                            idxErrFlg = true;
+                        }
+                        let keys = ["data_start_row", "data_end_row", "header_row", "unit_row", "desc_row"];
+                        for (let i = 0; i < keys.length; i++) {
+                            if (tableDef[keys[i]]) {
+                                for (let j = i + 1; j < keys.length; j++) {
+                                    if (tableDef[keys[i]] === tableDef[keys[j]]) {
+                                        if ((keys[i] !== "data_start_row" || keys[j] !== "data_end_row") &&
+                                            (keys[j] !== "data_start_row" || keys[i] !== "data_end_row")) {
+                                            repeatedErrFlg = true;
+                                            break;
                                         }
                                     }
                                 }
-                            } else {
-                                delete sheets[fileName][sheetName];
                             }
                         }
-                    }
-                    if (editFlg && sheets[curFileName][curSheetName].data_start_row) {
-                        sheets[curFileName][curSheetName].single_flg = isSingleRecordTable(wbObj[curFileName][curSheetName].data, sheets[curFileName][curSheetName]);
+                        if (tableDef.data_start_row && tableDef.data_end_row && tableDef.data_start_row >= tableDef.data_end_row) {
+                            invalidEndErrFlg = true;
+                        }
+                        if (tableDef.data_start_row) {
+                            tableDef.single_flg = isSingleRecordTable(wbObj[curFileName][curSheetName].data, tableDef);
+                        }
+                        if (lastTableDef) {
+                            if (!lastTableDef.data_end_row || lastTableDef.data_end_row >= tableDef.data_start_row) {
+                                overlapErrFlg = true;
+                            }
+                        } else {
+                            lastTableDef = tableDef;
+                        }
                     }
 //                    if (idxErrFlg) {
-//                        showSheetDefDialog(callback, "[warning] Please provide header row number and data start row number.", editFlg);
+//                        showRowDefDialog(callback, "[warning] Please provide header row number and data start row number.");
+//                    } else if (includedCnt === 0) {
+//                        showRowDefDialog(callback, "[warning] Please select at least one sheet for reading in.");
 //                    } else
-                    if (includedCnt === 0) {
-                        showSheetDefDialog(callback, "[warning] Please select at least one sheet for reading in.", editFlg, sc2Obj);
-                    } else if (repeatedErrFlg) {
-                        showSheetDefDialog(callback, "[warning] Please select different raw for each definition.", editFlg, sc2Obj);
-                    }  else {
+                    if (repeatedErrFlg) {
+                        showRowDefDialog(callback, "[warning] Please select different row for each definition.", sheets);
+                    }  else if (invalidEndErrFlg) {
+                        showRowDefDialog(callback, "[warning] Please select a row below the data start row for the end of table.", sheets);
+                    } else if (overlapErrFlg) {
+                        showRowDefDialog(callback, "[warning] Please select a row as end of data for the previous tables.", sheets);
+                    } else {
                         isViewUpdated = false;
                         isDebugViewUpdated = false;
-                        if (callback.name === "loadSC2Obj") {
-                            isChanged = false;
-                            callback(sc2Obj, sheets);
-                        } else {
-                            isChanged = true;
-                            callback(sheets, editFlg);
-                        }
+                        isChanged = true;
+                        callback(sheets, true);
                     }
                 }
             }
         };
         let dialog = bootbox.dialog({
-            title: headerStr,
+            title: '<h2>Table Definition</h2>',
             size: 'large',
-            message: $("#sheet_define_popup").html(),
+            message: $("#row_define_popup").html(),
             buttons: buttons
         });
         dialog.find(".modal-content").drags();
@@ -202,74 +106,35 @@
             if (errMsg) {
                 dialog.find("[name='dialog_msg']").text(errMsg);
             }
-            if (callback.name === "loadSC2Obj") {
-                dialog.find("[name='mapping_def_desc']").fadeIn(0);
-            } else {
-                dialog.find("[name='mapping_def_desc']").fadeOut(0);
-            }
-            let data = [];
+            let data = sheetDef;
             let mergeCells = [];
             let columns = [
 //                {type: 'text', data : "file_name", readOnly: true},
-                {type: 'text', data : "sheet_name", readOnly: true},
+//                {type: 'text', data : "sheet_name", readOnly: true},
+                {type: 'text', data : "table_index", readOnly: true},
+                {type: 'text', data : "table_name"},
                 {type: 'numeric', data : "header_row"},
-                {type: 'numeric', data : "data_start_row"},
-                {type: 'numeric', data : "data_end_row"},
                 {type: 'numeric', data : "unit_row"},
                 {type: 'numeric', data : "desc_row"},
-                {type: 'checkbox', data : "included_flg"}
+                {type: 'numeric', data : "data_start_row"},
+                {type: 'numeric', data : "data_end_row"},
+                {type: 'text', data : "button", readOnly: true, renderer: 'html', className: "htCenter"}
             ];
-            let colHeaders = ["Sheet", "Header Row #", "Data Start Row #", "Data End Row #", "Unit Row #", "Description Row #"];
-            if (!editFlg) {
-                if (Object.keys(templates).length === 0) {
-                    columns = [
-                        {type: 'text', data : "sheet_name", readOnly: true},
-                        {type: 'checkbox', data : "included_flg"}
-                    ];
-                    colHeaders = ["Sheet", "Included"];
-                } else {
-                    if (Object.keys(templates).length > 1) {
-                        columns = [
-                            {type: 'text', data : "sheet_name", readOnly: true},
-                            {type: 'dropdown', data : "file_def", source : []},
-                            {type: 'dropdown', data : "sheet_def", source : []},
-                            {type: 'checkbox', data : "included_flg"}
-                        ];
-                        colHeaders = ["Sheet", "Predefined File", "Predefinied Sheet", "Included"];
-                    } else {
-                        columns = [
-                            {type: 'text', data : "sheet_name", readOnly: true},
-                            {type: 'dropdown', data : "sheet_def", source : []},
-                            {type: 'checkbox', data : "included_flg"}
-                        ];
-                        colHeaders = ["Sheet", "Predefinied Sheet", "Included"];
-                    }
-                    
+            let colHeaders = ["Index", "Table Name", "Header Row #", "Unit Row #", "Description Row #", "Data Start Row #", "Data End Row #", "Edit"];
+            for (let i in sheetDef) {
+                let tableDef = sheetDef[i];
+                if (!tableDef.table_index) {
+                    tableDef.table_index = Number(i) + 1;
                 }
+//                if (!tableDef.table_name) {
+//                    tableDef.table_name = autoTableName(tableDef);
+//                }
+                tableDef.button = '<button type="button" name="row_define_remove_btn" class="btn btn-danger btn-xs"><span name="table_index' + '_' + tableDef.table_index + '" class="glyphicon glyphicon-minus"></span></button>';
             }
-            for (let fileName in sheets) {
-                data.push({sheet_name: fileName, file_name_row:true});
-                mergeCells.push({row: data.length - 1, col: 0, rowspan: 1, colspan: columns.length});
-                for (let sheetName in sheets[fileName]) {
-                    data.push(sheets[fileName][sheetName]);
-                    data[data.length - 1].included_flg = true;
-                    data[data.length - 1].file_name = fileName;
-                    if (templates[fileName]) {
-                        data[data.length - 1].file_def = fileName;
-                        if (templates[fileName][sheetName]) {
-                            data[data.length - 1].sheet_def = sheetName;
-                        }
-                    } else if (templates[singleFileName]) {
-                        data[data.length - 1].file_def = singleFileName;
-                        if (templates[singleFileName][sheetName]) {
-                            data[data.length - 1].sheet_def = sheetName;
-                        }
-                    }
-                    if (!data[data.length - 1].sheet_def) {
-                        data[data.length - 1].included_flg = callback.name !== "loadSC2Obj";
-                    }
-                }
-            }
+            addTableDef2(data, {
+                sheet_name : sheetName,
+                button : '<button type="button" name="row_define_add_btn" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>'
+            });
             let spsOptions = {
                 licenseKey: 'non-commercial-and-evaluation',
                 data: data,
@@ -300,52 +165,63 @@
                         if (!cell) {
                             return;
                         }
-                        if (curSheetName === data[row].sheet_name && curFileName === data[row].file_name) {
-                            cell.style.backgroundColor = "yellow";
-                        } else if (data[row].file_name_row) {
-                            cell.style.color = "white";
-                            cell.style.fontWeight = "bold";
-                            cell.style.backgroundColor = "grey";
-                        } else if (editFlg) {
-                            return {readOnly : true};
-                        }
-                        if (Object.keys(templates).length > 1) {
-                            if (col === popSpreadsheet.propToCol('file_def') && !data[row].file_name_row) {
-                                popSpreadsheet.setCellMeta(row, col, 'source', Object.keys(templates));
-                            }
-                        } else {
-                            if (col === popSpreadsheet.propToCol('sheet_def') && !data[row].file_name_row) {
-                                if (templates[data[row].file_def]) {
-                                    popSpreadsheet.setCellMeta(row, col, 'source', Object.keys(templates[data[row].file_def]));
-                                }
-                            }
+                        if (row === data.length - 1) {
+                            cell.style.backgroundColor = "#F4F6F6";
                         }
                     }
                 });
-                popSpreadsheet.addHook('beforeChange', function(changes, source) {
-                    if (source === 'loadData' || source === 'internal') {
+                
+                $(this).find("[name='row_define_remove_btn']").on("click", function() {
+                    removeRowDef(sheets, sheetDef[$(this).parent().parent().index()], popSpreadsheet);
+                });
+                $(this).find("[name='row_define_add_btn']").on("click", function() {
+                    addRowDef(data, popSpreadsheet);
+                });
+                
+                popSpreadsheet.addHook('afterRenderer', function(TD, row, column, prop, value, cellProperties) {
+                    if (column !== columns.length - 1) {
                         return;
                     }
-                    for (let i in changes) {
-                        let row = changes[i][0];
-                        let prop = changes[i][1];
-                        let value = changes[i][3];
-                        if (prop === 'file_def') {
-                            if (value && templates[value]) {
-                                this.setCellMeta(row, this.propToCol('sheet_def'), 'source', Object.keys(templates[value]));
-                            } else if (value !== null) {
-                                this.setCellMeta(row, this.propToCol('sheet_def'), 'source', []);
-                                this.setDataAtRowProp(row, 'sheet_def', "");
-                                this.setDataAtRowProp(row, 'included_flg', false);
-                            }
-                        } else if (prop === 'sheet_def') {
-                            this.setDataAtRowProp(row, 'included_flg', !!value);
-                        }
+                    if (row < data.length - 1) {
+                        TD.firstChild.onclick = function () {
+                            removeRowDef(sheets, sheetDef[$(this).parent().parent().index()], popSpreadsheet);
+                        };
+                    } else {
+                        TD.firstChild.onclick = function () {
+                            addRowDef(data, popSpreadsheet);
+                        };
                     }
-
                 });
             });
         });
+    }
+    
+    function addRowDef(data, popSpreadsheet) {
+        let tableDef = data[data.length - 1];
+        tableDef.button = '<button type="button" name="row_define_remove_btn" class="btn btn-danger btn-xs"><span name="table_index' + '_' + tableDef.table_index + '" class="glyphicon glyphicon-minus"></span></button>';
+        addTableDef2(data, {
+            sheet_name : tableDef.sheet_name,
+            button : '<button type="button" name="row_define_add_btn" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>'
+        });
+//        tableDef.table_name = autoTableName(tableDef);
+        popSpreadsheet.render();
+    }
+    
+    function removeRowDef(sheets, tableDef, popSpreadsheet) {
+        removeTableDef(tableDef, sheets);
+        popSpreadsheet.render();
+    }
+    
+    function autoTableName(tableDef, i) {
+        if (tableDef.table_name) {
+            return tableDef.table_name;
+        } else {
+            if (i) {
+                return "Table " + i;
+            } else {
+                return "Table " + tableDef.table_index;
+            }
+        }
     }
 
     function showSheetDefPrompt(callback) {
@@ -356,7 +232,7 @@
                     label: 'Confirm',
                     className: 'btn-primary',
                     callback: function() {
-                        showSheetDefDialog(callback, null, true);
+                        showRowDefDialog(callback);
                     }
                 },
                 copy: {
@@ -424,9 +300,8 @@
 </script>
 
 <!-- popup page for define sheet -->
-<div id="sheet_define_popup" hidden>
+<div id="row_define_popup" hidden>
     <p name="dialog_msg" class="label label-danger"></p>
-    <p name="mapping_def_desc" hidden>Your spreadsheet is not fully matched with the loaded SC2 file,<br/>please make correction on the relationship between your sheets and the sheets stored in the SC2 file.</p>
     <div class="col-sm-12">
         <!-- 1st row -->
         <div class="form-group col-sm-12">
