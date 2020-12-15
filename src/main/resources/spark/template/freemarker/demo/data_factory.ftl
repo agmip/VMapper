@@ -3252,6 +3252,12 @@
                                         JSON.parse("[" + fromKeyIdxs + "]"),
                                         toRefDef,
                                         getKeyIdxArr(toRefDef.keys), true);
+                                    if (refDef.from.keys.length === 0) {
+                                        delete refDef.from.keys;
+                                    }
+                                    if (refDef.to.keys.length === 0) {
+                                        delete refDef.to.keys;
+                                    }
                                     sc2Obj.agmip_translation_mappings.relations.push(refDef);
                                 }
                             }
