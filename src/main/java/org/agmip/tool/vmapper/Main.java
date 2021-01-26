@@ -112,8 +112,7 @@ public class Main {
 
         // Set up routes
         get("/", (Request request, Response response) -> {
-            response.redirect(Path.Web.Tools.VMAPPER);
-            return "Redirect to " + Path.Web.Tools.VMAPPER;
+            return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.INDEX));
                 });
         
         get(Path.Web.Tools.UNIT_MASTER, (Request request, Response response) -> {
