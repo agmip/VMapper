@@ -112,11 +112,11 @@ public class Main {
 
         // Set up routes
         get("/", (Request request, Response response) -> {
-            return new FreeMarkerEngine().render(new ModelAndView(new HashMap(), Path.Template.INDEX));
+            return new FreeMarkerEngine().render(new ModelAndView(getEnvData(), Path.Template.INDEX));
                 });
         
         get(Path.Web.Tools.UNIT_MASTER, (Request request, Response response) -> {
-            HashMap data = new HashMap();
+            HashMap data = getEnvData();
             data.put("baseUnits", UnitUtil.listBaseUnit());
             data.put("prefixes", UnitUtil.listPrefix());
             return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.UNIT_MASTER));
@@ -145,12 +145,11 @@ public class Main {
                 });
         
         get(Path.Web.Tools.VMAPPER, (Request request, Response response) -> {
-            HashMap data = new HashMap();
+            HashMap data = getEnvData();
             data.put("icasaMgnVarMap", DataUtil.getICASAMgnVarMap());
             data.put("icasaObvVarMap", DataUtil.getICASAObvVarMap());
             data.put("icasaMgnCodeMap", DataUtil.getICASAMgnCodeMap());
             data.put("culMetaList", DataUtil.getICASACropCodeMap());
-            data.put("version", DataUtil.getProductVersion());
             return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.DATA_FACTORY));
                 });
 
@@ -170,5 +169,12 @@ public class Main {
                 LOG.warn(ex.getMessage());
             }
         }
+    }
+    
+    private static HashMap getEnvData() {
+        HashMap data = new HashMap();
+        data.put("env_path_web_tools", new Path.Web.Tools());
+        data.put("env_version", DataUtil.getProductVersion());
+        return data;
     }
 }

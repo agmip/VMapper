@@ -9,7 +9,7 @@
         <link rel="stylesheet" type="text/css" href="/plugins/jsonViewer/jquery.json-viewer.css" />
         <script>
             const preferColors = ["#33DBFF", "#FF5733", "#33FF57", "#BD33FF", "#802B1A", "#3383FF", "#FFAF33", "#3ADDD6"];
-            const vmapperVersion = "${version!}";
+            const vmapperVersion = "${env_version!}";
             const hotfixVersion = "1.0.2-SNAPSHOT";
             let wbObj;
 //            let spsContainer;
@@ -3261,32 +3261,6 @@
                 }
                 return sc2Obj;
             }
-
-            function alertBox(msg, callback) {
-                if (callback) {
-                    bootbox.alert({
-                        message: msg,
-                        backdrop: true,
-                        callback: callback
-                    });
-                } else {
-                    bootbox.alert({
-                        message: msg,
-                        backdrop: true
-                    });
-                }
-            }
-            
-            function confirmBox(msg, callback) {
-                bootbox.confirm({
-                    message: msg,
-                    callback: function (result) {
-                        if (result) {
-                            callback();
-                        }
-                    }
-                });
-            }
             
             String.prototype.capitalize = function() {
                 return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
@@ -3451,7 +3425,6 @@
         <script type="text/javascript" src="/js/chosen/init.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/dataReader/BufferedFileReader.js"></script>
         <script type="text/javascript" src="/js/util/dateUtil.js"></script>
-        <script type="text/javascript" src="/js/bootbox/bootbox.all.min.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/toggle/bootstrap-toggle.min.js" charset="utf-8"></script>
         <script src="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.js"></script>
         <!--<script src="https://cdn.jsdelivr.net/npm/exceljs@1.13.0/dist/exceljs.min.js"></script>-->
