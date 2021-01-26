@@ -134,7 +134,12 @@ public class DataUtil {
     
     private static JSONObject loadICASAMgnCode() {
         JSONObject ret = new JSONObject();
-        File file = Path.Folder.getICASAMgnCodeFile();
+        loadICASACode(ret, Path.Folder.getICASAMgnCodeFile());
+        loadICASACode(ret, Path.Folder.getICASAOthCodeFile());
+        return ret;
+    }
+
+    private static JSONObject loadICASACode(JSONObject ret, File file) {
         if (!file.exists()) {
             ICASAUtil.syncICASA();
         }
