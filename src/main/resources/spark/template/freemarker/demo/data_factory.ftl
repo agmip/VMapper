@@ -1830,8 +1830,10 @@
                 }
             }
             
-            function openExpDataFile() {
-                showLoadFileDialog();
+            function openExpDataFile(isForced) {
+                if (isForced || !curFileName) {
+                    showLoadFileDialog();
+                }
             }
             
             function openExpDataFolderFile() {
@@ -3282,7 +3284,7 @@
                         Experiment Data <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu">
-                        <li onclick="openExpDataFile()" id="openFileMenu"><a href="#"><span class="glyphicon glyphicon-open"></span> Load file</a></li>
+                        <li onclick="openExpDataFile(true)" id="openFileMenu"><a href="#"><span class="glyphicon glyphicon-open"></span> Load file</a></li>
                         <li onclick="openExpDataFolderFile()"><a href="#"><span class="glyphicon glyphicon-open"></span> Load folder</a></li>
                         <li onclick="saveExpDataFile()"><a href="#"><span class="glyphicon glyphicon-save"></span> Save</a></li>
                         <li onclick="saveAgMIPZip()"><a href="#"><span class="glyphicon glyphicon-export"></span> To AgMIP Input Package</a></li>
@@ -3315,7 +3317,7 @@
             <br/>
             <ul class="nav nav-tabs">
                 <li id="sheetTab" class="active dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Spreadsheet
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" onclick="openExpDataFile();">Spreadsheet
                         <span id="sheet_name_selected"></span>
                         <span class="caret"></span>
                     </a>
