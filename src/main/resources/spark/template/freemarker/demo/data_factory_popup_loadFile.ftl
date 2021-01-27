@@ -31,20 +31,21 @@
             if (errMsg) {
                 dialog.find("[name='dialog_msg']").text(errMsg);
             }
+            let sc2FileInput = dialog.find("[name='sc2_file']");
             dialog.find("[name='data_file']").on("change", function () {
                 dataFiles = $(this).prop("files");
-                let sc2FileInput = dialog.find("[name='sc2_file']");
                 if (dataFiles.length > 0) {
-                    sc2FileInput.prop("disabled", false);
+                    sc2FileInput.filestyle('disabled', false);
                     sc2Files = sc2FileInput.prop("files");
                 } else {
-                    sc2FileInput.prop("disabled", true);
+                    sc2FileInput.filestyle('disabled', true);
                     sc2Files = null;
                 }
             }).filestyle({text:"Browse", btnClass:"btn-primary", placeholder:"Browse original data files (*.xlsx; *.xls; *.csv)"});
-            dialog.find("[name='sc2_file']").on("change", function () {
+            sc2FileInput.on("change", function () {
                 sc2Files = $(this).prop("files");
             }).filestyle({text:"Browse", btnClass:"btn-primary", placeholder:"Browse sidecar file 2 file template (*.sc2.json)"});
+            sc2FileInput.filestyle('disabled', true);
         });
     }
 </script>
@@ -61,7 +62,7 @@
         <!-- 2nd row -->
         <div class="form-group col-sm-12">
             <label class="control-label">SC2 Template File :</label>
-            <input type="file" name="sc2_file" class="form-control" accept=".sc2.json,.json,.sc2" multiple disabled>
+            <input type="file" name="sc2_file" class="form-control" accept=".sc2.json,.json,.sc2" multiple>
         </div>
     </div>
     <p>&nbsp;</p>
