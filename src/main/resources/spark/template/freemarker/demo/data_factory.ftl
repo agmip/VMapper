@@ -60,8 +60,8 @@
             let icasaVarMap = {
                 "management" : {
                     <#list icasaMgnVarMap?values?sort_by("code_display")?sort_by("set_group_order") as var>
-                    "${var.code_display}" : {
-                        code_display : "${var.code_display?js_string}",
+                    "${var.code_display?upper_case}" : {
+                        code_display : "${var.code_display?upper_case?js_string}",
                         description : '${var.description?js_string}',
                         unit_or_type : "${var.unit_or_type?js_string}",
                         dataset : "${var.dataset?js_string}",
@@ -76,8 +76,8 @@
                 },
                 "observation" : {
                     <#list icasaObvVarMap?values?sort_by("code_display")?sort_by("set_group_order") as var>
-                    "${var.code_display}" : {
-                        code_display : "${var.code_display?js_string}",
+                    "${var.code_display?upper_case}" : {
+                        code_display : "${var.code_display?upper_case?js_string}",
                         description : "${var.description?js_string}",
                         unit_or_type : "${var.unit_or_type?js_string}",
                         dataset : "${var.dataset?js_string}",
