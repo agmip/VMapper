@@ -699,14 +699,20 @@
                 $('#sheet_tab_list').empty();
                 loopSheets(
                     function(fileName){
-                        $('#sheet_tab_list').append('<li class="dropdown-header"><strong>' + fileName + '</strong></li>');
+                        if (!fileName.toLowerCase().endsWith(".csv")) {
+                            $('#sheet_tab_list').append('<li class="dropdown-header"><strong>' + fileName + '</strong></li>');
+                        }
                     },
                     function(fileName, sheetName){
                         let cntUndefined = countUndefinedColumns(getSheetDef(fileName, sheetName));
+                        let lable = sheetName;
+                        if (fileName.toLowerCase().endsWith(".csv")) {
+                            lable = fileName;
+                        }
                         if (cntUndefined > 0) {
-                            $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + fileName + '__' + sheetName + '" onclick="setSpreadsheet(this);">' + sheetName + '&nbsp;&nbsp;<span class="label label-danger label-as-badge">' + cntUndefined + '</span></a></li>');
+                            $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + fileName + '__' + sheetName + '" onclick="setSpreadsheet(this);">' + lable + '&nbsp;&nbsp;<span class="label label-danger label-as-badge">' + cntUndefined + '</span></a></li>');
                         } else {
-                            $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + fileName + '__' + sheetName + '" onclick="setSpreadsheet(this);">' + sheetName + '&nbsp;&nbsp;<span class="label label-danger label-as-badge invisible">' + cntUndefined + '</span></a></li>');
+                            $('#sheet_tab_list').append('<li><a data-toggle="tab" href="#spreadshet_tab" id="' + fileName + '__' + sheetName + '" onclick="setSpreadsheet(this);">' + lable + '&nbsp;&nbsp;<span class="label label-danger label-as-badge invisible">' + cntUndefined + '</span></a></li>');
                         }
                     },
                     function(fileName) {

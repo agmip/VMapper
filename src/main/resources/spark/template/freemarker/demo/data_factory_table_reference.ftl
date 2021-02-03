@@ -328,17 +328,27 @@
             val = createRefSheetTaregetKeyStr(refDef.file, refDef.sheet, refDef.table_index);
         }
         sb.html('<option value=""></option>');
-        let optGrp;
+        let optGrp = null;
         loopTables(
             function(fileName){
                 optGrp = $('<optgroup name="' + fileName + '" label="' + fileName + '"></optgroup>');
-                sb.append(optGrp);
             },
             null,
             function(fileName, sheetName, i, tableDef) {
                 let lable = getTableLabel(tableDef, fileName);
-                let opt = $('<option value=\'' + createRefSheetTaregetKeyStr(fileName, sheetName, tableDef.table_index) + '\'>' + lable + '</option>');
-                optGrp.append(opt);
+                if (lable !== fileName) {
+                    let opt = $('<option value=\'' + createRefSheetTaregetKeyStr(fileName, sheetName, tableDef.table_index) + '\'>' + lable + '</option>');
+                    optGrp.append(opt);
+                } else {
+                    optGrp = null;
+                    sb.append($('<option value=\'' + createRefSheetTaregetKeyStr(fileName, sheetName, tableDef.table_index) + '\'>' + lable + '</option>'));
+                }
+            },
+            null,
+            function(fileName) {
+                if (optGrp !== null) {
+                    sb.append(optGrp);
+                }
             }
         );
         sb.val(val).trigger("chosen:updated");
@@ -348,7 +358,12 @@
     }
 
     function getTableLabel(tableDef, fileName) {
-        let label = tableDef.sheet_name;
+        let label;
+        if (fileName.toLowerCase().endsWith(".csv") || tableDef === null) {
+            label = fileName;
+        } else {
+            label = tableDef.sheet_name;
+        }
         if (isSubTableExistInSheet(getSheetDef(fileName, tableDef.sheet_name))) {
             if (tableDef.table_name) {
                 label += "__" + tableDef.table_name;
