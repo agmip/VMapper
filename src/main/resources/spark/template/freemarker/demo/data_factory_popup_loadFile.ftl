@@ -41,10 +41,10 @@
                     sc2FileInput.filestyle('disabled', true);
                     sc2Files = null;
                 }
-            }).filestyle({text:"Browse", btnClass:"btn-primary", placeholder:"Browse original data files (*.xlsx; *.xls; *.csv)"});
+            }).filestyle({text:"Browse", btnClass:"btn-primary", placeholder:"Browse original data files (*.xlsx; *.xls; *.csv)", badge: true});
             sc2FileInput.on("change", function () {
                 sc2Files = $(this).prop("files");
-            }).filestyle({text:"Browse", btnClass:"btn-primary", placeholder:"Browse sidecar file 2 file template (*.sc2.json)"});
+            }).filestyle({text:"Browse", btnClass:"btn-primary", placeholder:"Browse sidecar file 2 file template (*.sc2.json)", badge: true});
             sc2FileInput.filestyle('disabled', true);
         });
     }
