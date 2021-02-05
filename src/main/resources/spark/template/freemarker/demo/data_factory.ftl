@@ -2718,6 +2718,12 @@
                                 if (sc2Mappings[j].icasa) {
                                     sc2Mappings[j].icasa = sc2Mappings[j].icasa.toUpperCase();
                                 }
+                                if (sc2Mappings[j].format) {
+                                    sc2Mappings[j].format_customized = sc2Mappings[j].format;
+                                    if (sc2Mappings[j].format != "yyyyDDD") {
+                                        sc2Mappings[j].format = "customized";
+                                    }
+                                }
                             }
                             virColCnt[fileName][sheetName].push(vrColCnt);
                         }
