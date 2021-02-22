@@ -91,9 +91,8 @@
                         } else if (!colDef.column_index_org) {
                             // handle editted virtual column
                             updateVRData(colDef);
-                        } else if (colDef.unit === "date") {
+                        } else if (colDef.unit && colDef.unit.includes("date")) {
                             // handle data type -> date
-                            
                             columns[itemData.column_index - 1].type = "date";
 //                            columns[itemData.column_index - 1].format = "YYYY-MM-DD";
                         }
@@ -152,6 +151,12 @@
             dialog.find("[name=" + type + "_info]").find(".col-def-input-item").each(function () {
                 if ($(this).attr("type") === "checkbox") {
                     $(this).prop( "checked", itemData[$(this).attr("name")]);
+                } else if ($(this).attr("name") === "unit") {
+                    if (itemData.unit && itemData.unit.includes("date") && itemData.unit !== "date") {
+                        $(this).val("date");
+                    } else {
+                        $(this).val(itemData.unit);
+                    }
                 } else {
                     $(this).val(itemData[$(this).attr("name")]);
                 }
@@ -204,7 +209,9 @@
                 });
                 subDiv.find("[name='format']").each(function () {
                     $(this).on("change", function () {
-                        if ($(this).val() !== "customized") {
+                        if ($(this).val() === "icasa") {
+                            subDiv.find("[name='format_customized']").prop("disabled", true).val(icasaVarMap.getFormat(subDiv.find("[name='icasa']").val())).trigger("change");
+                        } else if ($(this).val() !== "customized") {
                             subDiv.find("[name='format_customized']").prop("disabled", true).val($(this).val()).trigger("change");
                         } else {
                             subDiv.find("[name='format_customized']").prop("disabled", false).trigger("change");
@@ -231,6 +238,9 @@
                             subDiv.find("[name='description']").val(itemData.description);
                         }
                         let unit = icasaVarMap.getUnit(icasa);
+                        if (unit && unit.includes("date")) {
+                            unit = "date";
+                        }
                         let sourceUnit = subDiv.find("[name='unit']");
                         if (unit) {
                             subDiv.find("[name='icasa_unit']").val(unit);
@@ -885,6 +895,7 @@
                 <div class="input-group col-sm-12">
                     <select name="format" class="form-control col-def-input-item" value="" disabled>
                         <option value="">MS Excel Default</option>
+                        <option value="icasa">ICASA Default</option>
                         <option value="yyyyDDD">Year + DOY</option>
                         <option value="customized">Customized format</option>
                     </select>

@@ -161,6 +161,22 @@
                         return null;
                     }
                 },
+                "getFormat" : function (varName) {
+                    let unit = this.getUnit(varName);
+                    if (!unit) {
+                        return null;
+                    }
+                    let comments = unit.match(/\[.+\]/g);
+                    if (comments) {
+                        return comments[0].replace(/[\[\]]/g, "");
+                    } else {
+                        if (unit.includes("date")) {
+                            return "yyyy-MM-dd";
+                        } else {
+                            return null;
+                        }
+                    }
+                },
                 "getDesc" : function(varName) {
                     if (varName) {
                         varName = varName.toUpperCase();
@@ -1318,7 +1334,7 @@
             }
 
             function getColumnDef(mapping) {
-                if (mapping.unit === "date") {
+                if (mapping.unit && mapping.unit.includes("date")) {
                     return {type: 'date', readOnly: true};
                 } else if (mapping.unit === "text" || mapping.unit === "code") {
                     return {type: 'text', readOnly: true};
@@ -2049,7 +2065,7 @@
                             let icasaUnit = icasaVarMap.getUnit(mapping.icasa);
                             if (mapping.unit) {
                                 // Code/unit/value convertion
-                                if (mapping.unit === "date") {
+                                if (mapping.unit.includes("date")) {
                                     if (mapping.format) {
                                         if (mapping.format === "yyyyDDD") {
                                             for (let j in agmipData) {
@@ -2205,9 +2221,9 @@
             }
             
             function isNumericUnit(unit) {
-                return !["text", "code", "date", "number"].includes(unit);
+                return !["text", "code", "date", "number"].includes(unit) && (!!unit && !unit.includes("date"));
             }
-            
+
             function openTemplateFile() {
                 if (Object.keys(workbooks).length === 0) {
                     alertBox("Please load spreadsheet file first, then apply SC2 file for it.");
@@ -2720,7 +2736,9 @@
                                 }
                                 if (sc2Mappings[j].format) {
                                     sc2Mappings[j].format_customized = sc2Mappings[j].format;
-                                    if (sc2Mappings[j].format != "yyyyDDD") {
+                                    if (sc2Mappings[j].format === icasaVarMap.getFormat(sc2Mappings[j].icasa)) {
+                                        sc2Mappings[j].format = "icasa";
+                                    } else if (sc2Mappings[j].format != "yyyyDDD") {
                                         sc2Mappings[j].format = "customized";
                                     }
                                 }
