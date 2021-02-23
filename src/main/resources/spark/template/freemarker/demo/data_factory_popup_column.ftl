@@ -558,7 +558,7 @@
     }
     
     function shiftRawData(data, idx, tableDef) {
-        let dataStartRow = 0;
+        let dataStartRow = 1;
         let dataEndRow = data.length;
         if (tableDef) {
             dataStartRow = Math.min(tableDef.data_start_row, tableDef.header_row, tableDef.desc_row, tableDef.unit_row);
@@ -569,7 +569,7 @@
                 dataEndRow = tableDef.data_end_row;
             }
         }
-        for (let j = dataStartRow; j < dataEndRow; j++) {
+        for (let j = dataStartRow - 1; j < dataEndRow; j++) {
             for (let i = data[j].length; i > idx; i--) {
                 data[j][i] = data[j][i - 1];
             }
