@@ -922,16 +922,6 @@
                 <label class="control-label">Variable Category</label>
                 <div class="input-group col-sm-12">
                     <select name="category" class="form-control col-def-input-item" data-placeholder="Choose a variable type...">
-<!--                        <option value=""></option>
-                        <option value="1011">Experiment Meta Data</option>
-                        <option value="2011">Experiment Management Data</option>
-                        <option value="2099">Experiment Management Event Data</option>
-                        <option value="2502">Experiment Observation Summary Data</option>
-                        <option value="2511">Experiment Observation Time-Series Data</option>
-                        <option value="4051">Soil Profile Data</option>
-                        <option value="4052">Soil Layer Data</option>
-                        <option value="5046">Weather Station Profie Data</option>
-                        <option value="5052">Weather Station Daily Data</option>-->
                     </select>
                 </div>
             </div>
