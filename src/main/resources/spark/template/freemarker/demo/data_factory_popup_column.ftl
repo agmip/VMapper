@@ -563,7 +563,7 @@
         if (tableDef) {
             dataStartRow = Math.min(tableDef.data_start_row, tableDef.header_row, tableDef.desc_row, tableDef.unit_row);
             if (!dataStartRow) {
-                dataStartRow = 0;
+                dataStartRow = 1;
             }
             if (tableDef.data_end_row) {
                 dataEndRow = tableDef.data_end_row;
