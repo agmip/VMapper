@@ -550,7 +550,7 @@
             for (let i in directTableRanks) {
                 let lookupTableRank = directTableRanks[i];
                 if (lookupOrders.includes(lookupTableRank.order)) {
-                    newRefDef = createReference(lookupTableRank.file, lookupTableRank.sheet, tableRank.file, tableRank.sheet);
+                    newRefDef = createReference(lookupTableRank, tableRank);
                     if (newRefDef) {
                         return newRefDef;
                     }
