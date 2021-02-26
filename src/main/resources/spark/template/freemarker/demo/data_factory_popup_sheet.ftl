@@ -225,6 +225,19 @@
                         if (templates[singleFileName][sheetName]) {
                             sheetDef.sheet_def = sheetName;
                         }
+                    } else if (Object.keys(templates).length === 1) {
+                        for (let key in templates) {
+                            sheetDef.file_def = key;
+                            if (templates[key][sheetName]) {
+                                sheetDef.sheet_def = sheetName;
+                            } else if (fileName.toLowerCase().endsWith(".csv")) {
+                                sheetName = fileName.substring(0, fileName.length - 4);
+                                if (templates[key][sheetName]) {
+                                    sheetDef.sheet_def = sheetName;
+                                }
+                            }
+                            break;
+                        }
                     }
                     if (!sheetDef.sheet_def) {
                         sheetDef.included_flg = callback.name !== "loadSC2Obj";
