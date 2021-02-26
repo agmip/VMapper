@@ -62,7 +62,7 @@
             defListDiv.trigger("change");
             let fromKeyIdxs = getKeyIdxArr(refDef.from.keys);
             let toKeyIdxs = getKeyIdxArr(refDef.to.keys);
-            let references = getRefTableDef(refDef).references;
+            let references = getRefTableDef(refDef.from).references;
             delete references[fromKeyIdxs][getRefDefKey(refDef.to, toKeyIdxs)];
             if (Object.keys(references[fromKeyIdxs]).length === 0) {
                 delete references[fromKeyIdxs];

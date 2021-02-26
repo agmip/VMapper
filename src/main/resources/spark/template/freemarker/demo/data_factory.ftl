@@ -691,12 +691,13 @@
                 wbObj = to_objects(workbooks);
                 loopTables(null, null, function (fileName, sheetName, i) {
                     let tableDef = getTableDef(fileName, sheetName, i);
-                    if (tableDef.references) {
+                    if (tableDef.references_org) {
                         for (let fromKeyIdxs in tableDef.references) {
                             for (let toKey in tableDef.references[fromKeyIdxs]) {
                                 tableDef.references[fromKeyIdxs][toKey].keys = getKeyArr(tableDef.references[fromKeyIdxs][toKey].keys, getRefTableDef(tableDef.references[fromKeyIdxs][toKey]).mappings);
                             }
                         }
+                        delete tableDef.references_org;
                     }
                     if (tableDef.data_start_row && wbObj[fileName] && wbObj[fileName][sheetName]) {
                         tableDef.single_flg = isSingleRecordTable(wbObj[fileName][sheetName].data, tableDef);
@@ -869,7 +870,6 @@
                                 keys: toKeyIdxs //getKeyArr(toKeyIdxs, mappings)
                             };
                         }
-                        delete tableDef.references_org;
                     }
                 });
 //                workbook.SheetNames.forEach(function(sheetName) {
