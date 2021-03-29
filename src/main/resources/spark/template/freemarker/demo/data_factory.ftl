@@ -1360,7 +1360,15 @@
                 for (let i in mappings) {
                     columns.push(getColumnDef(mappings[i]));
                 }
-                for (let i in data) {
+                let start = tableDef.data_start_row; 
+                let end = tableDef.data_end_row;
+                if (!start) {
+                    start = 0;
+                }
+                if (!end || end > data.length) {
+                    end = data.length;
+                }
+                for (let i = start - 1;i < end; i++) {
                     while (columns.length < data[i].length) {
                         columns.push({type: 'text', readOnly: true});
                     }
@@ -1666,14 +1674,14 @@
                                     cell.style.fontStyle = "italic";
                                     cell.style.backgroundColor = "lightgrey";
                                     return {readOnly : true};
-                                } else if (row < tableDef.data_start_row - 1) {
+                                } else if (row < tableDef.data_start_row - 1 || (tableDef.data_end_row && row >= tableDef.data_end_row)) {
         //                            cell.style.color = "white";
                                     cell.style.backgroundColor = "lightgrey";
                                     return {readOnly : true};
                                 }
                             }
                             if ($('#tableViewSwitch2').prop("checked")) {
-                                if (mappings[col].unit === "code") {
+                                if (mappings[col].unit === "code" && row >= tableDef.data_start_row - 1 && (!tableDef.data_end_row || row < tableDef.data_end_row)) {
                                     let orgVal = data[row][col];
                                     if (!$('#tableViewSwitch').prop("checked")) {
                                         orgVal = data[row + tableDef.data_start_row - 1][col];

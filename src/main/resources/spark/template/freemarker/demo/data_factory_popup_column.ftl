@@ -970,6 +970,7 @@
                 <div class="input-group col-sm-12">
                     <select name="format" class="form-control col-def-input-item" value="" disabled>
                         <option value="">MS Excel Default</option>
+                        <option value="icasa">ICASA Default</option>
                         <option value="yyyyDDD">Year + DOY</option>
                         <option value="customized">Customized format</option>
                     </select>
