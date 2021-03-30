@@ -10,7 +10,7 @@
 
         <div class="jumbotron text-center" style=";">
             <h1>ARDN Data Tools</h1> 
-            <p>short description here...</p>
+            <p><!short description here...></p>
         </div>
         <div class="container">
             <!-- Container (About Section) -->
@@ -18,12 +18,11 @@
                 <div class="row">
                     <div class="col-sm-6">
                         <h2>About ARDN Data Tools</h2><br>
-                        <h4>General description blabla...</h4><br>
-                        <p>detail description blabla...</p>
+                        <h4>Data flow: from raw data to crop model input files</h4><br>
+                        <p><!detail description blabla...></p>
                     </div>
                     <div class="col-sm-6">
-                        <img  width="125%" src="https://raw.githubusercontent.com/agmip/ARDN/master/docs/images/AgMIP_workflows.jpg">
-                        
+                        <img  width="125%" src="https://raw.githubusercontent.com/agmip/ARDN/master/docs/images/ARDN_workflows.jpg">
                     </div>
                 </div>
             </div>
