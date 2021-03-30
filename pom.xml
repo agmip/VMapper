@@ -3,15 +3,15 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.agmip.tool</groupId>
     <artifactId>vmapper</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6-SNAPSHOT</version>
     <name>VMapper</name>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <product.buildtype>release</product.buildtype>
-        <product.buildversion>final</product.buildversion>
+        <product.buildtype>dev</product.buildtype>
+        <product.buildversion>beta1</product.buildversion>
         <product.buildts>${maven.build.timestamp}</product.buildts>
     </properties>
     <dependencies>
