@@ -1252,7 +1252,7 @@
                 let start = tableDef.data_start_row; 
                 let end = tableDef.data_end_row;
                 if (!start) {
-                    start = 0;
+                    start = 1;
                 }
                 if (!end || end > data.length) {
                     end = data.length;
