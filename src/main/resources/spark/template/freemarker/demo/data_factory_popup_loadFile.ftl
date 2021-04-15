@@ -435,7 +435,7 @@
             <label class="control-label">Raw Data File : </label>&nbsp;&nbsp;
             <input type="checkbox" name="file_source_switch">
             <input type="file" name="data_file" class="form-control" accept=".xlsx,.xls,.csv" multiple>
-            <textarea name="file_urls" class="form-control"></textarea>
+            <textarea name="file_urls" class="form-control" placeholder="Provide the URLs to your files, use new line to separate them..."></textarea>
         </div>
         <!-- 2nd row -->
         <div class="form-group col-sm-12">
