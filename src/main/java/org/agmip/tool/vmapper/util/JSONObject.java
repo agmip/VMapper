@@ -53,6 +53,15 @@ public class JSONObject extends org.json.simple.JSONObject {
         return null;
     }
 
+    public Integer getAsIntegerOr(String key, Integer defVal) {
+        Integer ret = this.getAsInteger(key);
+        if (ret == null) {
+            return defVal;
+        } else {
+            return ret;
+        }
+    }
+
     public Double getAsDouble(String key, int round) {
         String read = getOrBlank(key);
         if (!read.isEmpty()) {

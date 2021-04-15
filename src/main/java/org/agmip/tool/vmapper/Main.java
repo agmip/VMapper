@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import org.agmip.tool.vmapper.util.DataUtil;
 import org.agmip.tool.vmapper.util.Path;
+import org.agmip.tool.vmapper.util.rfl.RemoteFileLoader;
 import org.agmip.tool.vmapper.util.UnitUtil;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -23,6 +24,7 @@ import static spark.Spark.get;
 import static spark.Spark.options;
 import static spark.Spark.port;
 import static spark.Spark.staticFiles;
+import static spark.Spark.webSocket;
 import spark.embeddedserver.EmbeddedServers;
 import spark.embeddedserver.jetty.EmbeddedJettyFactory;
 import spark.embeddedserver.jetty.JettyServerFactory;
@@ -85,6 +87,7 @@ public class Main {
         staticFiles.location("/public");
         staticFiles.expireTime(600L);
         Spark.webSocketIdleTimeoutMillis(60000);
+        webSocket(Path.Web.Data.LOAD_FILE, RemoteFileLoader.class);
         options("/*",
         (request, response) -> {
 

@@ -1,6 +1,7 @@
 <script>
     function showLoadFileDialog(errMsg) {
         let dataFiles;
+        let dataUrls = [];
         let sc2Files;
         let buttons = {
             cancel: {
@@ -14,6 +15,8 @@
                 callback: function(){
                     if (dataFiles && dataFiles.length > 0) {
                         readSpreadSheet({files : dataFiles}, {files : sc2Files});
+                    } else if (dataUrls && dataUrls.length > 0) {
+                        readSpreadSheet({files : dataUrls, isRemote: true}, {files : sc2Files});
                     } else {
                         showLoadFileDialog("[Warn] Please select raw data file");
                     }
@@ -46,6 +49,26 @@
                 sc2Files = $(this).prop("files");
             }).filestyle({text:"Browse", btnClass:"btn-primary", placeholder:"Browse sidecar file 2 file template (*.sc2.json)", badge: true});
             sc2FileInput.filestyle('disabled', true);
+            dialog.find("[name='file_urls']").on("change", function () {
+                let urls = $(this).val().replace(/\r/g, "").split(/\n/);
+                dataUrls = [];
+                for (let i in urls) {
+                    let url = urls[i].trim();
+                    if (url !== "") {
+                        dataUrls.push({name : url});
+                    }
+                }
+            }).hide();
+            dialog.find("[name='file_source_switch']").on("change", function () {
+                if ($(this).is(':checked')) {
+                    dialog.find("[name='file_urls']").show();
+                    dialog.find("[name='data_file']").filestyle("destroy");
+                    dialog.find("[name='data_file']").hide()
+                } else {
+                    dialog.find("[name='file_urls']").hide();
+                    dialog.find("[name='data_file']").show().filestyle({text:"Browse", btnClass:"btn-primary", placeholder:"Browse original data files (*.xlsx; *.xls; *.csv)", badge: true});
+                }
+            }).bootstrapToggle({on:"Remote", off:"Local", size:"mini"});
         });
     }
 
@@ -64,10 +87,9 @@
                 }
                 colors.push(color);
             }
-            virColCnt[files[i].name] = {};
-            lastHeaderRow[files[i].name] = {};
         }
         let idx = 0;
+        let pct;
         userVarMap = {};
         workbooks = {};
         fileTypes = {};
@@ -82,7 +104,20 @@
         isChanged = false;
         isViewUpdated = false;
         isDebugViewUpdated = false;
-        let reader = new FileReader();
+        let reader;
+        if (target.isRemote) {
+            reader = new RemoteFileReader("/data/util/load_file");
+            reader.onerror = alertBox;
+            reader.onload = function() {
+                let newPct = Math.floor(reader.getReadingProgressPct());
+                if (pct < newPct) {
+                    pct = newPct;
+                    loadingDialog.find(".loading-msg").html(' Loading ' + f.name + ' (' + idx + '/' + files.length + ') ' + pct + "%");
+                }
+            }
+        } else {
+            reader = new FileReader();
+        }
 //                reader.onloadend = function(e) {
 //                    let data = e.target.result;
 //                    console.time();
@@ -107,9 +142,21 @@
 //                    });
 //                };
         reader.onloadend = function(e) {
+            let fileName;
+            if (target.isRemote) {
+                fileName = e.target.fileName;
+                fileTypes[fileName] = e.target.fileType;
+                fileUrls[fileName] = e.target.fileUrl;
+                fileColors[fileName] = colors.shift();
+            } else {
+                fileName = f.name;
+                fileTypes[fileName] = f.type;
+                fileUrls[fileName] = "";
+                fileColors[fileName] = colors.shift();
+            }
+            virColCnt[fileName] = {};
+            lastHeaderRow[fileName] = {};
             let data = e.target.result;
-//                    data = new Uint8Array(data);
-//                    console.time();
             if (fileName.toLowerCase().endsWith(".csv")) {
                 data = data.replace(/\t/gi, "    ");
                 workbook = XLSX.read(data, {type: 'binary', dateNF: "yyyy-MM-dd", raw:true});
@@ -117,18 +164,17 @@
                 workbook = XLSX.read(data, {type: 'binary', dateNF: "yyyy-MM-dd"});
             }
             workbooks[fileName] = workbook;
-//                    workbook = XLSX.read(data, {type: 'array'});
-//                    console.timeEnd();
 
             if (idx < files.length) {
                 f = files[idx];
-                fileName = f.name;
-                fileTypes[fileName] = f.type;
-                fileUrls[fileName] = "";
-                fileColors[fileName] = colors.shift();
+                pct = 0;
                 idx++;
-                loadingDialog.find(".loading-msg").html(' Loading ' + fileName + ' (' + idx + '/' + files.length + ') ...');
-                reader.readAsBinaryString(f);
+                loadingDialog.find(".loading-msg").html(' Loading ' + f.name + ' (' + idx + '/' + files.length + ') ...');
+                if (target.isRemote) {
+                    reader.readAsBinaryString(f.name);
+                } else {
+                    reader.readAsBinaryString(f);
+                }
 //                        reader.readAsArrayBuffer(f);
             } else {
                 loadingDialog.modal('hide');
@@ -145,18 +191,18 @@
         // Start to read the first file
         let f = files[idx];
         idx++;
-        let fileName = f.name;
-        fileTypes[fileName] = f.type;
-        fileUrls[fileName] = "";
-        fileColors[fileName] = "";
+        pct = 0;
         let loadingDialog = bootbox.dialog({
-            message: '<h4><span class="glyphicon glyphicon-refresh spinning"></span><span class="loading-msg"> Loading ' + fileName + ' (1/' + files.length + ') ...</span></h4></br><p><mark>MS Excel File (> 1 MB)</mark> might experice longer loading time...</p>',
+            message: '<h4><span class="glyphicon glyphicon-refresh spinning"></span><span class="loading-msg"> Loading ' + f.name + ' (1/' + files.length + ') ...</span></h4></br><p><mark>MS Excel File (> 1 MB)</mark> might experice longer loading time...</p>',
 //                    centerVertical: true,
             closeButton: false
         });
         loadingDialog.on("shown.bs.modal", function() {
-//                    reader.readAsArrayBuffer(f);
-            reader.readAsBinaryString(f);
+            if (target.isRemote) {
+                reader.readAsBinaryString(f.name);
+            } else {
+                reader.readAsBinaryString(f);
+            }
         });
     }
 
@@ -386,12 +432,14 @@
     <div class="col-sm-12">
         <!-- 1st row -->
         <div class="form-group col-sm-12">
-            <label class="control-label">Raw Data File :</label>
+            <label class="control-label">Raw Data File : </label>&nbsp;&nbsp;
+            <input type="checkbox" name="file_source_switch">
             <input type="file" name="data_file" class="form-control" accept=".xlsx,.xls,.csv" multiple>
+            <textarea name="file_urls" class="form-control"></textarea>
         </div>
         <!-- 2nd row -->
         <div class="form-group col-sm-12">
-            <label class="control-label">SC2 Template File :</label>
+            <label class="control-label">SC2 Template File (optional):</label>
             <input type="file" name="sc2_file" class="form-control" accept=".sc2.json,.json,.sc2" multiple>
         </div>
     </div>

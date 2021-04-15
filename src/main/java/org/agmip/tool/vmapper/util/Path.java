@@ -28,6 +28,7 @@ public class Path {
             private static final String PACKAGE = "/" + Data.class.getSimpleName().toLowerCase();
             public static final String UNIT_LOOKUP = PACKAGE + "/unit/lookup";
             public static final String UNIT_CONVERT = PACKAGE + "/unit/convert";
+            public static final String LOAD_FILE = PACKAGE + "/util/load_file";
         }
     }
     

@@ -3136,6 +3136,7 @@
         <script type="text/javascript" src="/plugins/jsonViewer/jquery.json-viewer.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/chosen/init.js" charset="utf-8"></script>
         <script type="text/javascript" src="/js/dataReader/BufferedFileReader.js"></script>
+        <script type="text/javascript" src="/js/dataReader/RemoteFileReader.js"></script>
         <script type="text/javascript" src="/js/util/dateUtil.js"></script>
         <script type="text/javascript" src="/js/toggle/bootstrap-toggle.min.js" charset="utf-8"></script>
         <script src="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.js"></script>
