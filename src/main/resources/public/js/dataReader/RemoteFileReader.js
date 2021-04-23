@@ -16,6 +16,7 @@ class RemoteFileReader {
         this.fileType = null;
         this.fileSize = null;
         this.buffSize = null;
+        this.textResult = false;
         this.onloadend = function () {};
         this.onload = function () {};
         this.onerror = function (msg) { alert(msg); };
@@ -32,6 +33,9 @@ class RemoteFileReader {
                 this.wsLocal.onopen = $.proxy(this.sendResentRequest, this);
             } else {
                 this.result = this.result.join('');
+                if (this.textResult) {
+                    this.result = decodeURIComponent(escape(this.result));
+                }
                 this.onloadend({target:this});
             }
         }, this);
@@ -111,6 +115,11 @@ class RemoteFileReader {
         this.wsLocal = new WebSocket(this.wsAddrLocal);
         this.wsLocal.onopen = $.proxy(this.sendInitRequest, this);
         this.keepLocalConn();
+    }
+    
+    readAsText(fileUrl) {
+        this.readAsBinaryString(fileUrl);
+        this.textResult = true;
     }
     
     getReadingProgressPct() {
