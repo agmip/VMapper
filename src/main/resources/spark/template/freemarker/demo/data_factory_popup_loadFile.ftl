@@ -1,8 +1,9 @@
 <script>
     function showLoadFileDialog(errMsg) {
-        let dataFiles;
+        let dataFiles = [];
         let dataUrls = [];
-        let sc2Files;
+        let sc2Files = [];
+        let sc2Urls = [];
         let buttons = {
             cancel: {
                 label: "Cancel",
@@ -13,10 +14,10 @@
                 label: "Confirm",
                 className: 'btn-primary',
                 callback: function(){
-                    if (dataFiles && dataFiles.length > 0) {
-                        readSpreadSheet({files : dataFiles}, {files : sc2Files});
-                    } else if (dataUrls && dataUrls.length > 0) {
-                        readSpreadSheet({files : dataUrls, isRemote: true}, {files : sc2Files});
+                    if (!dataSwitch.is(":checked") && dataFiles.length > 0) {
+                        readSpreadSheet({files : dataFiles}, {files : sc2Files, urls: sc2Urls, isRemote : dialog.find("[name='sc2_source_switch']").is(":checked")});
+                    } else if (dataSwitch.is(":checked") && dataUrls.length > 0) {
+                        readSpreadSheet({files : dataUrls, isRemote: true}, {files : sc2Files, urls: sc2Urls, isRemote : dialog.find("[name='sc2_source_switch']").is(":checked")});
                     } else {
                         showLoadFileDialog("[Warn] Please select raw data file");
                     }
@@ -30,43 +31,87 @@
             buttons: buttons
         });
         dialog.find(".modal-content").drags();
+        let dataFileInput = dialog.find("[name='data_file']");
+        let dataUrlInput = dialog.find("[name='data_urls']");
+        let dataSwitch = dialog.find("[name='data_source_switch']");
+        let sc2FileInput = dialog.find("[name='sc2_file']");
+        let sc2UrlInput = dialog.find("[name='sc2_urls']");
+        let sc2Switch = dialog.find("[name='sc2_source_switch']");
         dialog.on("shown.bs.modal", function() {
             if (errMsg) {
                 dialog.find("[name='dialog_msg']").text(errMsg);
             }
-            let sc2FileInput = dialog.find("[name='sc2_file']");
-            dialog.find("[name='data_file']").on("change", function () {
+            dataFileInput.on("change", function () {
                 dataFiles = $(this).prop("files");
                 if (dataFiles.length > 0) {
                     sc2FileInput.filestyle('disabled', false);
                     sc2Files = sc2FileInput.prop("files");
+                    sc2UrlInput.prop('disabled', false).trigger("input");
                 } else {
                     sc2FileInput.filestyle('disabled', true);
-                    sc2Files = null;
+                    sc2Files = [];
+                    sc2UrlInput.prop('disabled', true);
+                    sc2Urls = [];
                 }
             }).filestyle({text:"Browse", btnClass:"btn-primary", placeholder:"Browse original data files (*.xlsx; *.xls; *.csv)", badge: true});
             sc2FileInput.on("change", function () {
                 sc2Files = $(this).prop("files");
             }).filestyle({text:"Browse", btnClass:"btn-primary", placeholder:"Browse sidecar file 2 file template (*.sc2.json)", badge: true});
             sc2FileInput.filestyle('disabled', true);
-            dialog.find("[name='file_urls']").on("change", function () {
-                let urls = $(this).val().replace(/\r/g, "").split(/\n/);
+            dataUrlInput.on("input", function () {
                 dataUrls = [];
+                if ($(this).is(":disabled")) {
+                    return;
+                }
+                let urls = $(this).val().replace(/\r/g, "").split(/\n/);
                 for (let i in urls) {
                     let url = urls[i].trim();
                     if (url !== "") {
                         dataUrls.push({name : url});
                     }
                 }
+                sc2Switch.trigger("change");
             }).hide();
-            dialog.find("[name='file_source_switch']").on("change", function () {
+            sc2UrlInput.on("input", function () {
+                sc2Urls = [];
+                if ($(this).is(":disabled")) {
+                    return;
+                }
+                let urls = $(this).val().replace(/\r/g, "").split(/\n/);
+                for (let i in urls) {
+                    let url = urls[i].trim();
+                    if (url !== "") {
+                        sc2Urls.push({name : url});
+                    }
+                }
+            }).hide();
+            dataSwitch.on("change", function () {
                 if ($(this).is(':checked')) {
-                    dialog.find("[name='file_urls']").show();
-                    dialog.find("[name='data_file']").filestyle("destroy");
-                    dialog.find("[name='data_file']").hide()
+                    dataUrlInput.show().trigger("input");
+                    dataFileInput.filestyle("destroy");
+                    dataFileInput.hide();
+                    dataFiles = [];
                 } else {
-                    dialog.find("[name='file_urls']").hide();
-                    dialog.find("[name='data_file']").show().filestyle({text:"Browse", btnClass:"btn-primary", placeholder:"Browse original data files (*.xlsx; *.xls; *.csv)", badge: true});
+                    dataUrlInput.hide();
+                    dataFileInput.show().filestyle({text:"Browse", btnClass:"btn-primary", placeholder:"Browse original data files (*.xlsx; *.xls; *.csv)", badge: true});
+                    dataUrls = [];
+                }
+                sc2Switch.trigger("change");
+            }).bootstrapToggle({on:"Remote", off:"Local", size:"mini"});
+            sc2Switch.on("change", function () {
+                if ($(this).is(':checked')) {
+                    sc2UrlInput.show().prop('disabled', dataFiles.length === 0 && dataUrls.length === 0).trigger("input");
+                    sc2FileInput.filestyle("destroy")
+                    sc2FileInput.hide();
+                    sc2Files = [];
+                } else {
+                    sc2UrlInput.hide();
+                    sc2Urls = [];
+                    sc2FileInput.show().filestyle({text:"Browse", btnClass:"btn-primary", placeholder:"Browse sidecar file 2 file template (*.sc2.json)", badge: true,});
+                    sc2FileInput.filestyle('disabled', dataFiles.length === 0 && dataUrls.length === 0);
+                    if (dataFiles.length > 0 || dataUrls.length > 0) {
+                        sc2Files = sc2FileInput.prop("files");
+                    }
                 }
             }).bootstrapToggle({on:"Remote", off:"Local", size:"mini"});
         });
@@ -180,7 +225,7 @@
                 loadingDialog.modal('hide');
                 $(".mapping_gengeral_info").val("");
                 $("#file_url_inputs").html("");
-                if (sc2Files.files && sc2Files.files.length > 0) {
+                if (sc2Files.urls.length > 0 || sc2Files.files.length > 0) {
                     readSC2Json(sc2Files);
                 } else {
                     showSheetDefDialog(processData);
@@ -211,102 +256,116 @@
         isChanged = false;
         isViewUpdated = false;
         isDebugViewUpdated = false;
-        fileUrls = {};
+//        fileUrls = {};
 
-        let files = target.files;
+        let files;
+        if (target.isRemote) {
+            files = target.urls;
+        } else {
+            files = target.files;
+        }
         let idx = 0;
         let f = files[idx];
         idx++;
-        let reader = new FileReader();
+        let reader;
+        if (target.isRemote) {
+            reader = new RemoteFileReader("/data/util/load_file");
+            reader.onerror = alertBox;
+        } else {
+            reader = new FileReader();
+        }
         let sc2Objs = [];
         $(".mapping_gengeral_info").val("");
-        $("#file_url_inputs").html("");
+//        $("#file_url_inputs").html("");
         reader.onloadend = function (evt) {
-            if (evt.target.readyState === FileReader.DONE) { // DONE == 2
-                let jsonStr = evt.target.result;
-//                        readSoilData(jsonStr);
-
-                sc2Objs.push(JSON.parse(jsonStr));
-                if (idx < files.length) {
-                    f = files[idx];
-                    idx++;
-                    reader.readAsText(f);
+            let jsonStr = evt.target.result.trim();
+            sc2Objs.push(JSON.parse(jsonStr));
+            if (idx < files.length) {
+                f = files[idx];
+                idx++;
+                if (target.isRemote) {
+                    reader.readAsText(f.name);
                 } else {
-                    let sc2Obj = sc2Objs[0];
-                    hotFixIndex(sc2Obj);
-                    let fileNames = [];
-                    if (sc2Obj.agmip_translation_mappings && sc2Obj.agmip_translation_mappings.files) {
-                        for (let i in sc2Obj.agmip_translation_mappings.files) {
-                            let fileMeta = sc2Obj.agmip_translation_mappings.files[i].file.file_metadata;
-                            if (fileMeta && getMetaFileName(fileMeta)) {
-                                fileNames.push(getMetaFileName(fileMeta));
-                            }
-                        }
-                    }
-                    for (let i = 1; i < sc2Objs.length; i++) {
-                        hotFixIndex(sc2Objs[i]);
-                        for (let key in sc2Objs[i]) {
-                            if (sc2Obj[key]) {
-                                if (key === "agmip_translation_mappings") {
-                                    for (let key2 in sc2Objs[i][key]) {
-                                        if (key2 === "files") {
-                                            for (let j in sc2Objs[i][key].files) {
-                                                let fileObj = sc2Objs[i][key].files[j];
-                                                if (!fileObj.file.file_metadata) {
-                                                    fileObj.file.file_metadata = {};
-                                                }
-                                                if (!getMetaFileName(fileObj.file.file_metadata)) {
-                                                    saveMetaFileName(fileObj.file.file_metadata, "N/A");
-                                                }
-                                                let cnt = 1;
-                                                let fileName = getMetaFileName(fileObj.file.file_metadata);
-                                                while (fileNames.includes(fileName)) {
-                                                    fileName = getMetaFileName(fileObj.file.file_metadata) + "_" + cnt;
-                                                    cnt++;
-                                                }
-                                                fileObj.file.file_metadata.file_name = fileName;
-                                                sc2Obj[key].files.push(fileObj);
-                                            }
-                                        } else if (key2 === "relations") {
-                                            for (let j in sc2Objs[i][key].relations) {
-                                                sc2Obj[key].relations.push(sc2Objs[i][key].relations[j]);
-                                            }
-                                        } else {
-                                            sc2Obj[key][key2] = sc2Objs[i][key][key2];
-                                        }
-                                    }
-                                } else {
-                                    copyObject(sc2Objs[i][key], sc2Obj[key]);
-                                }
-                            } else {
-                                sc2Obj[key] = sc2Objs[i][key];
-                            }
-                        }
-                    }
-                    if (sc2Obj.mapping_info) {
-                        for (let key in sc2Obj.mapping_info) {
-                            $("[name='" + key + "']").val(sc2Obj.mapping_info[key]);
-                        }
-                    }
+                    reader.readAsText(f);
+                }
+            } else {
+                let sc2Obj = sc2Objs[0];
+                hotFixIndex(sc2Obj);
+                let fileNames = [];
+                if (sc2Obj.agmip_translation_mappings && sc2Obj.agmip_translation_mappings.files) {
                     for (let i in sc2Obj.agmip_translation_mappings.files) {
                         let fileMeta = sc2Obj.agmip_translation_mappings.files[i].file.file_metadata;
-                        let url = getMetaFileUrl(fileMeta);
-                        if (url || url === "") {
-                            fileUrls[getMetaFileName(fileMeta)] = url;
+                        if (fileMeta && getMetaFileName(fileMeta)) {
+                            fileNames.push(getMetaFileName(fileMeta));
                         }
                     }
-                    for (let key in sc2Obj) {
-                        if (key !== "agmip_translation_mappings" && key !== "mapping_info") {
-                            sc2ObjCache[key] = sc2Obj[key];
-                        }
-                    }
-//                            initLastestTableIdx(sc2Obj);
-                    showSheetDefDialog(loadSC2Obj, null, sc2Obj);
                 }
+                for (let i = 1; i < sc2Objs.length; i++) {
+                    hotFixIndex(sc2Objs[i]);
+                    for (let key in sc2Objs[i]) {
+                        if (sc2Obj[key]) {
+                            if (key === "agmip_translation_mappings") {
+                                for (let key2 in sc2Objs[i][key]) {
+                                    if (key2 === "files") {
+                                        for (let j in sc2Objs[i][key].files) {
+                                            let fileObj = sc2Objs[i][key].files[j];
+                                            if (!fileObj.file.file_metadata) {
+                                                fileObj.file.file_metadata = {};
+                                            }
+                                            if (!getMetaFileName(fileObj.file.file_metadata)) {
+                                                saveMetaFileName(fileObj.file.file_metadata, "N/A");
+                                            }
+                                            let cnt = 1;
+                                            let fileName = getMetaFileName(fileObj.file.file_metadata);
+                                            while (fileNames.includes(fileName)) {
+                                                fileName = getMetaFileName(fileObj.file.file_metadata) + "_" + cnt;
+                                                cnt++;
+                                            }
+                                            fileObj.file.file_metadata.file_name = fileName;
+                                            sc2Obj[key].files.push(fileObj);
+                                        }
+                                    } else if (key2 === "relations") {
+                                        for (let j in sc2Objs[i][key].relations) {
+                                            sc2Obj[key].relations.push(sc2Objs[i][key].relations[j]);
+                                        }
+                                    } else {
+                                        sc2Obj[key][key2] = sc2Objs[i][key][key2];
+                                    }
+                                }
+                            } else {
+                                copyObject(sc2Objs[i][key], sc2Obj[key]);
+                            }
+                        } else {
+                            sc2Obj[key] = sc2Objs[i][key];
+                        }
+                    }
+                }
+                if (sc2Obj.mapping_info) {
+                    for (let key in sc2Obj.mapping_info) {
+                        $("[name='" + key + "']").val(sc2Obj.mapping_info[key]);
+                    }
+                }
+                for (let i in sc2Obj.agmip_translation_mappings.files) {
+                    let fileMeta = sc2Obj.agmip_translation_mappings.files[i].file.file_metadata;
+                    let url = getMetaFileUrl(fileMeta);
+                    if (!fileUrls[getMetaFileName(fileMeta)] && (url || url === "")) {
+                        fileUrls[getMetaFileName(fileMeta)] = url;
+                    }
+                }
+                for (let key in sc2Obj) {
+                    if (key !== "agmip_translation_mappings" && key !== "mapping_info") {
+                        sc2ObjCache[key] = sc2Obj[key];
+                    }
+                }
+//                initLastestTableIdx(sc2Obj);
+                showSheetDefDialog(loadSC2Obj, null, sc2Obj);
             }
         };
-
-        reader.readAsText(f);
+        if (target.isRemote) {
+            reader.readAsText(f.name);
+        } else {
+            reader.readAsText(f);
+        }
     }
 
     function hotFixIndex(sc2Obj) {
@@ -433,14 +492,16 @@
         <!-- 1st row -->
         <div class="form-group col-sm-12">
             <label class="control-label">Raw Data File : </label>&nbsp;&nbsp;
-            <input type="checkbox" name="file_source_switch">
+            <input type="checkbox" name="data_source_switch">
             <input type="file" name="data_file" class="form-control" accept=".xlsx,.xls,.csv" multiple>
-            <textarea name="file_urls" class="form-control" placeholder="Provide the URLs of your files, use new line to separate them..."></textarea>
+            <textarea name="data_urls" class="form-control" placeholder="Provide the URLs of your raw data files, use new line to separate them..."></textarea>
         </div>
         <!-- 2nd row -->
         <div class="form-group col-sm-12">
-            <label class="control-label">SC2 Template File (optional):</label>
+            <label class="control-label">SC2 Template File (optional):</label>&nbsp;&nbsp;
+            <input type="checkbox" name="sc2_source_switch">
             <input type="file" name="sc2_file" class="form-control" accept=".sc2.json,.json,.sc2" multiple>
+            <textarea name="sc2_urls" class="form-control" placeholder="Provide the URLs of your SC2 files, use new line to separate them..."></textarea>
         </div>
     </div>
     <p>&nbsp;</p>
