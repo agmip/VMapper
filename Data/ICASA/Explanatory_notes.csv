@@ -5,7 +5,7 @@
 "all","Authors:","Jeff White, Tony Hunt, Gerrit Hoogenboom, Cheryl Porter","1",""
 "all","Send comments/questions to:","
 jeffrey.white@ars.usda.gov","1",""
-"","","","",""
+
 "Management_info/Measured_data","Variable name","Full name of variable, which may be used as a field name in databases","1",""
 "Management_info/Measured_data","Name length","Automatically calculated length of the ""long name"" to ensure it is < 25 characters long","1",""
 "Management_info/Measured_data","Name code","Short name of variable as used in the flat file (ASCII) implementation","1",""
