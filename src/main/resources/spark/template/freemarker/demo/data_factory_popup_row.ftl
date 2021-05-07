@@ -61,7 +61,7 @@
                                 }
                             }
                         }
-                        if (tableDef.data_start_row && tableDef.data_end_row && tableDef.data_start_row >= tableDef.data_end_row) {
+                        if (tableDef.data_start_row && tableDef.data_end_row && tableDef.data_start_row > tableDef.data_end_row) {
                             invalidEndErrFlg = true;
                         }
                         if (tableDef.data_start_row) {
