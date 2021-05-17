@@ -1821,7 +1821,7 @@
                                 if ((tableCat.order < 4000 || tableCat.order > 4051) &&
                                     (tableCat.order < 5000 || tableCat.order > 5051)) {
                                     // If reference target is not soil/weather meta/profile table, then mark it as non-root table
-                                    rootTables[refDef.file][refDef.sheet] = false;
+                                    rootTables[refDef.file][refDef.sheet][refDef.table_index - 1] = false;
                                 }
                             }
                         }
