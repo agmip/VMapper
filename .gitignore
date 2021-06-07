@@ -239,3 +239,4 @@ src/main/resources/public/plugins/mxgraph/*
 src/main/resources/public/test.html
 src/main/resources/public/test_mxgraph.html
 Data.zip
+/Test/*

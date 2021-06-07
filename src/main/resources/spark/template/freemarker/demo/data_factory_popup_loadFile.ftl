@@ -195,7 +195,7 @@
                 fileColors[fileName] = colors.shift();
             } else {
                 fileName = f.name;
-                fileTypes[fileName] = f.type;
+                fileTypes[fileName] = getMimeType(fileName, f.type);
                 fileUrls[fileName] = "";
                 fileColors[fileName] = colors.shift();
             }
@@ -249,6 +249,19 @@
                 reader.readAsBinaryString(f);
             }
         });
+    }
+    
+    function getMimeType(name, contentType) {
+        name = name.toLowerCase();
+        if (name.endsWith("csv")) {
+            return "text/csv";
+        } else if (name.endsWith("xlsx")){
+            return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        } else if (name.endsWith("xls")){
+            return "application/vnd.ms-excel";
+        } else {
+            return contentType;
+        }
     }
 
     function readSC2Json(target) {

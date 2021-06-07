@@ -2,10 +2,12 @@ package org.agmip.tool.vmapper.util.rfl;
 
 import ch.qos.logback.classic.Logger;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import org.agmip.tool.vmapper.util.JSONObject;
 import org.agmip.tool.vmapper.util.rfl.WebSocketMsg.WSAction;
 import org.agmip.tool.vmapper.util.rfl.WebSocketMsg.WSStatus;
+import org.apache.tika.Tika;
 import org.eclipse.jetty.websocket.api.Session;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +17,7 @@ import org.slf4j.LoggerFactory;
  */
 public class WebSocketUtil {
     
+    private final static Tika TIKA = new Tika();
     private static final Logger LOG = (Logger) LoggerFactory.getLogger(WebSocketUtil.class);
     
     public static boolean sendMsg(Session receiver, WSAction action, WSStatus status) {
@@ -64,5 +67,9 @@ public class WebSocketUtil {
             return false;
         }
         return true;
+    }
+    
+    public static String getRemoteMIMEType(URL url) throws IOException {
+        return TIKA.detect(url.openStream());
     }
 }

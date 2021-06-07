@@ -49,7 +49,8 @@ public class RemoteFileLoader {
                         cache = new HashMap();
                         if (WebSocketUtil.sendMsg(user, Init, Success, new JSONObject()
                                 .put("name", new File(url.getFile()).getName())
-                                .put("type", conn.getContentType())
+//                                .put("type", conn.getContentType())
+                                .put("type", WebSocketUtil.getRemoteMIMEType(url))
                                 .put("size", conn.getContentLengthLong()))) {
                             try (InputStream is = conn.getInputStream()) {
                                 byte[] buff = new byte[is.available()];
@@ -85,8 +86,10 @@ public class RemoteFileLoader {
                         }
                     } catch (MalformedURLException e) {
                         e.printStackTrace(System.err);
+                        WebSocketUtil.sendMsg(user, Init, Error, e.getMessage());
                     } catch (IOException e) {
                         e.printStackTrace(System.err);
+                        WebSocketUtil.sendMsg(user, Init, Error, e.getMessage());
                     }
                     break;
                 case Received:
