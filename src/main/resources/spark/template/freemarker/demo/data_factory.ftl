@@ -1793,7 +1793,6 @@
                 loadingDialog.on("shown.bs.modal", function() {
                     // check the relationship among tables and determine the data structure
                     let rootTables = {};
-                    let toRefs = [];
                     loopTables(
                         function(fileName){
                             if (!rootTables[fileName]) {
@@ -1807,25 +1806,35 @@
                         },
                         function(fileName, sheetName, i, tableDef) {
                             rootTables[fileName][sheetName][i] = true;
-                            if (Object.keys(tableDef.references).length > 0) {
-                                toRefs.push(tableDef.references);
-                            }
                         }
                     );
+            
                     // mark all the tables which has been related as non-root tables
-                    for (let i in toRefs) {
-                        for (let fromKeyIdx in toRefs[i]) {
-                            for (let toKeyIdx in toRefs[i][fromKeyIdx]) {
-                                let refDef = toRefs[i][fromKeyIdx][toKeyIdx];
-                                let tableCat = getTableCategory(getRefTableDef(refDef).mappings);
-                                if ((tableCat.order < 4000 || tableCat.order > 4051) &&
-                                    (tableCat.order < 5000 || tableCat.order > 5051)) {
-                                    // If reference target is not soil/weather meta/profile table, then mark it as non-root table
-                                    rootTables[refDef.file][refDef.sheet][refDef.table_index - 1] = false;
+                    loopTables(
+                        null, null, function(fileName, sheetName, i, tableDef) {
+                            if (Object.keys(tableDef.references).length > 0) {
+                                let curTableDef = getTableCategory(tableDef.mappings);
+                                let toRefs = tableDef.references;
+                                for (let fromKeyIdx in toRefs) {
+                                    for (let toKeyIdx in toRefs[fromKeyIdx]) {
+                                        let refDef = toRefs[fromKeyIdx][toKeyIdx];
+                                        let tableCat = getTableCategory(getRefTableDef(refDef).mappings);
+                                        // If reference target is not soil/weather meta/profile table, then mark it as non-root table
+                                        if ((tableCat.order < 4000 || tableCat.order > 4052) &&
+                                            (tableCat.order < 5000 || tableCat.order > 5052) ||
+                                            !tableCat.order) {
+                                            rootTables[refDef.file][refDef.sheet][refDef.table_index - 1] = false;
+                                        } else if (tableCat.order == 4052 && curTableDef.order >= 4000 && curTableDef.order <= 4051){
+                                            rootTables[refDef.file][refDef.sheet][refDef.table_index - 1] = false;
+                                        } else if (tableCat.order == 5052 && curTableDef.order >= 5000 && curTableDef.order <= 5051){
+                                            rootTables[refDef.file][refDef.sheet][refDef.table_index - 1] = false;
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
+                    );
+                    
                     // loop the root tables to create csv file for each related group of tables
                     let zip = new JSZip();
                     let fileMap = {};
@@ -2058,13 +2067,16 @@
                 }
                 
                 let refDefs = tableDef.references;
+                let curTableCat = getTableCategory(tableDef.mappings);
                 let subDatas = [];
                 for (let fromKeyIdx in refDefs) {
                     for (let toKeyIdx in refDefs[fromKeyIdx]) {
                         let refDef = refDefs[fromKeyIdx][toKeyIdx];
                         let tableCat = getTableCategory(getRefTableDef(refDef).mappings);
                         if ((tableCat.order > 4000 && tableCat.order < 4052) ||
-                            (tableCat.order > 5000 && tableCat.order < 5052)) {
+                            (tableCat.order > 5000 && tableCat.order < 5052) ||
+                            (tableCat.order == 4052 && (curTableCat.order < 4000 || curTableCat.order > 4051)) ||
+                            (tableCat.order == 5052 && (curTableCat.order < 5000 || curTableCat.order > 5051))) {
                             // If it is soil/weather meta/profile table, then skip as sub table.
                             continue;
                         }
