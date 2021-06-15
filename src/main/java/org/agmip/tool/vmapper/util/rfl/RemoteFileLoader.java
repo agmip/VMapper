@@ -48,7 +48,7 @@ public class RemoteFileLoader {
                         URLConnection conn = url.openConnection();
                         cache = new HashMap();
                         if (WebSocketUtil.sendMsg(user, Init, Success, new JSONObject()
-                                .put("name", new File(url.getFile()).getName())
+                                .put("name", WebSocketUtil.getRemoteFileName(url))
 //                                .put("type", conn.getContentType())
                                 .put("type", WebSocketUtil.getRemoteMIMEType(url))
                                 .put("size", conn.getContentLengthLong()))) {

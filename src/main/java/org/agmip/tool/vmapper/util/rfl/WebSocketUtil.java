@@ -1,9 +1,12 @@
 package org.agmip.tool.vmapper.util.rfl;
 
 import ch.qos.logback.classic.Logger;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.Map;
 import org.agmip.tool.vmapper.util.JSONObject;
 import org.agmip.tool.vmapper.util.rfl.WebSocketMsg.WSAction;
 import org.agmip.tool.vmapper.util.rfl.WebSocketMsg.WSStatus;
@@ -71,5 +74,17 @@ public class WebSocketUtil {
     
     public static String getRemoteMIMEType(URL url) throws IOException {
         return TIKA.detect(url.openStream());
+    }
+    
+    public static String getRemoteFileName(URL url) throws IOException {
+        String fileName;
+        Map<String, List<String>> headers = url.openConnection().getHeaderFields();
+        List<String> list = headers.get("Content-Disposition");
+        if (list != null && !list.isEmpty()) {
+            fileName = list.get(0).replaceFirst("(?i)^.*filename=\"?([^\"]+)\"?.*$", "$1");
+        } else {
+            fileName = new File(url.getFile()).getName();
+        }
+        return fileName;
     }
 }
