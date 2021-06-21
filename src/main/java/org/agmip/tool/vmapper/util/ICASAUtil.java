@@ -4,6 +4,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Iterator;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -22,6 +23,7 @@ public class ICASAUtil {
     private static final String ICASA_URL = "https://docs.google.com/spreadsheets/d/1MYx1ukUsCAM1pcixbVQSu49NU-LfXg-Dtt-ncLBzGAM/pub?output=xlsx";
     private static final DataFormatter FORMARTTER = new DataFormatter(true);
     private static FormulaEvaluator evaluator = null;
+    private static final String[] MGN_SHEET_NAMES = {"Management_info", "Metadata", "Soils_data", "Weather_data"};
     
     public static boolean syncICASA() {
         try (XSSFWorkbook workbook = new XSSFWorkbook(new URL(ICASA_URL).openStream());) {
@@ -29,12 +31,29 @@ public class ICASAUtil {
                 evaluator = workbook.getCreationHelper().createFormulaEvaluator();
             }
             Iterator<Sheet> it = workbook.sheetIterator();
+            boolean isNew = true;
             while (it.hasNext()) {
                 Sheet sheet = it.next();
-                try (CSVWriter writer = new CSVWriter(new FileWriter(Path.Folder.getICASAFile(sheet.getSheetName())), ',')) {
+                String fileName;
+                boolean isAppended = false;
+                if (Arrays.binarySearch(MGN_SHEET_NAMES, sheet.getSheetName()) < 0) {
+                    fileName = sheet.getSheetName();
+                } else {
+                    fileName = MGN_SHEET_NAMES[0];
+                    if (isNew) {
+                        isNew = false;
+                    } else {
+                        isAppended = true;
+                    }
+                }
+                try (CSVWriter writer = new CSVWriter(new FileWriter(Path.Folder.getICASAFile(fileName), isAppended), ',')) {
                     if(sheet.getPhysicalNumberOfRows() > 0) {
                         int lastRowNum = sheet.getLastRowNum();
                         int lastColNum = 0;
+                        int startRowNum = 0;
+                        if (isAppended) {
+                            startRowNum = 1;
+                        }
                         for(int j = 0; j <= lastRowNum; j++) {
                             Row row = sheet.getRow(j);
                             if (row != null) {
@@ -44,7 +63,7 @@ public class ICASAUtil {
                                 }
                             }
                         }
-                        for(int j = 0; j <= lastRowNum; j++) {
+                        for(int j = startRowNum; j <= lastRowNum; j++) {
                             Row row = sheet.getRow(j);
                             writer.writeNext(getCSVLine(row, lastColNum));
                         }
