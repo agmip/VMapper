@@ -34,6 +34,7 @@
             let lastHeaderRow = {};
             let primaryVarExisted = {EXNAME: false, SOIL_ID: false, WST_ID: false};
             let sc2ObjCache = {};
+            let sc2FileName = null;
             const eventDateMapping = {
                 def : {
                     "planting" : "pdate",
@@ -2825,11 +2826,27 @@
                 if (!curFileName) {
                     alertBox("Please load spreadsheet file first, then edit and save SC2 file for it.");
                 } else {
-                    let text = toSC2Json();
-                    let ext = "-sc2.json";
-                    let blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-                    saveAs(blob, getFileName(curFileName) + ext);
-                    isChanged = false;
+                    if (!sc2FileName) {
+                        sc2FileName = curFileName + "-sc2";
+                    }
+                    bootbox.prompt({ 
+                        title: "Please review and confirm the name of SC2 template file", 
+                        value: getFileName(sc2FileName),
+                        callback: function (result) {
+                            if (!result) {
+                                return;
+                            }
+                            let text = toSC2Json();
+                            if (!result.toLowerCase().endsWith(".json")) {
+                                sc2FileName = result + ".json";
+                            } else {
+                                sc2FileName = result;
+                            }
+                            let blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+                            saveAs(blob, sc2FileName);
+                            isChanged = false;
+                        }
+                    });
                 }
             }
             

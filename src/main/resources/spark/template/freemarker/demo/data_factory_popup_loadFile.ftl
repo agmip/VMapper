@@ -146,6 +146,7 @@
         curTableIdx = null;
         latestTableIdx = 0;
         wbObj = null;
+        sc2FileName = null;
         isChanged = false;
         isViewUpdated = false;
         isDebugViewUpdated = false;
@@ -303,6 +304,12 @@
                 }
             } else {
                 let sc2Obj = sc2Objs[0];
+                if (target.isRemote) {
+                    sc2FileName = evt.target.fileName;
+                } else {
+                    sc2FileName = f.name;
+                }
+                sc2FileName = sc2FileName.replace(".json", "").replace(".JSON", "");
                 hotFixIndex(sc2Obj);
                 let fileNames = [];
                 if (sc2Obj.agmip_translation_mappings && sc2Obj.agmip_translation_mappings.files) {
