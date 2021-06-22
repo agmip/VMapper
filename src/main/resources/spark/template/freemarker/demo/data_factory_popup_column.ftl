@@ -752,6 +752,10 @@
         let icasaGroupList = icasaVarMap.getGroupList();
         for (let order in icasaGroupList) {
             let subset = icasaGroupList[order].subset;
+            let dataset = icasaGroupList[order].dataset;
+            if (dataset === "SUITE") {
+                subset = dataset + "_" + subset;
+            }
             if (!defOptgroups[subset]) {
                 defOptgroups[subset] = $('<optgroup label="' + subset.capitalize() + ' variable"></optgroup>');
             }
