@@ -28,7 +28,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: java-app
-        path: '${{ github.workspace }}/target/*.jar'
+        path: '${{ github.workspace }}/target/vmapper.jar'
 
   deploy:
     runs-on: ubuntu-latest
@@ -50,4 +50,4 @@ jobs:
         app-name: 'VMapper'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_9f2e87e3abfa4cb386335b3cdffd675a }}
-        package: '*.jar'
+        package: 'vmapper.jar'
