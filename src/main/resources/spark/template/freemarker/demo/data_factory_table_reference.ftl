@@ -381,7 +381,7 @@
         let mappings = getRefTableDef(refDef).mappings;
         let val = [];
         if (refDef && refDef.keys) {
-            val = createRefKeyTaregetKeyStr(refDef.keys);
+            val = createRefKeyTargetKeyStr(refDef.keys);
         }
         sb.html('<option value=""></option>');
         for (let i in mappings) {
@@ -425,7 +425,7 @@
         return JSON.stringify(keyObj);
     }
     
-    function createRefKeyTaregetKeyStr(keys) {
+    function createRefKeyTargetKeyStr(keys) {
         let keyObj = [];
         for (let i in keys) {
             keyObj.push(keys[i].column_index);

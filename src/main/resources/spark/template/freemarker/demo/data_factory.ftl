@@ -2679,7 +2679,7 @@
                                     }
                                 }
                             }
-                            if (Object.keys(refDefs) === 0) {
+                            if (Object.keys(refDefs).length === 0) {
                                 delete tableDef.references[fromKeyIdxs];
                             }
                         }
