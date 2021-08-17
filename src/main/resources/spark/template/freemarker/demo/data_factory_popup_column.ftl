@@ -81,6 +81,9 @@
                         if (colDef.unit_error) {
                             delete colDef.unit_error;
                         }
+                        if (colDef.duplicated_error) {
+                            colDef.duplicated_error = false;
+                        }
                         
                         let columns = spreadsheet.getSettings().columns;
                         if (!colDef.column_index) {

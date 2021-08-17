@@ -1701,7 +1701,7 @@
                 if (mappings[col]) {
                      if (mappings[col].ignored_flg) {
                         return "label label-default";
-                    } else if (mappings[col].unit_error) {
+                    } else if (mappings[col].unit_error || mappings[col].duplicated_error) {
                         return "label label-danger";
                     } else if (!mappings[col].column_index_org) {
                         return "label label-primary";
@@ -2826,30 +2826,123 @@
                 if (!curFileName) {
                     alertBox("Please load spreadsheet file first, then edit and save SC2 file for it.");
                 } else {
-                    if (!sc2FileName) {
-                        sc2FileName = curFileName + "-sc2";
-                    }
-                    bootbox.prompt({ 
-                        title: "Please review and confirm the name of SC2 template file", 
-                        value: getFileName(sc2FileName),
-                        callback: function (result) {
-                            if (!result) {
-                                return;
-                            }
-                            let text = toSC2Json();
-                            if (!result.toLowerCase().endsWith(".json")) {
-                                sc2FileName = result + ".json";
-                            } else {
-                                sc2FileName = result;
-                            }
-                            let blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-                            saveAs(blob, sc2FileName);
-                            isChanged = false;
+                    saveFileFunc = function (fileName) {
+                        let text = toSC2Json();
+                        if (!fileName.toLowerCase().endsWith(".json")) {
+                            sc2FileName = fileName + ".json";
+                        } else {
+                            sc2FileName = fileName;
                         }
-                    });
+                        let blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+                        saveAs(blob, sc2FileName);
+                        isChanged = false;
+                    };
+                    
+                    let dupVarDefs = getDuplicatedVarDefs();
+                    if (Object.keys(dupVarDefs).length > 0) {
+                        showDuplicateVarDefPopup(dupVarDefs, showFileExtPopup, saveFileFunc)
+                    } else {
+                        showFileExtPopup(saveFileFunc);
+                    }
                 }
             }
             
+            function showFileExtPopup(callback) {
+                if (!sc2FileName) {
+                    sc2FileName = curFileName + "-sc2";
+                }
+                let prompt = bootbox.prompt({
+                    title: "Please review and confirm the name of SC2 template file", 
+                    value: getFileName(sc2FileName),
+                    callback: function (result) {
+                        if (!result) {
+                            return;
+                        }
+                        callback(result);
+                    }
+                });
+            }
+            
+            function showDuplicateVarDefPopup(dupVarDefs, callback, callback2) {
+                let prompt = bootbox.confirm({
+                    title: "Please review and confirm the duplication of variable definitions among the tables", 
+                    message: "The duplications of definition across the tables have been detected. This might cause data overwriting during the translation process. Do you want to continue saving the template anyway?",
+                    buttons: {
+                        confirm: {
+                            label: 'Yes',
+                            className: 'btn-danger'
+                        },
+                        cancel: {
+                            label: 'Back to revise',
+                            className: 'btn-success'
+                        }
+                    },
+                    callback: function (result) {
+                        if (!result) {
+                            markDuplicatedVarDefs(dupVarDefs);
+                            initSpreadsheet(curFileName, curSheetName);
+                        } else {
+                            callback(callback2);
+                        }
+                    }
+                });
+            }
+
+            function getDuplicatedVarDefs() {
+                let rets = {};
+                let varMaps = {};
+                loopTables(null, null, function(fileName, sheetName, i, tableDef) {
+                    for (let j in tableDef.mappings) {
+                        let mapping = tableDef.mappings[j];
+                        if (!mapping.ignored_flg && mapping.icasa && mapping.icasa !== "SOIL_ID" && mapping.icasa !== "WST_ID" && mapping.icasa !== "EXNAME" && mapping.unit !== "index" && mapping.duplicated_error !== false) {
+                            if (varMaps[mapping.icasa]) {
+                                varMaps[mapping.icasa][JSON.stringify({file:fileName, sheet:sheetName, table_index:i})] = mapping;
+                                rets[mapping.icasa] = varMaps[mapping.icasa];
+                            } else {
+                                varMaps[mapping.icasa] = {};
+                                varMaps[mapping.icasa][JSON.stringify({file:fileName, sheet:sheetName, table_index:i})] = mapping;
+                            }
+                        }
+                    }
+                });
+                let refDefList = getRefDefList();
+                for (let i in refDefList) {
+                    let refDef = refDefList[i];
+                    let keys = refDef.from.keys;
+                    if (keys && keys.length > 0) {
+                        for (let i in keys) {
+                            let mapping = keys[i];
+                            if (!mapping.ignored_flg && mapping.icasa && mapping.unit !== "index") {
+                                if (varMaps[mapping.icasa]) {
+                                    delete varMaps[mapping.icasa][JSON.stringify({file: refDef.from.file, sheet: refDef.from.sheet, table_index: refDef.from.table_index})];
+                                }
+                            }
+                        }
+                    }
+                    keys = refDef.to.keys;
+                    if (keys && keys.length > 0) {
+                        for (let i in keys) {
+                            let mapping = keys[i];
+                            if (!mapping.ignored_flg && mapping.icasa && mapping.unit !== "index") {
+                                if (varMaps[mapping.icasa]) {
+                                    delete varMaps[mapping.icasa][JSON.stringify({file: refDef.to.file, sheet: refDef.to.sheet, table_index: refDef.to.table_index})];
+                                }
+                            }
+                        }
+                    }
+                }
+                return rets;
+            }
+            
+            function markDuplicatedVarDefs(dupVarDefs) {
+                for (let varName in dupVarDefs) {
+                    for (let i in dupVarDefs[varName]) {
+//                        dupVarDefs[varName][i].err_msg = varName + " is already been used by other columns, please try to assign with different variable, or make sure this column will not be conflicted with the other column with same name by clicking save button."
+                        dupVarDefs[varName][i].duplicated_error = true;
+                    }
+                }
+            }
+
             function toSC2Json(jsonObj, compressFlg) {
                 if (!jsonObj) {
                     jsonObj = toSC2Obj();
