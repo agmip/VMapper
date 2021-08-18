@@ -35,6 +35,7 @@
             let primaryVarExisted = {EXNAME: false, SOIL_ID: false, WST_ID: false};
             let sc2ObjCache = {};
             let sc2FileName = null;
+            let dupVarDefs = {};
             const eventDateMapping = {
                 def : {
                     "planting" : "pdate",
@@ -2838,7 +2839,7 @@
                         isChanged = false;
                     };
                     
-                    let dupVarDefs = getDuplicatedVarDefs();
+                    dupVarDefs = getDuplicatedVarDefs();
                     if (Object.keys(dupVarDefs).length > 0) {
                         showDuplicateVarDefPopup(dupVarDefs, showFileExtPopup, saveFileFunc)
                     } else {
@@ -2863,7 +2864,7 @@
                 });
             }
             
-            function showDuplicateVarDefPopup(dupVarDefs, callback, callback2) {
+            function showDuplicateVarDefPopup(varDefs, callback, callback2) {
                 let prompt = bootbox.confirm({
                     title: "Please review and confirm the duplication of variable definitions among the tables", 
                     message: "The duplications of definition across the tables have been detected. This might cause data overwriting during the translation process. Do you want to continue saving the template anyway?",
@@ -2879,7 +2880,7 @@
                     },
                     callback: function (result) {
                         if (!result) {
-                            markDuplicatedVarDefs(dupVarDefs);
+                            markDuplicatedVarDefs(varDefs);
                             initSpreadsheet(curFileName, curSheetName);
                         } else {
                             callback(callback2);
@@ -2892,15 +2893,16 @@
                 let rets = {};
                 let varMaps = {};
                 loopTables(null, null, function(fileName, sheetName, i, tableDef) {
+                    i = Number(i);
                     for (let j in tableDef.mappings) {
                         let mapping = tableDef.mappings[j];
                         if (!mapping.ignored_flg && mapping.icasa && mapping.icasa !== "SOIL_ID" && mapping.icasa !== "WST_ID" && mapping.icasa !== "EXNAME" && mapping.unit !== "index" && mapping.duplicated_error !== false) {
                             if (varMaps[mapping.icasa]) {
-                                varMaps[mapping.icasa][JSON.stringify({file:fileName, sheet:sheetName, table_index:i})] = mapping;
+                                varMaps[mapping.icasa][JSON.stringify({file : fileName, sheet : sheetName, table_index: i+1})] = mapping;
                                 rets[mapping.icasa] = varMaps[mapping.icasa];
                             } else {
                                 varMaps[mapping.icasa] = {};
-                                varMaps[mapping.icasa][JSON.stringify({file:fileName, sheet:sheetName, table_index:i})] = mapping;
+                                varMaps[mapping.icasa][JSON.stringify({file : fileName, sheet : sheetName, table_index : i+1})] = mapping;
                             }
                         }
                     }
@@ -2914,7 +2916,7 @@
                             let mapping = keys[i];
                             if (!mapping.ignored_flg && mapping.icasa && mapping.unit !== "index") {
                                 if (varMaps[mapping.icasa]) {
-                                    delete varMaps[mapping.icasa][JSON.stringify({file: refDef.from.file, sheet: refDef.from.sheet, table_index: refDef.from.table_index})];
+                                    delete varMaps[mapping.icasa][JSON.stringify({file : refDef.from.file, sheet : refDef.from.sheet, table_index : refDef.from.table_index})];
                                 }
                             }
                         }
@@ -2925,7 +2927,7 @@
                             let mapping = keys[i];
                             if (!mapping.ignored_flg && mapping.icasa && mapping.unit !== "index") {
                                 if (varMaps[mapping.icasa]) {
-                                    delete varMaps[mapping.icasa][JSON.stringify({file: refDef.to.file, sheet: refDef.to.sheet, table_index: refDef.to.table_index})];
+                                    delete varMaps[mapping.icasa][JSON.stringify({file : refDef.to.file, sheet : refDef.to.sheet, table_index : refDef.to.table_index})];
                                 }
                             }
                         }
@@ -2934,12 +2936,24 @@
                 return rets;
             }
             
-            function markDuplicatedVarDefs(dupVarDefs) {
-                for (let varName in dupVarDefs) {
-                    for (let i in dupVarDefs[varName]) {
-//                        dupVarDefs[varName][i].err_msg = varName + " is already been used by other columns, please try to assign with different variable, or make sure this column will not be conflicted with the other column with same name by clicking save button."
-                        dupVarDefs[varName][i].duplicated_error = true;
+            function markDuplicatedVarDefs(varDefs) {
+                for (let varName in varDefs) {
+                    for (let i in varDefs[varName]) {
+                        varDefs[varName][i].duplicated_error = true;
                     }
+                }
+            }
+            
+            function resolveDuplicatedVarDefs(icasa, dupTableKey) {
+                if (!dupTableKey) {
+                    dupTableKey = JSON.stringify({file: curFileName, sheet: curSheetName, table_index: curTableIdx});
+                }
+                delete dupVarDefs[icasa][dupTableKey];
+                if (Object.keys(dupVarDefs[icasa]).length === 1) {
+                    for (let i in dupVarDefs[icasa]) {
+                        delete dupVarDefs[icasa][i].duplicated_error;
+                    }
+                    delete dupVarDefs[icasa];
                 }
             }
 

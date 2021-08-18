@@ -147,6 +147,7 @@
         latestTableIdx = 0;
         wbObj = null;
         sc2FileName = null;
+        dupVarDefs = {};
         isChanged = false;
         isViewUpdated = false;
         isDebugViewUpdated = false;

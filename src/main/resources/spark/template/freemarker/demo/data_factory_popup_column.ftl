@@ -42,6 +42,38 @@
                 callback: function(){
                     let subDiv = $(this).find("[name=" + curVarType + "]");
 //                    let othOpts = $(this).find("[name=other_options]").val();
+                    if (itemData.duplicated_error) {
+                        let icasa = subDiv.find("[name='icasa']").val()
+                        if (dupVarDefs[icasa]) {
+                            bootbox.confirm({
+                                title: "Please review and confirm the duplication of variable definitions among the tables", 
+                                message: "The duplications of definition across the tables have been detected. This might cause data overwriting during the translation process. Do you want to keep the current mapping anyway?",
+                                buttons: {
+                                    confirm: {
+                                        label: 'Yes',
+                                        className: 'btn-danger'
+                                    },
+                                    cancel: {
+                                        label: 'Back to revise',
+                                        className: 'btn-success'
+                                    }
+                                },
+                                callback: function (result) {
+                                    if (result) {
+                                        colDef.duplicated_error = false;
+                                        resolveDuplicatedVarDefs(icasa);
+                                        $("[name='" + curFileName + "_" + curSheetName + "_" + (itemData.column_index - 1) + "_label']").last().attr("class", getColStatusClass(itemData.column_index - 1));
+                                    } else {
+                                        updateData(dialog, itemData, curVarType);
+                                        showColDefineDialog(itemData, type);
+                                    }
+                                }
+                            });
+                            return;
+                        } else {
+                            delete itemData.duplicated_error;
+                        }
+                    }
                     if (curVarType === "customized_info") {
                         if (subDiv.find("[name='category']").val() === "") {
                             itemData.err_msg = "Please select the variable category.";
@@ -64,6 +96,13 @@
                         // TODO
                     }
                     if (!itemData.err_msg) {
+                        if (itemData.duplicated_error === false) {
+                            colDef.duplicated_error = false;
+                            resolveDuplicatedVarDefs(itemData.icasa);
+                        } else if (!itemData.duplicated_error) {
+                            delete colDef.duplicated_error;
+                            resolveDuplicatedVarDefs(itemData.icasa);
+                        }
                         updateData($(this), colDef, curVarType);
                         if (colDef.unit === "code" && !itemData.code_mappings_undefined_flg) {
                             if (itemData.code_mappings) {
@@ -80,9 +119,6 @@
 
                         if (colDef.unit_error) {
                             delete colDef.unit_error;
-                        }
-                        if (colDef.duplicated_error) {
-                            colDef.duplicated_error = false;
                         }
                         
                         let columns = spreadsheet.getSettings().columns;
