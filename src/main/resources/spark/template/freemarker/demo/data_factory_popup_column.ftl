@@ -47,7 +47,7 @@
                         if (dupVarDefs[icasa]) {
                             bootbox.confirm({
                                 title: "Please review and confirm the duplication of variable definitions among the tables", 
-                                message: "The duplications of definition across the tables have been detected. This might cause data overwriting during the translation process. Do you want to keep the current mapping anyway?",
+                                message: "The current mapping is duplicated with other columns across the tables. Do you want to keep it anyway?",
                                 buttons: {
                                     confirm: {
                                         label: 'Yes',
