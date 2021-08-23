@@ -43,6 +43,8 @@ public class DataUtil {
 //    private static final String ICASA_CROP_CODE_HEADER_DSSAT_CODE = "DSSAT_code";
 //    private static final String ICASA_CROP_CODE_HEADER_APSIM_CODE = "APSIM_code";
     private static final int ICASA_MIN_ACCEPTABLE_RATING_LEVEL = -1;
+    private static final int ICASA_INDEX_RATING_LEVEL = 1;
+    private static final String ICASA_INDEX_TYPE_UNIT_EXPRESSION = "index";
     private static Properties versionProperties = loadProperties();
 
     public static ArrayList getCulMetaDataList() {
@@ -288,8 +290,11 @@ public class DataUtil {
                         varDef.put(headers[i], nextLine[attrIdx[i]].trim());
                     }
                     try {
-                        if (Integer.parseInt(varDef.get(ICASA_MGN_VAR_HEADER_VAR_RATING).toString()) < ICASA_MIN_ACCEPTABLE_RATING_LEVEL) {
+                        if (Integer.parseInt(varDef.getOrDefault(ICASA_MGN_VAR_HEADER_VAR_RATING, "-99")) < ICASA_MIN_ACCEPTABLE_RATING_LEVEL) {
                             continue;
+                        }
+                        if (Integer.parseInt(varDef.getOrDefault(ICASA_MGN_VAR_HEADER_VAR_RATING, "-99")) == ICASA_INDEX_RATING_LEVEL) {
+                            varDef.put(ICASA_MGN_VAR_HEADER_VAR_UNIT, ICASA_INDEX_TYPE_UNIT_EXPRESSION);
                         }
                     } catch (NumberFormatException ex) {}
                     if (ret.containsKey(nextLine[attrIdx[0]])) {
@@ -350,8 +355,11 @@ public class DataUtil {
                         varDef.put(headers[i], nextLine[attrIdx[i]].trim());
                     }
                     try {
-                        if (Integer.parseInt(varDef.get(ICASA_MGN_VAR_HEADER_VAR_RATING).toString()) < ICASA_MIN_ACCEPTABLE_RATING_LEVEL) {
+                        if (Integer.parseInt(varDef.getOrDefault(ICASA_MGN_VAR_HEADER_VAR_RATING, "-99")) < ICASA_MIN_ACCEPTABLE_RATING_LEVEL) {
                             continue;
+                        }
+                        if (Integer.parseInt(varDef.getOrDefault(ICASA_MGN_VAR_HEADER_VAR_RATING, "-99")) == ICASA_INDEX_RATING_LEVEL) {
+                            varDef.put(ICASA_MGN_VAR_HEADER_VAR_UNIT, ICASA_INDEX_TYPE_UNIT_EXPRESSION);
                         }
                     } catch (NumberFormatException ex) {}
                     if (ret.containsKey(nextLine[attrIdx[0]])) {

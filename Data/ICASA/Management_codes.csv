@@ -122,7 +122,6 @@
 "","","","","","","","",""
 "irrig_applied","IRRIG","Y","","","","","",""
 "irrig_applied","IRRIG","N","","","","","",""
-"irrig_applied","IRRIG","","","","","","",""
 "irrig_applied","IRRIG","U","Irrigation method unknown/not given","","","","",""
 "","","","","","","","",""
 "soil_analys_meth_pH_buff","SAMHB","SA101","","","","","",""

@@ -991,7 +991,8 @@
                         <option value="date">Date</option>
                         <option value="code">Code</option>
                         <option value="text">Text</option>
-                        <option value="number">Number/Index</option>
+                        <option value="number">Number</option>
+                        <option value="index">Index</option>
                     </select>
                 </div>
             </div>

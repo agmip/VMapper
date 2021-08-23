@@ -501,6 +501,13 @@
                     }
                     icasa = icasa.toLowerCase();
                     return !!this.icasaCode[icasa];
+                },
+                "isICASAPrimaryKey" : function(icasa) {
+                    if (!icasa) {
+                        return false;
+                    }
+                    icasa = icasa.toLowerCase();
+                    return icasa === "wst_id" || icasa === "soil_id" || icasa === "exname";
                 }
             };
 
@@ -2132,7 +2139,7 @@
             }
             
             function isNumericUnit(unit) {
-                return !["text", "code", "date", "number"].includes(unit) && (!!unit && !unit.includes("date"));
+                return !["text", "code", "date", "number", "index"].includes(unit) && (!!unit && !unit.includes("date"));
             }
 
             function openTemplateFile() {
@@ -2896,7 +2903,7 @@
                     i = Number(i);
                     for (let j in tableDef.mappings) {
                         let mapping = tableDef.mappings[j];
-                        if (!mapping.ignored_flg && mapping.icasa && mapping.icasa !== "SOIL_ID" && mapping.icasa !== "WST_ID" && mapping.icasa !== "EXNAME" && mapping.unit !== "index" && mapping.duplicated_error !== false) {
+                        if (!mapping.ignored_flg && mapping.icasa && !icasaVarMap.isICASAPrimaryKey(mapping.icasa) && mapping.unit !== "index" && mapping.duplicated_error !== false) {
                             if (varMaps[mapping.icasa]) {
                                 varMaps[mapping.icasa][JSON.stringify({file : fileName, sheet : sheetName, table_index: i+1})] = mapping;
                                 rets[mapping.icasa] = varMaps[mapping.icasa];
