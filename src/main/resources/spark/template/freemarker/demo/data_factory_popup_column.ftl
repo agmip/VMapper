@@ -99,7 +99,7 @@
                         if (itemData.duplicated_error === false) {
                             colDef.duplicated_error = false;
                             resolveDuplicatedVarDefs(itemData.icasa);
-                        } else if (!itemData.duplicated_error) {
+                        } else if (itemData.duplicated_error) {
                             delete colDef.duplicated_error;
                             resolveDuplicatedVarDefs(itemData.icasa);
                         }
