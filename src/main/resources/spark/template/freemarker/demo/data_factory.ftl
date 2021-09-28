@@ -2934,6 +2934,9 @@
                             if (!mapping.ignored_flg && mapping.icasa && mapping.unit !== "index") {
                                 if (varMaps[mapping.icasa]) {
                                     delete varMaps[mapping.icasa][JSON.stringify({file : refDef.from.file, sheet : refDef.from.sheet, table_index : refDef.from.table_index})];
+                                    if (Object.keys(varMaps[mapping.icasa]).length === 0) {
+                                        delete rets[mapping.icasa];
+                                    }
                                 }
                             }
                         }
@@ -2945,6 +2948,9 @@
                             if (!mapping.ignored_flg && mapping.icasa && mapping.unit !== "index") {
                                 if (varMaps[mapping.icasa]) {
                                     delete varMaps[mapping.icasa][JSON.stringify({file : refDef.to.file, sheet : refDef.to.sheet, table_index : refDef.to.table_index})];
+                                    if (Object.keys(varMaps[mapping.icasa]).length === 0) {
+                                        delete rets[mapping.icasa];
+                                    }
                                 }
                             }
                         }
