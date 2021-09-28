@@ -482,6 +482,16 @@
                     <#list culMetaList as culMeta>
                         "${culMeta.crop_code!}" : "${culMeta.common_name?js_string!?js_string}"<#sep>,</#sep>
                     </#list>
+                    },
+                    "icpcr" : {
+                    <#list culMetaList as culMeta>
+                        "${culMeta.crop_code!}" : "${culMeta.common_name?js_string!?js_string}"<#sep>,</#sep>
+                    </#list>
+                    },
+                    "hacr" : {
+                    <#list culMetaList as culMeta>
+                        "${culMeta.crop_code!}" : "${culMeta.common_name?js_string!?js_string}"<#sep>,</#sep>
+                    </#list>
                     }
                 },
                 "getCodeMap" : function(icasa, defRet) {
