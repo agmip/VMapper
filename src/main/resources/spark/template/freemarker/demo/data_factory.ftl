@@ -712,6 +712,36 @@
                 return ret;
             }
             
+            function getFstUndefinedColumnsTableIdx(sheetDef, defaultIdx) {
+                let ret = defaultIdx;
+                if (sheetDef) {
+                    for (let i in sheetDef) {
+                        if(countUndefinedColumnsTable(sheetDef[i]) > 0) {
+                            ret = Number(i) + 1;
+                            break;
+                        }
+                    }
+                }
+                return ret;
+            }
+            
+            function getFstUndefinedColumnsColIdx(tableDef, defaultIdx) {
+                let ret;
+                if (!tableDef.data_start_row) {
+                    ret = defaultIdx;
+                } else {
+                    let mappings = tableDef.mappings;
+                    for (let i in mappings) {
+                        let classNames = getColStatusClass(i, mappings);
+                        if (classNames.includes("warning") || classNames.includes("danger")) {
+                            ret = Number(i) + 1;
+                            break;
+                        }
+                    }
+                }
+                return ret;
+            }
+            
             function to_json(workbooks) {
                 return JSON.stringify(to_objects(workbooks), 2, 2);
             }
@@ -1233,7 +1263,7 @@
                 let tmp = target.id.split("__");
                 curFileName = tmp[0];
                 curSheetName = tmp[1];
-                curTableIdx = 1;
+                curTableIdx = getFstUndefinedColumnsTableIdx(getCurSheetDef(), 1);
                 if (curFileName.toLowerCase().endsWith("csv")) {
                     $("#sheet_name_selected").text(" <" + curFileName + ">");
                 } else {
@@ -1552,6 +1582,13 @@
                     spsOptions.data = getSheetDataContent(spsOptions.data, tableDef);
 //                    spsOptions.rowHeaders = true;
                 }
+                spsOptions.afterInit = function() {
+                    // Set focus cell if there is error or undefined columns left
+                    let errColIdx = getFstUndefinedColumnsColIdx(getCurTableDef());
+                    if (errColIdx) {
+                        this.selectCell(spsOptions.data.length - 1, errColIdx - 1, 0, errColIdx - 1);
+                    }
+                };
                 if (spreadsheet) {
                     spreadsheet.destroy();
                 }
@@ -2898,6 +2935,16 @@
                     callback: function (result) {
                         if (!result) {
                             markDuplicatedVarDefs(varDefs);
+                            for (let varKey in varDefs) {
+                                for (let dataKey in varDefs[varKey]) {
+                                    let dataKeyObj = JSON.parse(dataKey);
+                                    curFileName = dataKeyObj.file;
+                                    curSheetName = dataKeyObj.sheet;
+                                    curTableIdx = dataKeyObj.table_index;
+                                    break;
+                                }
+                                break;
+                            }
                             initSpreadsheet(curFileName, curSheetName);
                         } else {
                             callback(callback2);
