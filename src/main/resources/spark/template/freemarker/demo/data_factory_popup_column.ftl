@@ -44,6 +44,7 @@
 //                    let othOpts = $(this).find("[name=other_options]").val();
                     if (itemData.duplicated_error) {
                         let icasa = subDiv.find("[name='icasa']").val()
+                        // check if the new mapping will cause another duplication or not
                         if (dupVarDefs[icasa]) {
                             bootbox.confirm({
                                 title: "Please review and confirm the duplication of variable definitions among the tables", 
@@ -70,8 +71,6 @@
                                 }
                             });
                             return;
-                        } else {
-                            delete itemData.duplicated_error;
                         }
                     }
                     if (curVarType === "customized_info") {
