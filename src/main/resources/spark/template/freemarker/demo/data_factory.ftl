@@ -3106,6 +3106,9 @@
                             let mapping = tableDef.mappings[i];
                             if (!mapping.ignored_flg) {
                                 let mappingCopy = JSON.parse(JSON.stringify(mapping));
+                                if (mappingCopy.duplicated_error) {
+                                    delete mappingCopy.duplicated_error;
+                                }
                                 if (mappingCopy.column_header === "") {
                                     delete mappingCopy.column_header;
                                 }
