@@ -103,7 +103,7 @@
         return keyIdxs;
     }
     
-    function getKeyArr(keyIdxs, mappings, isOrgIdx) {
+    function getKeyArr(keyIdxs, mappings, isOrgIdx, ignoreDupErr) {
         let keys = [];
         if (!mappings) {
             mappings = getCurTableDef().mappings;
@@ -111,18 +111,22 @@
         for (let i in keyIdxs) {
             for (let j in mappings) {
                 if (Number(keyIdxs[i]) === mappings[j].column_index) {
+                    let tmp = mappings[j];
                     if (isOrgIdx) {
-                        let tmp = Object.assign({}, mappings[j]);
+                        tmp = Object.assign({}, mappings[j]);
                         if (tmp.column_index_org) {
                             tmp.column_index = tmp.column_index_org;
                             delete tmp.column_index_org;
                         } else {
                             delete tmp.column_index;
                         }
-                        keys.push(tmp);
-                    } else {
-                        keys.push(mappings[j]);
                     }
+                    if (ignoreDupErr) {
+                        if (tmp.duplicated_error) {
+                            delete tmp.duplicated_error;
+                        }
+                    }
+                    keys.push(tmp);
                     break;
                 }
             }
@@ -297,19 +301,19 @@
         return div;
     }
     
-    function createRefDefObj(fromTable, fromKeyIdxs, toTable, toKeyIdxs, isOrgIdx) {
+    function createRefDefObj(fromTable, fromKeyIdxs, toTable, toKeyIdxs, isOrgIdx, ignoreDupErr) {
         return {
             from:{
                 file : fromTable.file,
                 sheet : fromTable.sheet,
                 table_index : fromTable.table_index,
-                keys : getKeyArr(fromKeyIdxs, getRefTableDef(fromTable).mappings, isOrgIdx)
+                keys : getKeyArr(fromKeyIdxs, getRefTableDef(fromTable).mappings, isOrgIdx, ignoreDupErr)
             },
             to:{
                 file : toTable.file,
                 sheet : toTable.sheet,
                 table_index : toTable.table_index,
-                keys : getKeyArr(toKeyIdxs, getRefTableDef(toTable).mappings, isOrgIdx)
+                keys : getKeyArr(toKeyIdxs, getRefTableDef(toTable).mappings, isOrgIdx, ignoreDupErr)
             }
         };
     }

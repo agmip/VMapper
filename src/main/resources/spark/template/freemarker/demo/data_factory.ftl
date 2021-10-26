@@ -3163,7 +3163,7 @@
                                         {file: fileName, sheet: sheetName, table_index: tableDef.table_index},
                                         JSON.parse("[" + fromKeyIdxs + "]"),
                                         toRefDef,
-                                        getKeyIdxArr(toRefDef.keys), true);
+                                        getKeyIdxArr(toRefDef.keys), true, true);
                                     if (refDef.from.keys.length === 0) {
                                         delete refDef.from.keys;
                                     }
