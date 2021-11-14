@@ -43,7 +43,7 @@
                     let subDiv = $(this).find("[name=" + curVarType + "]");
 //                    let othOpts = $(this).find("[name=other_options]").val();
                     if (itemData.duplicated_error) {
-                        let icasa = subDiv.find("[name='icasa']").val()
+                        let icasa = subDiv.find("[name='icasa']").val();
                         // check if the new mapping will cause another duplication or not
                         if (dupVarDefs[icasa]) {
                             bootbox.confirm({
@@ -317,7 +317,7 @@
                             if (sourceUnit.val().replace(/\[.*[Kk]2[Oo].*\]/g, "").toLowerCase().includes("k2o")) {
                                 subDiv.find("[name='fert_amnt_unit_pk_cb']").bootstrapToggle("on");
                             } else {
-                                subDiv.find("[name='fert_amnt_unit_pk_cb']").bootstrapToggle("off")
+                                subDiv.find("[name='fert_amnt_unit_pk_cb']").bootstrapToggle("off");
                             }
                         } else {
                             subDiv.find("[name='fert_amnt_unit_pk_div']").fadeOut(0);
