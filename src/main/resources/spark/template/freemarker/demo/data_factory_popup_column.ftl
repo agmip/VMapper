@@ -141,7 +141,7 @@
                         if (!itemData.code_mappings_undefined_flg) {
                             if ($('#tableViewSwitch2').prop("checked")) {
                                 let tableDef = getCurTableDef();
-                                let rawData = wbObj[curFileName][curSheetName].data;
+                                let rawData = getCurTableData();
                                 if (!$('#tableViewSwitch').prop("checked")) {
                                     rawData = getSheetDataContent(rawData, tableDef);
                                 }
@@ -340,7 +340,7 @@
                             let orgUnit = colDef.unit;
                             if (orgUnit === unit) {
                                 if (unitRow && unitRow > 0) {
-                                    orgUnit = wbObj[curFileName][curSheetName].data[unitRow - 1][colDef.column_index - 1];
+                                    orgUnit = getCurTableData()[unitRow - 1][colDef.column_index - 1];
                                 } else {
                                     orgUnit = "";
                                 }
@@ -517,7 +517,7 @@
     
     function insertVRData(colDef) {
         let columns = spreadsheet.getSettings().columns;
-        let data = wbObj[curFileName][curSheetName].data;
+        let data = getCurTableData();
         let tableDef = getCurTableDef();
         let mappings = tableDef.mappings;
 
@@ -680,7 +680,7 @@
     
     function updateVRData(colDef) {
         let idx = colDef.column_index - 1;
-        let data = wbObj[curFileName][curSheetName].data;
+        let data = getCurTableData();
         let isDataOnly = !$('#tableViewSwitch').prop("checked");
         let tableDef = getCurTableDef();
         let mappings = tableDef.mappings;

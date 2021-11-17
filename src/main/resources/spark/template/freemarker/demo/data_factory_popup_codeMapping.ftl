@@ -141,7 +141,7 @@
             sheetName = curSheetName;
         }
         let tableDef = getCurTableDef();
-        let data = wbObj[fileName][sheetName].data;
+        let data = getCurTableData();
         let codeMappings = mapping.code_mappings;
         if (!codeMappings) {
             codeMappings = {}; // TODO wait for the final style of code mapping in SC2

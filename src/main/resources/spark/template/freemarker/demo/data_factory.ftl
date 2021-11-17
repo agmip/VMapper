@@ -608,7 +608,7 @@
                         delete tableDef.references_org;
                     }
                     if (tableDef.data_start_row && wbObj[fileName] && wbObj[fileName][sheetName]) {
-                        tableDef.single_flg = isSingleRecordTable(wbObj[fileName][sheetName].data, tableDef);
+                        tableDef.single_flg = isSingleRecordTable(getTableData(fileName, sheetName), tableDef);
                     }
                 });
 
@@ -865,6 +865,7 @@
                         result[sheetName] = {};
                         result[sheetName].data = roa;
                         result[sheetName].header = [];
+                        result[sheetName].tableData = [];
                     }
                     if (!lastHeaderRow[fileName][sheetName]) {
                         lastHeaderRow[fileName][sheetName] = [];
@@ -872,6 +873,8 @@
                     
                     for (let i in sheetDef) {
                         let headers = result[sheetName].header[i];
+                        result[sheetName].tableData[i] = JSON.parse(JSON.stringify(result[sheetName].data));
+                        roa = result[sheetName].tableData[i];
                         let tableDef = sheetDef[i];
                         if (!tableDef.mappings) {
                             tableDef.mappings = [];
@@ -1288,8 +1291,8 @@
                     spsContainer = document.querySelector('#sheet_spreadsheet_content');
                 }
 //                let minRows = 10;
-                let data = wbObj[fileName][sheetName].data;
                 let tableDef = getTableDef(fileName, sheetName);
+                let data = getTableData(fileName, sheetName);
                 let mappings = tableDef.mappings;
                 let columns = [];
 //                if (data.length < minRows) {
@@ -1925,7 +1928,7 @@
             }
 
             function createCsvSheetArr(fileName, sheetName, id, parentIdxInfo) {
-                let agmipData = JSON.parse(JSON.stringify(wbObj[fileName][sheetName].data));
+                let agmipData = JSON.parse(JSON.stringify(getTableData(fileName, sheetName, id)));
                 let tableDef = getTableDef(fileName, sheetName, id);
                 agmipData = getSheetDataContent(agmipData, tableDef);
                 if (wbObj[fileName][sheetName].header[id]) {
@@ -2138,7 +2141,7 @@
                         }
                         
                         let idxInfo = {refDef : refDef, indexing : {}};
-                        let data = wbObj[fileName][sheetName].data;
+//                        let data = wbObj[fileName][sheetName].data;
                         let fromKeyIdxs = JSON.parse("[" + fromKeyIdx + "]");
                         if (fromKeyIdxs.length === 0) {
                             for (let i in agmipData) {
@@ -2582,6 +2585,33 @@
             function getRefTableDef(refDef) {
                 return getTableDef(refDef.file, refDef.sheet, refDef.table_index);
             }
+
+            function getSheetData(fileName, sheetName) {
+                return wbObj[fileName][sheetName].data;
+            }
+
+            function getTableData(fileName, sheetName, tableIdx) {
+                if (tableIdx) {
+                    tableIdx = adjustIdx(tableIdx);
+                } else if (curTableIdx) {
+                    tableIdx = curTableIdx - 1;
+                }
+                if (tableIdx || tableIdx === 0) {
+                    if (!wbObj[fileName][sheetName].tableData) {
+                        wbObj[fileName][sheetName].tableData = [];
+                    }
+                    if (!wbObj[fileName][sheetName].tableData[tableIdx]) {
+                        wbObj[fileName][sheetName].tableData[tableIdx] = JSON.parse(JSON.stringify(getSheetData(fileName, sheetName)));
+                    }
+                    return wbObj[fileName][sheetName].tableData[tableIdx];
+                } else {
+                    return getSheetData(fileName, sheetName);
+                }
+            }
+            
+            function getCurTableData() {
+                return getTableData(curFileName, curSheetName, curTableIdx);
+            }
             
             function loopFiles(callback, files) {
                 if (!files) {
@@ -2684,6 +2714,9 @@
                 }
                 if (wbObj[fileName][sheetName].header[tableIdx]) {
                     wbObj[fileName][sheetName].header.splice(tableIdx, 1);
+                }
+                if (wbObj[fileName][sheetName].tableData[tableIdx]) {
+                    wbObj[fileName][sheetName].tableData.splice(tableIdx, 1);
                 }
                 updateCacheObjTableIdx(lastHeaderRow, fileName, sheetName, tableIdx);
                 updateCacheObjTableIdx(virColCnt, fileName, sheetName, tableIdx);
