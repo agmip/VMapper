@@ -1906,6 +1906,7 @@
                                     let csvFileName = sheetName;
                                     while (fileMap[csvFileName]) {
                                         csvFileName = sheetName + "_" + cnt;
+                                        cnt++;
                                     }
                                     fileMap[csvFileName] = true;
                                     zip.file(csvFileName + ".csv", csvData);
