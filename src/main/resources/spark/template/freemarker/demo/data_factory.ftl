@@ -2401,7 +2401,7 @@
                             if (tableDef.header_row) {
                                 lastHeaderRow[fileName][sheetName].push(tableDef.header_row);
                             } else {
-                                lastHeaderRow[fileName][sheetName].push(1);
+                                lastHeaderRow[fileName][sheetName].push(-1);
                             }
                             let mappings = tableDef.mappings;
                             sc2Mappings.sort(function (m1, m2) {
