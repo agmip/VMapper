@@ -1897,11 +1897,18 @@
                     // loop the root tables to create csv file for each related group of tables
                     let zip = new JSZip();
                     let fileMap = {};
+                    let catCnt = {};
                     for (let fileName in rootTables) {
                         for (let sheetName in rootTables[fileName]) {
                             for (let i in rootTables[fileName][sheetName]) {
                                 if (isTableDefExist(fileName, sheetName, i, rootTables) && isTableDefExist(fileName, sheetName, i)) {
-                                    let csvData = createCsvSheet(fileName, sheetName, i);
+                                    let tableCat = getTableCategory(getTableDef(fileName, sheetName, i).mappings);
+                                    if (!catCnt[tableCat.order] && catCnt[tableCat.order] !== 0) {
+                                        catCnt[tableCat.order] = 0;
+                                    } else {
+                                        catCnt[tableCat.order]++;
+                                    }
+                                    let csvData = createCsvSheet(fileName, sheetName, i, catCnt[tableCat.order]);
                                     let cnt = 1;
                                     let csvFileName = sheetName;
                                     while (fileMap[csvFileName]) {
@@ -1921,14 +1928,14 @@
                 });
             }
             
-            function createCsvSheet(fileName, sheetName, id) {
+            function createCsvSheet(fileName, sheetName, id, startIdx) {
                 let wb = XLSX.utils.book_new();
-                let ws = XLSX.utils.aoa_to_sheet(createCsvSheetArr(fileName, sheetName, id) );
+                let ws = XLSX.utils.aoa_to_sheet(createCsvSheetArr(fileName, sheetName, id, startIdx) );
                 XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
                 return XLSX.write(wb, {bookType:"csv", type: 'string'});
             }
 
-            function createCsvSheetArr(fileName, sheetName, id, parentIdxInfo) {
+            function createCsvSheetArr(fileName, sheetName, id, startIdx, parentIdxInfo) {
                 let agmipData = JSON.parse(JSON.stringify(getTableData(fileName, sheetName, id)));
                 let tableDef = getTableDef(fileName, sheetName, id);
                 agmipData = getSheetDataContent(agmipData, tableDef);
@@ -2000,7 +2007,7 @@
                         if ( j <= headerRow) {
                             continue;
                         }
-                        agmipData[j].unshift(j - headerRow);
+                        agmipData[j].unshift(j - headerRow + startIdx);
                     }
                 }
 
@@ -2179,7 +2186,7 @@
                                 }
                             }
                         }
-                        subDatas.push(createCsvSheetArr(refDef.file, refDef.sheet, String(refDef.table_index - 1), idxInfo));
+                        subDatas.push(createCsvSheetArr(refDef.file, refDef.sheet, String(refDef.table_index - 1), startIdx, idxInfo));
                     }
                 }
                 for (let i in subDatas) {
