@@ -5,8 +5,8 @@
         <#include "../header.ftl">
         <#include "../chosen.ftl">
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/handsontable-pro@latest/dist/handsontable.full.min.css">
-        <link rel="stylesheet" type="text/css" href="/stylesheets/toggle/bootstrap-toggle.min.css" />
-        <link rel="stylesheet" type="text/css" href="/plugins/jsonViewer/jquery.json-viewer.css" />
+        <link rel="stylesheet" type="text/css" href="${env_path_web_root}stylesheets/toggle/bootstrap-toggle.min.css" />
+        <link rel="stylesheet" type="text/css" href="${env_path_web_root}plugins/jsonViewer/jquery.json-viewer.css" />
         <script>
             const preferColors = ["#33DBFF", "#FF5733", "#33FF57", "#BD33FF", "#802B1A", "#3383FF", "#FFAF33", "#3ADDD6"];
             const vmapperVersion = "${env_version!}";
@@ -967,7 +967,7 @@
                                     } else if (!headerDef.unit) {
                                         headerDef.unit_error = true;
                                     } else if (icasa_unit && headerDef.unit !== icasa_unit) {
-                                        $.get("/data/unit/convert?value_from=2&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
+                                        $.get("${env_path_web_data.getUNIT_CONVERT()}?value_from=2&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
                                             function (jsonStr) {
                                                 let ret = JSON.parse(jsonStr);
                                                 if (ret.status !== "0") {
@@ -977,7 +977,7 @@
                                             }
                                         );
                                     } else if (!icasa_unit) {
-                                        $.get("/data/unit/lookup?unit=" + encodeURIComponent(headerDef.unit),
+                                        $.get("${env_path_web_data.getUNIT_LOOKUP()}?unit=" + encodeURIComponent(headerDef.unit),
                                             function (jsonStr) {
                                                 let unitInfo = JSON.parse(jsonStr);
                                                 if (unitInfo.message === "undefined unit expression" && isNumericUnit(headerDef.unit)) {
@@ -1206,7 +1206,7 @@
                                         if (!headerDef.unit) {
                                             headerDef.unit_error = true;
                                         } else if (icasa_unit && headerDef.unit !== icasa_unit) {
-                                            $.get("/data/unit/convert?value_from=1&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
+                                            $.get("${env_path_web_data.getUNIT_CONVERT()}?value_from=1&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
                                                 function (jsonStr) {
                                                     let ret = JSON.parse(jsonStr);
                                                     if (ret.status !== "0") {
@@ -1218,7 +1218,7 @@
                                                 }
                                             );
                                         } else if (!icasa_unit) {
-                                            $.get("/data/unit/lookup?unit=" + encodeURIComponent(headerDef.unit),
+                                            $.get("${env_path_web_data.getUNIT_LOOKUP()}?unit=" + encodeURIComponent(headerDef.unit),
                                                 function (jsonStr) {
                                                     let unitInfo = JSON.parse(jsonStr);
                                                     if (unitInfo.message === "undefined unit expression" && isNumericUnit(headerDef.unit)) {
@@ -2060,7 +2060,7 @@
                                     }
                                 } else if (isNumericUnit(mapping.unit) && mapping.unit !== icasaUnit) {
                                     $.ajax({
-                                        url:"/data/unit/convert?value_from=1&unit_to=" + encodeURIComponent(icasaUnit) + "&unit_from="+ encodeURIComponent(mapping.unit),
+                                        url:"${env_path_web_data.getUNIT_CONVERT()}?value_from=1&unit_to=" + encodeURIComponent(icasaUnit) + "&unit_from="+ encodeURIComponent(mapping.unit),
                                         async:false
                                     }).done(function (jsonStr) {
                                         let ret = JSON.parse(jsonStr);
@@ -3375,20 +3375,20 @@
         <#include "data_factory_popup_codeMapping.ftl">
         <#include "data_factory_table_reference.ftl">
         <#include "../footer.ftl">
-        <script type="text/javascript" src="/js/bootbox/dragable.js" charset="utf-8"></script>
-        <script type="text/javascript" src='/plugins/FileSaver/FileSaver.min.js'></script>
-        <script type="text/javascript" src='/plugins/jszip/jszip.min.js'></script>
-        <script type="text/javascript" src="/js/sheetjs/shim.js" charset="utf-8"></script>
-        <script type="text/javascript" src="/js/sheetjs/xlsx.full.min.js"></script>
-        <script type="text/javascript" src="/plugins/filestyle/bootstrap-filestyle.min.js"></script>
-        <script type="text/javascript" src="/plugins/chosen/chosen.jquery.min.js" ></script>
-        <script type="text/javascript" src="/plugins/chosen/prism.js" charset="utf-8"></script>
-        <script type="text/javascript" src="/plugins/jsonViewer/jquery.json-viewer.js" charset="utf-8"></script>
-        <script type="text/javascript" src="/js/chosen/init.js" charset="utf-8"></script>
-        <script type="text/javascript" src="/js/dataReader/BufferedFileReader.js"></script>
-        <script type="text/javascript" src="/js/dataReader/RemoteFileReader.js"></script>
-        <script type="text/javascript" src="/js/util/dateUtil.js"></script>
-        <script type="text/javascript" src="/js/toggle/bootstrap-toggle.min.js" charset="utf-8"></script>
+        <script type="text/javascript" src="${env_path_web_root}js/bootbox/dragable.js" charset="utf-8"></script>
+        <script type="text/javascript" src='${env_path_web_root}plugins/FileSaver/FileSaver.min.js'></script>
+        <script type="text/javascript" src='${env_path_web_root}plugins/jszip/jszip.min.js'></script>
+        <script type="text/javascript" src="${env_path_web_root}js/sheetjs/shim.js" charset="utf-8"></script>
+        <script type="text/javascript" src="${env_path_web_root}js/sheetjs/xlsx.full.min.js"></script>
+        <script type="text/javascript" src="${env_path_web_root}plugins/filestyle/bootstrap-filestyle.min.js"></script>
+        <script type="text/javascript" src="${env_path_web_root}plugins/chosen/chosen.jquery.min.js" ></script>
+        <script type="text/javascript" src="${env_path_web_root}plugins/chosen/prism.js" charset="utf-8"></script>
+        <script type="text/javascript" src="${env_path_web_root}plugins/jsonViewer/jquery.json-viewer.js" charset="utf-8"></script>
+        <script type="text/javascript" src="${env_path_web_root}js/chosen/init.js" charset="utf-8"></script>
+        <script type="text/javascript" src="${env_path_web_root}js/dataReader/BufferedFileReader.js"></script>
+        <script type="text/javascript" src="${env_path_web_root}js/dataReader/RemoteFileReader.js"></script>
+        <script type="text/javascript" src="${env_path_web_root}js/util/dateUtil.js"></script>
+        <script type="text/javascript" src="${env_path_web_root}js/toggle/bootstrap-toggle.min.js" charset="utf-8"></script>
         <script src="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.js"></script>
         <!--<script src="https://cdn.jsdelivr.net/npm/exceljs@1.13.0/dist/exceljs.min.js"></script>-->
         

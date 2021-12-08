@@ -5,4 +5,4 @@
 <meta name="author" content="Meng Zhang@UF">
 <meta name="description" content="">
 <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
-<link rel="stylesheet" type="text/css" href="/stylesheets/main.css" />
+<link rel="stylesheet" type="text/css" href="${env_path_web_root}stylesheets/main.css" />

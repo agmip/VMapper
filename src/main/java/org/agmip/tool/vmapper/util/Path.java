@@ -11,32 +11,26 @@ public class Path {
 
     // The @Getter methods are needed in order to access
     public static class Web {
-        @Getter public static final String INDEX = "/index";
-        @Getter public static final String REGISTER = "/register";
-        @Getter public static final String LOGIN = "/login";
-        @Getter public static final String LOGOUT = "/logout";
-        @Getter public static final String UPLOAD = "/upload";
-        
+        @Getter public static final String URL_ROOT = Config.get("URL_ROOT");
+        @Getter public static final String INDEX = URL_ROOT + "index";
+
         public static class Tools {
-            @Getter private static final String PACKAGE = "/" + Tools.class.getSimpleName().toLowerCase();
+            @Getter private static final String PACKAGE = URL_ROOT + Tools.class.getSimpleName().toLowerCase();
             @Getter public static final String UNIT_MASTER = PACKAGE + "/unit";
             @Getter public static final String DATA_FACTORY = PACKAGE + "/data_factory";
             @Getter public static final String VMAPPER = PACKAGE + "/vmapper";
         }
         
         public static class Data {
-            private static final String PACKAGE = "/" + Data.class.getSimpleName().toLowerCase();
-            public static final String UNIT_LOOKUP = PACKAGE + "/unit/lookup";
-            public static final String UNIT_CONVERT = PACKAGE + "/unit/convert";
-            public static final String LOAD_FILE = PACKAGE + "/util/load_file";
+            @Getter private static final String PACKAGE = URL_ROOT + Data.class.getSimpleName().toLowerCase();
+            @Getter public static final String UNIT_LOOKUP = PACKAGE + "/unit/lookup";
+            @Getter public static final String UNIT_CONVERT = PACKAGE + "/unit/convert";
+            @Getter public static final String LOAD_FILE = PACKAGE + "/util/load_file";
         }
     }
     
     public static class Template {
         public final static String INDEX = "index.ftl";
-        public final static String REGISTER = "register.ftl";
-        public final static String LOGIN = "login.ftl";
-        public final static String UPLOAD = "upload.ftl";
         public static final String NOT_FOUND = "notFound.ftl";
         
         public static class Demo {
@@ -103,6 +97,7 @@ public class Path {
             ret.put("ICASA_MGN_VAR", "Management_info.csv");
             ret.put("ICASA_OBV_VAR", "Measured_data.csv");
             ret.put("DEF_PORT", "8081");
+            ret.put("URL_ROOT", "/");
             try {
                 BufferedReader br = new BufferedReader(new FileReader(new File("config.ini")));
                 String line;

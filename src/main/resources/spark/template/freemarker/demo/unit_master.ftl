@@ -19,7 +19,7 @@
                     if (output.endsWith("validate")) {
                         $("#unit_category").html(WP);
                     }
-                    $.get("/data/unit/lookup?unit=" + encodeURIComponent(unit),
+                    $.get("${env_path_web_data.getUNIT_LOOKUP()}?unit=" + encodeURIComponent(unit),
                         function (jsonStr) {
                             var unitInfo = JSON.parse(jsonStr);
                             $('#'+ output).html(unitInfo.message);
@@ -37,7 +37,7 @@
                 var unitFrom = $("#unit_from").val();
                 var unitTo = $("#unit_to").val();
                 if (valueFrom && unitFrom && unitTo) {
-                    $.get("/data/unit/convert?unit_to=" + encodeURIComponent(unitTo) + "&unit_from="+ encodeURIComponent(unitFrom) + "&value_from=" + encodeURIComponent(valueFrom),
+                    $.get("${env_path_web_data.getUNIT_CONVERT()}?unit_to=" + encodeURIComponent(unitTo) + "&unit_from="+ encodeURIComponent(unitFrom) + "&value_from=" + encodeURIComponent(valueFrom),
                         function (jsonStr) {
                             var result = JSON.parse(jsonStr);
                             if (result.status !== "0") {
@@ -52,7 +52,7 @@
             
             function updateUnitType(unitType) {
                 
-                $.get("/data/unit/lookup?type=" + encodeURIComponent(unitType),
+                $.get("${env_path_web_data.getUNIT_LOOKUP()}?type=" + encodeURIComponent(unitType),
                     function (jsonStr) {
                         var units = JSON.parse(jsonStr);
                         var sb = $('#unit_sublist').empty().append('<option value=""></option>');
@@ -202,10 +202,10 @@
         </div>
 
         <#include "../footer.ftl">
-        <script type="text/javascript" src="/plugins/filestyle/bootstrap-filestyle.min.js"></script>
-        <script type="text/javascript" src="/plugins/chosen/chosen.jquery.min.js" ></script>
-        <script type="text/javascript" src="/plugins/chosen/prism.js" charset="utf-8"></script>
-        <script type="text/javascript" src="/js/chosen/init.js" charset="utf-8"></script>
+        <script type="text/javascript" src="${env_path_web_root}plugins/filestyle/bootstrap-filestyle.min.js"></script>
+        <script type="text/javascript" src="${env_path_web_root}plugins/chosen/chosen.jquery.min.js" ></script>
+        <script type="text/javascript" src="${env_path_web_root}plugins/chosen/prism.js" charset="utf-8"></script>
+        <script type="text/javascript" src="${env_path_web_root}js/chosen/init.js" charset="utf-8"></script>
         <script>
             var progress;
             $(document).ready(function () {

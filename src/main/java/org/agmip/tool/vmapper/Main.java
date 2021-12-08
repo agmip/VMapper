@@ -118,6 +118,10 @@ public class Main {
             return new FreeMarkerEngine().render(new ModelAndView(getEnvData(), Path.Template.INDEX));
                 });
         
+        get(Path.Web.INDEX, (Request request, Response response) -> {
+            return new FreeMarkerEngine().render(new ModelAndView(getEnvData(), Path.Template.INDEX));
+                });
+        
         get(Path.Web.Tools.UNIT_MASTER, (Request request, Response response) -> {
             HashMap data = getEnvData();
             data.put("baseUnits", UnitUtil.listBaseUnit());
@@ -176,7 +180,9 @@ public class Main {
     
     private static HashMap getEnvData() {
         HashMap data = new HashMap();
+        data.put("env_path_web_root", Path.Web.URL_ROOT);
         data.put("env_path_web_tools", new Path.Web.Tools());
+        data.put("env_path_web_data", new Path.Web.Data());
         data.put("env_version", DataUtil.getProductVersion());
         return data;
     }

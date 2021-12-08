@@ -66,11 +66,11 @@
                 <p>To smoothly use the online AFSIRS, please check the following table and make sure your browser is supported.</p>
                 <table class="table table-bordered table-striped text-center">
                     <tr>
-                        <th style="width:16%;" title="Chrome" class="text-center"><img src="images/browsers/chrome.gif" alt="Chrome"></th>
-                        <th style="width:16%;" title="Edge" class="text-center"><img src="images/browsers/edge.gif" alt="Edge"></th>
-                        <th style="width:16%;" title="Firefox" class="text-center"><img src="images/browsers/firefox.gif" alt="Firefox"></th>
-                        <th style="width:16%;" title="Safari" class="text-center"><img src="images/browsers/safari.gif" alt="Safari"></th>
-                        <th style="width:16%;" title="Opera" class="text-center"><img src="images/browsers/opera.gif" alt="Opera"></th>                
+                        <th style="width:16%;" title="Chrome" class="text-center"><img src="${env_path_web_root}images/browsers/chrome.gif" alt="Chrome"></th>
+                        <th style="width:16%;" title="Edge" class="text-center"><img src="${env_path_web_root}images/browsers/edge.gif" alt="Edge"></th>
+                        <th style="width:16%;" title="Firefox" class="text-center"><img src="${env_path_web_root}images/browsers/firefox.gif" alt="Firefox"></th>
+                        <th style="width:16%;" title="Safari" class="text-center"><img src="${env_path_web_root}images/browsers/safari.gif" alt="Safari"></th>
+                        <th style="width:16%;" title="Opera" class="text-center"><img src="${env_path_web_root}images/browsers/opera.gif" alt="Opera"></th>                
                     </tr>
                     <tr>
                         <td>Yes</td>
