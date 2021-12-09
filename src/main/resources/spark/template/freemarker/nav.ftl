@@ -14,8 +14,8 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-briefcase"></span> Data Tools <span class="caret"></span></a>
                     <ul class="dropdown-menu" role="menu">
-                        <li><a href="${env_path_web_tools.getVMAPPER()}"><span class="glyphicon glyphicon-road"></span> VMapper</a></li>
-                        <li><a href="${env_path_web_tools.getUNIT_MASTER()}"><span class="glyphicon glyphicon-edit"></span> Unit Master</a></li>
+                        <li><a href="${env_path_web_root}${env_path_web_tools.getVMAPPER()}"><span class="glyphicon glyphicon-road"></span> VMapper</a></li>
+                        <li><a href="${env_path_web_root}${env_path_web_tools.getUNIT_MASTER()}"><span class="glyphicon glyphicon-edit"></span> Unit Master</a></li>
                     </ul>
                 </li>
                 <li class="dropdown">

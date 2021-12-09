@@ -967,7 +967,7 @@
                                     } else if (!headerDef.unit) {
                                         headerDef.unit_error = true;
                                     } else if (icasa_unit && headerDef.unit !== icasa_unit) {
-                                        $.get("${env_path_web_data.getUNIT_CONVERT()}?value_from=2&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
+                                        $.get("${env_path_web_root}${env_path_web_data.getUNIT_CONVERT()}?value_from=2&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
                                             function (jsonStr) {
                                                 let ret = JSON.parse(jsonStr);
                                                 if (ret.status !== "0") {
@@ -977,7 +977,7 @@
                                             }
                                         );
                                     } else if (!icasa_unit) {
-                                        $.get("${env_path_web_data.getUNIT_LOOKUP()}?unit=" + encodeURIComponent(headerDef.unit),
+                                        $.get("${env_path_web_root}${env_path_web_data.getUNIT_LOOKUP()}?unit=" + encodeURIComponent(headerDef.unit),
                                             function (jsonStr) {
                                                 let unitInfo = JSON.parse(jsonStr);
                                                 if (unitInfo.message === "undefined unit expression" && isNumericUnit(headerDef.unit)) {
@@ -1206,7 +1206,7 @@
                                         if (!headerDef.unit) {
                                             headerDef.unit_error = true;
                                         } else if (icasa_unit && headerDef.unit !== icasa_unit) {
-                                            $.get("${env_path_web_data.getUNIT_CONVERT()}?value_from=1&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
+                                            $.get("${env_path_web_root}${env_path_web_data.getUNIT_CONVERT()}?value_from=1&unit_to=" + encodeURIComponent(icasa_unit) + "&unit_from="+ encodeURIComponent(headerDef.unit),
                                                 function (jsonStr) {
                                                     let ret = JSON.parse(jsonStr);
                                                     if (ret.status !== "0") {
@@ -1218,7 +1218,7 @@
                                                 }
                                             );
                                         } else if (!icasa_unit) {
-                                            $.get("${env_path_web_data.getUNIT_LOOKUP()}?unit=" + encodeURIComponent(headerDef.unit),
+                                            $.get("${env_path_web_root}${env_path_web_data.getUNIT_LOOKUP()}?unit=" + encodeURIComponent(headerDef.unit),
                                                 function (jsonStr) {
                                                     let unitInfo = JSON.parse(jsonStr);
                                                     if (unitInfo.message === "undefined unit expression" && isNumericUnit(headerDef.unit)) {
@@ -2060,7 +2060,7 @@
                                     }
                                 } else if (isNumericUnit(mapping.unit) && mapping.unit !== icasaUnit) {
                                     $.ajax({
-                                        url:"${env_path_web_data.getUNIT_CONVERT()}?value_from=1&unit_to=" + encodeURIComponent(icasaUnit) + "&unit_from="+ encodeURIComponent(mapping.unit),
+                                        url:"${env_path_web_root}${env_path_web_data.getUNIT_CONVERT()}?value_from=1&unit_to=" + encodeURIComponent(icasaUnit) + "&unit_from="+ encodeURIComponent(mapping.unit),
                                         async:false
                                     }).done(function (jsonStr) {
                                         let ret = JSON.parse(jsonStr);

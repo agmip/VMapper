@@ -19,7 +19,7 @@
                     if (output.endsWith("validate")) {
                         $("#unit_category").html(WP);
                     }
-                    $.get("${env_path_web_data.getUNIT_LOOKUP()}?unit=" + encodeURIComponent(unit),
+                    $.get("${env_path_web_root}${env_path_web_data.getUNIT_LOOKUP()}?unit=" + encodeURIComponent(unit),
                         function (jsonStr) {
                             var unitInfo = JSON.parse(jsonStr);
                             $('#'+ output).html(unitInfo.message);
@@ -37,7 +37,7 @@
                 var unitFrom = $("#unit_from").val();
                 var unitTo = $("#unit_to").val();
                 if (valueFrom && unitFrom && unitTo) {
-                    $.get("${env_path_web_data.getUNIT_CONVERT()}?unit_to=" + encodeURIComponent(unitTo) + "&unit_from="+ encodeURIComponent(unitFrom) + "&value_from=" + encodeURIComponent(valueFrom),
+                    $.get("${env_path_web_root}${env_path_web_data.getUNIT_CONVERT()}?unit_to=" + encodeURIComponent(unitTo) + "&unit_from="+ encodeURIComponent(unitFrom) + "&value_from=" + encodeURIComponent(valueFrom),
                         function (jsonStr) {
                             var result = JSON.parse(jsonStr);
                             if (result.status !== "0") {
@@ -52,7 +52,7 @@
             
             function updateUnitType(unitType) {
                 
-                $.get("${env_path_web_data.getUNIT_LOOKUP()}?type=" + encodeURIComponent(unitType),
+                $.get("${env_path_web_root}${env_path_web_data.getUNIT_LOOKUP()}?type=" + encodeURIComponent(unitType),
                     function (jsonStr) {
                         var units = JSON.parse(jsonStr);
                         var sb = $('#unit_sublist').empty().append('<option value=""></option>');

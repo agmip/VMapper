@@ -153,7 +153,7 @@
         isDebugViewUpdated = false;
         let reader;
         if (target.isRemote) {
-            reader = new RemoteFileReader("${env_path_web_data.getLOAD_FILE()}");
+            reader = new RemoteFileReader("${env_path_web_root}${env_path_web_data.getLOAD_FILE()}");
             reader.onerror = alertBox;
             reader.onload = function() {
                 let newPct = Math.floor(reader.getReadingProgressPct());
@@ -284,7 +284,7 @@
         idx++;
         let reader;
         if (target.isRemote) {
-            reader = new RemoteFileReader("${env_path_web_data.getLOAD_FILE()}");
+            reader = new RemoteFileReader("${env_path_web_root}${env_path_web_data.getLOAD_FILE()}");
             reader.onerror = alertBox;
         } else {
             reader = new FileReader();

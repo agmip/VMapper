@@ -34,11 +34,11 @@
                 <br>
                 <div class="row slideanim">
                     <div class="col-sm-4">
-                        <h3>VMapper <a href="#" onClick="window.open('${env_path_web_tools.getVMAPPER()}')"><span class="glyphicon glyphicon-new-window"></span></a></h3>
+                        <h3>VMapper <a href="#" onClick="window.open('${env_path_web_root}${env_path_web_tools.getVMAPPER()}')"><span class="glyphicon glyphicon-new-window"></span></a></h3>
                         <p>Help create your route map between your raw data and ICASA standard</p>
                     </div>
                     <div class="col-sm-4">
-                        <h3>Unit Master <a href="#" onClick="window.open('${env_path_web_tools.getUNIT_MASTER()}')"><span class="glyphicon glyphicon-new-window"></span></a></h3>
+                        <h3>Unit Master <a href="#" onClick="window.open('${env_path_web_root}${env_path_web_tools.getUNIT_MASTER()}')"><span class="glyphicon glyphicon-new-window"></span></a></h3>
                         <p>Help evaluate your unit expression used in your data</p>
                     </div>
                 </div>

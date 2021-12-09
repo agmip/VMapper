@@ -12,17 +12,17 @@ public class Path {
     // The @Getter methods are needed in order to access
     public static class Web {
         @Getter public static final String URL_ROOT = Config.get("URL_ROOT");
-        @Getter public static final String INDEX = URL_ROOT + "index";
+        @Getter public static final String INDEX = "/index";
 
         public static class Tools {
-            @Getter private static final String PACKAGE = URL_ROOT + Tools.class.getSimpleName().toLowerCase();
+            @Getter private static final String PACKAGE = Config.get("URL_TOOLS_ROOT");
             @Getter public static final String UNIT_MASTER = PACKAGE + "/unit";
             @Getter public static final String DATA_FACTORY = PACKAGE + "/data_factory";
             @Getter public static final String VMAPPER = PACKAGE + "/vmapper";
         }
         
         public static class Data {
-            @Getter private static final String PACKAGE = URL_ROOT + Data.class.getSimpleName().toLowerCase();
+            @Getter private static final String PACKAGE = Config.get("URL_DATA_ROOT");
             @Getter public static final String UNIT_LOOKUP = PACKAGE + "/unit/lookup";
             @Getter public static final String UNIT_CONVERT = PACKAGE + "/unit/convert";
             @Getter public static final String LOAD_FILE = PACKAGE + "/util/load_file";
@@ -98,6 +98,8 @@ public class Path {
             ret.put("ICASA_OBV_VAR", "Measured_data.csv");
             ret.put("DEF_PORT", "8081");
             ret.put("URL_ROOT", "/");
+            ret.put("URL_TOOLS_ROOT", "/" + Web.Tools.class.getSimpleName().toLowerCase());
+            ret.put("URL_DATA_ROOT", "/" + Web.Data.class.getSimpleName().toLowerCase());
             try {
                 BufferedReader br = new BufferedReader(new FileReader(new File("config.ini")));
                 String line;
