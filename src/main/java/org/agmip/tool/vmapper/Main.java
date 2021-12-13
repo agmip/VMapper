@@ -87,7 +87,7 @@ public class Main {
         staticFiles.location("/public");
         staticFiles.expireTime(600L);
         Spark.webSocketIdleTimeoutMillis(60000);
-        webSocket(Path.Web.Data.LOAD_FILE, RemoteFileLoader.class);
+        webSocket("/" + Path.Web.Data.LOAD_FILE, RemoteFileLoader.class);
         options("/*",
         (request, response) -> {
 
