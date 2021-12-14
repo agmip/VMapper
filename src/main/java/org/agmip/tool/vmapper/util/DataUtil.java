@@ -1,6 +1,7 @@
 package org.agmip.tool.vmapper.util;
 
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -146,7 +147,7 @@ public class DataUtil {
             ICASAUtil.syncICASA();
         }
 
-        try (CSVReader reader = new CSVReader(new BufferedReader(new FileReader(file)), ',')) {
+        try (CSVReader reader = new CSVReader(new BufferedReader(new FileReader(file)))) {
             int varNameIdx = -1;
             int codeIdx = -1;
             int textIdx = -1;
@@ -188,7 +189,7 @@ public class DataUtil {
                     }
                 }
             }
-        } catch (IOException ex) {
+        } catch (IOException | CsvValidationException ex) {
             ex.printStackTrace(System.out);
         }
         return ret;
@@ -201,7 +202,7 @@ public class DataUtil {
             ICASAUtil.syncICASA();
         }
 
-        try (CSVReader reader = new CSVReader(new BufferedReader(new FileReader(file)), ',')) {
+        try (CSVReader reader = new CSVReader(new BufferedReader(new FileReader(file)))) {
             int cropCodeIdx = -1;
             int commonNameIdx = -1;
 //            int latinNameIdx = -1;
@@ -239,7 +240,7 @@ public class DataUtil {
                     ret.add(codeDef);
                 }
             }
-        } catch (IOException ex) {
+        } catch (IOException | CsvValidationException ex) {
             ex.printStackTrace(System.out);
         }
         return ret;
@@ -252,7 +253,7 @@ public class DataUtil {
             ICASAUtil.syncICASA();
         }
 
-        try (CSVReader reader = new CSVReader(new BufferedReader(new FileReader(file)), ',')) {
+        try (CSVReader reader = new CSVReader(new BufferedReader(new FileReader(file)))) {
             String[] headers = {
                 ICASA_MGN_VAR_HEADER_VAR_CODE,
                 ICASA_MGN_VAR_HEADER_VAR_DESC,
@@ -304,7 +305,7 @@ public class DataUtil {
                     }
                 }
             }
-        } catch (IOException ex) {
+        } catch (IOException | CsvValidationException ex) {
             ex.printStackTrace(System.out);
         }
         return ret;
@@ -317,7 +318,7 @@ public class DataUtil {
             ICASAUtil.syncICASA();
         }
 
-        try (CSVReader reader = new CSVReader(new BufferedReader(new FileReader(file)), ',')) {
+        try (CSVReader reader = new CSVReader(new BufferedReader(new FileReader(file)))) {
             String[] headers = {
                 ICASA_MGN_VAR_HEADER_VAR_CODE,
                 ICASA_MGN_VAR_HEADER_VAR_DESC,
@@ -369,7 +370,7 @@ public class DataUtil {
                     }
                 }
             }
-        } catch (IOException ex) {
+        } catch (IOException | CsvValidationException ex) {
             ex.printStackTrace(System.out);
         }
         return ret;

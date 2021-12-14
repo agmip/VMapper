@@ -1,6 +1,6 @@
 package org.agmip.tool.vmapper.util;
 
-import au.com.bytecode.opencsv.CSVWriter;
+import com.opencsv.CSVWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class ICASAUtil {
                 if (!dataDir.exists()) {
                     dataDir.mkdirs();
                 }
-                try (CSVWriter writer = new CSVWriter(new FileWriter(Path.Folder.getICASAFile(fileName), isAppended), ',')) {
+                try (CSVWriter writer = new CSVWriter(new FileWriter(Path.Folder.getICASAFile(fileName), isAppended))) {
                     if(sheet.getPhysicalNumberOfRows() > 0) {
                         int lastRowNum = sheet.getLastRowNum();
                         int lastColNum = 0;

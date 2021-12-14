@@ -23,7 +23,7 @@ import org.junit.Test;
  */
 public class RemoteFileLoaderTest {
     
-    private Tika tika = new Tika();
+    private final Tika tika = new Tika();
 
     @Test
     public void testReadFile() throws URISyntaxException {
@@ -72,14 +72,14 @@ public class RemoteFileLoaderTest {
                     count++;
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                e.printStackTrace(System.err);
             }
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            e.printStackTrace(System.err);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            e.printStackTrace(System.err);
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(System.err);
         }
     }
 }
