@@ -888,13 +888,13 @@
                                 headers = roa[tableDef.header_row - 1];
                                 lastHeaderRow[fileName][sheetName][i] = tableDef.header_row;
                                 let maxColNum = Math.max(headers.length, tableDef.mappings.length - virColCnt[fileName][sheetName][i]);
-                                if (sheetDef.data_start_row) {
+                                if (tableDef.data_start_row) {
                                     maxColNum = Math.max(maxColNum, roa[tableDef.data_start_row - 1].length);
                                 }
-                                if (sheetDef.unit_row) {
+                                if (tableDef.unit_row) {
                                     maxColNum = Math.max(maxColNum, roa[tableDef.unit_row - 1].length);
                                 }
-                                if (sheetDef.desc_row) {
+                                if (tableDef.desc_row) {
                                     maxColNum = Math.max(maxColNum, roa[tableDef.desc_row - 1].length);
                                 }
                                 for (let i = 0; i < maxColNum; i++) {
