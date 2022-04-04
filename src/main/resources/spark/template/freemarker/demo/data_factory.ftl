@@ -1009,7 +1009,7 @@
                                     // if header is not matched, then search other mappings
                                     if (!headerDef || matchedMap[i] || !headerDef.column_index_org || headerDef.column_header !== headers[i]) {
                                         for (let j in tableDef.mappings) {
-                                            if (!matchedMap[j] && tableDef.mappings[j].column_index_org && tableDef.mappings[j].column_header === headers[i]) {
+                                            if (!matchedMap[j] && tableDef.mappings[j].column_index_org && tableDef.mappings[j].column_header === headers[i] && tableDef.mappings[j].column_header !== headers[tableDef.mappings[j].column_index_org - 1]) {
                                                 headerDef = tableDef.mappings[j];
                                                 headerDef.column_index = i + 1;
                                                 orgColIdxMap[headerDef.column_index_org] = i + 1;
