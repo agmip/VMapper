@@ -888,14 +888,15 @@
                                 headers = roa[tableDef.header_row - 1];
                                 lastHeaderRow[fileName][sheetName][i] = tableDef.header_row;
                                 let maxColNum = Math.max(headers.length, tableDef.mappings.length - virColCnt[fileName][sheetName][i]);
-                                if (tableDef.data_start_row) {
-                                    maxColNum = Math.max(maxColNum, roa[tableDef.data_start_row - 1].length);
-                                }
-                                if (tableDef.unit_row) {
-                                    maxColNum = Math.max(maxColNum, roa[tableDef.unit_row - 1].length);
-                                }
-                                if (tableDef.desc_row) {
-                                    maxColNum = Math.max(maxColNum, roa[tableDef.desc_row - 1].length);
+                                for (let i in roa) {
+                                    if (tableDef.data_start_row && tableDef.data_start_row - 1 > i) {
+                                        continue;
+                                    } else if (tableDef.data_end_row && tableDef.data_end_row - 1 < i) {
+                                        break;
+                                    }
+                                    if (maxColNum < roa[i].length) {
+                                        maxColNum = roa[i].length;
+                                    }
                                 }
                                 for (let i = 0; i < maxColNum; i++) {
                                     if (!headers[i]) {
@@ -922,9 +923,22 @@
                         }
 
                         if (roa.length && roa.length > 0) {
+                            // count max number of column
+                            let totColCnt = headers.length;
+                            for (let i in roa) {
+                                if (tableDef.data_start_row && tableDef.data_start_row - 1 > i) {
+                                    continue;
+                                } else if (tableDef.data_end_row && tableDef.data_end_row - 1 < i) {
+                                    break;
+                                }
+                                if (totColCnt < roa[i].length) {
+                                    totColCnt = roa[i].length;
+                                    //tableDef.mappings.push({column_index : tableDef.mappings.length + 1, column_index_org : tableDef.mappings[tableDef.mappings.length - 1].column_index_org + 1});
+                                }
+                            }
                             // init template structure
                             if (tableDef.mappings.length === 0 || isChanged) {
-                                for (let i = 0; i < headers.length; i++) {
+                                for (let i = 0; i < totColCnt; i++) {
                                     let headerDef = tableDef.mappings[i];
                                     if (!headerDef) {
                                         headerDef = {
@@ -987,18 +1001,13 @@
                                         );
                                     }
                                 }
-                                for (let i in roa) {
-                                    while (tableDef.mappings.length < roa[i].length) {
-                                        tableDef.mappings.push({column_index : tableDef.mappings.length + 1, column_index_org : tableDef.mappings.length + 1});
-                                    }
-                                }
                             } else {
                                 // check if header is matched with given spreadsheet
                                 let tmpMappings = [];
                                 let orgColIdxMap = {};
                                 let matchedMap = {};
                                 let isFullyMatched = true;
-                                for (let i = 0; i < headers.length; i++) {
+                                for (let i = 0; i < totColCnt; i++) {
                                     // If header is not available from data, then skip header matching
                                     if (!headers[i]) {
                                         tmpMappings[i] = {index_matched : true};
@@ -1067,8 +1076,6 @@
                                             }
                                             if (headers[i]) {
                                                 tmpMappings[i].column_header = headers[i].trim();
-                                            } else {
-                                                delete tmpMappings[i].column_header;
                                             }
                                             tmpMappings[i].column_index = i + 1;
                                             orgColIdxMap[tmpMappings[i].column_index_org] = tmpMappings[i].column_index;
