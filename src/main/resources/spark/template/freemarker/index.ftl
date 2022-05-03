@@ -47,7 +47,7 @@
                 <br>
                 <div class="row slideanim">
                     <div class="col-sm-4">
-                        <h3>QuadUI <a href="#" onClick="window.open('https://github.com/agmip/quadui/releases')"><span class="glyphicon glyphicon-download-alt"></span></a></h3>
+                        <h3>QuadUI <a href="#" onClick="window.open('https://github.com/mengzhang/quadui/releases')"><span class="glyphicon glyphicon-download-alt"></span></a></h3>
                         <p>Translate your data from ICASA standardized data into ACEB format or a certain model input file format</p>
                     </div>
                     <div class="col-sm-4">
