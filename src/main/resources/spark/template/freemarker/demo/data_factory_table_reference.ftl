@@ -397,6 +397,25 @@
         sb.val(val).trigger("chosen:updated");
     }
     
+    function initKeySBOrg(sb, refDef) {
+        if (!refDef || !refDef.file || !refDef.sheet) {
+            return;
+        }
+        let mappings = getRefTableDef(refDef).mappings;
+        let val = [];
+        if (refDef && refDef.keys) {
+            val = createRefKeyTargetKeyStr(refDef.keys);
+        }
+        sb.html('<option value=""></option>');
+        for (let i in mappings) {
+            if (mappings[i].column_index_org) {
+                let opt = $('<option value="' + mappings[i].column_index_org + '">' + getVarNameLabel(mappings[i]) + '</option>');
+                sb.append(opt);
+            }
+        }
+        sb.val(val).trigger("chosen:updated");
+    }
+    
     function isRefDefExistDiv(refDefDiv) {
         let fromTableSB = refDefDiv.find("[name='reference_from_table']");
         let toTableSB = refDefDiv.find("[name='reference_to_table']");

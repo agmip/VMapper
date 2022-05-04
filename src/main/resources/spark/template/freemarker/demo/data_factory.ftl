@@ -769,24 +769,24 @@
                 }
                 // update index used in reference and virtual column
                 loopTables(null, null, function(fileName, sheetName, i, tableDef) {
-                    // update virtual column
-                    if (virColCnt[fileName][sheetName][i]) {
-                        mappings = tableDef.mappings;
-                        for (let i in mappings) {
-                            let virKeys = mappings[i].virtual_val_keys;
-                            if (virKeys) {
-                                for (let j in virKeys) {
-                                    for (let k in mappings) {
-                                        if (mappings[k].column_index_org === virKeys[j]) {
-                                            virKeys[j] = mappings[k].column_index;
-                                            break;
-                                        }
-                                    }
-                                }
-                                updateRawData(ret[fileName][sheetName].data, tableDef, mappings[i]);
-                            }
-                        }
-                    }
+//                    // update virtual column
+//                    if (virColCnt[fileName][sheetName][i]) {
+//                        mappings = tableDef.mappings;
+//                        for (let j in mappings) {
+//                            let virKeys = mappings[j].virtual_val_keys;
+//                            if (virKeys) {
+//                                for (let k in virKeys) {
+//                                    for (let x in mappings) {
+//                                        if (mappings[x].column_index_org === virKeys[k]) {
+//                                            virKeys[k] = mappings[x].column_index;
+//                                            break;
+//                                        }
+//                                    }
+//                                }
+//                                updateRawData(ret[fileName][sheetName].tableData[i], tableDef, mappings[j]);
+//                            }
+//                        }
+//                    }
 
                     // update reference
                     if (tableDef.references_org) {
@@ -1108,7 +1108,6 @@
                                             for (let j = tableDef.mappings[i].virtual_val_keys.length - 1; j > - 1; j--) {
                                                 let orgRefIdx = orgColIdxMap[tableDef.mappings[i].virtual_val_keys[j]];
                                                 if (orgRefIdx) {
-                                                    orgColIdxMap
                                                     tableDef.mappings[i].virtual_val_keys[j] = orgColIdxMap[tableDef.mappings[i].virtual_val_keys[j]];
                                                 } else {
                                                     tableDef.mappings[i].virtual_val_keys.splice(j, 1);
@@ -1120,7 +1119,7 @@
                                         }
                                         if (i < tmpMappings.length) {
                                             tmpMappings.splice(tableDef.mappings[i].column_index - 1, 0, tableDef.mappings[i]);
-                                            tableDef.mappings[i].column_index = i + 1;
+                                            tmpMappings[i].column_index = i + 1;
                                             for (let j = i + 1; j < tmpMappings.length; j ++) {
                                                 tmpMappings[j].column_index++;
                                             }
@@ -1128,6 +1127,15 @@
                                             tmpMappings.push(tableDef.mappings[i]);
                                             tableDef.mappings[i].column_index = tmpMappings.length;
                                         }
+//                                        for (let j in tmpMappings[i].virtual_val_keys) {
+//                                            let vrKey = tmpMappings[i].virtual_val_keys[j];
+//                                            for (let k in tmpMappings) {
+//                                                if (tmpMappings[k].column_index_org === vrKey) {
+//                                                    tmpMappings[i].virtual_val_keys[j] = tmpMappings[k].column_index;
+//                                                    break;
+//                                                }
+//                                            }
+//                                        }
                                     } else {
 
                                     }
@@ -3175,9 +3183,9 @@
                                                 if (mappingCopy[key].length === 0) {
                                                     continue;
                                                 }
-                                                for (let j in mappingCopy[key]) {
-                                                    mappingCopy[key][j] = tableDef.mappings[mappingCopy[key][j] - 1].column_index_org;
-                                                }
+//                                                for (let j in mappingCopy[key]) {
+//                                                    mappingCopy[key][j] = tableDef.mappings[mappingCopy[key][j] - 1].column_index_org;
+//                                                }
                                                 mappingCopy.formula.function = "join_columns";
                                             }
                                             mappingCopy.formula.args[key] = mappingCopy[key];

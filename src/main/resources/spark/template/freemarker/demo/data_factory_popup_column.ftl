@@ -465,7 +465,7 @@
                         if ($(this).prop("tagName").toLowerCase() === "select") {
                             if ($(this).attr("name") === "virtual_val_keys") {
                                 chosen_init_target($(this), "chosen-select-deselect");
-                                initKeySB($(this), {file: curFileName, sheet: curSheetName});
+                                initKeySBOrg($(this), {file: curFileName, sheet: curSheetName});
                                 if (itemData.virtual_val_keys) {
                                     $(this).val(itemData.virtual_val_keys).trigger("chosen:updated");
                                 }
@@ -532,18 +532,18 @@
         // Shift references index
         shiftRefFromKeyIdx(tableDef, idx);
 
-        // shift value component keys
-        if (colDef.virtual_val_keys) {
-            let vrKeys = [];
-            for (let i in colDef.virtual_val_keys) {
-                if (colDef.virtual_val_keys[i] > idx) {
-                    vrKeys.push(Number(colDef.virtual_val_keys[i]) + 1 + "");
-                } else {
-                    vrKeys.push(colDef.virtual_val_keys[i]);
-                }
-            }
-            colDef.virtual_val_keys = vrKeys;
-        }
+//        // shift value component keys
+//        if (colDef.virtual_val_keys) {
+//            let vrKeys = [];
+//            for (let i in colDef.virtual_val_keys) {
+//                if (colDef.virtual_val_keys[i] > idx) {
+//                    vrKeys.push(Number(colDef.virtual_val_keys[i]) + 1 + "");
+//                } else {
+//                    vrKeys.push(colDef.virtual_val_keys[i]);
+//                }
+//            }
+//            colDef.virtual_val_keys = vrKeys;
+//        }
         
         // shift mapping and spreadsheet column index
         shiftRawData(data, idx, tableDef);
@@ -599,9 +599,17 @@
         let dataStartRow = 1;
         let dataEndRow = data.length;
         if (tableDef) {
-            dataStartRow = Math.min(tableDef.data_start_row, tableDef.header_row, tableDef.desc_row, tableDef.unit_row);
-            if (!dataStartRow) {
-                dataStartRow = 1;
+            if (tableDef.data_start_row) {
+                dataStartRow = tableDef.data_start_row;
+            }
+            if (tableDef.header_row) {
+                dataStartRow = Math.min(dataStartRow, tableDef.header_row);
+            }
+            if (tableDef.desc_row) {
+                dataStartRow = Math.min(dataStartRow, tableDef.desc_row);
+            }
+            if (tableDef.unit_row) {
+                dataStartRow = Math.min(dataStartRow, tableDef.unit_row);
             }
             if (tableDef.data_end_row) {
                 dataEndRow = tableDef.data_end_row;
@@ -635,12 +643,12 @@
             } else if (vrKeys) {
                 for (let i in vrKeys) {
                     let vrKey = vrKeys[i];
-//                    for (let k in tableDef.mappings) {
-//                        if (tableDef.mappings[k].column_index === vrKeys[i]) {
-//                            vrKey = tableDef.mappings[k].column_index;
-//                            break;
-//                        }
-//                    }
+                    for (let k in tableDef.mappings) {
+                        if (tableDef.mappings[k].column_index_org === vrKey) {
+                            vrKey = tableDef.mappings[k].column_index;
+                            break;
+                        }
+                    }
                     if (colDef.virtual_ignore_null_flg && (!data[j][Number(vrKey) - 1] || !data[j][Number(vrKey) - 1].trim())) {
                         vals = [];
                         break;
@@ -741,6 +749,9 @@
                         }
                     } else if ($(this).val()) {
                         itemData[$(this).attr("name")] = $(this).val();
+                        for (let i in itemData[$(this).attr("name")]) {
+                            itemData[$(this).attr("name")][i] = Number(itemData[$(this).attr("name")][i]);
+                        }
                     } else {
                         delete itemData[$(this).attr("name")];
                     }
