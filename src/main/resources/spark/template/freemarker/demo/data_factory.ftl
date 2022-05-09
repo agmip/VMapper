@@ -1953,7 +1953,11 @@
                 }
                 
                 let headerRow = agmipData.length;
-                agmipData.unshift(["!", sheetName]);
+                if (tableDef.table_name) {
+                    agmipData.unshift(["!", sheetName + "__" + tableDef.table_name]);
+                } else {
+                    agmipData.unshift(["!", sheetName]);
+                }
                 agmipData.unshift(["!", fileName]);
                 headerRow = agmipData.length - headerRow;
                 if (isArrayData(tableDef.mappings)) {
