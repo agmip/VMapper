@@ -36,6 +36,7 @@
             let sc2ObjCache = {};
             let sc2FileName = null;
             let dupVarDefs = {};
+            let icasaCategoryData;
             const eventDateMapping = {
                 def : {
                     "planting" : "pdate",
@@ -3402,6 +3403,7 @@
         <script type="text/javascript" src="${env_path_web_root}js/toggle/bootstrap-toggle.min.js" charset="utf-8"></script>
         <script src="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.js"></script>
         <!--<script src="https://cdn.jsdelivr.net/npm/exceljs@1.13.0/dist/exceljs.min.js"></script>-->
+        <script type="text/javascript" src="${env_path_web_root}js/chosen/handsontable-chosen-editor.js" charset="utf-8"></script>
         
         <script>
             $(document).ready(function () {
@@ -3430,15 +3432,18 @@
                         addTableDef(curFileName, curSheetName, tableDef);
                         initSpreadsheet(curFileName, curSheetName);
                     }
-                    if (tableDef.data_start_row) {
+                    if (!tableDef.data_start_row) {
+                        showSheetDefPrompt(processData);
+                        $('#tableViewSwitch').bootstrapToggle('on');
+                    } else if (!tableDef.table_type) {
+                        showTableTypeDefPrompt(processData);
+                        $('#tableViewSwitch').bootstrapToggle('off');
+                    } else {
                         if (tableDef.unfully_matched_flg) {
                             alertBox("Please double check the mappings for each column and make any correction as needed.");
                             delete tableDef.unfully_matched_flg;
                         }
                         $('#tableViewSwitch').bootstrapToggle('off');
-                    } else {
-                        showSheetDefPrompt(processData);
-                        $('#tableViewSwitch').bootstrapToggle('on');
                     }
                 });
                 $('.nav-tabs #genTab').on('shown.bs.tab', function(){
