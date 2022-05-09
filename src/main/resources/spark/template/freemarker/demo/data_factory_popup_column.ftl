@@ -786,28 +786,40 @@
     function initIcasaCategorySB() {
         let varSB = $("[name='customized_info']").find("[name='category']");
         varSB.append('<option value=""></option>');
-        let defOptgroups = {};
-        let icasaGroupList = icasaVarMap.getGroupList();
-        for (let order in icasaGroupList) {
-            let subset = icasaGroupList[order].subset;
-            let dataset = icasaGroupList[order].dataset;
-            if (dataset === "SUITE") {
-                subset = dataset + "_" + subset;
+        let icasaCatData = getIcasaCategoryData();
+        for (let subset in icasaCatData) {
+            let optGrp = $('<optgroup label="' + subset.capitalize() + ' variable"></optgroup>');
+            for (let i in icasaCatData[subset]) {
+                optGrp.append('<option value="' + icasaCatData[subset][i].id + '">' + icasaCatData[subset][i].label +  '</option>');
             }
-            if (!defOptgroups[subset]) {
-                defOptgroups[subset] = $('<optgroup label="' + subset.capitalize() + ' variable"></optgroup>');
-            }
-            if (icasaGroupList[order].subgroup && !icasaGroupList[order].subgroup.toLowerCase().includes(icasaGroupList[order].group.toLowerCase())) {
-                defOptgroups[subset].append('<option value="' + order + '">' + icasaGroupList[order].group.capitalize() + ' ' + icasaGroupList[order].subgroup.capitalize() +  '</option>');
-            } else if (!icasaGroupList[order].subgroup) {
-                defOptgroups[subset].append('<option value="' + order + '">' + icasaGroupList[order].group.capitalize() +  '</option>');
-            } else {
-                defOptgroups[subset].append('<option value="' + order + '">' + icasaGroupList[order].subgroup.capitalize() +  '</option>');
+            varSB.append(optGrp);
+        }
+    }
+    
+    function getIcasaCategoryData() {
+        if (!icasaCategoryData) {
+            icasaCategoryData = {};
+            let icasaGroupList = icasaVarMap.getGroupList();
+            for (let order in icasaGroupList) {
+                let subset = icasaGroupList[order].subset;
+                let dataset = icasaGroupList[order].dataset;
+                if (dataset === "SUITE") {
+                    subset = dataset + "_" + subset;
+                }
+                if (!icasaCategoryData[subset]) {
+                    icasaCategoryData[subset] = [];
+                }
+                if (icasaGroupList[order].subgroup && !icasaGroupList[order].subgroup.toLowerCase().includes(icasaGroupList[order].group.toLowerCase())) {
+                    icasaCategoryData[subset].push({id : order, label : icasaGroupList[order].group.capitalize() + ' ' + icasaGroupList[order].subgroup.capitalize()});
+                } else if (!icasaGroupList[order].subgroup) {
+                    icasaCategoryData[subset].push({id : order, label : icasaGroupList[order].group.capitalize()});
+                } else {
+                    icasaCategoryData[subset].push({id : order, label : icasaGroupList[order].subgroup.capitalize()});
+                }
             }
         }
-        for (let subset in defOptgroups) {
-            varSB.append(defOptgroups[subset]);
-        }
+        
+        return icasaCategoryData;
     }
 </script>
 <!-- popup page for define column -->
