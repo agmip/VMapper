@@ -389,7 +389,7 @@
         }
         sb.html('<option value=""></option>');
         for (let i in mappings) {
-            if (mappings[i].column_index_org) {
+            if (mappings[i].column_index) {
                 let opt = $('<option value="' + mappings[i].column_index + '">' + getVarNameLabel(mappings[i]) + '</option>');
                 sb.append(opt);
             }
