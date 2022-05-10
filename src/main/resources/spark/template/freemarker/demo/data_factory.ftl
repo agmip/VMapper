@@ -3443,9 +3443,9 @@
                     if (!tableDef.data_start_row) {
                         showSheetDefPrompt(processData);
                         $('#tableViewSwitch').bootstrapToggle('on');
-                    } else if (!tableDef.table_type) {
-                        showTableTypeDefPrompt(processData);
-                        $('#tableViewSwitch').bootstrapToggle('off');
+//                    } else if (!tableDef.table_type) {
+//                        showTableTypeDefPrompt(processData);
+//                        $('#tableViewSwitch').bootstrapToggle('off');
                     } else {
                         if (tableDef.unfully_matched_flg) {
                             alertBox("Please double check the mappings for each column and make any correction as needed.");
