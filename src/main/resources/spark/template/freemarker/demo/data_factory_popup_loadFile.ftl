@@ -208,7 +208,7 @@
                 data = data.replace(/\t/gi, "    ");
                 workbook = XLSX.read(data, {type: 'binary', dateNF: "yyyy-MM-dd", raw:true});
             } else {
-                workbook = XLSX.read(data, {type: 'binary', dateNF: "yyyy-MM-dd"});
+                workbook = XLSX.read(data, {type: 'binary', cellText:false, cellDates:true});
             }
             workbooks[fileName] = workbook;
 
