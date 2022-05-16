@@ -700,16 +700,26 @@
     }
     
     function isArrayData(mappings) {
-        let tableCat = getTableCategory(mappings);
-        if (tableCat.rank === 3) {
-            return tableCat.order > 2500;
-        } else if (tableCat.rank === 4) {
-            return tableCat.order < 2500;
-        } else if (tableCat.rank === 6) {
-            return tableCat.order > 5050;
-        } else {
-            return tableCat.rank === 7;
+        let isArray = false;
+        for (let i in mappings) {
+            if (mappings[i].ignored_flg || (mappings[i].icasa && ["exname", "soil_id", "wst_id"].includes(mappings[i].icasa.toLowerCase()))) {
+                continue;
+            }
+            let tableCat = icasaVarMap.getCategory(mappings[i]);
+            if (tableCat.rank === 3) {
+                isArray = tableCat.order > 2070 && tableCat.order < 2200 || tableCat.order >= 2510 && tableCat.order < 3000;
+            } else if (tableCat.rank === 4) {
+                isArray = tableCat.order < 2500;
+            } else if (tableCat.rank === 6) {
+                isArray = tableCat.order > 5050;
+            } else {
+                isArray = tableCat.rank === 7;
+            }
+            if (isArray) {
+                break;
+            }
         }
+        return isArray;
     }
 </script>
 

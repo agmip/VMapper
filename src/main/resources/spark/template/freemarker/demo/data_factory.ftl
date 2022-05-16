@@ -1974,6 +1974,7 @@
                 } else {
                     agmipData[headerRow].unshift("#");
                 }
+                let refKeyIdxArr = [];
                 if (parentIdxInfo) {
                     if (parentIdxInfo.refDef.keys.length === 0) {
                         // create sub data table for meta case
@@ -1982,6 +1983,9 @@
                             // create spot for indexing
                             for (let j = curIdx; j < agmipData.length; j++) {
                                 agmipData[j].unshift("!");
+                                while (agmipData[headerRow].length > agmipData[j].length) {
+                                    agmipData[j].push("");
+                                }
                             }
                             for (let idx in parentIdxInfo.indexing) {
                                 if (agmipData[curIdx][0] !== "!") {
@@ -2002,9 +2006,15 @@
                         agmipDataCache = agmipData.splice(headerRow + 1);
                         for (let i in agmipDataCache) {
                             agmipDataCache[i].unshift("!");
+                            while (agmipData[headerRow].length > agmipDataCache[i].length) {
+                                agmipDataCache[i].push("");
+                            }
                         }
                         let metaNum = Object.keys(parentIdxInfo.indexing).length;
                         for (let idx in parentIdxInfo.indexing) {
+                            if (refKeyIdxArr.length === 0) {
+                                refKeyIdxArr = Object.keys(parentIdxInfo.indexing[idx]);
+                            }
                             for (let i in agmipDataCache) {
                                 let found = true;
                                 for (let toKey in parentIdxInfo.indexing[idx]) {
@@ -2027,7 +2037,7 @@
                         if ( j <= headerRow) {
                             continue;
                         }
-                        agmipData[j].unshift(j - headerRow + startIdx);
+                        agmipData[j].unshift((j - headerRow + startIdx) + "");
                     }
                 }
 
@@ -2045,7 +2055,7 @@
                                 evtInputConfig.evdate_index = i + 1;
                             }
                         }
-                        if (mapping.ignored_flg) {
+                        if (mapping.ignored_flg || refKeyIdxArr.indexOf(mapping.column_index + "") > -1) {
                             if (mapping.icasa) {
                                 agmipData[headerRow][mapping.column_index] = "!" + mapping.icasa;
                             } else if (mapping.column_header) {
@@ -2148,7 +2158,7 @@
                                     eventInput.push(agmipData[j][tableDef.mappings[i].column_index]);
                                 }
                             }
-                        }                        
+                        }
                         agmipData = agmipDataTmp;
                     }
                 }
@@ -2206,14 +2216,83 @@
                                 }
                             }
                         }
-                        subDatas.push(createCsvSheetArr(refDef.file, refDef.sheet, String(refDef.table_index - 1), startIdx, idxInfo));
+                        let subData = createCsvSheetArr(refDef.file, refDef.sheet, String(refDef.table_index - 1), startIdx, idxInfo);
+                        if (isArrayData(getRefTableDef(refDef).mappings)) {
+                            subDatas.push(subData.primary);
+                            subDatas = subDatas.concat(subData.sub);
+                        } else {
+                            subDatas = subDatas.concat(subData.sub);
+                            // merge with current primary table
+                            let agmipDataCache = [];
+                            let headerLine = [];
+                            for (let i in agmipData) {
+                                let cnt = 1;
+                                if (["!", "@", "$", "#", "%", ""].indexOf(agmipData[i][0]) >= 0) {
+                                    headerLine = JSON.parse(JSON.stringify(agmipData[i]));
+                                    if (agmipData[i][0] === "!") {
+                                        if (subData.primary[i]) {
+                                            agmipDataCache.push(headerLine.concat(subData.primary[i]));
+                                        } else {
+                                            agmipDataCache.push(headerLine);
+                                        }
+                                    } else {
+                                        for (let j in subData.primary) {
+                                            if (["@", "$", "#", "%"].indexOf(subData.primary[j][0]) >= 0) {
+                                                let subHeaderLine = JSON.parse(JSON.stringify(subData.primary[j]));
+                                                subHeaderLine.shift();
+                                                headerLine = headerLine.concat(subHeaderLine);
+                                                break;
+                                            }
+                                        }
+                                        agmipDataCache.push(headerLine);
+                                    }
+                                } else {
+                                    let idx = agmipData[i][0];
+                                    let dataCacheStr = JSON.stringify(agmipData[i]);
+                                    for (let j in subData.primary) {
+                                        if (subData.primary[j][0] === idx) {
+                                            let dupData = JSON.parse(dataCacheStr);
+                                            dupData = dupData.concat(subData.primary[j].slice(1, subData.primary[j].length));
+                                            if (cnt > 1) {
+                                                let newIdx = idx + "_" + cnt;
+                                                dupData[0] = newIdx;
+                                                for (let x in subDatas) {
+                                                    for (let y in subDatas[x]) {
+                                                        if (subDatas[x][y][0] === idx) {
+                                                            let dupSubData = JSON.parse(JSON.stringify(subDatas[x][y]));
+                                                            dupSubData[0] = newIdx;
+                                                            subDatas[x].push(dupSubData);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            cnt++;
+                                            agmipDataCache.push(dupData);
+                                        }
+                                    }
+                                    if (cnt === 1) {
+                                        let dupData = JSON.parse(dataCacheStr);
+                                        while (dupData.length < headerLine.length) {
+                                            dupData.push("");
+                                        }
+                                        agmipDataCache.push(dupData);
+                                    }
+                                }
+                            }
+                            agmipData = agmipDataCache;
+                        }
+                        
                     }
                 }
-                for (let i in subDatas) {
-                    agmipData = agmipData.concat(subDatas[i]);
+                
+                if (parentIdxInfo) {
+                   return {"primary":agmipData, "sub":subDatas};
+                } else {
+                   for (let i in subDatas) {
+                        agmipData = agmipData.concat(subDatas[i]);
+                    }
+                   return agmipData;
                 }
-                            
-                return agmipData;
             }
             
             function isNumericUnit(unit) {
