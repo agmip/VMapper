@@ -114,7 +114,7 @@ public class Main {
 //        before("*",                  Filters.handleLocaleChange);
 
         // Set up routes
-        get(Path.Web.URL_ROOT, (Request request, Response response) -> {
+        get("/", (Request request, Response response) -> {
             return new FreeMarkerEngine().render(new ModelAndView(getEnvData(), Path.Template.INDEX));
                 });
         
