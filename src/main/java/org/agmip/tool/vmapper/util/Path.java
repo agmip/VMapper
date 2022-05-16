@@ -12,7 +12,7 @@ public class Path {
     // The @Getter methods are needed in order to access
     public static class Web {
         @Getter public static final String URL_ROOT = Config.get("URL_ROOT");
-        @Getter public static final String INDEX = "/index";
+        @Getter public static final String INDEX = URL_ROOT.endsWith("/") ? URL_ROOT + "index" : URL_ROOT  + "/index";
 
         public static class Tools {
             @Getter private static final String PACKAGE = Config.get("URL_TOOLS_ROOT");
