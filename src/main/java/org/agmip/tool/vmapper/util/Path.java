@@ -36,6 +36,7 @@ public class Path {
         public static class Demo {
             private static final String PACKAGE = Demo.class.getSimpleName().toLowerCase();
             public static final String UNIT_MASTER = PACKAGE + "/unit_master.ftl";
+            public static final String VMAPPER = PACKAGE + "/vmapper.ftl";
             public static final String DATA_FACTORY = PACKAGE + "/data_factory.ftl";
         }
         

@@ -157,7 +157,7 @@ public class Main {
             data.put("icasaObvVarMap", DataUtil.getICASAObvVarMap());
             data.put("icasaMgnCodeMap", DataUtil.getICASAMgnCodeMap());
             data.put("culMetaList", DataUtil.getICASACropCodeMap());
-            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.DATA_FACTORY));
+            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.VMAPPER));
                 });
 
 //        get("*",                     PageController.serveNotFoundPage, new FreeMarkerEngine());
