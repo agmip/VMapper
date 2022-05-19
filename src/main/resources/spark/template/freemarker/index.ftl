@@ -63,7 +63,7 @@
             <hr>
             <div class="container-fluid text-left">
                 <legend>Browser Support</legend>
-                <p>To smoothly use the online AFSIRS, please check the following table and make sure your browser is supported.</p>
+                <p>To smoothly use the online tools, please check the following table and make sure your browser is supported.</p>
                 <table class="table table-bordered table-striped text-center">
                     <tr>
                         <th style="width:16%;" title="Chrome" class="text-center"><img src="${env_path_web_root}images/browsers/chrome.gif" alt="Chrome"></th>
