@@ -3467,12 +3467,12 @@
             </div>
         </div>
 
-        <#include "data_factory_popup_loadFile.ftl">
-        <#include "data_factory_popup_sheet.ftl">
-        <#include "data_factory_popup_row.ftl">
-        <#include "data_factory_popup_column.ftl">
-        <#include "data_factory_popup_codeMapping.ftl">
-        <#include "data_factory_table_reference.ftl">
+        <#include "vmapper_popup_loadFile.ftl">
+        <#include "vmapper_popup_sheet.ftl">
+        <#include "vmapper_popup_row.ftl">
+        <#include "vmapper_popup_column.ftl">
+        <#include "vmapper_popup_codeMapping.ftl">
+        <#include "vmapper_table_reference.ftl">
         <#include "../footer.ftl">
         <script type="text/javascript" src="${env_path_web_root}js/bootbox/dragable.js" charset="utf-8"></script>
         <script type="text/javascript" src='${env_path_web_root}plugins/FileSaver/FileSaver.min.js'></script>
