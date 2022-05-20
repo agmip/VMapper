@@ -3182,7 +3182,7 @@
                 let sc2Obj = {
                     mapping_info : {
                         "vmapper_version" : vmapperVersion
-//                        mapping_author : "data factory (http://dssat2d-plot.herokuapp.com/demo/data_factory)",
+//                        mapping_author : "data factory (http://vmapper.herokuapp.com/tools/vmapper)",
 //                        source_url: ""
                     },
                     dataset_metadata : {},

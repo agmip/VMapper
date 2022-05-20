@@ -126,7 +126,7 @@ public class Main {
             HashMap data = getEnvData();
             data.put("baseUnits", UnitUtil.listBaseUnit());
             data.put("prefixes", UnitUtil.listPrefix());
-            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.UNIT_MASTER));
+            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Tools.UNIT_MASTER));
                 });
         
         get(Path.Web.Data.UNIT_LOOKUP, (Request request, Response response) -> {
@@ -157,7 +157,7 @@ public class Main {
             data.put("icasaObvVarMap", DataUtil.getICASAObvVarMap());
             data.put("icasaMgnCodeMap", DataUtil.getICASAMgnCodeMap());
             data.put("culMetaList", DataUtil.getICASACropCodeMap());
-            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.VMAPPER));
+            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Tools.VMAPPER));
                 });
 
 //        get("*",                     PageController.serveNotFoundPage, new FreeMarkerEngine());

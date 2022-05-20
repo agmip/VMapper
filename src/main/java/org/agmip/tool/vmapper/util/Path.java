@@ -33,15 +33,15 @@ public class Path {
         public final static String INDEX = "index.ftl";
         public static final String NOT_FOUND = "notFound.ftl";
         
-        public static class Demo {
-            private static final String PACKAGE = Demo.class.getSimpleName().toLowerCase();
+        public static class Tools {
+            private static final String PACKAGE = Tools.class.getSimpleName().toLowerCase();
             public static final String UNIT_MASTER = PACKAGE + "/unit_master.ftl";
             public static final String VMAPPER = PACKAGE + "/vmapper.ftl";
             public static final String DATA_FACTORY = PACKAGE + "/data_factory.ftl";
         }
         
         public static class Translator {
-            private static final String PACKAGE = Demo.class.getSimpleName().toLowerCase();
+            private static final String PACKAGE = Translator.class.getSimpleName().toLowerCase();
             public static final String DSSAT_EXP = PACKAGE + "/xfile_template.ftl";
         }
     }
