@@ -29,8 +29,8 @@ public class RemoteFileLoaderTest {
     public void testReadFile() throws URISyntaxException {
         try {
 //            URL url = new URL("https://data.nal.usda.gov/system/files/GVT_graincorn_2014-2019%20%281%29.xlsx");
-//            URL url = new URL("https://raw.githubusercontent.com/MengZhang/supermaas-aggregate-pythia-outputs/develop/DATA_CDE.csv");
-            URL url = new URL("https://file-examples-com.github.io/uploads/2017/02/file_example_XLS_10.xls");
+            URL url = new URL("https://raw.githubusercontent.com/MengZhang/supermaas-aggregate-pythia-outputs/develop/DATA_CDE.csv");
+//            URL url = new URL("https://file-examples-com.github.io/uploads/2017/02/file_example_XLS_10.xls");
 //            URL url = new URL("https://drive.google.com/u/0/uc?id=1h00Fl-q_NvNy93rgxXOAdQI7F04RkkGk&export=download"); // xlsx fake to csv
 //            URL url = new URL("https://drive.google.com/u/0/uc?id=14-AfKU7ySswkEaC3PIgtclrS4w-oSOuS&export=download"); // xls fake to csv
 //            URL url = new URL("https://drive.google.com/u/0/uc?id=1p7P2gAi7BkfJW-zudRPBzaU31bItvRkm&export=download"); // csv fake to xlsx
