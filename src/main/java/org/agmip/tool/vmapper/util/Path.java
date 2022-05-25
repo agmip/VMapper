@@ -26,6 +26,7 @@ public class Path {
             @Getter public static final String UNIT_LOOKUP = PACKAGE + "/unit/lookup";
             @Getter public static final String UNIT_CONVERT = PACKAGE + "/unit/convert";
             @Getter public static final String LOAD_FILE = PACKAGE + "/util/load_file";
+            @Getter public static final String TRANSLATE = PACKAGE + "/translate";
         }
     }
     
@@ -48,6 +49,7 @@ public class Path {
     
     public static class Folder {
         public final static String DATA_DIR = Config.get("DATA_DIR"); //"Data";
+        public final static String TASK_DIR = Config.get("TASK_DIR"); //"Task";
         public final static String ICASA_DIR = Config.get("ICASA_DIR"); //"ICASA";
         public final static String ICASA_CROP_CODE = Config.get("ICASA_CROP_CODE"); //"Crop_codes.csv";
         public final static String ICASA_MGN_CODE = Config.get("ICASA_MGN_CODE"); //"Management_codes.csv";
@@ -92,6 +94,7 @@ public class Path {
         private static HashMap<String, String> readConfig() {
             HashMap<String, String> ret = new HashMap();
             ret.put("DATA_DIR", "Data");
+            ret.put("TASK_DIR", "Task");
             ret.put("ICASA_DIR", "ICASA");
             ret.put("ICASA_MGN_CODE", "Management_codes.csv");
             ret.put("ICASA_OTH_CODE", "Other_codes.csv");
@@ -124,6 +127,12 @@ public class Path {
             String ret = CONFIGS.get(key);
             if (ret == null) {
                 ret = "";
+            }
+            if (key.endsWith("_DIR")) {
+                File dir = new File(ret);
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
             }
             return ret;
         }

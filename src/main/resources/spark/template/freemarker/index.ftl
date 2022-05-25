@@ -41,6 +41,10 @@
                         <h3>Unit Master <a href="#" onClick="window.open('${env_path_web_root}${env_path_web_tools.getUNIT_MASTER()}')"><span class="glyphicon glyphicon-new-window"></span></a></h3>
                         <p>Help evaluate your unit expression used in your data</p>
                     </div>
+                    <div class="col-sm-4">
+                        <h3>Data Factory <a href="#" onClick="window.open('${env_path_web_root}${env_path_web_tools.getDATA_FACTORY()}')"><span class="glyphicon glyphicon-new-window"></span></a></h3>
+                        <p>The next-gen translation tool for replacing QuadUI</p>
+                    </div>
                 </div>
                 <br>
                 <h4>Desktop-based:</h4>

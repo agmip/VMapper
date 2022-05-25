@@ -16,6 +16,7 @@
                     <ul class="dropdown-menu" role="menu">
                         <li><a href="${env_path_web_root}${env_path_web_tools.getVMAPPER()}"><span class="glyphicon glyphicon-road"></span> VMapper</a></li>
                         <li><a href="${env_path_web_root}${env_path_web_tools.getUNIT_MASTER()}"><span class="glyphicon glyphicon-edit"></span> Unit Master</a></li>
+                        <li><a href="${env_path_web_root}${env_path_web_tools.getDATA_FACTORY()}"><span class="glyphicon glyphicon-tower"></span> Data Factory</a></li>
                     </ul>
                 </li>
                 <li class="dropdown">
