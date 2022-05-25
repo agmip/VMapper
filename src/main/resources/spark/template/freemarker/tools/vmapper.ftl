@@ -3499,6 +3499,7 @@
                 initIcasaLookupSB();
                 initIcasaCategorySB();
                 chosen_init_all();
+                $('[data-toggle="tooltip"]').tooltip();
                 $('input').on("blur", function(event) {
                     event.target.checkValidity();
                 }).bind('invalid', function(event) {
