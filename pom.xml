@@ -140,7 +140,7 @@
         </repository>
         <repository>
             <id>localrepository</id>
-            <url>file:/${project.basedir}/libs</url>
+            <url>${project.basedir}/libs</url>
         </repository>
     </repositories>
     <build>
