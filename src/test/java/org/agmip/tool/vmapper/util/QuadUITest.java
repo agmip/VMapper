@@ -11,7 +11,7 @@ import org.junit.Test;
  */
 public class QuadUITest {
 
-    @Test
+//    @Test
     public void testRunQuadUI() throws URISyntaxException, IOException, InterruptedException {
         Process process;
         File log;
