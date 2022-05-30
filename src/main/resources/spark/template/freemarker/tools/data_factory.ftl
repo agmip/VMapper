@@ -310,7 +310,7 @@
                                     <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown">APSIM
                                     <span class="caret"></span></button>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#" onclick="viewFile('apsim', true)">View</a></li>
+                                        <li><a href="#" onclick="viewFile('apsim')">View</a></li>
                                         <li><a href="#" onclick="saveFile('apsim')">Save as ...</a></li>
                                     </ul>
                                 </div>
@@ -318,7 +318,7 @@
                                     <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown">SarraH V33
                                     <span class="caret"></span></button>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#" onclick="viewFile('sarrahv33', true)">View</a></li>
+                                        <li><a href="#" onclick="viewFile('sarrahv33')">View</a></li>
                                         <li><a href="#" onclick="saveFile('sarrahv33')">Save as ...</a></li>
                                     </ul>
                                 </div>
@@ -326,7 +326,7 @@
                                     <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown">InfoCrop
                                     <span class="caret"></span></button>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#" onclick="viewFile('infocrop', true)">View</a></li>
+                                        <li><a href="#" onclick="viewFile('infocrop')">View</a></li>
                                         <li><a href="#" onclick="saveFile('infocrop')">Save as ...</a></li>
                                     </ul>
                                 </div>
@@ -334,7 +334,7 @@
                                     <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown">STICS
                                     <span class="caret"></span></button>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#" onclick="viewFile('stics', true)">View</a></li>
+                                        <li><a href="#" onclick="viewFile('stics')">View</a></li>
                                         <li><a href="#" onclick="saveFile('stics')">Save as ...</a></li>
                                     </ul>
                                 </div>
@@ -342,7 +342,7 @@
                                     <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown">WOFOST
                                     <span class="caret"></span></button>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#" onclick="viewFile('wofost', true)">View</a></li>
+                                        <li><a href="#" onclick="viewFile('wofost')">View</a></li>
                                         <li><a href="#" onclick="saveFile('wofost')">Save as ...</a></li>
                                     </ul>
                                 </div>
@@ -350,7 +350,7 @@
                                     <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown">CropGrowNAU
                                     <span class="caret"></span></button>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#" onclick="viewFile('cropgrownau', true)">View</a></li>
+                                        <li><a href="#" onclick="viewFile('cropgrownau')">View</a></li>
                                         <li><a href="#" onclick="saveFile('cropgrownau', true)">Save as ...</a></li>
                                     </ul>
                                 </div>
