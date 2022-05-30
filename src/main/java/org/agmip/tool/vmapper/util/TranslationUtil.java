@@ -2,6 +2,7 @@ package org.agmip.tool.vmapper.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -14,11 +15,14 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Scanner;
+import java.util.zip.GZIPInputStream;
 import javax.servlet.ServletException;
 import javax.servlet.http.Part;
 import org.agmip.ace.AceDataset;
 import org.agmip.ace.io.AceGenerator;
 import org.agmip.ace.io.AceParser;
+import org.agmip.tool.vmapper.util.translator.ExcelHelper;
 import org.agmip.util.JSONAdapter;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -40,20 +44,31 @@ public class TranslationUtil {
         String[] models = {};
         for (Part part : parts) {
 
-           if (part.getSubmittedFileName() != null) {
-               java.nio.file.Path out = Paths.get(workDir.getPath(), part.getName(), part.getSubmittedFileName());
-               out.toFile().mkdirs();
-               try (final InputStream in = part.getInputStream()) {
-                   Files.copy(in, out, REPLACE_EXISTING);
+            if (part.getSubmittedFileName() != null) {
+                java.nio.file.Path out;
+                if (ExcelHelper.isExcel(part.getSubmittedFileName())) {
+                    if (part.getName().equalsIgnoreCase("linkage")) {
+                        out = Paths.get(workDir.getPath(), part.getName(), part.getSubmittedFileName() + ".csv");
+                        ExcelHelper.toCsvZip(part.getInputStream(), part.getSubmittedFileName(), out.toFile(), true);
+                    } else {
+                        out = Paths.get(workDir.getPath(), part.getName(), part.getSubmittedFileName() + ".zip");
+                        ExcelHelper.toCsvZip(part.getInputStream(), part.getSubmittedFileName(), out.toFile(), false);
+                    }
+                } else {
+                    out = Paths.get(workDir.getPath(), part.getName(), part.getSubmittedFileName());
+                    out.toFile().mkdirs();
+                    try (final InputStream in = part.getInputStream()) {
+                        Files.copy(in, out, REPLACE_EXISTING);
+                    }
                 }
-               inputs.add(out.toFile());
-           } else if ("models".equals(part.getName())) {
-               try (final InputStream in = part.getInputStream()) {
-                   BufferedReader br = new BufferedReader(new InputStreamReader(in));
-                   String line = br.readLine();
-                   models = line.split(",");
+                inputs.add(out.toFile());
+            } else if ("models".equals(part.getName())) {
+                try (final InputStream in = part.getInputStream()) {
+                    BufferedReader br = new BufferedReader(new InputStreamReader(in));
+                    String line = br.readLine();
+                    models = line.split(",");
                 }
-           }
+            }
         }
         
         File retOutDir = Paths.get(workDir.getPath(), "result").toFile();
@@ -70,9 +85,9 @@ public class TranslationUtil {
         
         ArrayList<String> quaduiArgs = new ArrayList(Arrays.asList(new String[]{"java", "-jar", "quadui.jar", "-cli", "-zip", "-clean", "-slave"}));
         
-        File fieldOverlayDir = Paths.get(retOutDir.getAbsolutePath(), "field_overlay_dome").toFile();
-        File seasonalStrategyDir = Paths.get(retOutDir.getAbsolutePath(), "seasonal_strategy_dome").toFile();
-        File linkageDir = Paths.get(retOutDir.getAbsolutePath(), "linkage").toFile();
+        File fieldOverlayDir = Paths.get(workDir.getAbsolutePath(), "field_overlay_dome").toFile();
+        File seasonalStrategyDir = Paths.get(workDir.getAbsolutePath(), "seasonal_strategy_dome").toFile();
+        File linkageDir = Paths.get(workDir.getAbsolutePath(), "linkage").toFile();
         if (seasonalStrategyDir.exists() && seasonalStrategyDir.list().length > 0) {
             quaduiArgs.add("-s");
         } else if (fieldOverlayDir.exists() && fieldOverlayDir.list().length > 0) {
@@ -111,19 +126,20 @@ public class TranslationUtil {
         Process process = pb.start();
         try {
             int existCode = process.waitFor();
-            System.out.println("Quit with " + existCode);
+            LOG.info("Quit with " + existCode);
             
             JSONObject ret = new JSONObject();
             for (File f : retOutDir.listFiles()) {
                 if (f.isDirectory()) {
-                    byte[] buff = Files.readAllBytes(Paths.get(f.getAbsolutePath(), f.getName() + "_Input.zip"));
-                    String data = Base64.getEncoder().encodeToString(buff);
-//                    data = new String(buff);
-                    ret.put(f.getName().toLowerCase(), data);
+                    java.nio.file.Path tranRetFile = Paths.get(f.getAbsolutePath(), f.getName() + "_Input.zip");
+                    if (tranRetFile.toFile().exists()) {
+                        byte[] buff = Files.readAllBytes(tranRetFile);
+                        String data = Base64.getEncoder().encodeToString(buff);
+                        ret.put(f.getName().toLowerCase(), data);
+                    }
                 } else if (f.getName().endsWith(".aceb")) {
                     byte[] buff = Files.readAllBytes(f.toPath());
                     String data = Base64.getEncoder().encodeToString(buff);
-//                    data = new String(buff);
                     ret.put("aceb", data);
                 } else if (f.getName().endsWith(".json")) {
                     byte[] buff = Files.readAllBytes(f.toPath());
@@ -132,12 +148,14 @@ public class TranslationUtil {
                 } else if (f.getName().endsWith(".dome")) {
                     byte[] buff = Files.readAllBytes(f.toPath());
                     String data = Base64.getEncoder().encodeToString(buff);
-    //                data = new String(buff);
                     ret.put("dome", data);
+                    try (Scanner scanner = new Scanner(new GZIPInputStream(new FileInputStream(f)), "UTF-8").useDelimiter("\\A")) {
+                        String json = scanner.next();
+                        ret.put("dome_json", json);
+                    }
                 } else if (f.getName().endsWith(".alnk")) {
                     byte[] buff = Files.readAllBytes(f.toPath());
                     String data = new String(buff, StandardCharsets.UTF_8);
-    //                data = new String(buff);
                     ret.put("linkage", data);
                 }
             }
@@ -146,13 +164,13 @@ public class TranslationUtil {
             String data = new String(buff, StandardCharsets.UTF_8);
             ret.put("log", data);
             ret.put("data_set_name", dataSetName);
-//            ret.put("work_dir", workDir.toString());
             FileUtils.deleteDirectory(workDir);
             LOG.info("Translation for session {} is done", request.session().id());
             return ret;
-        } catch (InterruptedException ex) {
-            FileUtils.deleteDirectory(workDir);
+        } catch (Exception ex) {
             LOG.warn("Translation for session {} is failed by: {}", request.session().id(), ex.getMessage());
+            ex.printStackTrace(System.err);
+            FileUtils.deleteDirectory(workDir);
             return new JSONObject().put("errors", ex.getMessage());
         }
     }
