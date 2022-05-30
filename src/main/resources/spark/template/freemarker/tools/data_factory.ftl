@@ -44,6 +44,7 @@
             }
             
             function viewFile(key, isText) {
+                $(":ui-fancytree").fancytree("destroy");
                 if (isText) {
                     if (key === "json" || key === "dome_json") {
                         let jsonObj = JSON.parse(result[key]);
@@ -122,6 +123,7 @@
                     message: '<p><img src="/images/loading.gif" alt="" style="width:10%;height:10%;"> Processing...</p>',
                     closeButton: false
                 });
+                $(":ui-fancytree").fancytree("destroy");
                 $("#ace_result_files div").fadeOut();
                 $("#model_result_files div").fadeOut();
 
