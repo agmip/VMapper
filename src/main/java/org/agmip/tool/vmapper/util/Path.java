@@ -108,8 +108,8 @@ public class Path {
             ret.put("ICASA_OBV_VAR", "Measured_data.csv");
             ret.put("DEF_PORT", "8081");
             ret.put("URL_ROOT", "/");
-            ret.put("URL_TOOLS_ROOT", "/" + Web.Tools.class.getSimpleName().toLowerCase());
-            ret.put("URL_DATA_ROOT", "/" + Web.Data.class.getSimpleName().toLowerCase());
+            ret.put("URL_TOOLS_ROOT", Web.Tools.class.getSimpleName().toLowerCase());
+            ret.put("URL_DATA_ROOT", Web.Data.class.getSimpleName().toLowerCase());
             try {
                 BufferedReader br = new BufferedReader(new FileReader(new File("config.ini")));
                 String line;
