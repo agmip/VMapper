@@ -197,7 +197,8 @@ public class CSVInput implements TranslatorInput {
             if (nextLine[0].startsWith("!")) {
                 LOG.debug("Found a comment line");
                 continue;
-            } else if (nextLine[0].startsWith("#")) {
+            } else if (nextLine[0].startsWith("#")
+                 || (nextLine[0].indexOf('#') > -1)) {
                 LOG.debug("Found a summary header line");
                 section = HeaderType.SUMMARY;
                 currentHeader = parseHeaderLine(nextLine);
@@ -505,7 +506,8 @@ public class CSVInput implements TranslatorInput {
         in.mark(7168);
         String sample;
         while ((sample = in.readLine()) != null) {
-            if (sample.startsWith("#") || sample.startsWith("%") || sample.startsWith("*")) {
+            if (sample.startsWith("#") || sample.startsWith("%") || sample.startsWith("*")
+                 || (sample.indexOf('#') > -1 && sample.startsWith("\""))) {
                 String listSeperator = sample.substring(1, 2);
                 LOG.debug("FOUND SEPARATOR: " + listSeperator);
                 this.listSeparator = listSeperator;

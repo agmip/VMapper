@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import au.com.bytecode.opencsv.CSVReader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.agmip.core.types.TranslatorInput;
@@ -87,7 +89,9 @@ public class AlnkInput implements TranslatorInput {
     protected void readCSV(InputStream fileStream) throws Exception {
         header = null;
         String[] nextLine;
-        BufferedReader br = new BufferedReader(new InputStreamReader(fileStream));
+        System.out.println(Charset.defaultCharset());
+        BufferedReader br = new BufferedReader(new InputStreamReader(fileStream, StandardCharsets.UTF_8));
+        
 
         // Check to see if this is an international CSV. (;, vs ,.)
         init(br);
@@ -100,7 +104,8 @@ public class AlnkInput implements TranslatorInput {
             LOG.debug("Line number: " + ln);
             if (nextLine[0].startsWith("!")) {
                 LOG.debug("Found a comment line");
-            } else if (nextLine[0].startsWith("#")) {
+            } else if (nextLine[0].startsWith("#")
+                || nextLine[0].indexOf('#') > -1) {
                 LOG.debug("Found a summary header line");
                 header = new AlnkHeader(nextLine);
             } else if (nextLine[0].startsWith("*")) {
@@ -197,12 +202,14 @@ public class AlnkInput implements TranslatorInput {
         in.mark(7168);
         String sample;
         while ((sample = in.readLine()) != null) {
-            if (sample.startsWith("#")) {
+            if (sample.startsWith("#")
+                || (sample.indexOf('#') > -1 && !sample.startsWith("\""))) {
                 String listSeperator = sample.substring(1, 2);
                 LOG.debug("FOUND SEPARATOR: " + listSeperator);
                 this.listSeparator = listSeperator;
                 break;
-            } else if (sample.startsWith("\"#\"")) {
+            } else if (sample.startsWith("\"#\"")
+                || (sample.indexOf('#') > -1 && sample.startsWith("\""))) {
                 String listSeperator = sample.substring(3, 4);
                 LOG.debug("FOUND SEPARATOR: " + listSeperator);
                 this.listSeparator = listSeperator;
