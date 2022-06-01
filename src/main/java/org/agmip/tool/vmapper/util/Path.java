@@ -1,14 +1,19 @@
 package org.agmip.tool.vmapper.util;
 
+import ch.qos.logback.classic.Logger;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import lombok.*;
+import org.agmip.tool.vmapper.Main;
+import org.slf4j.LoggerFactory;
 
 public class Path {
 
+    public static final Logger LOG = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     // The @Getter methods are needed in order to access
     public static class Web {
         @Getter public static final String URL_ROOT = Config.get("URL_ROOT");
@@ -96,6 +101,7 @@ public class Path {
             ret.put("DATA_DIR", "Data");
             ret.put("TASK_DIR", "Task");
             ret.put("ICASA_DIR", "ICASA");
+            ret.put("ICASA_CROP_CODE", "Crop_codes.csv");
             ret.put("ICASA_MGN_CODE", "Management_codes.csv");
             ret.put("ICASA_OTH_CODE", "Other_codes.csv");
             ret.put("ICASA_MGN_VAR", "Management_info.csv");
@@ -117,6 +123,8 @@ public class Path {
                         }
                     }
                 }
+            } catch (FileNotFoundException e) {
+                LOG.warn("Please create config.ini to setup necessery configuration");
             } catch(Exception ex) {
                 ex.printStackTrace(System.err);
             }
