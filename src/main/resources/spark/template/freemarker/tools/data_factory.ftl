@@ -120,7 +120,7 @@
                 curContent = null;
                 let dialog = bootbox.dialog({
                     title: 'A translation job has been submitted',
-                    message: '<p><img src="/images/loading.gif" alt="" style="width:10%;height:10%;"> Processing...</p>',
+                    message: '<p><img src="${env_path_web_root}images/loading.gif" alt="" style="width:10%;height:10%;"> Processing...</p>',
                     closeButton: false
                 });
                 $(":ui-fancytree").fancytree("destroy");
@@ -145,7 +145,7 @@
                 formData.append("models", $('#agmip_output_models').val());
                 $("#agmip_preview_content_text").html("");
                 
-                fetch('/data/translate', {method: "POST", body: formData}).then(function (response) {
+                fetch('${env_path_web_root}data/translate', {method: "POST", body: formData}).then(function (response) {
                     if (response.ok) {
                         return response.json();
                     } else {
