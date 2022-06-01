@@ -145,7 +145,7 @@
                 formData.append("models", $('#agmip_output_models').val());
                 $("#agmip_preview_content_text").html("");
                 
-                fetch('${env_path_web_root}data/translate', {method: "POST", body: formData}).then(function (response) {
+                fetch('${env_path_web_root}${env_path_web_data.getTRANSLATE()}', {method: "POST", body: formData}).then(function (response) {
                     if (response.ok) {
                         return response.json();
                     } else {
