@@ -1,6 +1,6 @@
 package org.agmip.tool.vmapper.util.translator;
 
-import au.com.bytecode.opencsv.CSVWriter;
+import com.opencsv.CSVWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -67,7 +67,7 @@ public class ExcelHelper {
             for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
                 Sheet sheet = workbook.getSheetAt(i);
                 File csvFile = Paths.get(tmpDir.getPath(), sheet.getSheetName() + ".csv").toFile();
-                try (CSVWriter writer = new CSVWriter(new FileWriter(csvFile), ',')) {
+                try (CSVWriter writer = new CSVWriter(new FileWriter(csvFile))) {
                     Iterator<Row> rowIterator = sheet.iterator();
                     while (rowIterator.hasNext()) {
                         row = rowIterator.next();
@@ -99,7 +99,7 @@ public class ExcelHelper {
 
                             }
                         }
-                        writer.writeNext(data.toArray(new String[]{}));
+                        writer.writeNext(data.toArray(new String[]{}), false);
                     }
                     writer.flush();
                 }

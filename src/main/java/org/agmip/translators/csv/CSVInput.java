@@ -507,7 +507,7 @@ public class CSVInput implements TranslatorInput {
         String sample;
         while ((sample = in.readLine()) != null) {
             if (sample.startsWith("#") || sample.startsWith("%") || sample.startsWith("*")
-                 || (sample.indexOf('#') > -1 && sample.startsWith("\""))) {
+                 || (sample.indexOf('#') > -1 && !sample.startsWith("\""))) {
                 String listSeperator = sample.substring(1, 2);
                 LOG.debug("FOUND SEPARATOR: " + listSeperator);
                 this.listSeparator = listSeperator;

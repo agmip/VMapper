@@ -61,7 +61,9 @@ public class TranslationUtil {
                         Files.copy(in, out, REPLACE_EXISTING);
                     }
                 }
-                inputs.add(out.toFile());
+                if (part.getName().equalsIgnoreCase("raw_data")) {
+                    inputs.add(out.toFile());
+                }
             } else if ("models".equals(part.getName())) {
                 try (final InputStream in = part.getInputStream()) {
                     BufferedReader br = new BufferedReader(new InputStreamReader(in));
