@@ -95,7 +95,9 @@
                 
                 function zipFolderToTree (content) {
                     let files = [];
-                    for (key in content) {
+                    let fileNames = Object.keys(content).sort();
+                    for (let i = 0; i < fileNames.length; i++) {
+                        let key = fileNames[i];
                         let node = {
                             "title" : key,
                             "folder" : content[key].dir,
