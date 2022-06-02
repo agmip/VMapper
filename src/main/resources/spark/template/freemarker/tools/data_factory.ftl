@@ -30,7 +30,11 @@
                 if (isText) {
                     let content = result[key];
                     let blob = new Blob([content], {type: "text/plain;charset=utf-8"});
-                    saveAs(blob, dataSetName + "." + key);
+                    if (key === "linkage") {
+                        saveAs(blob, dataSetName + ".alnk");
+                    } else {
+                        saveAs(blob, dataSetName + "." + key);
+                    }
                 } else {
                     let blob = new Blob([str2bytes(result[key])], {type: "application/octet-stream"});
                     let fileName = dataSetName + ".";
