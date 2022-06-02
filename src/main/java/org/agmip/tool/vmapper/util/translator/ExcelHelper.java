@@ -84,7 +84,11 @@ public class ExcelHelper {
 
                                 break;
                             case NUMERIC:
-                                data.add(cell.getNumericCellValue() + "");
+                                String val = cell.getNumericCellValue() + "";
+                                if (val.endsWith(".0")) {
+                                    val = val.substring(0, val.length() - 2);
+                                }
+                                data.add(val);
 
                                 break;
                             case STRING:
