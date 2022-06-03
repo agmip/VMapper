@@ -1893,7 +1893,7 @@
                                 for (let fromKeyIdx in toRefs) {
                                     for (let toKeyIdx in toRefs[fromKeyIdx]) {
                                         let refDef = toRefs[fromKeyIdx][toKeyIdx];
-                                        let tableCat = getTableCategory(getRefTableDef(refDef).mappings);
+                                        let tableCat = getRefTableCategory(refDef);
                                         // If reference target is not soil/weather meta/profile table, then mark it as non-root table
                                         if ((tableCat.order < 4000 || tableCat.order > 4052) &&
                                             (tableCat.order < 5000 || tableCat.order > 5052) ||

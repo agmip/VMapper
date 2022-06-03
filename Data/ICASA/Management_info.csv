@@ -97,7 +97,7 @@
 "Exp_id","6","EID","","EID","0","","id","","single","","EXPERIMENT","MANAGEMENT","TREATMENTS","","2011","0","","","","","","","1","-2","0","","","","","","","","","","","","",""
 "treatment_ID","12","TREAT_ID","8","TREAT_ID","1","1","Treatment identifier, unique internal ID","number","single","","EXPERIMENT","MANAGEMENT","TREATMENTS","","2011","0","",".","TN","","","","1","-2","0","","","","","","","","","","","","",""
 "experiment_ID","13","EXPER_ID","8","EXPER_ID","2","1","Experiment database key, links to ED table","text","text","","EXPERIMENT","MANAGEMENT","TREATMENTS","","2011","0","","","","","","","1","-2","0","","","","","","","","","","","","",""
-"treatment_number","16","TRTNO","5","TRTNO","3","","Treatment number","number","single","","EXPERIMENT","MANAGEMENT","TREATMENTS","","2011","1","",".","TN","","","","1","","0","","","","","","","","","","","","",""
+"treatment_number","16","TRTNO","5","TRTNO","3","","Treatment number","number","single","","EXPERIMENT","MANAGEMENT","TREATMENTS","","2011","1","",".","TN","","","","1","1","0","","","","","","","","","","","","",""
 "replicate_number","16","RP","2","RP","4","","Replicate number","number","single","","EXPERIMENT","MANAGEMENT","TREATMENTS","","2011","1","",".",".","","","","1","","0","","","","","","","","","","","","",""
 "sequence_number","15","SQ","2","SQ","5","","Sequence number","number","single","","EXPERIMENT","MANAGEMENT","TREATMENTS","","2011","1","",".","R","","","","1","","0","","","","","","","","","","","","",""
 "option_for_crop_in_seq","22","OP","2","OP","6","","Option for crop in sequence","number","single","","EXPERIMENT","MANAGEMENT","TREATMENTS","","2011","0","",".","O","","","","1","-2","0","","","","","","","","","","","","",""

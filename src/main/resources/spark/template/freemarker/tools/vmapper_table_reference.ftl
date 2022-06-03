@@ -685,16 +685,44 @@
         
     }
     
-    function getTableCategory(mappings) {
+    function getRefTableCategory(refDef) {
+        let mappings = getRefTableDef(refDef).mappings;
+        let keyIdxs = getKeyIdxArr(refDef.keys, mappings);
+        return getTableCategory(mappings, keyIdxs);
+    }
+    
+    function getTableCategory(mappings, keyIdxs) {
         let ret = {rank : -1, category : "unknown"};
+        let count = {};
+        let maxCount = 0;
+        if (!keyIdxs) {
+            keyIdxs = [];
+        }
         for (let i in mappings) {
             if (mappings[i].ignored_flg || !mappings[i].column_index_org || (mappings[i].icasa && ["exname", "soil_id", "wst_id"].includes(mappings[i].icasa.toLowerCase()))) {
+                continue;
+            }
+            if (mappings[i].unit === "index") {
+                continue;
+            }
+            if (keyIdxs.includes(mappings[i].column_index)) {
                 continue;
             }
             let retCat = icasaVarMap.getCategory(mappings[i]);
             if (retCat.rank > 0 && (ret.rank < 0 || ret.rank > retCat.rank)) {
                 ret = retCat;
             }
+//            if (retCat.rank > 0) {
+//                if (!count[retCat.rank]) {
+//                    count[retCat.rank] = 1;
+                //} else {
+//                    count[retCat.rank] += 1;
+                //}
+//                if (count[retCat.rank] > maxCount) {
+//                    ret = retCat;
+//                    maxCount = count[retCat.rank];
+                //}
+//            }
         }
         return ret;
     }
