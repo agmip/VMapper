@@ -2032,12 +2032,19 @@
                     }
                 } else {
                     // create primary table index
+                    let headerLength = 0;
                     for (let j in agmipData) {
                         j = Number(j);
+                        if (j == headerRow) {
+                            headerLength = agmipData[j].length;
+                        }
                         if ( j <= headerRow) {
                             continue;
                         }
                         agmipData[j].unshift((j - headerRow + startIdx) + "");
+                        while (agmipData[j].length < headerLength) {
+                            agmipData[j].push("");
+                        }
                     }
                 }
 
