@@ -134,11 +134,11 @@
             <artifactId>translator-generic-csv</artifactId>
             <version>1.3.9</version>
         </dependency>-->
-        <dependency>
+<!--        <dependency>
             <groupId>org.agmip.translators</groupId>
             <artifactId>translator-dssat</artifactId>
             <version>1.2.21</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.agmip.translators</groupId>
             <artifactId>translator-apsim</artifactId>
