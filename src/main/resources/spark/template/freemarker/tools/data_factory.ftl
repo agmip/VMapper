@@ -365,7 +365,7 @@
                             </form>
                         </fieldset>
                         <fieldset class="col-sm-12">
-                            <legend>Tranlation Process Log:</legend>
+                            <legend>Translation Process Log:</legend>
                             <textarea class="form-control" rows="30" id="agmip_log_content_text" style="font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;" readonly></textarea>
                         </fieldset>
                     </div>
