@@ -3432,7 +3432,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-sm-12">
-                                <label class="control-label">Oringal Data URL:</label>
+                                <label class="control-label">Original Data URL:</label>
                                 <div class="input-group col-sm-12">
                                     <input type="url" name="source_url" class="form-control mapping_gengeral_info" value="">
                                 </div>
