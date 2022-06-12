@@ -417,6 +417,9 @@
                         icasa = mapping.code_display;
                     }
                     let order = this.getOrder(icasa);
+                    if (order < 0 && mapping.category) {
+                        order = mapping.category;
+                    }
                     let dataset = this.getDataset(icasa, true);
                     let subset = this.getSubset(icasa, true);
                     let group = this.getGroup(icasa, true);
