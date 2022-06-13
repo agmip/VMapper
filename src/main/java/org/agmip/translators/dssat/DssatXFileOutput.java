@@ -1630,6 +1630,9 @@ public class DssatXFileOutput extends DssatCommonOutput {
     private int setSecDataArr(HashMap m, ArrayList arr) {
 
         if (!m.isEmpty()) {
+            if (m.containsKey("soilLayer") && ((List)m.get("soilLayer")).isEmpty()) {
+                return 0;
+            }
             for (int j = 0; j < arr.size(); j++) {
                 if (arr.get(j).equals(m)) {
                     return j + 1;
