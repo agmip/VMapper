@@ -735,7 +735,7 @@
             }
             let tableCat = icasaVarMap.getCategory(mappings[i]);
             if (tableCat.rank === 3) {
-                isArray = tableCat.order > 2070 && tableCat.order < 2200 || tableCat.order >= 2510 && tableCat.order < 3000;
+                isArray = tableCat.order > 2060 && tableCat.order < 2200 || tableCat.order >= 2510 && tableCat.order < 3000;
             } else if (tableCat.rank === 4) {
                 isArray = tableCat.order < 2500;
             } else if (tableCat.rank === 6) {
