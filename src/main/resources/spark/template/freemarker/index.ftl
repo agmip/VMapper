@@ -34,12 +34,16 @@
                 <br>
                 <div class="row slideanim">
                     <div class="col-sm-4">
-                        <h3>VMapper <a href="#" onClick="window.open('${env_path_web_tools.getVMAPPER()}')"><span class="glyphicon glyphicon-new-window"></span></a></h3>
+                        <h3>VMapper <a href="#" onClick="window.open('${env_path_web_root}${env_path_web_tools.getVMAPPER()}')"><span class="glyphicon glyphicon-new-window"></span></a></h3>
                         <p>Help create your route map between your raw data and ICASA standard</p>
                     </div>
                     <div class="col-sm-4">
-                        <h3>Unit Master <a href="#" onClick="window.open('${env_path_web_tools.getUNIT_MASTER()}')"><span class="glyphicon glyphicon-new-window"></span></a></h3>
+                        <h3>Unit Master <a href="#" onClick="window.open('${env_path_web_root}${env_path_web_tools.getUNIT_MASTER()}')"><span class="glyphicon glyphicon-new-window"></span></a></h3>
                         <p>Help evaluate your unit expression used in your data</p>
+                    </div>
+                    <div class="col-sm-4">
+                        <h3>Data Factory <a href="#" onClick="window.open('${env_path_web_root}${env_path_web_tools.getDATA_FACTORY()}')"><span class="glyphicon glyphicon-new-window"></span></a></h3>
+                        <p>The next-gen translation tool for replacing QuadUI</p>
                     </div>
                 </div>
                 <br>
@@ -47,7 +51,7 @@
                 <br>
                 <div class="row slideanim">
                     <div class="col-sm-4">
-                        <h3>QuadUI <a href="#" onClick="window.open('https://github.com/agmip/quadui/releases')"><span class="glyphicon glyphicon-download-alt"></span></a></h3>
+                        <h3>QuadUI <a href="#" onClick="window.open('https://github.com/mengzhang/quadui/releases')"><span class="glyphicon glyphicon-download-alt"></span></a></h3>
                         <p>Translate your data from ICASA standardized data into ACEB format or a certain model input file format</p>
                     </div>
                     <div class="col-sm-4">
@@ -63,14 +67,14 @@
             <hr>
             <div class="container-fluid text-left">
                 <legend>Browser Support</legend>
-                <p>To smoothly use the online AFSIRS, please check the following table and make sure your browser is supported.</p>
+                <p>To smoothly use the online tools, please check the following table and make sure your browser is supported.</p>
                 <table class="table table-bordered table-striped text-center">
                     <tr>
-                        <th style="width:16%;" title="Chrome" class="text-center"><img src="images/browsers/chrome.gif" alt="Chrome"></th>
-                        <th style="width:16%;" title="Edge" class="text-center"><img src="images/browsers/edge.gif" alt="Edge"></th>
-                        <th style="width:16%;" title="Firefox" class="text-center"><img src="images/browsers/firefox.gif" alt="Firefox"></th>
-                        <th style="width:16%;" title="Safari" class="text-center"><img src="images/browsers/safari.gif" alt="Safari"></th>
-                        <th style="width:16%;" title="Opera" class="text-center"><img src="images/browsers/opera.gif" alt="Opera"></th>                
+                        <th style="width:16%;" title="Chrome" class="text-center"><img src="${env_path_web_root}images/browsers/chrome.gif" alt="Chrome"></th>
+                        <th style="width:16%;" title="Edge" class="text-center"><img src="${env_path_web_root}images/browsers/edge.gif" alt="Edge"></th>
+                        <th style="width:16%;" title="Firefox" class="text-center"><img src="${env_path_web_root}images/browsers/firefox.gif" alt="Firefox"></th>
+                        <th style="width:16%;" title="Safari" class="text-center"><img src="${env_path_web_root}images/browsers/safari.gif" alt="Safari"></th>
+                        <th style="width:16%;" title="Opera" class="text-center"><img src="${env_path_web_root}images/browsers/opera.gif" alt="Opera"></th>                
                     </tr>
                     <tr>
                         <td>Yes</td>

@@ -1,6 +1,5 @@
 package org.agmip.tool.vmapper.util;
 
-import org.agmip.tool.vmapper.util.ICASAUtil;
 import org.junit.Assert;
 import org.junit.Test;
 

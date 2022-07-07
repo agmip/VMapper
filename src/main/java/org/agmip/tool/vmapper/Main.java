@@ -7,8 +7,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import javax.servlet.MultipartConfigElement;
 import org.agmip.tool.vmapper.util.DataUtil;
 import org.agmip.tool.vmapper.util.Path;
+import org.agmip.tool.vmapper.util.TranslationUtil;
 import org.agmip.tool.vmapper.util.rfl.RemoteFileLoader;
 import org.agmip.tool.vmapper.util.UnitUtil;
 import org.eclipse.jetty.server.Server;
@@ -23,6 +25,7 @@ import static spark.Spark.before;
 import static spark.Spark.get;
 import static spark.Spark.options;
 import static spark.Spark.port;
+import static spark.Spark.post;
 import static spark.Spark.staticFiles;
 import static spark.Spark.webSocket;
 import spark.embeddedserver.EmbeddedServers;
@@ -87,7 +90,7 @@ public class Main {
         staticFiles.location("/public");
         staticFiles.expireTime(600L);
         Spark.webSocketIdleTimeoutMillis(60000);
-        webSocket(Path.Web.Data.LOAD_FILE, RemoteFileLoader.class);
+        webSocket("/" + Path.Web.Data.LOAD_FILE, RemoteFileLoader.class);
         options("/*",
         (request, response) -> {
 
@@ -118,11 +121,15 @@ public class Main {
             return new FreeMarkerEngine().render(new ModelAndView(getEnvData(), Path.Template.INDEX));
                 });
         
+        get(Path.Web.INDEX, (Request request, Response response) -> {
+            return new FreeMarkerEngine().render(new ModelAndView(getEnvData(), Path.Template.INDEX));
+                });
+        
         get(Path.Web.Tools.UNIT_MASTER, (Request request, Response response) -> {
             HashMap data = getEnvData();
             data.put("baseUnits", UnitUtil.listBaseUnit());
             data.put("prefixes", UnitUtil.listPrefix());
-            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.UNIT_MASTER));
+            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Tools.UNIT_MASTER));
                 });
         
         get(Path.Web.Data.UNIT_LOOKUP, (Request request, Response response) -> {
@@ -142,9 +149,21 @@ public class Main {
             return UnitUtil.convertUnit(unitFrom, unitTo, valueFrom).toJSONString();
                 });
         
+        post(Path.Web.Data.TRANSLATE, "multipart/form-data", (Request request, Response response) -> {
+            LOG.debug("New post received!");
+            request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(Path.Folder.TASK_DIR));
+            return TranslationUtil.translateData(request).toJSONString();
+                });
+        
         get(Path.Web.Tools.DATA_FACTORY, (Request request, Response response) -> {
-            response.redirect(Path.Web.Tools.VMAPPER);
-            return "Redirect to " + Path.Web.Tools.VMAPPER;
+//            response.redirect("/" + Path.Web.Tools.VMAPPER);
+//            return "Redirect to " + Path.Web.Tools.VMAPPER;
+            HashMap data = getEnvData();
+            data.put("icasaMgnVarMap", DataUtil.getICASAMgnVarMap());
+            data.put("icasaObvVarMap", DataUtil.getICASAObvVarMap());
+            data.put("icasaMgnCodeMap", DataUtil.getICASAMgnCodeMap());
+            data.put("culMetaList", DataUtil.getICASACropCodeMap());
+            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Tools.DATA_FACTORY));
                 });
         
         get(Path.Web.Tools.VMAPPER, (Request request, Response response) -> {
@@ -153,7 +172,7 @@ public class Main {
             data.put("icasaObvVarMap", DataUtil.getICASAObvVarMap());
             data.put("icasaMgnCodeMap", DataUtil.getICASAMgnCodeMap());
             data.put("culMetaList", DataUtil.getICASACropCodeMap());
-            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Demo.DATA_FACTORY));
+            return new FreeMarkerEngine().render(new ModelAndView(data, Path.Template.Tools.VMAPPER));
                 });
 
 //        get("*",                     PageController.serveNotFoundPage, new FreeMarkerEngine());
@@ -176,7 +195,9 @@ public class Main {
     
     private static HashMap getEnvData() {
         HashMap data = new HashMap();
+        data.put("env_path_web_root", Path.Web.URL_ROOT);
         data.put("env_path_web_tools", new Path.Web.Tools());
+        data.put("env_path_web_data", new Path.Web.Data());
         data.put("env_version", DataUtil.getProductVersion());
         return data;
     }

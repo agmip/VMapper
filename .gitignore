@@ -240,3 +240,7 @@ src/main/resources/public/test.html
 src/main/resources/public/test_mxgraph.html
 Data.zip
 /Test/*
+.Rproj.user
+/Task/*
+/src/main/resources/public/demo/
+config.ini
