@@ -1838,8 +1838,98 @@
                 alertBox("Functionality under construction...");
             }
             
-            function saveExpDataFile() {
-                alertBox("Functionality under construction...");
+            function saveExpDataZip() {
+                // check if mappings are completed
+                if (loopSheets(null, function (fileName, sheetName){
+                    let cntUndefined = countUndefinedColumns(getSheetDef(fileName, sheetName));
+                    if (cntUndefined > 0) {
+                        alertBox("There are undefined/error mappings left here...", function () {
+                            $('#sheet_tab_list').find("a").each(function () {
+                                if ($(this).attr('id') === fileName + '__' + sheetName) {
+                                    $(this).click();
+                                    return false;
+                                }
+                             });
+                        });
+                        return 1;
+                    }
+                })) {
+                    return false;
+                }
+                let loadingDialog = bootbox.dialog({
+                    message: '<h4><span class="glyphicon glyphicon-refresh spinning"></span><span class="loading-msg"> Preparing files...</span></h4>',
+//                    centerVertical: true,
+                    closeButton: false
+                });
+                loadingDialog.on("shown.bs.modal", function() {
+                    // check the relationship among tables and determine the data structure
+                    let rootTables = {};
+                    loopTables(
+                        function(fileName){
+                            if (!rootTables[fileName]) {
+                                rootTables[fileName] = {};
+                            }
+                        },
+                        function(fileName, sheetName) {
+                            if (!rootTables[fileName][sheetName]) {
+                                rootTables[fileName][sheetName] = [];
+                            }
+                        },
+                        function(fileName, sheetName, i, tableDef) {
+                            rootTables[fileName][sheetName][i] = true;
+                        }
+                    );
+                    
+                    // loop the root tables to create csv file for each related group of tables
+                    let zip = new JSZip();
+                    let fileMap = {};
+                    let catCnt = {};
+                    for (let fileName in rootTables) {
+                        for (let sheetName in rootTables[fileName]) {
+                            for (let i in rootTables[fileName][sheetName]) {
+                                if (isTableDefExist(fileName, sheetName, i, rootTables) && isTableDefExist(fileName, sheetName, i)) {
+                                    let tableDef = getTableDef(fileName, sheetName, i);
+                                    let tableCat = getTableCategory(tableDef.mappings);
+                                    if (!catCnt[tableCat.order] && catCnt[tableCat.order] !== 0) {
+                                        catCnt[tableCat.order] = 0;
+                                    } else {
+                                        catCnt[tableCat.order]++;
+                                    }
+                                    let csvData = createCsvSheet(fileName, sheetName, i, catCnt[tableCat.order], true);
+                                    let cnt = 1;
+                                    let csvFileName = sheetName;
+                                    if (tableDef.table_name) {
+                                        csvFileName = csvFileName + "_" + tableDef.table_name;
+                                    }
+                                    while (fileMap[csvFileName]) {
+                                        csvFileName = sheetName + "_" + cnt;
+                                        cnt++;
+                                    }
+                                    fileMap[csvFileName] = true;
+                                    zip.file(csvFileName + ".csv", csvData);
+                                }
+                            }
+                        }
+                    }
+                    
+                    csvFileName = "variable_definitions";
+                    while (fileMap[csvFileName]) {
+                        csvFileName = sheetName + "_" + cnt;
+                        cnt++;
+                    }
+                    fileMap[csvFileName] = true;
+                    zip.file(csvFileName + ".csv", createDictionarySheet());
+                    
+                    zip.generateAsync({type:"blob"}).then(function(content) {
+                        loadingDialog.modal('hide');
+                        saveAs(content, sc2FileName + "_data_dump.zip");
+                    });
+                });
+            }
+            
+            function saveDataDicFile() {
+                let blob = new Blob([createDictionarySheet()], {type: "text/plain;charset=utf-8"})
+                saveAs(blob , "variable_definitions.csv");
             }
             
             function saveAcebFile() {
@@ -1922,7 +2012,8 @@
                         for (let sheetName in rootTables[fileName]) {
                             for (let i in rootTables[fileName][sheetName]) {
                                 if (isTableDefExist(fileName, sheetName, i, rootTables) && isTableDefExist(fileName, sheetName, i)) {
-                                    let tableCat = getTableCategory(getTableDef(fileName, sheetName, i).mappings);
+                                    let tableDef = getTableDef(fileName, sheetName, i);
+                                    let tableCat = getTableCategory(tableDef.mappings);
                                     if (!catCnt[tableCat.order] && catCnt[tableCat.order] !== 0) {
                                         catCnt[tableCat.order] = 0;
                                     } else {
@@ -1931,6 +2022,9 @@
                                     let csvData = createCsvSheet(fileName, sheetName, i, catCnt[tableCat.order]);
                                     let cnt = 1;
                                     let csvFileName = sheetName;
+                                    if (tableDef.table_name) {
+                                        csvFileName = csvFileName + "_" + tableDef.table_name;
+                                    }
                                     while (fileMap[csvFileName]) {
                                         csvFileName = sheetName + "_" + cnt;
                                         cnt++;
@@ -1948,14 +2042,43 @@
                 });
             }
             
-            function createCsvSheet(fileName, sheetName, id, startIdx) {
+            function createDictionarySheet() {
                 let wb = XLSX.utils.book_new();
-                let ws = XLSX.utils.aoa_to_sheet(createCsvSheetArr(fileName, sheetName, id, startIdx) );
+                let dictionary = [[ "File", "Sheet", "Table", "Index", "ICASA_Mapped", "ICASA_Header", "Header", "ICASA_Unit", "Unit", "Description"]];
+                loopTables(
+                    null, null, function(fileName, sheetName, i, tableDef) {
+                        for (let i = 0; i < tableDef.mappings.length; i++) {
+                            let mapping = tableDef.mappings[i];
+                            if (!mapping.ignored_flg) {
+                                dictionary.push([
+                                    fileName,
+                                    sheetName,
+                                    tableDef.table_name,
+                                    mapping.column_index,
+                                    icasaVarMap.getDefinition(mapping.icasa),
+                                    mapping.icasa,
+                                    mapping.column_header,
+                                    icasaVarMap.getUnit(mapping.icasa),
+                                    mapping.unit,
+                                    mapping.description
+                                ]);
+                            }
+                        }
+                    }
+                );
+                let ws = XLSX.utils.aoa_to_sheet(dictionary);
+                XLSX.utils.book_append_sheet(wb, ws, "variable_definitions");
+                return XLSX.write(wb, {bookType:"csv", type: 'string'});
+            }
+            
+            function createCsvSheet(fileName, sheetName, id, startIdx, singleCSVFlg) {
+                let wb = XLSX.utils.book_new();
+                let ws = XLSX.utils.aoa_to_sheet(createCsvSheetArr(fileName, sheetName, id, startIdx, singleCSVFlg) );
                 XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
                 return XLSX.write(wb, {bookType:"csv", type: 'string'});
             }
 
-            function createCsvSheetArr(fileName, sheetName, id, startIdx, parentIdxInfo) {
+            function createCsvSheetArr(fileName, sheetName, id, startIdx, singleCSVFlg, parentIdxInfo) {
                 let agmipData = JSON.parse(JSON.stringify(getTableData(fileName, sheetName, id)));
                 let tableDef = getTableDef(fileName, sheetName, id);
                 agmipData = getSheetDataContent(agmipData, tableDef);
@@ -1966,12 +2089,14 @@
                 }
                 
                 let headerRow = agmipData.length;
-                if (tableDef.table_name) {
-                    agmipData.unshift(["!", sheetName + "__" + tableDef.table_name]);
-                } else {
-                    agmipData.unshift(["!", sheetName]);
+                if (!singleCSVFlg) {
+                    if (tableDef.table_name) {
+                        agmipData.unshift(["!", sheetName + "__" + tableDef.table_name]);
+                    } else {
+                        agmipData.unshift(["!", sheetName]);
+                    }
+                    agmipData.unshift(["!", fileName]);
                 }
-                agmipData.unshift(["!", fileName]);
                 headerRow = agmipData.length - headerRow;
                 if (isArrayData(tableDef.mappings)) {
                     agmipData[headerRow].unshift("%");
@@ -2067,7 +2192,11 @@
                             }
                         }
                         if (mapping.ignored_flg || refKeyIdxArr.indexOf(mapping.column_index + "") > -1) {
-                            if (mapping.icasa) {
+                            if (singleCSVFlg) {
+                                for (let j in agmipData) {
+                                    agmipData[j].splice(mapping.column_index, 1);
+                                }
+                            } else if (mapping.icasa) {
                                 agmipData[headerRow][mapping.column_index] = "!" + mapping.icasa;
                             } else if (mapping.column_header) {
                                 agmipData[headerRow][mapping.column_index] = "!" + mapping.column_header;
@@ -2238,72 +2367,73 @@
                                 }
                             }
                         }
-                        let subData = createCsvSheetArr(refDef.file, refDef.sheet, String(refDef.table_index - 1), startIdx, idxInfo);
-                        if (isArrayData(getRefTableDef(refDef).mappings)) {
-                            subDatas.push(subData.primary);
-                            subDatas = subDatas.concat(subData.sub);
-                        } else {
-                            subDatas = subDatas.concat(subData.sub);
-                            // merge with current primary table
-                            let agmipDataCache = [];
-                            let headerLine = [];
-                            for (let i in agmipData) {
-                                let cnt = 1;
-                                if (["!", "@", "$", "#", "%", ""].indexOf(agmipData[i][0]) >= 0) {
-                                    headerLine = JSON.parse(JSON.stringify(agmipData[i]));
-                                    if (agmipData[i][0] === "!") {
-                                        if (subData.primary[i]) {
-                                            agmipDataCache.push(headerLine.concat(subData.primary[i]));
+                        if (!singleCSVFlg) {
+                            let subData = createCsvSheetArr(refDef.file, refDef.sheet, String(refDef.table_index - 1), startIdx, singleCSVFlg, idxInfo);
+                            if (isArrayData(getRefTableDef(refDef).mappings)) {
+                                subDatas.push(subData.primary);
+                                subDatas = subDatas.concat(subData.sub);
+                            } else {
+                                subDatas = subDatas.concat(subData.sub);
+                                // merge with current primary table
+                                let agmipDataCache = [];
+                                let headerLine = [];
+                                for (let i in agmipData) {
+                                    let cnt = 1;
+                                    if (["!", "@", "$", "#", "%", ""].indexOf(agmipData[i][0]) >= 0) {
+                                        headerLine = JSON.parse(JSON.stringify(agmipData[i]));
+                                        if (agmipData[i][0] === "!") {
+                                            if (subData.primary[i]) {
+                                                agmipDataCache.push(headerLine.concat(subData.primary[i]));
+                                            } else {
+                                                agmipDataCache.push(headerLine);
+                                            }
                                         } else {
+                                            for (let j in subData.primary) {
+                                                if (["@", "$", "#", "%"].indexOf(subData.primary[j][0]) >= 0) {
+                                                    let subHeaderLine = JSON.parse(JSON.stringify(subData.primary[j]));
+                                                    subHeaderLine.shift();
+                                                    headerLine = headerLine.concat(subHeaderLine);
+                                                    break;
+                                                }
+                                            }
                                             agmipDataCache.push(headerLine);
                                         }
                                     } else {
+                                        let idx = agmipData[i][0];
+                                        let dataCacheStr = JSON.stringify(agmipData[i]);
                                         for (let j in subData.primary) {
-                                            if (["@", "$", "#", "%"].indexOf(subData.primary[j][0]) >= 0) {
-                                                let subHeaderLine = JSON.parse(JSON.stringify(subData.primary[j]));
-                                                subHeaderLine.shift();
-                                                headerLine = headerLine.concat(subHeaderLine);
-                                                break;
-                                            }
-                                        }
-                                        agmipDataCache.push(headerLine);
-                                    }
-                                } else {
-                                    let idx = agmipData[i][0];
-                                    let dataCacheStr = JSON.stringify(agmipData[i]);
-                                    for (let j in subData.primary) {
-                                        if (subData.primary[j][0] === idx) {
-                                            let dupData = JSON.parse(dataCacheStr);
-                                            dupData = dupData.concat(subData.primary[j].slice(1, subData.primary[j].length));
-                                            if (cnt > 1) {
-                                                let newIdx = idx + "_" + cnt;
-                                                dupData[0] = newIdx;
-                                                for (let x in subDatas) {
-                                                    for (let y in subDatas[x]) {
-                                                        if (subDatas[x][y][0] === idx) {
-                                                            let dupSubData = JSON.parse(JSON.stringify(subDatas[x][y]));
-                                                            dupSubData[0] = newIdx;
-                                                            subDatas[x].push(dupSubData);
+                                            if (subData.primary[j][0] === idx) {
+                                                let dupData = JSON.parse(dataCacheStr);
+                                                dupData = dupData.concat(subData.primary[j].slice(1, subData.primary[j].length));
+                                                if (cnt > 1) {
+                                                    let newIdx = idx + "_" + cnt;
+                                                    dupData[0] = newIdx;
+                                                    for (let x in subDatas) {
+                                                        for (let y in subDatas[x]) {
+                                                            if (subDatas[x][y][0] === idx) {
+                                                                let dupSubData = JSON.parse(JSON.stringify(subDatas[x][y]));
+                                                                dupSubData[0] = newIdx;
+                                                                subDatas[x].push(dupSubData);
+                                                            }
                                                         }
                                                     }
                                                 }
+                                                cnt++;
+                                                agmipDataCache.push(dupData);
                                             }
-                                            cnt++;
+                                        }
+                                        if (cnt === 1) {
+                                            let dupData = JSON.parse(dataCacheStr);
+                                            while (dupData.length < headerLine.length) {
+                                                dupData.push("");
+                                            }
                                             agmipDataCache.push(dupData);
                                         }
                                     }
-                                    if (cnt === 1) {
-                                        let dupData = JSON.parse(dataCacheStr);
-                                        while (dupData.length < headerLine.length) {
-                                            dupData.push("");
-                                        }
-                                        agmipDataCache.push(dupData);
-                                    }
                                 }
+                                agmipData = agmipDataCache;
                             }
-                            agmipData = agmipDataCache;
                         }
-                        
                     }
                 }
                 
@@ -3369,7 +3499,8 @@
                     <ul class="dropdown-menu" role="menu">
                         <li onclick="openExpDataFile(true)" id="openFileMenu"><a href="#"><span class="glyphicon glyphicon-open"></span> Load file</a></li>
                         <li onclick="openExpDataFolderFile()"><a href="#"><span class="glyphicon glyphicon-open"></span> Load folder</a></li>
-                        <li onclick="saveExpDataFile()"><a href="#"><span class="glyphicon glyphicon-save"></span> Save</a></li>
+                        <li onclick="saveExpDataZip()"><a href="#"><span class="glyphicon glyphicon-save"></span> Save Data Package</a></li>
+                        <li onclick="saveDataDicFile()"><a href="#"><span class="glyphicon glyphicon-save"></span> Save Data Dictionary Only</a></li>
                         <li onclick="saveAgMIPZip()"><a href="#"><span class="glyphicon glyphicon-export"></span> To AgMIP Input Package</a></li>
                         <li onclick="saveAcebFile()"><a href="#"><span class="glyphicon glyphicon-export"></span> To Aceb</a></li>
                     </ul>
