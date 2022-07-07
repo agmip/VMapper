@@ -7,6 +7,7 @@
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/handsontable-pro@latest/dist/handsontable.full.min.css">
         <link rel="stylesheet" type="text/css" href="${env_path_web_root}stylesheets/toggle/bootstrap-toggle.min.css" />
         <link rel="stylesheet" type="text/css" href="${env_path_web_root}plugins/jsonViewer/jquery.json-viewer.css" />
+        <link rel="stylesheet" type="text/css" href="${env_path_web_root}plugins/bootstrap-tagsinput/bootstrap-tagsinput.css" />
         <script>
             const preferColors = ["#33DBFF", "#FF5733", "#33FF57", "#BD33FF", "#802B1A", "#3383FF", "#FFAF33", "#3ADDD6"];
             const vmapperVersion = "${env_version!}";
@@ -2075,6 +2076,17 @@
                             }
                         } else if (mapping.icasa) {
                             agmipData[headerRow][mapping.column_index] = mapping.icasa;
+
+                            // Ignore global defined invalid values
+                            let invalidValues = $("[name='invalid_values']").tagsinput('items')
+                            for (let j in agmipData) {
+                                if (j > headerRow) {
+                                    if (agmipData[j][mapping.column_index] != null && invalidValues.includes(agmipData[j][mapping.column_index].toString().trim())) {
+                                        agmipData[j][mapping.column_index] = "";
+                                    }
+                                }
+                            }
+
                             let icasaUnit = icasaVarMap.getUnit(mapping.icasa);
                             if (mapping.unit) {
                                 // Code/unit/value convertion
@@ -2113,23 +2125,23 @@
                                         }
                                     });
                                 }
-                                // Fill missing data if repeated flag is on
-                                if (mapping.formula && mapping.formula.function === "fill_with_previous") {
-                                    let nullVal = mapping.null_val;
-                                    let lastCell = nullVal;
-                                    for (let j in agmipData) {
-                                        if (j > headerRow) {
-                                            if (lastCell === nullVal) {
-                                                lastCell = agmipData[j][mapping.column_index];
-                                            } else if (nullVal && agmipData[j][mapping.column_index] === nullVal || agmipData[j][mapping.column_index] === null || agmipData[j][mapping.column_index].trim() === "") {
-                                                agmipData[j][mapping.column_index] = lastCell;
-                                            } else {
-                                                lastCell = agmipData[j][mapping.column_index];
-                                            }
+                            }
+
+                            // Fill missing data if repeated flag is on
+                            if (mapping.formula && mapping.formula.function === "fill_with_previous") {
+                                let nullVal = mapping.null_val;
+                                let lastCell = nullVal;
+                                for (let j in agmipData) {
+                                    if (j > headerRow) {
+                                        if (lastCell === nullVal) {
+                                            lastCell = agmipData[j][mapping.column_index];
+                                        } else if (nullVal && agmipData[j][mapping.column_index] === nullVal || agmipData[j][mapping.column_index] === null || agmipData[j][mapping.column_index].trim() === "") {
+                                            agmipData[j][mapping.column_index] = lastCell;
+                                        } else {
+                                            lastCell = agmipData[j][mapping.column_index];
                                         }
                                     }
                                 }
-
                             }
                         } else {
                             agmipData[headerRow][mapping.column_index] = mapping.column_header;
@@ -3225,7 +3237,11 @@
                 });
                 
                 $(".mapping_gengeral_info").each(function () {
-                   sc2Obj.mapping_info[$(this).attr("name") ] = $(this).val();
+                   if ($(this).attr("name") === "invalid_values") {
+                       sc2Obj.mapping_info["invalid_values"] = $(this).tagsinput('items');
+                   } else {
+                       sc2Obj.mapping_info[$(this).attr("name")] = $(this).val();
+                   }
                 });
 
                 let tmp2;
@@ -3440,6 +3456,12 @@
                                     <input type="url" name="source_url" class="form-control mapping_gengeral_info" value="">
                                 </div>
                             </div>
+                            <div class="form-group col-sm-12">
+                                <label class="control-label">Global Invalid Values:<span class="glyphicon glyphicon-info-sign btn" data-toggle="tooltip" title="The value is case sensiive and use comma to provide multiple values"></span></label>
+                                <div class="input-group col-sm-12">
+                                    <input type="text" name="invalid_values" class="form-control mapping_gengeral_info" data-role="tagsinput" value="">
+                                </div>
+                            </div>
                             <fieldset class="col-sm-12">
                                 <legend data-toggle="tooltip" title="Used for file name">File URL</legend>
                                 <div id="file_url_inputs"></div>
@@ -3493,6 +3515,7 @@
         <script type="text/javascript" src="${env_path_web_root}plugins/chosen/chosen.jquery.min.js" ></script>
         <script type="text/javascript" src="${env_path_web_root}plugins/chosen/prism.js" charset="utf-8"></script>
         <script type="text/javascript" src="${env_path_web_root}plugins/jsonViewer/jquery.json-viewer.js" charset="utf-8"></script>
+        <script type="text/javascript" src="${env_path_web_root}plugins/bootstrap-tagsinput/bootstrap-tagsinput.min.js" charset="utf-8"></script>
         <script type="text/javascript" src="${env_path_web_root}js/chosen/init.js" charset="utf-8"></script>
         <script type="text/javascript" src="${env_path_web_root}js/dataReader/BufferedFileReader.js"></script>
         <script type="text/javascript" src="${env_path_web_root}js/dataReader/RemoteFileReader.js"></script>

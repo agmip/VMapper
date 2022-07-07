@@ -363,7 +363,15 @@
                 }
                 if (sc2Obj.mapping_info) {
                     for (let key in sc2Obj.mapping_info) {
-                        $("[name='" + key + "']").val(sc2Obj.mapping_info[key]);
+                        if (key === "invalid_values") {
+                            $("[name='" + key + "']").tagsinput('removeAll');
+                            for (let invalidIdx in sc2Obj.mapping_info[key]) {
+                                $("[name='" + key + "']").tagsinput("add", sc2Obj.mapping_info[key][invalidIdx]);
+                            }
+                            $("[name='" + key + "']").tagsinput('refresh');
+                        } else {
+                            $("[name='" + key + "']").val(sc2Obj.mapping_info[key]);
+                        }
                     }
                 }
                 for (let i in sc2Obj.agmip_translation_mappings.files) {
