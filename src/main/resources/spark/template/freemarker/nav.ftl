@@ -24,6 +24,7 @@
                     <ul class="dropdown-menu" role="menu">
                         <li onclick="window.open('https://docs.google.com/document/d/1ezs4uFWI66R-gywdKB56io1YrKVKKTvs-ynFZkebm9k/')"><a href="#"><span class="glyphicon glyphicon-book"></span> User Guide</a></li>
                         <li onclick="window.open('https://docs.google.com/spreadsheets/u/0/d/1MYx1ukUsCAM1pcixbVQSu49NU-LfXg-Dtt-ncLBzGAM/pub?output=html')"><a href="#"><span class="glyphicon glyphicon-book"></span> ICASA Definition</a></li>
+                        <li onclick="window.open('https://docs.google.com/spreadsheets/u/0/d/1MYx1ukUsCAM1pcixbVQSu49NU-LfXg-Dtt-ncLBzGAM/pub?output=xlsx')"><a href="#"><span class="glyphicon glyphicon-download-alt"></span> ICASA Definition (download)</a></li>
                         <li onclick="window.open('https://agmip.github.io/')"><a href="#"><span class="glyphicon glyphicon-book"></span> AgMIP docs</a></li>
                         <li onclick="window.open('https://agmip.github.io/DOME_functions.html')"><a href="#"><span class="glyphicon glyphicon-book"></span> DOME Function List</a></li>
                     </ul>
